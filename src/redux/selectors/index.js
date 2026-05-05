@@ -75,3 +75,7 @@ export const selectIsInWishlist = createSelector(
   (_, productId) => productId,
   (items, productId) => items.some((i) => i.product_id === productId)
 );
+
+// ─── Error ─────────────────────────────────────────────────────────────
+export { selectGlobalError, selectContextErrors, selectIsHandlingError, selectContextError }
+  from '../slices/errorSlice';

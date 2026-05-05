@@ -21,6 +21,12 @@ import cartReducer     from './slices/cartSlice';
 import checkoutReducer from './slices/checkoutSlice';
 import ordersReducer   from './slices/ordersSlice';
 import wishlistReducer from './slices/wishlistSlice';
+import errorReducer    from './slices/errorSlice';
+
+import {
+  errorHandlingMiddleware,
+  errorLoggingMiddleware,
+} from './middleware/errorHandling';
 
 const store = configureStore({
   reducer: {
@@ -31,13 +37,16 @@ const store = configureStore({
     checkout: checkoutReducer,
     orders:   ordersReducer,
     wishlist: wishlistReducer,
+    error:    errorReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: ['persist/PERSIST'],
       },
-    }),
+    })
+    .concat(errorHandlingMiddleware)
+    .concat(errorLoggingMiddleware),
   devTools: process.env.NODE_ENV !== 'production',
 });
 

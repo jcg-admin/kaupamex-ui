@@ -1,0 +1,6 @@
+@use '../../styles/abstracts' as *;
+
+.transition {
+  @include fade-in(200ms);
+  width: 100%;
+}

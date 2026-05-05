@@ -1,0 +1,81 @@
+// ============================================================
+// TABLE -- PracticaYoruba
+// Admin: productos, pedidos, usuarios, reportes
+// ============================================================
+
+@use '../abstracts' as *;
+
+.table-container {
+  overflow-x:    auto;
+  border-radius: $border-radius-lg;
+  border:        $border-width-base solid $border;
+  @include scrollbar-thin;
+}
+
+.table {
+  width:           100%;
+  border-collapse: collapse;
+  font-size:       $font-size-sm;
+  background:      $bg-surface;
+
+  th, td {
+    padding:       $spacing-3 $spacing-4;
+    text-align:    left;
+    border-bottom: $border-width-base solid $border;
+    vertical-align: middle;
+  }
+
+  thead th {
+    background:  $bg-card;
+    font-weight: $font-weight-semibold;
+    font-size:   $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color:       $text-secondary;
+    white-space: nowrap;
+
+    &--sortable {
+      cursor:       pointer;
+      @include no-select;
+      transition:   color $transition-fast;
+
+      &:hover { color: $text-primary; }
+    }
+  }
+
+  tbody tr {
+    transition: background-color $transition-fast;
+
+    &:hover { background-color: $bg-card; }
+    &:last-child td { border-bottom: none; }
+  }
+
+  td {
+    color: $text-secondary;
+
+    &--primary { color: $text-primary; font-weight: $font-weight-medium; }
+    &--muted   { color: $text-muted; font-size: $font-size-xs; }
+    &--actions { text-align: right; white-space: nowrap; }
+  }
+}
+
+// Responsive: primera columna sticky en mobile
+@include media-down-md {
+  .table thead { display: none; }
+  .table, .table tbody, .table tr, .table td { display: block; }
+  .table tr {
+    padding: $spacing-3;
+    border-bottom: $border-width-base solid $border;
+  }
+  .table td {
+    border-bottom: none;
+    display: flex;
+    justify-content: space-between;
+    &::before {
+      content:     attr(data-label);
+      font-weight: $font-weight-medium;
+      color:       $text-muted;
+      font-size:   $font-size-xs;
+    }
+  }
+}

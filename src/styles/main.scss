@@ -1,13 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════════
 // MAIN SCSS — PracticaYoruba E-commerce
 // ═══════════════════════════════════════════════════════════════════════
-// Orden de importación:
-//   1. Abstracts (variables, mixins) — no generan CSS
-//   2. Base (reset, tipografía) — estilos globales
-//   3. Layouts (header, sidebar) — estructura
-//   4. Components (buttons, forms, cards...) — componentes UI
-//   5. Utils (utilidades, helpers) — clases utilitarias
-// ═══════════════════════════════════════════════════════════════════════
 
 // 1. Abstracts
 @use 'abstracts/variables' as *;
@@ -16,6 +9,7 @@
 // 2. Base
 @use 'base/reset';
 @use 'base/typography';
+@use 'base/animations';
 
 // 3. Layouts
 @use 'layouts/header';
@@ -27,6 +21,16 @@
 @use 'components/cards';
 @use 'components/badges';
 @use 'components/toast';
+@use 'components/modal';
+@use 'components/table';
+@use 'components/tabs';
+@use 'components/progress-bar';
+@use 'components/avatar';
+@use 'components/form-stepper';
+@use 'components/animations';
 
-// 5. Utilities
+// 5. Accessibility
+@use 'accessibility/index';
+
+// 6. Utilities
 @use 'utils/utilities';

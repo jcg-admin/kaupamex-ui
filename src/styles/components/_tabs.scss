@@ -1,0 +1,47 @@
+// ============================================================
+// TABS -- PracticaYoruba
+// Ficha de producto: descripcion / especificaciones / resenas
+// ============================================================
+
+@use '../abstracts' as *;
+
+.tabs {
+  border-bottom: $border-width-base solid $border;
+  display:       flex;
+  gap:           $spacing-1;
+  margin-bottom: $spacing-6;
+  overflow-x:    auto;
+  @include scrollbar-thin;
+}
+
+.tab-btn {
+  background:    transparent;
+  border:        none;
+  border-bottom: 2px solid transparent;
+  color:         $text-secondary;
+  cursor:        pointer;
+  font-family:   $font-family-base;
+  font-size:     $font-size-sm;
+  font-weight:   $font-weight-medium;
+  padding:       $spacing-3 $spacing-4;
+  transition:    $transition-colors;
+  white-space:   nowrap;
+  margin-bottom: -1px;
+
+  &:hover { color: $text-primary; }
+
+  &--active {
+    border-bottom-color: $primary;
+    color:               $primary;
+    font-weight:         $font-weight-semibold;
+  }
+}
+
+.tab-panel {
+  display: none;
+
+  &--active {
+    display: block;
+    @include fade-in(200ms);
+  }
+}

@@ -1,0 +1,85 @@
+// ============================================================
+// FOCUS INDICATORS -- PracticaYoruba
+// WCAG AA: indicadores de foco visibles en todos los elementos
+// interactivos del e-commerce (botones, links, inputs, cards)
+// ============================================================
+
+@use '../abstracts' as *;
+
+$focus-color:   $primary;      // #D4972C -- oro cobre
+$focus-width:   2px;
+$focus-offset:  3px;
+$focus-shadow:  0 0 0 4px rgba($primary, 0.20);
+
+// Base global -- todos los elementos interactivos
+button, a, input, select, textarea,
+[role="button"], [role="menuitem"],
+[role="tab"], [role="link"],
+[role="checkbox"], [role="radio"],
+[tabindex]:not([tabindex="-1"]) {
+  outline: none;
+
+  &:focus-visible {
+    outline:        $focus-width solid $focus-color;
+    outline-offset: $focus-offset;
+    border-radius:  $border-radius-sm;
+  }
+}
+
+// Botones -- box-shadow adicional para mayor visibilidad
+.btn:focus-visible {
+  outline:    $focus-width solid $focus-color;
+  box-shadow: $focus-shadow;
+}
+
+// Links de navegacion
+.header__nav a:focus-visible,
+.sidebar__item:focus-visible,
+.nav-link:focus-visible {
+  outline:          $focus-width solid $focus-color;
+  outline-offset:   $focus-offset;
+  background-color: $primary-tint;
+  border-radius:    $border-radius-md;
+}
+
+// Cards de producto -- enfoque especial para accesibilidad de catalogo
+.product-card:focus-visible {
+  outline:    $focus-width solid $focus-color;
+  box-shadow: 0 0 0 4px rgba($primary, 0.15), $shadow-md;
+}
+
+// Inputs -- el borde ya cambia a $primary en focus,
+// pero ademas se añade glow para usuarios de teclado
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline:      none;
+  border-color: $focus-color;
+  box-shadow:   $input-focus-shadow;
+}
+
+// Icono de wishlist (corazon) y acciones de producto
+.product-card__wishlist:focus-visible {
+  outline:       $focus-width solid $focus-color;
+  border-radius: $border-radius-full;
+}
+
+// Skip-link -- accesibilidad de teclado (saltar al contenido)
+.skip-link {
+  position:  absolute;
+  top:       -100%;
+  left:      $spacing-4;
+  z-index:   $z-toast;
+  padding:   $spacing-2 $spacing-4;
+  background: $primary;
+  color:     $text-on-btn;
+  border-radius: $border-radius-md;
+  font-weight: $font-weight-semibold;
+  font-size:   $font-size-sm;
+  text-decoration: none;
+  transition:  top $transition-fast;
+
+  &:focus {
+    top: $spacing-4;
+  }
+}

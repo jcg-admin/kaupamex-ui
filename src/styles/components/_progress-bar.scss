@@ -1,0 +1,92 @@
+// ============================================================
+// PROGRESS BAR -- PracticaYoruba
+// Checkout steps, carga de imagenes, stock bajo
+// ============================================================
+
+@use '../abstracts' as *;
+
+// Barra de progreso generica
+.progress {
+  background:    $border;
+  border-radius: $border-radius-full;
+  height:        6px;
+  overflow:      hidden;
+  width:         100%;
+
+  &__fill {
+    background:    $primary;
+    border-radius: $border-radius-full;
+    height:        100%;
+    transition:    width $transition-slow;
+
+    &--success { background: $success; }
+    &--warning { background: $warning; }
+    &--error   { background: $error; }
+  }
+
+  &--thick { height: 10px; }
+  &--thin  { height: 3px; }
+}
+
+// Steps del checkout (4 pasos)
+.checkout-steps {
+  @include flex-between;
+  position:  relative;
+  margin-bottom: $spacing-8;
+
+  &::before {
+    content:    '';
+    position:   absolute;
+    top:        18px;
+    left:       5%;
+    width:      90%;
+    height:     2px;
+    background: $border;
+    z-index:    0;
+  }
+}
+
+.checkout-step {
+  @include flex-column-center;
+  gap:      $spacing-2;
+  z-index:  1;
+  flex:     1;
+
+  &__circle {
+    @include flex-center;
+    width:         36px;
+    height:        36px;
+    border-radius: $border-radius-full;
+    background:    $bg-card;
+    border:        2px solid $border;
+    font-size:     $font-size-sm;
+    font-weight:   $font-weight-bold;
+    color:         $text-muted;
+    transition:    $transition-default;
+  }
+
+  &__label {
+    font-size:  $font-size-xs;
+    color:      $text-muted;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  &--active {
+    .checkout-step__circle {
+      background:   $primary;
+      border-color: $primary;
+      color:        $text-on-btn;
+    }
+    .checkout-step__label { color: $primary; font-weight: $font-weight-semibold; }
+  }
+
+  &--done {
+    .checkout-step__circle {
+      background:   $success;
+      border-color: $success;
+      color:        $text-on-btn;
+    }
+    .checkout-step__label { color: $success; }
+  }
+}

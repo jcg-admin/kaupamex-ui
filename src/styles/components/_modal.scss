@@ -1,0 +1,80 @@
+// ============================================================
+// MODAL -- PracticaYoruba
+// Usado en: auth (login/registro), confirmaciones, variantes
+// ============================================================
+
+@use '../abstracts' as *;
+
+.modal-overlay {
+  position:         fixed;
+  inset:            0;
+  background-color: $bg-overlay;
+  @include flex-center;
+  z-index:          $z-modal-backdrop;
+  @include fade-in(200ms);
+}
+
+.modal {
+  background-color: $bg-card;
+  border:           $border-width-base solid $border;
+  border-radius:    $border-radius-xl;
+  box-shadow:       $shadow-modal;
+  @include flex-column;
+  max-height:       90vh;
+  width:            90vw;
+  @include scale-in(220ms);
+
+  &--sm  { max-width: 420px; }
+  &--md  { max-width: 600px; }
+  &--lg  { max-width: 800px; }
+  &--full { max-width: 96vw; max-height: 96vh; }
+
+  @include media-down-md { width: 96vw; max-height: 96vh; }
+}
+
+.modal__header {
+  @include flex-between;
+  padding:       $spacing-5 $spacing-6;
+  border-bottom: $border-width-base solid $border;
+  flex-shrink:   0;
+}
+
+.modal__title {
+  font-size:   $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color:       $text-primary;
+  margin:      0;
+}
+
+.modal__close {
+  @include flex-center;
+  width:            36px;
+  height:           36px;
+  border-radius:    $border-radius-full;
+  background:       transparent;
+  border:           none;
+  color:            $text-muted;
+  font-size:        $font-size-xl;
+  cursor:           pointer;
+  transition:       $transition-colors;
+  flex-shrink:      0;
+
+  &:hover { background: $border; color: $text-primary; }
+}
+
+.modal__body {
+  padding:    $spacing-6;
+  overflow-y: auto;
+  flex:       1;
+  @include scrollbar-thin;
+}
+
+.modal__footer {
+  @include flex-between;
+  gap:         $spacing-3;
+  padding:     $spacing-4 $spacing-6;
+  border-top:  $border-width-base solid $border;
+  flex-shrink: 0;
+
+  &--end { justify-content: flex-end; }
+}

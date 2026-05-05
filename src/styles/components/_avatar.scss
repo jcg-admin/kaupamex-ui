@@ -1,0 +1,34 @@
+// ============================================================
+// AVATAR -- PracticaYoruba
+// Header: usuario autenticado / Admin panel sidebar
+// ============================================================
+
+@use '../abstracts' as *;
+
+.avatar {
+  border-radius: $border-radius-full;
+  overflow:      hidden;
+  flex-shrink:   0;
+  @include flex-center;
+  @include no-select;
+
+  // Tamanios
+  &--xs  { width: 24px;  height: 24px;  font-size: $font-size-xs; }
+  &--sm  { width: 32px;  height: 32px;  font-size: $font-size-sm; }
+  &--md  { width: 40px;  height: 40px;  font-size: $font-size-base; }
+  &--lg  { width: 56px;  height: 56px;  font-size: $font-size-xl; }
+  &--xl  { width: 80px;  height: 80px;  font-size: $font-size-3xl; }
+
+  img {
+    width:      100%;
+    height:     100%;
+    object-fit: cover;
+  }
+
+  // Iniciales (fallback sin imagen)
+  &--initials {
+    background:  $primary;
+    color:       $text-on-btn;
+    font-weight: $font-weight-bold;
+  }
+}

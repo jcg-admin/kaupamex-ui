@@ -1,0 +1,74 @@
+// ============================================================
+// FORM STEPPER -- PracticaYoruba
+// Multi-step forms: checkout, registro en pasos
+// Ver: CheckoutPage.jsx, .checkout-steps en _progress-bar.scss
+// ============================================================
+
+@use '../abstracts' as *;
+
+.stepper {
+  width: 100%;
+}
+
+.stepper__content {
+  @include fade-in(200ms);
+}
+
+.stepper__nav {
+  @include flex-between;
+  gap:        $spacing-3;
+  margin-top: $spacing-6;
+  padding-top: $spacing-5;
+  border-top:  $border-width-base solid $border;
+}
+
+// Indicador lateral para forms largos
+.stepper-sidebar {
+  @include flex-column;
+  gap: $spacing-2;
+
+  &__item {
+    @include flex-start;
+    gap:           $spacing-3;
+    padding:       $spacing-2 $spacing-3;
+    border-radius: $border-radius-md;
+    transition:    $transition-colors;
+
+    &--active {
+      background:  $primary-tint;
+    }
+  }
+
+  &__number {
+    @include flex-center;
+    width:         24px;
+    height:        24px;
+    border-radius: $border-radius-full;
+    background:    $border;
+    color:         $text-muted;
+    font-size:     $font-size-xs;
+    font-weight:   $font-weight-bold;
+    flex-shrink:   0;
+    transition:    $transition-default;
+
+    .stepper-sidebar__item--active & {
+      background: $primary;
+      color:      $text-on-btn;
+    }
+
+    .stepper-sidebar__item--done & {
+      background: $success;
+      color:      $text-on-btn;
+    }
+  }
+
+  &__label {
+    font-size:  $font-size-sm;
+    color:      $text-muted;
+    font-weight: $font-weight-medium;
+
+    .stepper-sidebar__item--active & {
+      color: $primary;
+    }
+  }
+}
