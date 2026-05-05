@@ -1,7 +1,7 @@
 /**
  * Error Handling Middleware — PracticaYoruba
  *
- * Intercepta automáticamente TODAS las acciones */rejected del store.
+ * Intercepta automáticamente TODAS las acciones rejected del store.
  * Esto significa que cualquier createAsyncThunk que falle (en auth, cart,
  * catalog, checkout, etc.) pasa por aquí sin necesidad de manejo manual
  * en cada componente.

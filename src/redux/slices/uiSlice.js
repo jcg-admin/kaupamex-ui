@@ -54,3 +54,6 @@ export const {
 } = uiSlice.actions;
 
 export default uiSlice.reducer;
+
+// Selectors
+export const selectIsSidebarOpen = (state) => state.ui.isSidebarOpen;

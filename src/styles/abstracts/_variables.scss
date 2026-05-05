@@ -303,3 +303,15 @@ $badge-font-weight:   $font-weight-semibold;
 // ═══════════════════════════════════════════════════════════════════════
 // Fin variables — PracticaYoruba
 // ═══════════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────────
+// ALIASES — compatibilidad con nombres alternativos usados en componentes
+// ─────────────────────────────────────────────────────────────────────
+$bg-card:        $card-bg;          // _modal.scss, _table.scss, _progress-bar.scss
+$primary-tint:   $primary-50;       // _form-stepper.scss, _focus-indicators.scss
+$text-on-btn:    $text-inverse;     // _avatar.scss, _form-stepper.scss, _progress-bar.scss
+$success:        $success-color;    // _progress-bar.scss, _form-stepper.scss
+$warning:        $warning-color;    // _progress-bar.scss
+$error:          $error-color;      // _progress-bar.scss
+$border:         $border-color;    // _modal.scss, _table.scss, _tabs.scss, _progress-bar.scss, _animations.scss
+$primary:        $primary-color;    // _tabs.scss, _animations.scss, AnimatedLoadingSpinner

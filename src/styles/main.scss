@@ -27,7 +27,7 @@
 @use 'components/progress-bar';
 @use 'components/avatar';
 @use 'components/form-stepper';
-@use 'components/animations';
+@use 'components/animations' as component-animations;
 
 // 5. Accessibility
 @use 'accessibility/index';
