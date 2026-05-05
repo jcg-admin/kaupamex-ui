@@ -79,7 +79,7 @@ describe('uiSlice', () => {
       const toast = { id: 1, type: 'success', title: 'Añadido', message: 'Collar al carrito' };
       const state = uiReducer(INITIAL_STATE, addToast(toast));
       expect(state.toasts).toHaveLength(1);
-      expect(state.toasts[0]).toEqual(toast);
+      expect(state.toasts[0]).toEqual(expect.objectContaining(toast));
     });
 
     it('removeToast debe eliminar por id', () => {

@@ -3,7 +3,7 @@
  *
  * Manejo centralizado de errores de la aplicación.
  * Usado por errorHandlingMiddleware para capturar automáticamente
- * cualquier acción */rejected del store.
+ * cualquier acción rejected del store.
  *
  * Estructura:
  *   globalError   — error visible al usuario (banner/toast global)
