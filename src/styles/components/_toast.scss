@@ -1,0 +1,68 @@
+// ═══════════════════════════════════════════════════════════════════════
+// TOAST — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+.toast-container {
+  position: fixed;
+  bottom: $spacing-6;
+  right: $spacing-6;
+  z-index: $z-toast;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  max-width: 360px;
+  width: calc(100% - #{$spacing-6 * 2});
+
+  @include media-md {
+    width: 360px;
+  }
+}
+
+.toast {
+  @include flex-between;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: $bg-surface;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-lg;
+  border-left: 4px solid $border-color;
+  @include slide-up(300ms);
+
+  &--success { border-left-color: $success-color; }
+  &--error   { border-left-color: $error-color; }
+  &--warning { border-left-color: $warning-color; }
+  &--info    { border-left-color: $info-color; }
+
+  &__icon {
+    flex-shrink: 0;
+    font-size: $font-size-xl;
+  }
+
+  &__body {
+    flex: 1;
+  }
+
+  &__title {
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+    color: $text-primary;
+    margin-bottom: 2px;
+  }
+
+  &__message {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    line-height: $line-height-snug;
+  }
+
+  &__close {
+    flex-shrink: 0;
+    color: $text-muted;
+    transition: color $transition-fast;
+    cursor: pointer;
+
+    &:hover { color: $text-primary; }
+  }
+}

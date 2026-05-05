@@ -1,0 +1,141 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FORMS — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+.form-group {
+  margin-bottom: $spacing-4;
+}
+
+.form-label {
+  @include label-base;
+}
+
+.form-control {
+  @include input-base;
+
+  &--textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  &--select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%235C4A3A'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right $spacing-3 center;
+    background-size: 16px;
+    padding-right: $spacing-8;
+  }
+}
+
+.form-hint {
+  margin-top: $spacing-1;
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+
+.form-error {
+  margin-top: $spacing-1;
+  font-size: $font-size-sm;
+  color: $error-color;
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+}
+
+// Input con ícono
+.input-group {
+  position: relative;
+
+  &__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $text-muted;
+    pointer-events: none;
+
+    &--left  { left: $spacing-3; }
+    &--right { right: $spacing-3; }
+  }
+
+  .form-control {
+    &--icon-left  { padding-left: $spacing-8; }
+    &--icon-right { padding-right: $spacing-8; }
+  }
+}
+
+// Checkbox y Radio
+.form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-2;
+  cursor: pointer;
+
+  &__input {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: $border-width-thick solid $border-color;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    margin-top: 2px;
+    accent-color: $primary-color;
+  }
+
+  &__label {
+    font-size: $font-size-base;
+    color: $text-primary;
+    cursor: pointer;
+    line-height: $line-height-normal;
+  }
+}
+
+// Fieldset
+.form-fieldset {
+  border: $border-width-base solid $border-color;
+  border-radius: $border-radius-md;
+  padding: $spacing-4;
+
+  legend {
+    padding: 0 $spacing-2;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $text-secondary;
+  }
+}
+
+// Quantity control (e-commerce específico)
+.qty-control {
+  @include flex-center;
+  gap: 0;
+  border: $border-width-base solid $border-color;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  width: fit-content;
+
+  &__btn {
+    @include btn-base;
+    border-radius: 0;
+    padding: $spacing-2 $spacing-3;
+    background: $bg-sunken;
+    color: $text-primary;
+    border: none;
+    font-size: $font-size-lg;
+    line-height: 1;
+    min-width: 36px;
+
+    &:hover:not(:disabled) {
+      background: $border-color;
+    }
+  }
+
+  &__value {
+    padding: $spacing-2 $spacing-3;
+    font-weight: $font-weight-semibold;
+    min-width: 48px;
+    text-align: center;
+    border-left: $border-width-base solid $border-color;
+    border-right: $border-width-base solid $border-color;
+  }
+}

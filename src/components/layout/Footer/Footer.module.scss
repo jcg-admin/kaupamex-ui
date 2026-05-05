@@ -1,0 +1,92 @@
+@use '../../../styles/abstracts' as *;
+
+.footer {
+  background-color: $secondary-dark;
+  color: rgba($text-inverse, 0.8);
+  margin-top: auto;
+}
+
+.inner {
+  display: flex;
+  gap: $spacing-8;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-12 $content-padding-desktop;
+
+  @include media-down-lg {
+    flex-direction: column;
+    gap: $spacing-6;
+    padding: $spacing-8 $content-padding-tablet;
+  }
+
+  @include media-down-md {
+    padding: $spacing-6 $content-padding-mobile;
+  }
+}
+
+.brand { flex-shrink: 0; }
+
+.brandName {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $primary-light;
+  display: block;
+  margin-bottom: $spacing-2;
+}
+
+.tagline {
+  font-size: $font-size-sm;
+  color: rgba($text-inverse, 0.5);
+  max-width: 200px;
+  line-height: $line-height-relaxed;
+}
+
+.nav {
+  display: flex;
+  gap: $spacing-8;
+  flex: 1;
+  justify-content: flex-end;
+
+  @include media-down-md {
+    flex-wrap: wrap;
+    gap: $spacing-6;
+    justify-content: flex-start;
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  min-width: 120px;
+
+  a {
+    font-size: $font-size-sm;
+    color: rgba($text-inverse, 0.6);
+    text-decoration: none;
+    transition: color $transition-fast;
+
+    &:hover { color: $primary-light; }
+  }
+}
+
+.colTitle {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba($text-inverse, 0.4);
+  margin-bottom: $spacing-1;
+}
+
+.bottom {
+  border-top: 1px solid rgba($text-inverse, 0.08);
+  padding: $spacing-4 $content-padding-desktop;
+  text-align: center;
+
+  p {
+    font-size: $font-size-xs;
+    color: rgba($text-inverse, 0.35);
+  }
+}

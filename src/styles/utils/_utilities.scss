@@ -1,0 +1,132 @@
+// ═══════════════════════════════════════════════════════════════════════
+// UTILITIES — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+// Display
+.d-none      { display: none; }
+.d-block     { display: block; }
+.d-flex      { display: flex; }
+.d-grid      { display: grid; }
+.d-inline    { display: inline; }
+.d-inline-flex { display: inline-flex; }
+
+// Flex helpers
+.flex-center   { @include flex-center; }
+.flex-between  { @include flex-between; }
+.flex-column   { @include flex-column; }
+.flex-wrap     { flex-wrap: wrap; }
+.flex-1        { flex: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+// Spacing — margin
+@each $size, $val in (
+  '0': 0,
+  '1': $spacing-1,
+  '2': $spacing-2,
+  '3': $spacing-3,
+  '4': $spacing-4,
+  '6': $spacing-6,
+  '8': $spacing-8,
+) {
+  .m-#{$size}  { margin: $val; }
+  .mt-#{$size} { margin-top: $val; }
+  .mb-#{$size} { margin-bottom: $val; }
+  .ml-#{$size} { margin-left: $val; }
+  .mr-#{$size} { margin-right: $val; }
+  .mx-#{$size} { margin-left: $val; margin-right: $val; }
+  .my-#{$size} { margin-top: $val; margin-bottom: $val; }
+  .p-#{$size}  { padding: $val; }
+  .pt-#{$size} { padding-top: $val; }
+  .pb-#{$size} { padding-bottom: $val; }
+  .px-#{$size} { padding-left: $val; padding-right: $val; }
+  .py-#{$size} { padding-top: $val; padding-bottom: $val; }
+}
+
+.m-auto  { margin: auto; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+
+// Width / Height
+.w-full  { width: 100%; }
+.h-full  { height: 100%; }
+.min-h-screen { min-height: 100vh; }
+.max-w-content { max-width: $content-max-width; }
+
+// Position
+.relative { position: relative; }
+.absolute  { position: absolute; }
+.fixed     { position: fixed; }
+.sticky    { position: sticky; }
+.inset-0   { inset: 0; }
+
+// Overflow
+.overflow-hidden { overflow: hidden; }
+.overflow-auto   { overflow: auto; }
+.overflow-x-auto { overflow-x: auto; }
+
+// Cursor
+.cursor-pointer { cursor: pointer; }
+.cursor-default { cursor: default; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+// Borders
+.rounded    { border-radius: $border-radius-md; }
+.rounded-sm { border-radius: $border-radius-sm; }
+.rounded-lg { border-radius: $border-radius-lg; }
+.rounded-full { border-radius: $border-radius-full; }
+
+// Shadow
+.shadow    { box-shadow: $shadow-sm; }
+.shadow-md { box-shadow: $shadow-md; }
+.shadow-lg { box-shadow: $shadow-lg; }
+
+// Colors (background)
+.bg-page    { background-color: $bg-page; }
+.bg-surface { background-color: $bg-surface; }
+.bg-primary { background-color: $primary-color; }
+.bg-secondary { background-color: $secondary-color; }
+
+// Visually hidden (accesibilidad)
+.sr-only { @include visually-hidden; }
+
+// No select
+.no-select { @include no-select; }
+
+// Divider
+.divider {
+  height: 1px;
+  background-color: $border-color;
+  margin: $spacing-4 0;
+}
+
+// Container principal
+.container {
+  width: 100%;
+  max-width: $content-max-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: $content-padding-mobile;
+  padding-right: $content-padding-mobile;
+
+  @include media-md {
+    padding-left: $content-padding-tablet;
+    padding-right: $content-padding-tablet;
+  }
+
+  @include media-lg {
+    padding-left: $content-padding-desktop;
+    padding-right: $content-padding-desktop;
+  }
+}
+
+// Skeleton loader
+.skeleton {
+  @include skeleton-pulse;
+  border-radius: $border-radius-md;
+
+  &--text  { height: $font-size-base; }
+  &--title { height: $font-size-2xl; }
+  &--img   { aspect-ratio: 4 / 3; }
+  &--btn   { height: 40px; width: 120px; }
+}

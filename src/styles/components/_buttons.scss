@@ -1,0 +1,97 @@
+// ═══════════════════════════════════════════════════════════════════════
+// BUTTONS — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+.btn {
+  @include btn-base;
+
+  // Variantes
+  &--primary {
+    @include btn-variant($primary-color);
+  }
+
+  &--secondary {
+    @include btn-variant($secondary-color);
+  }
+
+  &--accent {
+    @include btn-variant($accent-color);
+  }
+
+  &--success {
+    @include btn-variant($success-color);
+  }
+
+  &--danger {
+    @include btn-variant($error-color);
+  }
+
+  &--outline {
+    @include btn-outline($primary-color);
+    border-color: $primary-color;
+  }
+
+  &--outline-secondary {
+    @include btn-outline($secondary-color);
+    border-color: $secondary-color;
+  }
+
+  &--ghost {
+    @include btn-outline($text-secondary);
+    border-color: transparent;
+  }
+
+  &--text {
+    background: transparent;
+    color: $primary-color;
+    padding-left: 0;
+    padding-right: 0;
+    border-color: transparent;
+
+    &:hover:not(:disabled) {
+      color: $primary-dark;
+      background: transparent;
+    }
+  }
+
+  // Tamaños
+  &--sm  { @include btn-sm; }
+  &--lg  { @include btn-lg; }
+  &--full { width: 100%; }
+
+  // Estado de carga
+  &--loading {
+    position: relative;
+    pointer-events: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: $spacing-3;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: btnSpinner 0.6s linear infinite;
+    }
+
+    @keyframes btnSpinner {
+      to { transform: rotate(360deg); }
+    }
+  }
+
+  // Botón de icono (cuadrado)
+  &--icon {
+    padding: $spacing-2;
+    aspect-ratio: 1;
+  }
+}
+
+// Grupo de botones
+.btn-group {
+  display: inline-flex;
+  gap: $spacing-2;
+}

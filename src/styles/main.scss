@@ -1,0 +1,32 @@
+// ═══════════════════════════════════════════════════════════════════════
+// MAIN SCSS — PracticaYoruba E-commerce
+// ═══════════════════════════════════════════════════════════════════════
+// Orden de importación:
+//   1. Abstracts (variables, mixins) — no generan CSS
+//   2. Base (reset, tipografía) — estilos globales
+//   3. Layouts (header, sidebar) — estructura
+//   4. Components (buttons, forms, cards...) — componentes UI
+//   5. Utils (utilidades, helpers) — clases utilitarias
+// ═══════════════════════════════════════════════════════════════════════
+
+// 1. Abstracts
+@use 'abstracts/variables' as *;
+@use 'abstracts/mixins' as *;
+
+// 2. Base
+@use 'base/reset';
+@use 'base/typography';
+
+// 3. Layouts
+@use 'layouts/header';
+@use 'layouts/sidebar';
+
+// 4. Components
+@use 'components/buttons';
+@use 'components/forms';
+@use 'components/cards';
+@use 'components/badges';
+@use 'components/toast';
+
+// 5. Utilities
+@use 'utils/utilities';

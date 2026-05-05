@@ -1,0 +1,182 @@
+// ═══════════════════════════════════════════════════════════════════════
+// CARDS — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+// Card genérica
+.card {
+  @include card-padded;
+
+  &--hoverable {
+    @include card-hover;
+  }
+
+  &--flat {
+    box-shadow: none;
+  }
+}
+
+// Product Card — el componente más importante del e-commerce
+.product-card {
+  @include card-base;
+  @include card-hover;
+  cursor: pointer;
+  position: relative;
+
+  &__image-wrapper {
+    position: relative;
+    aspect-ratio: $product-card-img-ratio;
+    overflow: hidden;
+    background-color: $bg-sunken;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform $transition-slow;
+
+    .product-card:hover & {
+      transform: scale(1.04);
+    }
+  }
+
+  &__image-placeholder {
+    @include flex-center;
+    @include absolute-fill;
+    color: $text-muted;
+    font-size: $font-size-3xl;
+  }
+
+  &__badge {
+    position: absolute;
+    top: $spacing-2;
+    left: $spacing-2;
+    z-index: 1;
+  }
+
+  &__wishlist {
+    position: absolute;
+    top: $spacing-2;
+    right: $spacing-2;
+    z-index: 1;
+    background: rgba($bg-surface, 0.9);
+    border-radius: $border-radius-full;
+    padding: $spacing-1;
+    color: $text-muted;
+    transition: $transition-colors;
+
+    &:hover,
+    &--active {
+      color: $accent-color;
+    }
+  }
+
+  &__body {
+    padding: $spacing-3 $spacing-4 $spacing-4;
+  }
+
+  &__category {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $text-muted;
+    margin-bottom: $spacing-1;
+  }
+
+  &__name {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    line-height: $line-height-snug;
+    @include text-clamp(2);
+    margin-bottom: $spacing-2;
+  }
+
+  &__price-row {
+    @include flex-between;
+    align-items: flex-end;
+    margin-bottom: $spacing-3;
+  }
+
+  &__price {
+    @include price-display($font-size-xl);
+  }
+
+  &__price-original {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    text-decoration: line-through;
+    margin-bottom: 2px;
+  }
+
+  &__discount {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    color: $bg-surface;
+    background-color: $accent-color;
+    padding: 2px $spacing-2;
+    border-radius: $border-radius-sm;
+  }
+
+  &__add-btn {
+    width: 100%;
+  }
+
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: $spacing-1;
+    font-size: $font-size-sm;
+    color: $warning-color;
+    margin-bottom: $spacing-2;
+
+    span {
+      color: $text-muted;
+    }
+  }
+
+  // Estado: sin stock
+  &--out-of-stock {
+    .product-card__image-wrapper::after {
+      content: 'Sin stock';
+      @include absolute-fill;
+      @include flex-center;
+      background: rgba($bg-surface, 0.85);
+      color: $error-color;
+      font-weight: $font-weight-semibold;
+      font-size: $font-size-sm;
+    }
+  }
+}
+
+// Summary Card (checkout, resumen de orden)
+.summary-card {
+  @include card-padded;
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-4;
+    padding-bottom: $spacing-3;
+    border-bottom: $border-width-base solid $border-color;
+  }
+
+  &__row {
+    @include flex-between;
+    padding: $spacing-2 0;
+    font-size: $font-size-base;
+    color: $text-secondary;
+
+    &--total {
+      font-size: $font-size-lg;
+      font-weight: $font-weight-bold;
+      color: $text-primary;
+      border-top: $border-width-base solid $border-color;
+      margin-top: $spacing-2;
+      padding-top: $spacing-3;
+    }
+  }
+}

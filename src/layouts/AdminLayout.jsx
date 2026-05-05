@@ -1,0 +1,125 @@
+/**
+ * AdminLayout — PracticaYoruba
+ * Layout del panel admin: sidebar oscuro + header + contenido.
+ * Acceso exclusivo para is_staff = true.
+ */
+
+import { useState } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectUser } from '@redux/selectors';
+import { logoutUser } from '@redux/slices/authSlice';
+import { closeSidebar, openSidebar, selectIsSidebarOpen } from '@redux/slices/uiSlice';
+import ToastContainer from '@components/common/Toast/ToastContainer';
+import ErrorBoundary from '@components/shared/ErrorBoundary';
+import styles from './AdminLayout.module.scss';
+
+const ADMIN_NAV = [
+  { section: 'Principal' },
+  { to: '/admin',             label: 'Dashboard',    end: true },
+  { section: 'Catálogo' },
+  { to: '/admin/productos',   label: 'Productos' },
+  { to: '/admin/categorias',  label: 'Categorías' },
+  { to: '/admin/variantes',   label: 'Variantes (Chartsize)' },
+  { section: 'Ventas' },
+  { to: '/admin/pedidos',     label: 'Pedidos' },
+  { to: '/admin/pagos',       label: 'Pagos' },
+  { to: '/admin/devoluciones',label: 'Devoluciones' },
+  { section: 'Clientes' },
+  { to: '/admin/usuarios',    label: 'Usuarios' },
+  { to: '/admin/soporte',     label: 'Soporte (Tickets)' },
+  { section: 'Operaciones' },
+  { to: '/admin/inventario',  label: 'Inventario' },
+  { to: '/admin/logistica',   label: 'Logística' },
+  { to: '/admin/reportes',    label: 'Reportes' },
+  { section: 'Configuración' },
+  { to: '/admin/configuracion',label: 'Configuración' },
+];
+
+export default function AdminLayout() {
+  const dispatch   = useDispatch();
+  const navigate   = useNavigate();
+  const user       = useSelector(selectUser);
+  const isSidebarOpen = useSelector(selectIsSidebarOpen);
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    navigate('/auth/login');
+  };
+
+  return (
+    <div className={styles.root}>
+      {/* Overlay mobile */}
+      {isSidebarOpen && (
+        <div
+          className={styles.overlay}
+          onClick={() => dispatch(closeSidebar())}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.brand}>
+          <span className={styles.brandName}>PracticaYoruba</span>
+          <span className={styles.brandLabel}>Admin</span>
+        </div>
+
+        <nav className={styles.nav}>
+          {ADMIN_NAV.map((item, i) =>
+            item.section ? (
+              <p key={i} className={styles.navSection}>{item.section}</p>
+            ) : (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
+                }
+                onClick={() => dispatch(closeSidebar())}
+              >
+                {item.label}
+              </NavLink>
+            )
+          )}
+        </nav>
+
+        <div className={styles.sidebarFooter}>
+          <p className={styles.adminName}>
+            {user?.first_name} {user?.last_name}
+          </p>
+          <button className={styles.logoutBtn} onClick={handleLogout}>
+            Cerrar sesión
+          </button>
+        </div>
+      </aside>
+
+      {/* Contenido principal */}
+      <div className={styles.content}>
+        {/* Header del admin */}
+        <header className={styles.header}>
+          <button
+            className={styles.menuBtn}
+            onClick={() => dispatch(isSidebarOpen ? closeSidebar() : openSidebar())}
+            aria-label="Abrir menú"
+          >
+            ☰
+          </button>
+          <span className={styles.headerTitle}>Panel de administración</span>
+          <div className={styles.headerUser}>
+            {user?.email}
+          </div>
+        </header>
+
+        {/* Área de página */}
+        <main className={styles.main}>
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
+        </main>
+      </div>
+
+      <ToastContainer />
+    </div>
+  );
+}

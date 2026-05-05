@@ -1,0 +1,120 @@
+@use '../styles/abstracts' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: $bg-page;
+}
+
+.body {
+  flex: 1;
+  display: flex;
+  gap: $spacing-8;
+  max-width: $content-max-width;
+  margin: $spacing-8 auto;
+  padding: 0 $content-padding-desktop;
+  width: 100%;
+  align-items: flex-start;
+
+  @include media-down-lg {
+    flex-direction: column;
+    padding: 0 $content-padding-tablet;
+    margin: $spacing-4 auto;
+  }
+
+  @include media-down-md {
+    padding: 0 $content-padding-mobile;
+  }
+}
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  position: sticky;
+  top: calc($header-height + $spacing-4);
+
+  @include media-down-lg {
+    width: 100%;
+    position: static;
+  }
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  margin-bottom: $spacing-3;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: $border-radius-full;
+  background-color: $primary-color;
+  color: $bg-surface;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-lg;
+  @include flex-center;
+  flex-shrink: 0;
+}
+
+.userName {
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-base;
+  color: $text-primary;
+}
+
+.userEmail {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  @include text-truncate;
+  max-width: 160px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  padding: $spacing-2;
+
+  @include media-down-lg {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
+.navItem {
+  display: block;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  text-decoration: none;
+  transition: $transition-colors;
+
+  &:hover {
+    background-color: $bg-sunken;
+    color: $text-primary;
+  }
+}
+
+.navItemActive {
+  background-color: $primary-50;
+  color: $primary-dark;
+  font-weight: $font-weight-semibold;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}

@@ -1,0 +1,190 @@
+@use '../styles/abstracts' as *;
+
+.root {
+  display: flex;
+  min-height: 100vh;
+  background-color: $bg-sunken;
+}
+
+// ─── Overlay mobile ───────────────────────────────────────
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: $bg-overlay;
+  z-index: $z-modal-backdrop;
+
+  @include media-lg {
+    display: none;
+  }
+}
+
+// ─── Sidebar ──────────────────────────────────────────────
+.sidebar {
+  width: $sidebar-width;
+  min-height: 100vh;
+  background-color: $secondary-color;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  @include scrollbar-thin;
+  transition: $sidebar-transition;
+
+  @include media-down-lg {
+    position: fixed;
+    left: -$sidebar-width;
+    z-index: $z-modal;
+    box-shadow: $shadow-xl;
+  }
+}
+
+.sidebarOpen {
+  @include media-down-lg {
+    left: 0;
+  }
+}
+
+.brand {
+  padding: $spacing-5 $spacing-6;
+  border-bottom: 1px solid rgba($text-inverse, 0.1);
+  flex-shrink: 0;
+}
+
+.brandName {
+  display: block;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $primary-light;
+}
+
+.brandLabel {
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba($text-inverse, 0.5);
+}
+
+.nav {
+  flex: 1;
+  padding: $spacing-3 $spacing-2;
+}
+
+.navSection {
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba($text-inverse, 0.35);
+  padding: $spacing-3 $spacing-3 $spacing-1;
+  margin-top: $spacing-2;
+
+  &:first-child { margin-top: 0; }
+}
+
+.navItem {
+  display: block;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: rgba($text-inverse, 0.72);
+  text-decoration: none;
+  transition: $transition-colors;
+  margin-bottom: 1px;
+
+  &:hover {
+    background: rgba($text-inverse, 0.08);
+    color: $text-inverse;
+  }
+}
+
+.navItemActive {
+  background: rgba($primary-color, 0.25);
+  color: $primary-light;
+  font-weight: $font-weight-semibold;
+}
+
+.sidebarFooter {
+  padding: $spacing-4;
+  border-top: 1px solid rgba($text-inverse, 0.1);
+  flex-shrink: 0;
+}
+
+.adminName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: rgba($text-inverse, 0.8);
+  margin-bottom: $spacing-2;
+  @include text-truncate;
+}
+
+.logoutBtn {
+  font-size: $font-size-sm;
+  color: rgba($text-inverse, 0.5);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color $transition-fast;
+
+  &:hover { color: $error-color; }
+}
+
+// ─── Contenido ────────────────────────────────────────────
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: $z-sticky;
+  height: $header-height;
+  background: $bg-surface;
+  border-bottom: 1px solid $border-color;
+  box-shadow: $shadow-xs;
+  @include flex-between;
+  padding: 0 $spacing-6;
+  gap: $spacing-4;
+}
+
+.menuBtn {
+  display: none;
+  font-size: $font-size-xl;
+  color: $text-secondary;
+  cursor: pointer;
+  padding: $spacing-1;
+
+  @include media-down-lg {
+    display: block;
+  }
+}
+
+.headerTitle {
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  flex: 1;
+}
+
+.headerUser {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  @include text-truncate;
+  max-width: 200px;
+}
+
+.main {
+  flex: 1;
+  padding: $spacing-6;
+
+  @include media-down-md {
+    padding: $spacing-4;
+  }
+}

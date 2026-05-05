@@ -1,0 +1,121 @@
+// ═══════════════════════════════════════════════════════════════════════
+// SIDEBAR — PracticaYoruba
+// Admin panel / cuenta de usuario
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+.sidebar {
+  width: $sidebar-width;
+  min-height: calc(100vh - $header-height);
+  background-color: $sidebar-bg;
+  flex-shrink: 0;
+  transition: $sidebar-transition;
+  overflow: hidden;
+
+  @include media-down-lg {
+    position: fixed;
+    left: -$sidebar-width;
+    top: $header-height;
+    height: calc(100vh - #{$header-height});
+    z-index: $z-fixed - 1;
+    box-shadow: $shadow-xl;
+
+    &--open {
+      left: 0;
+    }
+  }
+
+  // Logo/branding en el sidebar (admin)
+  &__header {
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid rgba($sidebar-text, 0.1);
+    @include flex-between;
+  }
+
+  &__title {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba($sidebar-text, 0.5);
+    padding: $spacing-4 $spacing-6 $spacing-2;
+  }
+
+  // Nav items
+  &__nav {
+    padding: $spacing-2;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $border-radius-md;
+    color: rgba($sidebar-text, 0.75);
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    text-decoration: none;
+    transition: $transition-colors;
+    cursor: pointer;
+    margin-bottom: 2px;
+
+    &:hover {
+      background-color: rgba($sidebar-text, 0.08);
+      color: $sidebar-text;
+    }
+
+    &--active {
+      background-color: rgba($primary-color, 0.2);
+      color: $primary-light;
+
+      .sidebar__item-icon {
+        color: $primary-light;
+      }
+    }
+
+    &-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+    }
+
+    &-badge {
+      margin-left: auto;
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    background-color: rgba($sidebar-text, 0.1);
+    margin: $spacing-2 $spacing-4;
+  }
+
+  &__footer {
+    padding: $spacing-4;
+    border-top: 1px solid rgba($sidebar-text, 0.1);
+    margin-top: auto;
+  }
+}
+
+// Overlay para mobile
+.sidebar-overlay {
+  display: none;
+
+  @include media-down-lg {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: $bg-overlay;
+    z-index: $z-fixed - 2;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity $transition-base, visibility $transition-base;
+
+    &--visible {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+}

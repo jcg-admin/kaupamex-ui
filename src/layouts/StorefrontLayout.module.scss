@@ -1,0 +1,13 @@
+@use '../styles/abstracts' as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: $bg-page;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+}

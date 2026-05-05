@@ -1,0 +1,104 @@
+// ═══════════════════════════════════════════════════════════════════════
+// HEADER — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: $z-fixed;
+  height: $header-height;
+  background-color: $header-bg;
+  border-bottom: $border-width-base solid $header-border;
+  box-shadow: $header-shadow;
+
+  @include media-down-md {
+    height: $header-height-mobile;
+  }
+
+  &__inner {
+    @include flex-between;
+    height: 100%;
+    max-width: $content-max-width;
+    margin: 0 auto;
+    padding: 0 $content-padding-desktop;
+
+    @include media-down-md {
+      padding: 0 $content-padding-mobile;
+    }
+  }
+
+  // Logo
+  &__brand {
+    @include flex-start;
+    gap: $spacing-2;
+    text-decoration: none;
+    color: $secondary-color;
+
+    &-logo {
+      width: 36px;
+      height: 36px;
+    }
+
+    &-name {
+      font-family: $font-family-display;
+      font-size: $font-size-xl;
+      font-weight: $font-weight-bold;
+      color: $secondary-color;
+
+      @include media-down-md {
+        display: none;
+      }
+    }
+  }
+
+  // Nav central (categorías principales)
+  &__nav {
+    @include flex-center;
+    gap: $spacing-1;
+
+    @include media-down-lg {
+      display: none;
+    }
+
+    a {
+      padding: $spacing-2 $spacing-3;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $text-secondary;
+      border-radius: $border-radius-md;
+      transition: $transition-colors;
+
+      &:hover, &.active {
+        color: $primary-color;
+        background-color: $primary-50;
+      }
+    }
+  }
+
+  // Acciones (búsqueda, carrito, perfil)
+  &__actions {
+    @include flex-center;
+    gap: $spacing-1;
+  }
+
+  &__cart-btn {
+    position: relative;
+
+    &-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 18px;
+      height: 18px;
+      background-color: $accent-color;
+      color: $bg-surface;
+      font-size: 10px;
+      font-weight: $font-weight-bold;
+      border-radius: $border-radius-full;
+      @include flex-center;
+      padding: 0 4px;
+    }
+  }
+}

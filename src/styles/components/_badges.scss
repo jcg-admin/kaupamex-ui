@@ -1,0 +1,49 @@
+// ═══════════════════════════════════════════════════════════════════════
+// BADGES — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+.badge {
+  @include badge-base;
+
+  &--primary   { @include badge-variant($primary-color); }
+  &--secondary { @include badge-variant($secondary-color); }
+  &--accent    { @include badge-variant($accent-color); }
+  &--success   { @include badge-variant($success-color); }
+  &--error     { @include badge-variant($error-color); }
+  &--warning   { @include badge-variant($warning-color, $text-primary); }
+  &--info      { @include badge-variant($info-color); }
+
+  // Subtle (fondo suave)
+  &--success-subtle { @include badge-variant($success-bg, $success-color); }
+  &--error-subtle   { @include badge-variant($error-bg, $error-color); }
+  &--warning-subtle { @include badge-variant($warning-bg, $warning-color); }
+  &--info-subtle    { @include badge-variant($info-bg, $info-color); }
+
+  // Dot indicator
+  &--dot::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: $border-radius-full;
+    background-color: currentColor;
+  }
+}
+
+// Badges específicos de e-commerce
+.stock-badge {
+  @include badge-base;
+
+  &--in-stock  { @include badge-variant($success-bg, $success-color); }
+  &--low-stock { @include badge-variant($warning-bg, $warning-color); }
+  &--out       { @include badge-variant($error-bg, $error-color); }
+}
+
+.discount-badge {
+  @include badge-base;
+  background-color: $accent-color;
+  color: $bg-surface;
+  font-weight: $font-weight-bold;
+}

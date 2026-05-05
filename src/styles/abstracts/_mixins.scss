@@ -1,0 +1,426 @@
+// ═══════════════════════════════════════════════════════════════════════
+// MIXINS SCSS — PracticaYoruba E-commerce
+// ═══════════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────────
+// 1. LAYOUT & FLEXBOX
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin absolute-fill {
+  position: absolute;
+  inset: 0;
+}
+
+@mixin absolute-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 2. GRID — E-commerce (productos, categorías)
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin product-grid($min: 220px, $gap: $spacing-4) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min, 1fr));
+  gap: $gap;
+}
+
+@mixin category-grid($cols: 4, $gap: $spacing-4) {
+  display: grid;
+  grid-template-columns: repeat($cols, 1fr);
+  gap: $gap;
+
+  @include media-md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include media-sm {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 3. BREAKPOINTS — Mobile-first
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin media-sm {
+  @media (min-width: $bp-sm) { @content; }
+}
+
+@mixin media-md {
+  @media (min-width: $bp-md) { @content; }
+}
+
+@mixin media-lg {
+  @media (min-width: $bp-lg) { @content; }
+}
+
+@mixin media-xl {
+  @media (min-width: $bp-xl) { @content; }
+}
+
+@mixin media-2xl {
+  @media (min-width: $bp-2xl) { @content; }
+}
+
+@mixin media-down-md {
+  @media (max-width: #{$bp-md - 1}) { @content; }
+}
+
+@mixin media-down-lg {
+  @media (max-width: #{$bp-lg - 1}) { @content; }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 4. BOTONES
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $btn-padding-y $btn-padding-x;
+  border-radius: $btn-border-radius;
+  font-family: $font-family-base;
+  font-size: $btn-font-size;
+  font-weight: $btn-font-weight;
+  line-height: $btn-line-height;
+  text-decoration: none;
+  cursor: pointer;
+  border: $border-width-thick solid transparent;
+  transition: $btn-transition;
+  user-select: none;
+  white-space: nowrap;
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 3px;
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+@mixin btn-variant($bg, $color: #fff, $border: $bg) {
+  background-color: $bg;
+  color: $color;
+  border-color: $border;
+
+  &:hover:not(:disabled) {
+    background-color: darken($bg, 8%);
+    border-color: darken($border, 8%);
+  }
+
+  &:active:not(:disabled) {
+    background-color: darken($bg, 14%);
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba($bg, 0.3);
+  }
+}
+
+@mixin btn-outline($color) {
+  background-color: transparent;
+  color: $color;
+  border-color: $color;
+
+  &:hover:not(:disabled) {
+    background-color: rgba($color, 0.08);
+  }
+
+  &:active:not(:disabled) {
+    background-color: rgba($color, 0.14);
+  }
+}
+
+@mixin btn-sm {
+  padding: $btn-padding-y-sm $btn-padding-x-sm;
+  font-size: $btn-font-size-sm;
+}
+
+@mixin btn-lg {
+  padding: $btn-padding-y-lg $btn-padding-x-lg;
+  font-size: $btn-font-size-lg;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 5. CARDS
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin card-base {
+  background-color: $card-bg;
+  border: $border-width-base solid $card-border;
+  border-radius: $card-border-radius;
+  box-shadow: $card-shadow;
+  transition: $card-transition;
+  overflow: hidden;
+}
+
+@mixin card-hover {
+  &:hover {
+    box-shadow: $card-shadow-hover;
+    border-color: $primary-color;
+    transform: translateY(-2px);
+  }
+}
+
+@mixin card-padded {
+  @include card-base;
+  padding: $card-padding;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 6. FORMULARIOS
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin input-base {
+  display: block;
+  width: 100%;
+  padding: $input-padding-y $input-padding-x;
+  font-family: $font-family-base;
+  font-size: $input-font-size;
+  line-height: $line-height-normal;
+  color: $input-color;
+  background-color: $input-bg;
+  border: $border-width-base solid $input-border-color;
+  border-radius: $input-border-radius;
+  transition: $input-transition;
+  appearance: none;
+
+  &:focus {
+    outline: none;
+    border-color: $input-focus-border-color;
+    box-shadow: $input-focus-shadow;
+  }
+
+  &::placeholder {
+    color: $input-placeholder-color;
+    opacity: 1;
+  }
+
+  &:disabled {
+    background-color: $bg-sunken;
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.is-invalid {
+    border-color: $error-color;
+
+    &:focus {
+      border-color: $error-color;
+      box-shadow: 0 0 0 3px rgba($error-color, 0.15);
+    }
+  }
+}
+
+@mixin label-base {
+  display: block;
+  margin-bottom: $spacing-1;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 7. BADGES
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin badge-base {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $badge-padding-y $badge-padding-x;
+  font-size: $badge-font-size;
+  font-weight: $badge-font-weight;
+  line-height: 1;
+  border-radius: $badge-border-radius;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+@mixin badge-variant($bg, $color: #fff) {
+  background-color: $bg;
+  color: $color;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 8. TIPOGRAFÍA
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@mixin text-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@mixin heading($size, $weight: $font-weight-bold) {
+  font-family: $font-family-display;
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $line-height-tight;
+  color: $text-primary;
+}
+
+@mixin price-display($size: $font-size-xl) {
+  font-size: $size;
+  font-weight: $font-weight-bold;
+  color: $primary-dark;
+  line-height: 1;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 9. ANIMACIONES
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin fade-in($duration: 250ms) {
+  animation: fadeIn $duration ease-in forwards;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+@mixin slide-up($duration: 250ms) {
+  animation: slideUp $duration ease-out forwards;
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@mixin slide-down($duration: 250ms) {
+  animation: slideDown $duration ease-out forwards;
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@mixin scale-in($duration: 200ms) {
+  animation: scaleIn $duration ease-out forwards;
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.94); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+}
+
+@mixin skeleton-pulse {
+  background: linear-gradient(
+    90deg,
+    $bg-sunken 25%,
+    darken($bg-sunken, 4%) 50%,
+    $bg-sunken 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
+
+  @keyframes skeletonPulse {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 10. UTILIDADES
+// ─────────────────────────────────────────────────────────────────────
+
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@mixin no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@mixin scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: $border-color $bg-sunken;
+
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: $bg-sunken; }
+  &::-webkit-scrollbar-thumb {
+    background-color: $border-color;
+    border-radius: $border-radius-full;
+  }
+}
+
+@mixin focus-ring($color: $primary-color) {
+  &:focus-visible {
+    outline: 2px solid $color;
+    outline-offset: 3px;
+  }
+}
+
+@mixin hover-lift {
+  transition: transform $transition-fast, box-shadow $transition-fast;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $shadow-md;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// Fin mixins — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════

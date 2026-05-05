@@ -1,0 +1,20 @@
+@use '../../../styles/abstracts' as *;
+
+.page {{
+  width: 100%;
+  padding: $spacing-8 0;
+}}
+
+.placeholder {{
+  @include flex-column-center;
+  min-height: 40vh;
+  gap: $spacing-4;
+  text-align: center;
+  color: $text-muted;
+
+  h1 {{
+    font-family: $font-family-display;
+    font-size: $font-size-2xl;
+    color: $text-secondary;
+  }}
+}}

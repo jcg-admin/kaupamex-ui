@@ -1,0 +1,155 @@
+// ═══════════════════════════════════════════════════════════════════════
+// RESET — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+// Basado en modern-normalize — opinionado para e-commerce
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 100%;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+  color: $text-primary;
+  background-color: $bg-page;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Imágenes — responsive por defecto
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+// Links
+a {
+  color: $text-link;
+  text-decoration: none;
+  transition: $transition-colors;
+
+  &:hover {
+    color: $text-link-hover;
+  }
+}
+
+// Listas
+ul,
+ol {
+  list-style: none;
+}
+
+// Botones
+button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+// Inputs
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-display;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $text-primary;
+}
+
+h1 { font-size: $font-size-4xl; }
+h2 { font-size: $font-size-3xl; }
+h3 { font-size: $font-size-2xl; }
+h4 { font-size: $font-size-xl; }
+h5 { font-size: $font-size-lg; }
+h6 { font-size: $font-size-base; }
+
+// Párrafos
+p {
+  line-height: $line-height-relaxed;
+  color: $text-secondary;
+}
+
+// Tablas
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+// HR
+hr {
+  border: none;
+  border-top: $border-width-base solid $border-color;
+  margin: $spacing-6 0;
+}
+
+// Código
+code,
+pre {
+  font-family: $font-family-mono;
+  font-size: $font-size-sm;
+}
+
+// Scrollbar global
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $bg-sunken;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $border-color;
+  border-radius: $border-radius-full;
+
+  &:hover {
+    background-color: $text-muted;
+  }
+}
+
+// Focus global — accesibilidad
+:focus-visible {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// Selection
+::selection {
+  background-color: rgba($primary-color, 0.2);
+  color: $text-primary;
+}

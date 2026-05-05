@@ -1,0 +1,305 @@
+// ═══════════════════════════════════════════════════════════════════════
+// VARIABLES SCSS — PracticaYoruba E-commerce
+// ═══════════════════════════════════════════════════════════════════════
+// Paleta Yoruba: oros, tierra, coral, crema — estética sagrada y cálida
+// ═══════════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────────
+// 1. COLORES PRIMARIOS — Paleta Yoruba
+// ─────────────────────────────────────────────────────────────────────
+
+// Primario: oro sagrado
+$primary-color:     #B8860B;    // DarkGoldenrod — botones, CTA, highlights
+$primary-light:     #DAA520;    // Goldenrod — hover states
+$primary-dark:      #8B6914;    // Oro oscuro — pressed states
+$primary-50:        #FEF9E7;    // Oro muy suave — backgrounds
+$primary-100:       #FDEFC3;    // Oro suave — tinted backgrounds
+
+// Secundario: tierra profunda
+$secondary-color:   #3D1F0D;    // Caoba oscuro — texto principal, headers
+$secondary-light:   #6B3A2A;    // Caoba medio — sidebar, nav
+$secondary-dark:    #1A0C05;    // Casi negro caoba
+
+// Acento: coral yoruba
+$accent-color:      #CC4A1B;    // Coral-rojo — badges, alertas, urgencia
+$accent-light:      #E8704A;    // Coral claro — hover
+$accent-dark:       #A33514;    // Coral oscuro
+
+// ─────────────────────────────────────────────────────────────────────
+// 2. COLORES NEUTROS Y SUPERFICIES
+// ─────────────────────────────────────────────────────────────────────
+
+// Fondos
+$bg-page:           #FAFAF7;    // Blanco crema — fondo de página
+$bg-surface:        #FFFFFF;    // Blanco puro — cards, modals
+$bg-sunken:         #F5F2EC;    // Crema oscuro — inputs, code blocks
+$bg-overlay:        rgba(61, 31, 13, 0.5);  // Overlay de modals
+
+// Texto
+$text-primary:      #1C1008;    // Casi negro — texto principal
+$text-secondary:    #5C4A3A;    // Caoba gris — texto secundario
+$text-muted:        #9C8A7A;    // Gris cálido — placeholder, disabled
+$text-inverse:      #FAFAF7;    // Crema — texto sobre fondos oscuros
+$text-link:         $primary-color;
+$text-link-hover:   $primary-dark;
+
+// Bordes
+$border-color:      #E8E0D5;    // Beige — bordes generales
+$border-focus:      $primary-color;
+$border-error:      #C0392B;
+
+// ─────────────────────────────────────────────────────────────────────
+// 3. COLORES DE ESTADO
+// ─────────────────────────────────────────────────────────────────────
+
+$success-color:     #27AE60;    // Verde — orden confirmada, pago exitoso
+$success-bg:        #EAFAF1;
+$success-border:    #A9DFBF;
+
+$error-color:       #C0392B;    // Rojo — errores, validación
+$error-bg:          #FDEDEC;
+$error-border:      #F1948A;
+
+$warning-color:     #E67E22;    // Naranja — advertencias, stock bajo
+$warning-bg:        #FEF9E7;
+$warning-border:    #FAD7A0;
+
+$info-color:        #2980B9;    // Azul — información, tooltips
+$info-bg:           #EBF5FB;
+$info-border:       #AED6F1;
+
+// Stock / disponibilidad
+$in-stock-color:    $success-color;
+$low-stock-color:   $warning-color;
+$out-of-stock-color: $error-color;
+
+// ─────────────────────────────────────────────────────────────────────
+// 4. ESPACIADO — Sistema base 4px
+// ─────────────────────────────────────────────────────────────────────
+
+$spacing-1:  4px;
+$spacing-2:  8px;
+$spacing-3:  12px;
+$spacing-4:  16px;
+$spacing-5:  20px;
+$spacing-6:  24px;
+$spacing-8:  32px;
+$spacing-10: 40px;
+$spacing-12: 48px;
+$spacing-16: 64px;
+$spacing-20: 80px;
+$spacing-24: 96px;
+
+// Aliases semánticos
+$space-xs:   $spacing-1;
+$space-sm:   $spacing-2;
+$space-md:   $spacing-4;
+$space-lg:   $spacing-6;
+$space-xl:   $spacing-8;
+$space-2xl:  $spacing-12;
+$space-3xl:  $spacing-16;
+
+// ─────────────────────────────────────────────────────────────────────
+// 5. TIPOGRAFÍA
+// ─────────────────────────────────────────────────────────────────────
+
+$font-family-base:    'Inter', -apple-system, BlinkMacSystemFont,
+                      'Segoe UI', 'Roboto', sans-serif;
+$font-family-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+$font-family-mono:    'JetBrains Mono', 'SFMono-Regular', 'Consolas', monospace;
+
+// Tamaños
+$font-size-xs:   11px;
+$font-size-sm:   13px;
+$font-size-base: 15px;
+$font-size-md:   16px;
+$font-size-lg:   18px;
+$font-size-xl:   20px;
+$font-size-2xl:  24px;
+$font-size-3xl:  30px;
+$font-size-4xl:  36px;
+$font-size-5xl:  48px;
+
+// Pesos
+$font-weight-light:     300;
+$font-weight-normal:    400;
+$font-weight-medium:    500;
+$font-weight-semibold:  600;
+$font-weight-bold:      700;
+$font-weight-extrabold: 800;
+
+// Interlineado
+$line-height-tight:   1.2;
+$line-height-snug:    1.35;
+$line-height-normal:  1.5;
+$line-height-relaxed: 1.65;
+$line-height-loose:   2;
+
+// ─────────────────────────────────────────────────────────────────────
+// 6. BORDES Y RADIOS
+// ─────────────────────────────────────────────────────────────────────
+
+$border-radius-none: 0;
+$border-radius-sm:   4px;
+$border-radius-md:   8px;
+$border-radius-lg:   12px;
+$border-radius-xl:   16px;
+$border-radius-2xl:  24px;
+$border-radius-full: 9999px;
+
+// Alias principal
+$border-radius: $border-radius-md;
+
+$border-width-thin:  1px;
+$border-width-base:  1px;
+$border-width-thick: 2px;
+
+// ─────────────────────────────────────────────────────────────────────
+// 7. SOMBRAS
+// ─────────────────────────────────────────────────────────────────────
+
+$shadow-xs:  0 1px 2px 0 rgba(61, 31, 13, 0.05);
+$shadow-sm:  0 1px 3px 0 rgba(61, 31, 13, 0.08),
+             0 1px 2px 0 rgba(61, 31, 13, 0.04);
+$shadow-md:  0 4px 6px -1px rgba(61, 31, 13, 0.08),
+             0 2px 4px -1px rgba(61, 31, 13, 0.04);
+$shadow-lg:  0 10px 15px -3px rgba(61, 31, 13, 0.08),
+             0 4px 6px -2px rgba(61, 31, 13, 0.04);
+$shadow-xl:  0 20px 25px -5px rgba(61, 31, 13, 0.1),
+             0 10px 10px -5px rgba(61, 31, 13, 0.04);
+$shadow-card: $shadow-sm;
+$shadow-card-hover: $shadow-md;
+$shadow-modal: 0 25px 50px -12px rgba(61, 31, 13, 0.25);
+
+// ─────────────────────────────────────────────────────────────────────
+// 8. TRANSICIONES
+// ─────────────────────────────────────────────────────────────────────
+
+$transition-fast:    150ms ease;
+$transition-base:    250ms ease;
+$transition-slow:    300ms ease;
+$transition-slower:  500ms ease;
+
+$transition-default: all $transition-base;
+$transition-colors:  background-color $transition-fast,
+                     border-color $transition-fast,
+                     color $transition-fast,
+                     fill $transition-fast;
+$transition-shadow:  box-shadow $transition-fast;
+$transition-transform: transform $transition-fast;
+
+// ─────────────────────────────────────────────────────────────────────
+// 9. Z-INDEX
+// ─────────────────────────────────────────────────────────────────────
+
+$z-hide:              -1;
+$z-base:               0;
+$z-dropdown:        1000;
+$z-sticky:          1020;
+$z-fixed:           1030;
+$z-modal-backdrop:  1040;
+$z-modal:           1050;
+$z-popover:         1060;
+$z-tooltip:         1070;
+$z-toast:           1080;
+
+// ─────────────────────────────────────────────────────────────────────
+// 10. BREAKPOINTS — Responsive Design
+// ─────────────────────────────────────────────────────────────────────
+
+$bp-xs:   0;
+$bp-sm:   480px;    // Teléfonos grandes
+$bp-md:   768px;    // Tablets
+$bp-lg:   1024px;   // Laptops
+$bp-xl:   1280px;   // Desktops
+$bp-2xl:  1536px;   // Monitores grandes
+
+// ─────────────────────────────────────────────────────────────────────
+// 11. LAYOUT — Estructura global
+// ─────────────────────────────────────────────────────────────────────
+
+$header-height:            64px;
+$header-height-mobile:     56px;
+$header-bg:                $bg-surface;
+$header-border:            $border-color;
+$header-shadow:            $shadow-sm;
+
+$sidebar-width:            260px;
+$sidebar-width-collapsed:  64px;
+$sidebar-width-mobile:     80%;
+$sidebar-bg:               $secondary-color;
+$sidebar-text:             $text-inverse;
+$sidebar-transition:       width 300ms ease-out;
+
+$content-max-width:        1280px;
+$content-padding-desktop:  $spacing-8;
+$content-padding-tablet:   $spacing-4;
+$content-padding-mobile:   $spacing-3;
+
+$footer-height:            80px;
+$footer-bg:                $secondary-dark;
+$footer-text:              rgba($text-inverse, 0.8);
+
+// ─────────────────────────────────────────────────────────────────────
+// 12. COMPONENTES — Botones
+// ─────────────────────────────────────────────────────────────────────
+
+$btn-padding-y:      10px;
+$btn-padding-x:      20px;
+$btn-border-radius:  $border-radius-md;
+$btn-font-weight:    $font-weight-semibold;
+$btn-font-size:      $font-size-base;
+$btn-transition:     $transition-default;
+$btn-line-height:    1.5;
+
+$btn-padding-y-sm:   6px;
+$btn-padding-x-sm:   14px;
+$btn-font-size-sm:   $font-size-sm;
+
+$btn-padding-y-lg:   14px;
+$btn-padding-x-lg:   28px;
+$btn-font-size-lg:   $font-size-lg;
+
+// ─────────────────────────────────────────────────────────────────────
+// 13. COMPONENTES — Formularios
+// ─────────────────────────────────────────────────────────────────────
+
+$input-padding-y:          10px;
+$input-padding-x:          14px;
+$input-border-radius:      $border-radius-md;
+$input-border-color:       $border-color;
+$input-bg:                 $bg-surface;
+$input-color:              $text-primary;
+$input-placeholder-color:  $text-muted;
+$input-focus-border-color: $primary-color;
+$input-focus-shadow:       0 0 0 3px rgba($primary-color, 0.15);
+$input-font-size:          $font-size-base;
+$input-transition:         $transition-default;
+
+// ─────────────────────────────────────────────────────────────────────
+// 14. COMPONENTES — Cards de Producto
+// ─────────────────────────────────────────────────────────────────────
+
+$card-bg:             $bg-surface;
+$card-border:         $border-color;
+$card-border-radius:  $border-radius-lg;
+$card-padding:        $spacing-4;
+$card-shadow:         $shadow-card;
+$card-shadow-hover:   $shadow-card-hover;
+$card-transition:     $transition-default;
+
+$product-card-img-ratio: 4 / 3;  // Relación de aspecto de imágenes
+
+// ─────────────────────────────────────────────────────────────────────
+// 15. COMPONENTES — Badges y Pills
+// ─────────────────────────────────────────────────────────────────────
+
+$badge-padding-y:     3px;
+$badge-padding-x:     8px;
+$badge-border-radius: $border-radius-full;
+$badge-font-size:     $font-size-xs;
+$badge-font-weight:   $font-weight-semibold;
+
+// ═══════════════════════════════════════════════════════════════════════
+// Fin variables — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════

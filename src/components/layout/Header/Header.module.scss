@@ -1,0 +1,111 @@
+@use '../../../styles/abstracts' as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: $z-fixed;
+  background-color: $header-bg;
+  border-bottom: 1px solid $header-border;
+  box-shadow: $header-shadow;
+  height: $header-height;
+
+  @include media-down-md { height: $header-height-mobile; }
+}
+
+.inner {
+  @include flex-between;
+  height: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: 0 $content-padding-desktop;
+  gap: $spacing-4;
+
+  @include media-down-md { padding: 0 $content-padding-mobile; }
+}
+
+.brand {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brandName {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $secondary-color;
+  letter-spacing: -0.01em;
+
+  @include media-down-md { font-size: $font-size-lg; }
+}
+
+.nav {
+  @include flex-center;
+  gap: $spacing-1;
+  flex: 1;
+  justify-content: center;
+
+  @include media-down-lg { display: none; }
+}
+
+.navLink {
+  padding: $spacing-1 $spacing-3;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  transition: $transition-colors;
+  white-space: nowrap;
+
+  &:hover { color: $primary-color; background: $primary-50; }
+}
+
+.navLinkActive {
+  color: $primary-color;
+  font-weight: $font-weight-semibold;
+}
+
+.actions {
+  @include flex-center;
+  gap: $spacing-1;
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  @include flex-center;
+  width: 40px;
+  height: 40px;
+  border-radius: $border-radius-full;
+  color: $text-secondary;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: $transition-colors;
+
+  &:hover {
+    background: $primary-50;
+    color: $primary-color;
+  }
+}
+
+.cartBtn {
+  @extend .iconBtn;
+  position: relative;
+}
+
+.cartCount {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  background: $accent-color;
+  color: $bg-surface;
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  border-radius: $border-radius-full;
+  @include flex-center;
+  padding: 0 4px;
+  line-height: 1;
+}
