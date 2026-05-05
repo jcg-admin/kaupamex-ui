@@ -74,6 +74,43 @@ const MOCKS = {
     description: 'Historial de órdenes del comprador mock',
   },
 
+
+  profile: {
+    data: {
+      id: 1,
+      username: 'comprador_demo',
+      email: 'comprador@test.mx',
+      first_name: 'Demo',
+      last_name: 'Yoruba',
+      phone: '5551234567',
+      avatar_url: null,
+      date_joined: '2026-01-15T08:00:00Z',
+      profile_completeness: 60,
+      pending_fields: ['avatar', 'addresses'],
+    },
+    validate: (d) => d && d.username,
+    description: 'Perfil del comprador mock (UC-AUTH-05)',
+  },
+
+  addresses: {
+    data: [
+      {
+        id: 1,
+        alias: 'Casa',
+        recipient_name: 'Demo Yoruba',
+        street: 'Insurgentes Sur 1234 Int 5',
+        city: 'Ciudad de Mexico',
+        state: 'CDMX',
+        zip_code: '03100',
+        country: 'MX',
+        phone: '5551234567',
+        is_default: true,
+      },
+    ],
+    validate: (d) => Array.isArray(d),
+    description: 'Direcciones de envio del comprador mock (UC-AUTH-07)',
+  },
+
   wishlist: {
     data: [
       { id: 1, product_id: 1, product_name: 'Collar Oshun', price: 1250 },

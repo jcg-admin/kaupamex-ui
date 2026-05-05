@@ -4,31 +4,35 @@
  * SEGURIDAD:
  *   - NO se guardan tokens en Redux ni en localStorage.
  *   - Los tokens JWT los maneja el backend en httpOnly cookies.
- *   - Solo se guarda la información del usuario para mostrar en la UI.
+ *   - Solo se guarda la informacion del usuario para mostrar en la UI.
+ *
+ * Sprint 2: URLs corregidas a /api/v1/, thunks de perfil añadidos.
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 
-// ─── Thunks ───────────────────────────────────────────────────────────
+// ─── Thunks — Sprint 1 ────────────────────────────────────────────────
 
+/** Inicia sesion y obtiene tokens JWT. */
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ username, password }, { rejectWithValue }) => {
     try {
-      const response = await apiService.post('/api/token/', { username, password });
-      return response.data; // { user: {...}, ... }
+      const response = await apiService.post('/api/v1/auth/login/', { username, password });
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || 'Error al iniciar sesión');
+      return rejectWithValue(error.message || 'Error al iniciar sesion');
     }
   }
 );
 
+/** Cierra sesion e invalida el refresh token en blacklist. */
 export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      await apiService.post('/api/auth/logout/', {});
+      await apiService.post('/api/v1/auth/logout/', {});
       return null;
     } catch {
       // Proceder con logout local aunque falle el backend
@@ -37,11 +41,12 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
-export const getCurrentUser = createAsyncThunk(
-  'auth/getCurrentUser',
-  async (_, { rejectWithValue }) => {
+/** Registra una nueva cuenta de comprador (is_active=False hasta verificar email). */
+export const registerUser = createAsyncThunk(
+  'auth/register',
+  async (data, { rejectWithValue }) => {
     try {
-      const response = await apiService.get('/api/auth/me/');
+      const response = await apiService.post('/api/v1/auth/register/', data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -49,14 +54,43 @@ export const getCurrentUser = createAsyncThunk(
   }
 );
 
-export const registerUser = createAsyncThunk(
-  'auth/register',
-  async (data, { rejectWithValue }) => {
+// ─── Thunks — Sprint 2 ────────────────────────────────────────────────
+
+/** Obtiene el perfil del comprador autenticado (UC-AUTH-05). */
+export const fetchProfile = createAsyncThunk(
+  'auth/fetchProfile',
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.post('/api/auth/register/', data);
+      const response = await apiService.get('/api/v1/auth/profile/');
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
+    }
+  }
+);
+
+/** Actualiza los datos del perfil (UC-AUTH-06). */
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await apiService.patch('/api/v1/auth/profile/', formData);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+/** Cambia la contrasena del comprador autenticado (UC-AUTH-08). */
+export const changePassword = createAsyncThunk(
+  'auth/changePassword',
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post('/api/v1/auth/change-password/', data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
     }
   }
 );
@@ -66,7 +100,8 @@ export const registerUser = createAsyncThunk(
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user:            null,   // { id, email, first_name, last_name, is_staff }
+    user:            null,    // { id, email, first_name, last_name, phone, avatar_url,
+                              //   is_staff, profile_completeness, pending_fields }
     isAuthenticated: false,
     isLoading:       false,
     error:           null,
@@ -109,34 +144,63 @@ const authSlice = createSlice({
         state.error = null;
       });
 
-    // Get current user
-    builder
-      .addCase(getCurrentUser.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(getCurrentUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload;
-      })
-      .addCase(getCurrentUser.rejected, (state) => {
-        state.isLoading = false;
-        state.isAuthenticated = false;
-        state.user = null;
-      });
-
     // Register
     builder
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
+        // El registro no inicia sesion automaticamente (is_active=False)
         state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user ?? action.payload;
+        state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // fetchProfile (Sprint 2)
+    builder
+      .addCase(fetchProfile.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload;
+      })
+      .addCase(fetchProfile.rejected, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+      });
+
+    // updateProfile (Sprint 2)
+    builder
+      .addCase(updateProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = { ...state.user, ...action.payload };
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // changePassword (Sprint 2)
+    builder
+      .addCase(changePassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(changePassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(changePassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
