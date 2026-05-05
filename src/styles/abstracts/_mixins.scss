@@ -426,3 +426,109 @@
 // ═══════════════════════════════════════════════════════════════════════
 // Fin mixins — PracticaYoruba
 // ═══════════════════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────────────────
+// 9. PATRONES DE PÁGINA — para usar desde .module.scss
+// ─────────────────────────────────────────────────────────────────────
+// Uso: .root { @include page-container; }
+
+/// Wrapper principal de página con max-width y padding lateral responsive.
+@mixin page-container {
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-8 $content-padding-desktop;
+
+  @include media-down-md { padding: $spacing-6 $content-padding-tablet; }
+  @include media-sm      { padding: $spacing-4 $content-padding-mobile; }
+}
+
+/// Cabecera de sección: flex-between, h1/h2 + subtítulo + área de acciones.
+@mixin page-header {
+  @include flex-between;
+  gap: $spacing-4;
+  margin-bottom: $spacing-8;
+  padding-bottom: $spacing-4;
+  border-bottom: 1px solid $border-color;
+
+  @include media-down-md { flex-direction: column; align-items: flex-start; }
+}
+
+/// Estado de carga centrado para mientras la API responde.
+@mixin loading-state {
+  @include flex-column-center;
+  min-height: 200px;
+  gap: $spacing-4;
+  color: $text-muted;
+  font-size: $font-size-base;
+}
+
+/// Mensaje de lista vacía.
+@mixin empty-state {
+  @include flex-column-center;
+  min-height: 300px;
+  gap: $spacing-3;
+  text-align: center;
+  color: $text-muted;
+  padding: $spacing-12;
+}
+
+/// Banner de error con borde izquierdo en $error-color.
+@mixin error-banner {
+  @include flex-start;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: $error-bg;
+  border: 1px solid $error-border;
+  border-left: 4px solid $error-color;
+  border-radius: $border-radius-md;
+  color: $error-color;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-6;
+}
+
+/// Banner de éxito.
+@mixin success-banner {
+  @include flex-start;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: $success-bg;
+  border: 1px solid $success-border;
+  border-left: 4px solid $success-color;
+  border-radius: $border-radius-md;
+  color: $success-color;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-6;
+}
+
+/// Badge de estado con dot indicator. Uso: @include status-badge($success-color, $success-bg);
+@mixin status-badge($color, $bg: null) {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $badge-padding-y $badge-padding-x;
+  border-radius: $badge-border-radius;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $color;
+  background: if($bg, $bg, rgba($color, 0.1));
+
+  &::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: $border-radius-full;
+    background: $color;
+  }
+}
+
+/// Input de búsqueda dentro de una barra de búsqueda.
+@mixin search-input {
+  @include input-base;
+  flex: 1;
+  min-width: 0;
+}

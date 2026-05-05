@@ -1,39 +1,30 @@
 // ═══════════════════════════════════════════════════════════════════════
 // MAIN SCSS — PracticaYoruba E-commerce
 // ═══════════════════════════════════════════════════════════════════════
+//
+// Este archivo SOLO carga estilos verdaderamente globales:
+// selectores de elemento (body, h1-h6, *, :focus-visible, @keyframes).
+//
+// Toda clase reutilizable (.btn, .badge, .page-container, etc.) vive en
+// src/styles/abstracts/ como MIXIN y se usa desde cada .module.scss
+// con @include. No hay clases globales de componentes.
+//
+// Arquitectura CSS Modules:
+//   main.scss (globales mínimos)
+//       └── base/         reset + typography + keyframes
+//       └── accessibility/ :focus-visible
+//
+//   ComponenteName.module.scss (estilos de componente)
+//       └── @use '../../styles/abstracts' as *;
+//       └── .root { @include page-container; }
+//       └── .btn  { @include btn-primary; }
+//
+// ═══════════════════════════════════════════════════════════════════════
 
-// 1. Abstracts
-@use 'abstracts/variables' as *;
-@use 'abstracts/mixins' as *;
-
-// 2. Base
+// 1. Reset y base de elementos
 @use 'base/reset';
 @use 'base/typography';
 @use 'base/animations';
 
-// 3. Layouts
-@use 'layouts/header';
-@use 'layouts/sidebar';
-
-// 4. Components
-@use 'components/buttons';
-@use 'components/forms';
-@use 'components/cards';
-@use 'components/badges';
-@use 'components/toast';
-@use 'components/modal';
-@use 'components/table';
-@use 'components/tabs';
-@use 'components/progress-bar';
-@use 'components/avatar';
-@use 'components/form-stepper';
-@use 'components/animations' as component-animations;
-
-// 5. Accessibility
+// 2. Accesibilidad — :focus-visible global (WCAG AA)
 @use 'accessibility/index';
-
-// 6. Utilities
-@use 'utils/utilities';
-
-// 7. Pages — patrones de página compartidos
-@use 'pages/shared';
