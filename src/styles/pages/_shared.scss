@@ -1,0 +1,251 @@
+// ═══════════════════════════════════════════════════════════════════════
+// PAGES SHARED — PracticaYoruba
+// ═══════════════════════════════════════════════════════════════════════
+// Patrones de página reutilizables que complementan los componentes
+// globales de src/styles/components/.
+//
+// USO en JSX (clases globales, sin CSS Module):
+//   <div className="page-container">
+//   <header className="page-header">
+//   <div className="loading-state">Cargando...</div>
+//   <div className="empty-state">Sin resultados</div>
+//
+// Estas clases van directamente en JSX como strings, no en .module.scss.
+// Las clases CSS Module del archivo de cada página complementan este layer.
+// ═══════════════════════════════════════════════════════════════════════
+
+@use '../abstracts' as *;
+
+// ─────────────────────────────────────────────────────────────────────
+// 1. CONTENEDOR PRINCIPAL DE PÁGINA
+// ─────────────────────────────────────────────────────────────────────
+
+/// Wrapper raíz de cada página. Define el ancho máximo, padding lateral
+/// y el fondo base. Usar siempre como primer contenedor dentro del layout.
+.page-container {
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-8 $content-padding-desktop;
+
+  @include media-down-md {
+    padding: $spacing-6 $content-padding-tablet;
+  }
+
+  @include media-sm {
+    padding: $spacing-4 $content-padding-mobile;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 2. CABECERA DE SECCIÓN
+// ─────────────────────────────────────────────────────────────────────
+
+/// Cabecera de sección con título h1/h2 y subtítulo opcional.
+/// Ejemplo: <header class="page-header"><h1>Catálogo</h1></header>
+.page-header {
+  @include flex-between;
+  gap: $spacing-4;
+  margin-bottom: $spacing-8;
+  padding-bottom: $spacing-4;
+  border-bottom: 1px solid $border-color;
+
+  h1, h2 {
+    font-family: $font-family-display;
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $text-primary;
+    margin: 0;
+
+    @include media-down-md { font-size: $font-size-2xl; }
+  }
+
+  .page-subtitle {
+    font-size: $font-size-base;
+    color: $text-muted;
+    margin: $spacing-1 0 0;
+    font-weight: $font-weight-normal;
+  }
+
+  // Área de acciones: botones, filtros al lado del título
+  .page-actions {
+    @include flex-start;
+    gap: $spacing-2;
+    flex-shrink: 0;
+  }
+
+  @include media-down-md {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 3. ESTADOS DE CARGA Y VACÍO
+// ─────────────────────────────────────────────────────────────────────
+
+/// Estado de carga centrado con espacio mínimo de 200px de altura.
+/// Usar dentro del contenido principal mientras se carga desde la API.
+.loading-state {
+  @include flex-column-center;
+  min-height: 200px;
+  gap: $spacing-4;
+  color: $text-muted;
+  font-size: $font-size-base;
+
+  p { margin: 0; }
+}
+
+/// Mensaje de lista vacía. Usar cuando la respuesta de la API es [].
+.empty-state {
+  @include flex-column-center;
+  min-height: 300px;
+  gap: $spacing-3;
+  text-align: center;
+  color: $text-muted;
+  padding: $spacing-12;
+
+  .empty-state__title {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-semibold;
+    color: $text-secondary;
+    margin: 0;
+  }
+
+  .empty-state__description {
+    font-size: $font-size-base;
+    max-width: 40ch;
+    margin: 0;
+    line-height: $line-height-relaxed;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 4. BANNERS DE FEEDBACK
+// ─────────────────────────────────────────────────────────────────────
+
+/// Banner de error (respuesta 4xx/5xx de la API u otro error de operación).
+.error-banner {
+  @include flex-start;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: $error-bg;
+  border: 1px solid $error-border;
+  border-left: 4px solid $error-color;
+  border-radius: $border-radius-md;
+  color: $error-color;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-6;
+}
+
+/// Banner de éxito (operación completada correctamente).
+.success-banner {
+  @include flex-start;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: $success-bg;
+  border: 1px solid $success-border;
+  border-left: 4px solid $success-color;
+  border-radius: $border-radius-md;
+  color: $success-color;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-6;
+}
+
+/// Banner de advertencia (acción posible pero con riesgo).
+.warning-banner {
+  @include flex-start;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: $warning-bg;
+  border: 1px solid $warning-border;
+  border-left: 4px solid $warning-color;
+  border-radius: $border-radius-md;
+  color: $warning-color;
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-6;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 5. BADGES DE ESTADO
+// ─────────────────────────────────────────────────────────────────────
+
+/// Badge semántico de estado de entidades del dominio.
+/// Complementa al .badge genérico de _badges.scss con semántica de negocio.
+///
+/// Uso: <span class="status-badge status-active">Activo</span>
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: $badge-padding-y $badge-padding-x;
+  border-radius: $badge-border-radius;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: $border-radius-full;
+    background: currentColor;
+    opacity: 0.8;
+  }
+}
+
+// Estados de entidades del dominio PracticaYoruba
+.status-active    { color: $success-color; background: $success-bg; }
+.status-inactive  { color: $text-muted;    background: $bg-sunken; }
+.status-pending   { color: $warning-color; background: $warning-bg; }
+.status-delivered { color: $info-color;    background: $info-bg; }
+.status-cancelled { color: $error-color;   background: $error-bg; }
+.status-shipped   { color: $primary-color; background: $primary-50; }
+
+// ─────────────────────────────────────────────────────────────────────
+// 6. BARRA DE BÚSQUEDA
+// ─────────────────────────────────────────────────────────────────────
+
+/// Contenedor flex para el input de búsqueda más botones de acción.
+.search-bar {
+  @include flex-start;
+  gap: $spacing-2;
+  margin-bottom: $spacing-6;
+
+  @include media-sm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/// Input dentro de .search-bar.
+.search-input {
+  @include input-base;
+  flex: 1;
+  min-width: 0;   // evita overflow en flex
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 7. SEPARADOR DE SECCIÓN
+// ─────────────────────────────────────────────────────────────────────
+
+/// Separador horizontal ligero entre secciones de una página.
+.section-divider {
+  border: none;
+  border-top: 1px solid $border-color;
+  margin: $spacing-8 0;
+}
+
+/// Título de subsección dentro de una página.
+.section-title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin: 0 0 $spacing-4;
+  padding-bottom: $spacing-2;
+  border-bottom: 2px solid $primary-color;
+  display: inline-block;
+}
