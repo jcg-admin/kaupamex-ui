@@ -4,6 +4,7 @@
  *
  * Slices:
  *   auth     — sesión JWT, perfil del comprador
+ *   admin    — gestión de usuarios (Sprint 4)
  *   ui       — sidebar, modal, darkMode, notificaciones
  *   catalog  — productos, categorías, filtros, búsqueda
  *   cart     — items, cantidades, voucher, totales
@@ -22,6 +23,7 @@ import checkoutReducer from './slices/checkoutSlice';
 import ordersReducer   from './slices/ordersSlice';
 import wishlistReducer from './slices/wishlistSlice';
 import errorReducer    from './slices/errorSlice';
+import adminReducer    from './slices/adminSlice';
 
 import {
   errorHandlingMiddleware,
@@ -38,6 +40,7 @@ const store = configureStore({
     orders:   ordersReducer,
     wishlist: wishlistReducer,
     error:    errorReducer,
+    admin:    adminReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
