@@ -1,0 +1,118 @@
+@use '@styles/abstracts/variables' as *;
+@use '@styles/abstracts/mixins' as *;
+
+.card {
+  @include flex-column;
+  background:    $white;
+  border:        1px solid $border-color;
+  border-radius: $radius-lg;
+  overflow:      hidden;
+  text-decoration: none;
+  color:         inherit;
+  transition:    box-shadow 0.2s ease, transform 0.2s ease;
+  position:      relative;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform:  translateY(-2px);
+  }
+}
+
+.badge {
+  position:    absolute;
+  top:         12px;
+  left:        12px;
+  background:  $primary-color;
+  color:       $white;
+  font-size:   $font-size-xs;
+  font-weight: 600;
+  padding:     3px 8px;
+  border-radius: $radius-sm;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+.imageArea {
+  width:            100%;
+  aspect-ratio:     1 / 1;
+  background:       $bg-subtle;
+  border-bottom:    1px solid $border-color;
+}
+
+.imagePlaceholder {
+  @include flex-column-center;
+  width:  100%;
+  height: 100%;
+  gap:    8px;
+}
+
+.sku {
+  font-size:   $font-size-xs;
+  color:       $text-muted;
+  font-family: $font-family-mono;
+}
+
+.info {
+  @include flex-column;
+  padding: 16px;
+  gap:     6px;
+  flex:    1;
+}
+
+.category {
+  font-size:      $font-size-xs;
+  color:          $text-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight:    500;
+}
+
+.name {
+  font-family: $font-family-display;
+  font-size:   $font-size-md;
+  color:       $text-primary;
+  font-weight: 600;
+  line-height: 1.35;
+  margin:      0;
+
+  mark {
+    background: $primary-50;
+    color:      $primary-dark;
+    border-radius: 2px;
+    padding:    0 2px;
+  }
+}
+
+.pricing {
+  @include flex-start;
+  gap:        6px;
+  margin-top: 4px;
+}
+
+.price {
+  font-size:   $font-size-lg;
+  font-weight: 700;
+  color:       $text-primary;
+}
+
+.priceLabel {
+  font-size: $font-size-xs;
+  color:     $text-muted;
+}
+
+.footer {
+  margin-top: 8px;
+}
+
+.inStock {
+  font-size:  $font-size-xs;
+  color:      $in-stock-color;
+  font-weight: 500;
+}
+
+.outOfStock {
+  font-size:  $font-size-xs;
+  color:      $out-of-stock-color;
+  font-weight: 500;
+}

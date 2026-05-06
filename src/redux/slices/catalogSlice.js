@@ -1,16 +1,23 @@
 /**
  * Catalog Slice — PracticaYoruba
- * Gestiona el catálogo de productos: listado, detalle, búsqueda y filtros
+ * Gestiona el catálogo de productos: listado, detalle, búsqueda y filtros.
+ *
+ * Sprint 5: URLs corregidas a /api/v1/catalogue/* (anteriormente /api/products/)
+ *           campo base_price (anteriormente price)
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 
+// =============================================================================
+// Thunks
+// =============================================================================
+
 export const fetchProducts = createAsyncThunk(
   'catalog/fetchProducts',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await apiService.get('/api/products/', { params });
+      const res = await apiService.get('/api/v1/catalogue/', { params });
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -22,19 +29,7 @@ export const fetchProduct = createAsyncThunk(
   'catalog/fetchProduct',
   async (slug, { rejectWithValue }) => {
     try {
-      const res = await apiService.get(`/api/products/${slug}/`);
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
-
-export const fetchCategories = createAsyncThunk(
-  'catalog/fetchCategories',
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await apiService.get('/api/categories/');
+      const res = await apiService.get(`/api/v1/catalogue/${slug}/`);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -43,30 +38,36 @@ export const fetchCategories = createAsyncThunk(
 );
 
 export const searchProducts = createAsyncThunk(
-  'catalog/search',
-  async (query, { rejectWithValue }) => {
+  'catalog/searchProducts',
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await apiService.get('/api/products/search/', { params: { q: query } });
-      return { results: res.data, query };
+      const res = await apiService.get('/api/v1/catalogue/search/', { params });
+      return { ...res.data, query: params.q };
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
+// =============================================================================
+// Slice
+// =============================================================================
+
 const catalogSlice = createSlice({
   name: 'catalog',
   initialState: {
-    products:      [],
-    currentProduct: null,
-    categories:    [],
-    searchResults: [],
-    searchQuery:   '',
+    products:        [],
+    currentProduct:  null,
+    searchResults:   [],
+    searchQuery:     '',
+    activeFilters:   {},
     pagination: {
-      count: 0,
-      page: 1,
-      pageSize: 20,
+      count:      0,
+      page:       1,
+      pageSize:   20,
       totalPages: 0,
+      next:       null,
+      previous:   null,
     },
     filters: {
       category:  null,
@@ -75,10 +76,12 @@ const catalogSlice = createSlice({
       inStock:   false,
       ordering:  '-created_at',
     },
-    isLoading:        false,
-    isSearching:      false,
-    error:            null,
+    isLoading:   false,
+    isSearching: false,
+    error:       null,
+    searchError: null,
   },
+
   reducers: {
     setFilter(state, action) {
       state.filters = { ...state.filters, ...action.payload };
@@ -97,50 +100,80 @@ const catalogSlice = createSlice({
     clearSearch(state) {
       state.searchResults = [];
       state.searchQuery   = '';
+      state.searchError   = null;
+      state.activeFilters = {};
+    },
+    clearCurrentProduct(state) {
+      state.currentProduct = null;
     },
   },
+
   extraReducers: (builder) => {
+    // fetchProducts
     builder
-      .addCase(fetchProducts.pending,   (state) => { state.isLoading = true; state.error = null; })
+      .addCase(fetchProducts.pending, (state) => {
+        state.isLoading = true;
+        state.error     = null;
+      })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        const { results, count, next } = action.payload;
-        state.products = results ?? action.payload;
-        if (count !== undefined) {
-          state.pagination.count = count;
-          state.pagination.totalPages = Math.ceil(count / state.pagination.pageSize);
-        }
+        const { results, count, next, previous } = action.payload;
+        state.products              = results ?? action.payload;
+        state.pagination.count      = count ?? 0;
+        state.pagination.next       = next ?? null;
+        state.pagination.previous   = previous ?? null;
+        state.pagination.totalPages = count
+          ? Math.ceil(count / state.pagination.pageSize)
+          : 0;
         state.isLoading = false;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error     = action.payload;
       });
 
+    // fetchProduct
     builder
-      .addCase(fetchProduct.pending,   (state) => { state.isLoading = true; })
+      .addCase(fetchProduct.pending, (state) => {
+        state.isLoading      = true;
+        state.currentProduct = null;
+        state.error          = null;
+      })
       .addCase(fetchProduct.fulfilled, (state, action) => {
         state.currentProduct = action.payload;
-        state.isLoading = false;
+        state.isLoading      = false;
       })
       .addCase(fetchProduct.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error     = action.payload;
       });
 
-    builder.addCase(fetchCategories.fulfilled, (state, action) => {
-      state.categories = action.payload;
-    });
-
+    // searchProducts
     builder
-      .addCase(searchProducts.pending,   (state) => { state.isSearching = true; })
-      .addCase(searchProducts.fulfilled, (state, action) => {
-        state.isSearching  = false;
-        state.searchResults = action.payload.results;
-        state.searchQuery   = action.payload.query;
+      .addCase(searchProducts.pending, (state) => {
+        state.isSearching = true;
+        state.searchError = null;
       })
-      .addCase(searchProducts.rejected, (state) => { state.isSearching = false; });
+      .addCase(searchProducts.fulfilled, (state, action) => {
+        const { results, count, active_filters, query } = action.payload;
+        state.isSearching   = false;
+        state.searchResults = results ?? [];
+        state.searchQuery   = query ?? '';
+        state.activeFilters = active_filters ?? {};
+        state.pagination.count      = count ?? 0;
+        state.pagination.totalPages = count
+          ? Math.ceil(count / state.pagination.pageSize)
+          : 0;
+      })
+      .addCase(searchProducts.rejected, (state, action) => {
+        state.isSearching = false;
+        state.searchError = action.payload;
+      });
   },
 });
 
-export const { setFilter, clearFilters, setPage, clearSearch } = catalogSlice.actions;
+export const {
+  setFilter, clearFilters, setPage,
+  clearSearch, clearCurrentProduct,
+} = catalogSlice.actions;
+
 export default catalogSlice.reducer;

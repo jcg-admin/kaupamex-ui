@@ -1,20 +1,102 @@
-@use '../../styles/abstracts' as *;
+@use '@styles/abstracts/variables' as *;
+@use '@styles/abstracts/mixins' as *;
 
 .page {
-  width: 100%;
-  padding: $spacing-8 0;
+  @include flex-column;
+  gap:        32px;
+  max-width:  1200px;
+  margin:     0 auto;
+  padding:    32px 24px 64px;
 }
 
-.placeholder {
-  @include flex-column-center;
-  min-height: 40vh;
-  gap: $spacing-4;
-  text-align: center;
-  color: $text-muted;
+.header {
+  @include flex-column;
+  gap: 8px;
+}
 
-  h1 {
-    font-family: $font-family-display;
-    font-size: $font-size-2xl;
-    color: $text-secondary;
-  }
+.title {
+  font-family: $font-family-display;
+  font-size:   $font-size-display;
+  color:       $text-primary;
+  font-weight: 700;
+  margin:      0;
+}
+
+.searchInfo {
+  color:     $text-secondary;
+  font-size: $font-size-base;
+  margin:    0;
+}
+
+.searchWrapper {
+  @include flex-start;
+  gap:       12px;
+  flex-wrap: wrap;
+}
+
+.clearSearch {
+  @include btn-ghost;
+  white-space: nowrap;
+}
+
+.loading {
+  @include flex-column-center;
+  gap:     16px;
+  padding: 64px 0;
+  color:   $text-muted;
+  font-size: $font-size-base;
+}
+
+.spinner {
+  width:        40px;
+  height:       40px;
+  border:       3px solid $border-color;
+  border-top-color: $primary-color;
+  border-radius: 50%;
+  animation:    spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error {
+  background:    $error-bg;
+  border:        1px solid $error-color;
+  border-radius: $radius-md;
+  padding:       16px 20px;
+  color:         $error-color;
+  font-size:     $font-size-base;
+}
+
+.empty {
+  @include flex-column-center;
+  padding:   64px 0;
+  text-align: center;
+  color:     $text-secondary;
+  gap:       8px;
+  font-size: $font-size-base;
+}
+
+.emptySub {
+  font-size: $font-size-sm;
+  color:     $text-muted;
+}
+
+.linkBtn {
+  background:  none;
+  border:      none;
+  color:       $primary-color;
+  cursor:      pointer;
+  text-decoration: underline;
+  font-size:   inherit;
+  padding:     0;
+
+  &:hover { color: $primary-dark; }
+}
+
+.grid {
+  display:               grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap:                   24px;
 }

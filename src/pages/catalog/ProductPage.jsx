@@ -1,19 +1,169 @@
 /**
  * ProductPage — PracticaYoruba
- * Ficha de producto — imágenes, variantes, descripción, reseñas (UC-CAT-02)
- *
- * STUB: implementar en el sprint correspondiente.
+ * UC-CAT-02: Ficha completa de un producto.
  */
-
+import { useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchProduct,
+  clearCurrentProduct,
+} from '@redux/slices/catalogSlice';
 import styles from './ProductPage.module.scss';
 
 export default function ProductPage() {
-  return (
-    <div className={styles.page}>
-      <div className={styles.placeholder}>
-        <h1>ProductPage</h1>
-        <p>Página pendiente de implementación.</p>
+  const { slug }   = useParams();
+  const dispatch   = useDispatch();
+  const navigate   = useNavigate();
+
+  const { currentProduct: product, isLoading, error } = useSelector((s) => s.catalog);
+
+  useEffect(() => {
+    dispatch(fetchProduct(slug));
+    return () => { dispatch(clearCurrentProduct()); };
+  }, [dispatch, slug]);
+
+  if (isLoading) {
+    return (
+      <div className={styles.loading} aria-live="polite">
+        <div className={styles.spinner} />
+        <p>Cargando producto...</p>
       </div>
-    </div>
+    );
+  }
+
+  if (error || (!isLoading && !product)) {
+    return (
+      <div className={styles.notFound}>
+        <h1>Producto no disponible</h1>
+        <p>Este producto no existe o ya no está publicado.</p>
+        <Link to="/catalogo" className={styles.backLink}>
+          Ver catálogo completo
+        </Link>
+      </div>
+    );
+  }
+
+  if (!product) return null;
+
+  const {
+    name, sku, description, short_description,
+    base_price, price_with_tax,
+    availability, stock,
+    category, images, discount,
+    is_featured,
+  } = product;
+
+  const isAvailable = availability === 'IN_STOCK';
+
+  return (
+    <main className={styles.page}>
+      {/* Breadcrumb */}
+      <nav className={styles.breadcrumb} aria-label="Ruta de navegación">
+        <Link to="/catalogo">Catálogo</Link>
+        {category && (
+          <>
+            <span aria-hidden="true"> / </span>
+            <Link to={`/catalogo?category=${category.id}`}>{category.name}</Link>
+          </>
+        )}
+        <span aria-hidden="true"> / </span>
+        <span aria-current="page">{name}</span>
+      </nav>
+
+      <div className={styles.layout}>
+        {/* Galería */}
+        <section className={styles.gallery} aria-label="Imágenes del producto">
+          <div className={styles.mainImage}>
+            {images && images.length > 0 ? (
+              <img src={images[0].url} alt={images[0].alt || name} />
+            ) : (
+              <div className={styles.imagePlaceholder}>
+                <span className={styles.skuLabel}>{sku}</span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Información */}
+        <section className={styles.info}>
+          {is_featured && (
+            <span className={styles.featuredBadge}>Destacado</span>
+          )}
+          {category && (
+            <Link
+              to={`/catalogo?category=${category.id}`}
+              className={styles.categoryLink}
+            >
+              {category.name}
+            </Link>
+          )}
+
+          <h1 className={styles.name}>{name}</h1>
+          <p className={styles.skuText}>SKU: {sku}</p>
+
+          {short_description && (
+            <p className={styles.shortDesc}>{short_description}</p>
+          )}
+
+          {/* Precios */}
+          <div className={styles.pricing}>
+            {discount ? (
+              <>
+                <span className={styles.originalPrice}>
+                  ${Number(base_price).toLocaleString('es-MX', {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+                <span className={styles.discountedPrice}>
+                  ${Number(discount.final_price).toLocaleString('es-MX', {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+                <span className={styles.discountBadge}>
+                  -{discount.pct}%
+                </span>
+              </>
+            ) : (
+              <span className={styles.price}>
+                ${Number(price_with_tax).toLocaleString('es-MX', {
+                  minimumFractionDigits: 2,
+                })}
+              </span>
+            )}
+            <span className={styles.taxLabel}>precio con IVA incluido</span>
+          </div>
+
+          {/* Disponibilidad */}
+          <div className={styles.availability}>
+            {isAvailable ? (
+              <span className={styles.inStock}>
+                Disponible — {stock} {stock === 1 ? 'unidad' : 'unidades'}
+              </span>
+            ) : (
+              <span className={styles.outOfStock}>Sin stock</span>
+            )}
+          </div>
+
+          {/* CTA */}
+          <button
+            type="button"
+            className={styles.addToCart}
+            disabled={!isAvailable}
+            aria-disabled={!isAvailable}
+          >
+            {isAvailable ? 'Agregar al carrito' : 'Sin disponibilidad'}
+          </button>
+
+          {/* Descripción completa */}
+          {description && (
+            <div className={styles.description}>
+              <h2 className={styles.descTitle}>Descripción</h2>
+              <p>{description}</p>
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
   );
 }

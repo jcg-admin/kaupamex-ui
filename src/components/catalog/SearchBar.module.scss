@@ -1,0 +1,70 @@
+@use '@styles/abstracts/variables' as *;
+@use '@styles/abstracts/mixins' as *;
+
+.form {
+  @include flex-column;
+  gap:   8px;
+  width: 100%;
+}
+
+.inputWrapper {
+  @include flex-start;
+  position:   relative;
+  background: $white;
+  border:     1px solid $border-color;
+  border-radius: $radius-md;
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: $primary-color;
+    box-shadow:   0 0 0 3px rgba($primary-color, 0.1);
+  }
+}
+
+.icon {
+  @include flex-center;
+  padding: 0 12px;
+  color:   $text-muted;
+  flex-shrink: 0;
+}
+
+.input {
+  flex:        1;
+  border:      none;
+  outline:     none;
+  background:  transparent;
+  font-size:   $font-size-base;
+  color:       $text-primary;
+  padding:     11px 0;
+  font-family: $font-family-base;
+
+  &::placeholder { color: $text-muted; }
+  &::-webkit-search-decoration,
+  &::-webkit-search-cancel-button { display: none; }
+}
+
+.clearBtn {
+  @include flex-center;
+  background:  none;
+  border:      none;
+  cursor:      pointer;
+  color:       $text-muted;
+  font-size:   20px;
+  line-height: 1;
+  padding:     0 12px;
+  transition:  color 0.15s;
+
+  &:hover { color: $text-primary; }
+}
+
+.submitBtn {
+  @include btn-primary;
+  padding:     10px 24px;
+  align-self:  flex-start;
+}
+
+.error {
+  font-size: $font-size-sm;
+  color:     $error-color;
+  margin:    0;
+}
