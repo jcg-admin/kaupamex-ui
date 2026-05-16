@@ -46,7 +46,12 @@ const buildDefinedEnv = (mode) => {
   return {
     ...pyVars,
     'process.env.NODE_ENV':   JSON.stringify(mode || 'production'),
-    'process.env.API_URL':    JSON.stringify(process.env.API_URL || 'http://localhost:8000'),
+    // Prioridad: variable de shell > .env.{NODE_ENV} > fallback desarrollo.
+    // Sin este orden, API_URL en .env.production era ignorado porque
+    // process.env.API_URL (vacío en el CI/servidor) caía directo al fallback.
+    'process.env.API_URL':    JSON.stringify(
+      process.env.API_URL || resolvedEnv.API_URL || 'http://localhost:8000'
+    ),
     'process.env.APP_VERSION': JSON.stringify(require('./package.json').version),
   };
 };
