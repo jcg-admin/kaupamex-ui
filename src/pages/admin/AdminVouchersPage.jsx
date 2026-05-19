@@ -70,7 +70,9 @@ export default function AdminVouchersPage() {
 
       {actionError && (
         <p role="alert" className={styles.error}>
-          {typeof actionError === 'string' ? actionError : 'Ocurrio un error.'}
+          {typeof actionError === 'string'
+            ? actionError
+            : (actionError?.message ?? 'Ocurrio un error.')}
         </p>
       )}
 

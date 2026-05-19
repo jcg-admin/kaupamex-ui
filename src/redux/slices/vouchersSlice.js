@@ -8,6 +8,7 @@
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const ADMIN_VOUCHERS_URL = '/api/v1/admin/vouchers/';
 
@@ -23,7 +24,7 @@ export const fetchVouchers = createAsyncThunk(
       const res = await apiService.get(ADMIN_VOUCHERS_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -36,7 +37,7 @@ export const createVoucher = createAsyncThunk(
       const res = await apiService.post(ADMIN_VOUCHERS_URL, voucherData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -49,7 +50,7 @@ export const deactivateVoucher = createAsyncThunk(
       const res = await apiService.post(`${ADMIN_VOUCHERS_URL}${id}/deactivate/`);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
