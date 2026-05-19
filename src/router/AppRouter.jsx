@@ -24,6 +24,8 @@ const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
 const ContactPage               = lazy(() => import('@pages/ContactPage'));
 const NewsletterSubscribePage   = lazy(() => import('@pages/NewsletterSubscribePage'));
 const NewsletterUnsubscribePage = lazy(() => import('@pages/NewsletterUnsubscribePage'));
+const ProductQuestionAskPage    = lazy(() => import('@pages/catalog/ProductQuestionAskPage'));
+const ProductQuestionsListPage  = lazy(() => import('@pages/catalog/ProductQuestionsListPage'));
 
 // Lazy pages — Auth
 const LoginPage       = lazy(() => import('@pages/auth/LoginPage'));
@@ -77,6 +79,8 @@ const AdminContactMessagesPage       = lazy(() => import('@pages/admin/AdminCont
 const AdminContactMessageDetailPage  = lazy(() => import('@pages/admin/AdminContactMessageDetailPage'));
 const AdminNewsletterSubscribersPage = lazy(() => import('@pages/admin/AdminNewsletterSubscribersPage'));
 const AdminNewsletterComposePage     = lazy(() => import('@pages/admin/AdminNewsletterComposePage'));
+const AdminQuestionsAnswerPage       = lazy(() => import('@pages/admin/AdminQuestionsAnswerPage'));
+const AdminQuestionsModerationPage   = lazy(() => import('@pages/admin/AdminQuestionsModerationPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -98,6 +102,10 @@ export default function AppRouter() {
             <Route path="newsletter" element={<NewsletterSubscribePage />} />
             {/* UC-NEW-02 — Desuscripcion via token firmado */}
             <Route path="newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
+            {/* UC-QST-01 — Hacer pregunta sobre producto */}
+            <Route path="catalog/:productId/ask" element={<ProductQuestionAskPage />} />
+            {/* UC-QST-02 — Listado publico de preguntas con respuesta */}
+            <Route path="catalog/:productId/questions" element={<ProductQuestionsListPage />} />
           </Route>
 
           {/* ─── Auth ─── */}
@@ -176,6 +184,10 @@ export default function AppRouter() {
               <Route path="admin/newsletter/subscribers"          element={<AdminNewsletterSubscribersPage />} />
               {/* UC-NEW-04 — Compositor de campana newsletter */}
               <Route path="admin/newsletter/compose"              element={<AdminNewsletterComposePage />} />
+              {/* UC-QST-03 — Cola de respuesta */}
+              <Route path="admin/questions/answer"                element={<AdminQuestionsAnswerPage />} />
+              {/* UC-QST-04 — Cola de moderacion */}
+              <Route path="admin/questions/moderation"            element={<AdminQuestionsModerationPage />} />
             </Route>
           </Route>
 

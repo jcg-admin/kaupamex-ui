@@ -33,6 +33,7 @@ import notificationsReducer    from './slices/notificationsSlice';
 import productDiscountsReducer from './slices/productDiscountsSlice';
 import contactReducer          from './slices/contactSlice';
 import newsletterReducer       from './slices/newsletterSlice';
+import questionsReducer        from './slices/questionsSlice';
 
 import {
   errorHandlingMiddleware,
@@ -59,6 +60,7 @@ const store = configureStore({
     productDiscounts: productDiscountsReducer,
     contact:          contactReducer,
     newsletter:       newsletterReducer,
+    questions:        questionsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
