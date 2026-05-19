@@ -100,6 +100,37 @@ export const changePassword = createAsyncThunk(
   }
 );
 
+/** Verifica el email del usuario con el token recibido (UC-AUTH-10). */
+export const verifyEmail = createAsyncThunk(
+  'auth/verifyEmail',
+  async (token, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post('/api/v1/auth/verify-email/', {
+        token,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** Solicita el reenvio del correo de verificacion (UC-AUTH-10 Alt). */
+export const resendVerificationEmail = createAsyncThunk(
+  'auth/resendVerificationEmail',
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(
+        '/api/v1/auth/resend-verification/',
+        { email },
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
 // ─── Slice ────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({

@@ -1,0 +1,95 @@
+@use '../../styles/abstracts' as *;
+
+.page {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: $spacing-8 $spacing-4;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e9e5e0;
+  border-radius: 8px;
+  padding: $spacing-6;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 $spacing-4;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  color: $text-secondary;
+}
+
+.pending {
+  color: $text-muted;
+}
+
+.success {
+  background: #e5f1e5;
+  color: #2d5a2d;
+  padding: $spacing-3;
+  border-radius: 4px;
+  margin: 0 0 $spacing-3;
+}
+
+.error {
+  background: #fae3e1;
+  color: #8a3a30;
+  padding: $spacing-3;
+  border-radius: 4px;
+  margin: 0 0 $spacing-3;
+}
+
+.detail {
+  font-style: italic;
+  font-size: $font-size-xs;
+  display: block;
+  margin-top: 4px;
+}
+
+.links {
+  margin: $spacing-3 0 0;
+
+  a {
+    color: #B8860B;
+    text-decoration: none;
+  }
+}
+
+.form {
+  text-align: left;
+  display: grid;
+  gap: $spacing-3;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+
+  label {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+
+  input {
+    padding: $spacing-2 $spacing-3;
+    border: 1px solid #d4c4a8;
+    border-radius: 4px;
+  }
+}
+
+.btnPrimary {
+  background: #B8860B;
+  color: #fff;
+  border: none;
+  padding: $spacing-2 $spacing-4;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    background: #c8b88a;
+    cursor: not-allowed;
+  }
+}

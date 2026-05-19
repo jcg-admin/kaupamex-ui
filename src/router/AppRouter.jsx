@@ -33,6 +33,7 @@ const LoginPage       = lazy(() => import('@pages/auth/LoginPage'));
 const RegisterPage    = lazy(() => import('@pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage  = lazy(() => import('@pages/auth/ResetPasswordPage'));
+const VerifyEmailPage    = lazy(() => import('@pages/auth/VerifyEmailPage'));
 
 // Lazy pages — Cuenta del comprador
 const AccountPage     = lazy(() => import('@pages/account/AccountPage'));
@@ -41,6 +42,7 @@ const OrderDetailPage = lazy(() => import('@pages/account/OrderDetailPage'));
 const WishlistPage    = lazy(() => import('@pages/account/WishlistPage'));
 const ProfilePage     = lazy(() => import('@pages/account/ProfilePage'));
 const ChangePasswordPage = lazy(() => import('@pages/account/ChangePasswordPage'));
+const AddressesPage      = lazy(() => import('@pages/account/AddressesPage'));
 
 // Lazy pages — Soporte (tickets del comprador)
 const SupportTicketsPage       = lazy(() => import('@pages/account/SupportTicketsPage'));
@@ -90,6 +92,15 @@ const AdminQuestionsAnswerPage       = lazy(() => import('@pages/admin/AdminQues
 const AdminQuestionsModerationPage   = lazy(() => import('@pages/admin/AdminQuestionsModerationPage'));
 const AdminPaymentRefundPage         = lazy(() => import('@pages/admin/AdminPaymentRefundPage'));
 const AdminPaymentsPage              = lazy(() => import('@pages/admin/AdminPaymentsPage'));
+// UC-CAT-06 / UC-CAT-09 / UC-CAT-10 — Categorias y CRUD de productos
+const AdminCategoriesPage            = lazy(() => import('@pages/admin/AdminCategoriesPage'));
+const AdminProductCreatePage         = lazy(() => import('@pages/admin/AdminProductCreatePage'));
+const AdminProductEditPage           = lazy(() => import('@pages/admin/AdminProductEditPage'));
+// UC-ADM-02..05 — Permisos, auditoria, settings, backups
+const AdminPermissionsPage           = lazy(() => import('@pages/admin/AdminPermissionsPage'));
+const AdminAuditLogPage              = lazy(() => import('@pages/admin/AdminAuditLogPage'));
+const AdminSystemSettingsPage        = lazy(() => import('@pages/admin/AdminSystemSettingsPage'));
+const AdminBackupsPage               = lazy(() => import('@pages/admin/AdminBackupsPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -123,10 +134,18 @@ export default function AppRouter() {
             <Route path="register"                 element={<RegisterPage />} />
             <Route path="forgot-password"          element={<ForgotPasswordPage />} />
             <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
+            {/* UC-AUTH-10 — Verificar email (token en query string) */}
+            <Route path="verify-email"             element={<VerifyEmailPage />} />
           </Route>
 
-          {/* ─── Checkout (requiere auth) ─── */}
-          <Route element={<ProtectedRoute />}>
+          {/* ─── Checkout ─── */}
+          {/*
+           * UC-ORD-01 permite invitado: el endpoint POST /api/v1/checkout/
+           * acepta carrito anonimo + datos de contacto + direccion sin JWT.
+           * Por eso /checkout y la confirmacion quedan publicas; la
+           * seleccion de gateway tambien (necesaria para invitados).
+           */}
+          <Route element={<StorefrontLayout />}>
             <Route path="checkout" element={<CheckoutPage />} />
             {/* UC-PAY-01 / UC-PAY-02 — Seleccion de gateway de pago */}
             <Route path="checkout/payment/:orderId" element={<PaymentSelectionPage />} />
@@ -143,6 +162,8 @@ export default function AppRouter() {
               <Route path="account/profile"     element={<ProfilePage />} />
               {/* UC-AUTH-08 — Cambiar contrasena */}
               <Route path="account/change-password" element={<ChangePasswordPage />} />
+              {/* UC-AUTH-07 — Libreta de direcciones */}
+              <Route path="account/addresses"   element={<AddressesPage />} />
               <Route path="account/returns"     element={<ReturnsPage />} />
               <Route path="account/returns/new" element={<ReturnCreatePage />} />
               <Route path="account/returns/:id" element={<ReturnDetailPage />} />
@@ -169,7 +190,21 @@ export default function AppRouter() {
           <Route element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
               <Route path="admin"             element={<AdminDashboardPage />} />
-              <Route path="admin/products"    element={<AdminProductsPage />} />
+              <Route path="admin/products"           element={<AdminProductsPage />} />
+              {/* UC-CAT-09 — Crear producto */}
+              <Route path="admin/products/new"       element={<AdminProductCreatePage />} />
+              {/* UC-CAT-10 — Editar producto */}
+              <Route path="admin/products/:id/edit"  element={<AdminProductEditPage />} />
+              {/* UC-CAT-06 — Gestionar categorias */}
+              <Route path="admin/categories"         element={<AdminCategoriesPage />} />
+              {/* UC-ADM-02 — Matriz de permisos */}
+              <Route path="admin/permissions"        element={<AdminPermissionsPage />} />
+              {/* UC-ADM-03 — Auditoria */}
+              <Route path="admin/audit-log"          element={<AdminAuditLogPage />} />
+              {/* UC-ADM-04 — Configuracion del sistema */}
+              <Route path="admin/system-settings"    element={<AdminSystemSettingsPage />} />
+              {/* UC-ADM-05 — Backups */}
+              <Route path="admin/backups"            element={<AdminBackupsPage />} />
               <Route path="admin/orders"      element={<AdminOrdersPage />} />
               {/* UC-ORD-07 / UC-ORD-08 — Detalle admin con transicion y cancelacion */}
               <Route path="admin/orders/:id"  element={<AdminOrderDetailPage />} />
