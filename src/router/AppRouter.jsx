@@ -58,6 +58,7 @@ const AdminDashboardPage  = lazy(() => import('@pages/admin/AdminDashboardPage')
 const AdminProductsPage   = lazy(() => import('@pages/admin/AdminProductsPage'));
 const AdminOrdersPage     = lazy(() => import('@pages/admin/AdminOrdersPage'));
 const AdminOrderDetailPage = lazy(() => import('@pages/admin/AdminOrderDetailPage'));
+const AdminOrdersDashboardPage = lazy(() => import('@pages/admin/AdminOrdersDashboardPage'));
 const AdminUsersPage      = lazy(() => import('@pages/admin/AdminUsersPage'));
 const AdminUserDetailPage = lazy(() => import('@pages/admin/AdminUserDetailPage'));
 const AdminVouchersPage   = lazy(() => import('@pages/admin/AdminVouchersPage'));
@@ -155,6 +156,8 @@ export default function AppRouter() {
               <Route path="admin/orders"      element={<AdminOrdersPage />} />
               {/* UC-ORD-07 / UC-ORD-08 — Detalle admin con transicion y cancelacion */}
               <Route path="admin/orders/:id"  element={<AdminOrderDetailPage />} />
+              {/* UC-ORD-10 — Dashboard transaccional */}
+              <Route path="admin/orders-dashboard" element={<AdminOrdersDashboardPage />} />
               <Route path="admin/users"       element={<AdminUsersPage />} />
               <Route path="admin/users/:pk"   element={<AdminUserDetailPage />} />
               <Route path="admin/vouchers"    element={<AdminVouchersPage />} />
