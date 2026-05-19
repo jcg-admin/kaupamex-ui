@@ -6,6 +6,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }    from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // jest.mock se eleva (hoisting) antes que cualquier import.
 // El jest.fn() DENTRO del factory siempre funciona correctamente.
@@ -23,9 +24,14 @@ import CatalogPage from './CatalogPage';
 const makeStore = () =>
   configureStore({ reducer: { catalog: catalogReducer } });
 
-const wrap = (ui, store) => (
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+const wrap = (ui, store, client = makeClient()) => (
   <Provider store={store}>
-    <MemoryRouter>{ui}</MemoryRouter>
+    <QueryClientProvider client={client}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>
   </Provider>
 );
 
@@ -44,6 +50,37 @@ const PRODUCTS = [
 
 const pageOf = (results = []) => ({
   data: { results, count: results.length, next: null, previous: null, active_filters: {} },
+});
+
+/**
+ * Las llamadas de CatalogFilters a /api/v1/categories/ (UC-CAT-08)
+ * comparten la misma instancia mockeada de apiService.get. Para que
+ * los asserts de productos no se contaminen con nombres de categoria,
+ * un beforeEach instala un interceptor por URL: cualquier path con
+ * "/categories" devuelve un fixture neutro; el resto cae al
+ * comportamiento de los tests (mockResolvedValueOnce + apiService.get).
+ */
+const CATEGORIES_FIXTURE = [
+  { id: 100, slug: 'cat-pruebas', name: 'CategoriaPruebas', product_count: 0, children: [] },
+];
+
+beforeEach(() => {
+  // Atajo de categorias: si la URL trae /categories, devolver fixture
+  // antes de delegar al mock real para el resto de URLs.
+  const originalGet = apiService.get;
+  apiService.get = jest.fn((url, ...rest) => {
+    if (typeof url === 'string' && url.includes('/categories')) {
+      return Promise.resolve({ data: { results: CATEGORIES_FIXTURE, count: 1 } });
+    }
+    return originalGet(url, ...rest);
+  });
+  // Preservar API mock para los tests (mockResolvedValueOnce, etc.)
+  apiService.get.mockResolvedValue       = originalGet.mockResolvedValue.bind(originalGet);
+  apiService.get.mockResolvedValueOnce   = originalGet.mockResolvedValueOnce.bind(originalGet);
+  apiService.get.mockRejectedValue       = originalGet.mockRejectedValue.bind(originalGet);
+  apiService.get.mockReturnValue         = originalGet.mockReturnValue.bind(originalGet);
+  apiService.get.mockImplementation      = originalGet.mockImplementation.bind(originalGet);
+  apiService.get.mockReset               = originalGet.mockReset.bind(originalGet);
 });
 
 afterEach(() => jest.clearAllMocks());
@@ -188,5 +225,49 @@ describe('CatalogPage — ProductCard', () => {
     await screen.findByText('Collar Oshun');
     const link = screen.getByRole('link', { name: /Collar Oshun/i });
     expect(link).toHaveAttribute('href', '/catalog/collar-oshun');
+  });
+});
+
+// =============================================================================
+describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
+  it('reenvia el param ?category=<slug> a fetchProducts', async () => {
+    apiService.get.mockResolvedValue(pageOf(PRODUCTS));
+    render(
+      <Provider store={makeStore()}>
+        <QueryClientProvider client={makeClient()}>
+          <MemoryRouter initialEntries={['/catalog?category=collares']}>
+            <CatalogPage />
+          </MemoryRouter>
+        </QueryClientProvider>
+      </Provider>,
+    );
+    await waitFor(() => {
+      const calls = apiService.get.mock.calls;
+      const catalogueCall = calls.find(
+        ([url]) => typeof url === 'string' && url.includes('/api/v1/catalogue/'),
+      );
+      expect(catalogueCall?.[1]?.params?.category).toBe('collares');
+    });
+  });
+
+  it('reenvia price_min y price_max a fetchProducts (UC-CAT-05)', async () => {
+    apiService.get.mockResolvedValue(pageOf(PRODUCTS));
+    render(
+      <Provider store={makeStore()}>
+        <QueryClientProvider client={makeClient()}>
+          <MemoryRouter initialEntries={['/catalog?price_min=100&price_max=500']}>
+            <CatalogPage />
+          </MemoryRouter>
+        </QueryClientProvider>
+      </Provider>,
+    );
+    await waitFor(() => {
+      const calls = apiService.get.mock.calls;
+      const catalogueCall = calls.find(
+        ([url]) => typeof url === 'string' && url.includes('/api/v1/catalogue/'),
+      );
+      expect(catalogueCall?.[1]?.params?.price_min).toBe('100');
+      expect(catalogueCall?.[1]?.params?.price_max).toBe('500');
+    });
   });
 });

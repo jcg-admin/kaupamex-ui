@@ -1,8 +1,9 @@
 /**
  * CatalogPage — PracticaYoruba
  * UC-CAT-01: listado de productos
- * UC-CAT-03 + UC-SRCH-01: búsqueda FULLTEXT
- * UC-CAT-03-EXT: filtros avanzados
+ * UC-CAT-03 + UC-SRCH-01: búsqueda FULLTEXT (search redirige a /search)
+ * UC-CAT-04: filtrar por categoria via ?category=<slug>
+ * UC-CAT-05: filtrar por precio via ?price_min= / ?price_max=
  */
 import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,6 +16,7 @@ import {
 } from '@redux/slices/catalogSlice';
 import SearchBar   from '@components/catalog/SearchBar';
 import ProductCard from '@components/catalog/ProductCard';
+import CatalogFilters from '@components/catalog/CatalogFilters';
 import styles      from './CatalogPage.module.scss';
 
 export default function CatalogPage() {
@@ -30,28 +32,53 @@ export default function CatalogPage() {
 
   const [mode, setMode] = useState('listing'); // 'listing' | 'search'
 
-  // Sincronizar ?q= con el estado
-  const qParam = searchParams.get('q') || '';
+  // Sincronizar params de URL con el estado
+  const qParam        = searchParams.get('q') || '';
+  const categoryParam = searchParams.get('category') || '';
+  const priceMinParam = searchParams.get('price_min') || '';
+  const priceMaxParam = searchParams.get('price_max') || '';
 
   useEffect(() => {
     if (qParam) {
       setMode('search');
-      dispatch(searchProducts({ q: qParam }));
+      dispatch(searchProducts({
+        q: qParam,
+        category: categoryParam || undefined,
+        price_min: priceMinParam || undefined,
+        price_max: priceMaxParam || undefined,
+      }));
     } else {
       setMode('listing');
-      dispatch(fetchProducts());
+      dispatch(fetchProducts({
+        category:  categoryParam || undefined,
+        price_min: priceMinParam || undefined,
+        price_max: priceMaxParam || undefined,
+      }));
     }
-  }, [dispatch, qParam]);
+  }, [dispatch, qParam, categoryParam, priceMinParam, priceMaxParam]);
 
   const handleSearch = useCallback((q) => {
-    setSearchParams({ q });
-  }, [setSearchParams]);
+    const next = new URLSearchParams(searchParams);
+    next.set('q', q);
+    setSearchParams(next);
+  }, [searchParams, setSearchParams]);
 
   const handleClearSearch = useCallback(() => {
-    setSearchParams({});
+    const next = new URLSearchParams(searchParams);
+    next.delete('q');
+    setSearchParams(next);
     dispatch(clearSearch());
     setMode('listing');
-  }, [dispatch, setSearchParams]);
+  }, [dispatch, searchParams, setSearchParams]);
+
+  const handleFiltersChange = useCallback((patch) => {
+    const next = new URLSearchParams(searchParams);
+    Object.entries(patch).forEach(([k, v]) => {
+      if (v === null || v === undefined || v === '') next.delete(k);
+      else next.set(k, String(v));
+    });
+    setSearchParams(next);
+  }, [searchParams, setSearchParams]);
 
   const displayItems = mode === 'search' ? searchResults : products;
   const loading      = mode === 'search' ? isSearching : isLoading;
@@ -89,6 +116,16 @@ export default function CatalogPage() {
           </button>
         )}
       </div>
+
+      {/* UC-CAT-04 + UC-CAT-05 — Filtros laterales (categoria + precio) */}
+      <div className={styles.layoutWithFilters}>
+        <CatalogFilters
+          category={categoryParam}
+          priceMin={priceMinParam}
+          priceMax={priceMaxParam}
+          onChange={handleFiltersChange}
+        />
+        <div className={styles.results}>
 
       {/* Estado de carga */}
       {loading && (
@@ -138,6 +175,8 @@ export default function CatalogPage() {
           </div>
         </section>
       )}
+        </div>
+      </div>
     </main>
   );
 }
