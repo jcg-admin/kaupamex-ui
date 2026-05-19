@@ -103,6 +103,8 @@ const AdminSystemSettingsPage        = lazy(() => import('@pages/admin/AdminSyst
 const AdminBackupsPage               = lazy(() => import('@pages/admin/AdminBackupsPage'));
 // UC-LOG-08 — Panel operacional de logistica
 const AdminLogisticsPage             = lazy(() => import('@pages/admin/AdminLogisticsPage'));
+// UC-CFG-01..05 — Hub de configuracion
+const AdminConfigPage                = lazy(() => import('@pages/admin/AdminConfigPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -254,6 +256,8 @@ export default function AppRouter() {
               <Route path="admin/payments/:paymentId/refund"      element={<AdminPaymentRefundPage />} />
               {/* UC-LOG-08 — Panel operacional de logistica */}
               <Route path="admin/logistics"                       element={<AdminLogisticsPage />} />
+              {/* UC-CFG-01..05 — Hub de configuracion */}
+              <Route path="admin/config"                          element={<AdminConfigPage />} />
             </Route>
           </Route>
 
