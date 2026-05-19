@@ -220,4 +220,117 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
       await screen.findByRole('button', { name: /Selecciona una variante/i }),
     ).toBeDisabled();
   });
+
+  // ─── D-019: regresion del cambio de precio al cambiar variante ─────────
+  // Backend desbloqueado en apps/chartsize commit 5e72899. El contrato
+  // real (ProductVariantSerializer) expone los campos:
+  //    label, slug, sku_suffix, stock, is_available,
+  //    effective_price, price_with_tax
+  // Estos tests usan el shape REAL — no el shape heredado { name, price }.
+  describe('UC-CHT-02 — variant price regression (D-019, real contract)', () => {
+    const REAL_VARIANTS = [
+      {
+        id: 11, label: 'Chico', slug: 'chico', sku_suffix: '-CH',
+        stock: 4, is_available: true,
+        effective_price: '1200.00', price_with_tax: 1392.00,
+      },
+      {
+        id: 12, label: 'Mediano', slug: 'mediano', sku_suffix: '-MD',
+        stock: 3, is_available: true,
+        effective_price: '1500.00', price_with_tax: 1740.00,
+      },
+      {
+        id: 13, label: 'Grande', slug: 'grande', sku_suffix: '-LG',
+        stock: 0, is_available: false,
+        effective_price: '1800.00', price_with_tax: 2088.00,
+      },
+    ];
+
+    const productWithRealVariants = { ...PRODUCT, variants: REAL_VARIANTS };
+
+    it('renderiza el label real (no el legacy field name) por variante', async () => {
+      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      render(wrap('collar-oshun-dorado', makeStore()));
+      expect(await screen.findByRole('button', { name: /Chico/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Mediano/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Grande/ })).toBeInTheDocument();
+    });
+
+    it('muestra price_with_tax (no effective_price) en el selector', async () => {
+      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      render(wrap('collar-oshun-dorado', makeStore()));
+      await screen.findByRole('button', { name: /Chico/ });
+      // price_with_tax = 1392 para "Chico"
+      expect(screen.getByText(/1,392/)).toBeInTheDocument();
+      // price_with_tax = 1740 para "Mediano"
+      expect(screen.getByText(/1,740/)).toBeInTheDocument();
+    });
+
+    it('al seleccionar una variante, el precio principal se actualiza al price_with_tax de esa variante', async () => {
+      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      const store = makeStore();
+      const { container } = render(wrap('collar-oshun-dorado', store));
+
+      // Inicialmente muestra el price_with_tax base del producto (1450.00).
+      expect(await screen.findByText(/1,450\.00/)).toBeInTheDocument();
+
+      // Selecciona "Mediano" (price_with_tax = 1740).
+      const { fireEvent } = require('@testing-library/react');
+      fireEvent.click(screen.getByRole('button', { name: /Mediano/ }));
+
+      // El precio principal cambia al precio con IVA de la variante.
+      // Aparece tambien dentro del boton de la variante; aqui solo
+      // queremos verificar que al menos UNO de los elementos rendereados
+      // (el del area principal) muestre 1,740.00.
+      await screen.findAllByText(/1,740\.00/);
+      const all1740 = screen.getAllByText(/1,740\.00/);
+      expect(all1740.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('cambiar entre dos variantes refleja el precio de la variante recien seleccionada', async () => {
+      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      const store = makeStore();
+      render(wrap('collar-oshun-dorado', store));
+      await screen.findByRole('button', { name: /Chico/ });
+
+      const { fireEvent } = require('@testing-library/react');
+      fireEvent.click(screen.getByRole('button', { name: /Chico/ }));
+      await screen.findAllByText(/1,392\.00/);
+      // Despues de seleccionar Chico: 1,392 aparece tanto en el boton de
+      // la variante como en el area principal del precio.
+      expect(screen.getAllByText(/1,392\.00/).length).toBeGreaterThanOrEqual(2);
+
+      fireEvent.click(screen.getByRole('button', { name: /Mediano/ }));
+      await screen.findAllByText(/1,740\.00/);
+      expect(screen.getAllByText(/1,740\.00/).length).toBeGreaterThanOrEqual(2);
+    });
+
+    it('la variante con stock=0 queda deshabilitada (is_available=false) y no es seleccionable', async () => {
+      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      render(wrap('collar-oshun-dorado', makeStore()));
+      const grande = await screen.findByRole('button', { name: /Grande/ });
+      expect(grande).toBeDisabled();
+    });
+
+    it('el POST al carrito incluye el variant_id seleccionado del contrato real', async () => {
+      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      apiService.post.mockResolvedValue({ data: { items: [], voucher: null } });
+      const store = makeStore();
+      render(wrap('collar-oshun-dorado', store));
+
+      const { fireEvent } = require('@testing-library/react');
+      fireEvent.click(await screen.findByRole('button', { name: /Mediano/ }));
+      fireEvent.click(screen.getByRole('button', { name: /^Agregar al carrito$/ }));
+
+      await screen.findByRole('status');
+      expect(apiService.post).toHaveBeenCalledWith(
+        '/api/cart/items/',
+        expect.objectContaining({
+          product_id: PRODUCT.id,
+          variant_id: 12,
+          quantity:   1,
+        }),
+      );
+    });
+  });
 });

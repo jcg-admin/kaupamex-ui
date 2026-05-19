@@ -6,6 +6,12 @@
  *
  * El estado de seleccion vive en yorubaVariantsSlice para que UC-CHT-02
  * (agregar al carrito) pueda leerlo desde otros componentes.
+ *
+ * Contrato de variante: el backend `ProductVariantSerializer`
+ * (apps/chartsize, commit 5e72899) expone los campos `label`,
+ * `effective_price` y `price_with_tax`. Para compatibilidad con
+ * mocks heredados que usan `name`/`price`, este componente acepta
+ * cualquiera de los dos esquemas.
  */
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +20,13 @@ import styles from './VariantSelector.module.scss';
 
 const formatPrice = (value) =>
   Number(value).toLocaleString('es-MX', { minimumFractionDigits: 2 });
+
+/** UC-CHT-01: nombre visible (label real del API, fallback name heredado). */
+const variantLabel = (v) => v.label ?? v.name ?? '';
+
+/** UC-CHT-02: precio mostrado (price_with_tax real, fallback effective_price o price). */
+const variantDisplayPrice = (v) =>
+  v.price_with_tax ?? v.effective_price ?? v.price ?? 0;
 
 export default function VariantSelector({ variants }) {
   const dispatch = useDispatch();
@@ -56,8 +69,8 @@ export default function VariantSelector({ variants }) {
             aria-pressed={isSelected}
             onClick={() => dispatch(selectVariant(variant.id))}
           >
-            <span className={styles.name}>{variant.name}</span>
-            <span className={styles.price}>${formatPrice(variant.price)}</span>
+            <span className={styles.name}>{variantLabel(variant)}</span>
+            <span className={styles.price}>${formatPrice(variantDisplayPrice(variant))}</span>
             {isOutOfStock && (
               <span className={styles.stockTag}>Sin stock</span>
             )}

@@ -86,9 +86,15 @@ export default function ProductPage() {
     ? variants.find((v) => v.id === selectedVariantId) ?? null
     : null;
 
-  // UC-CHT-01: el precio mostrado refleja la variante seleccionada (sin IVA
-  // base, el formato sigue siendo el del producto principal).
-  const displayPrice = selectedVariant?.price ?? price_with_tax;
+  // UC-CHT-01: el precio mostrado refleja la variante seleccionada. El
+  // contrato real (apps/chartsize commit 5e72899) expone price_with_tax;
+  // mantenemos fallback a effective_price / price para mocks heredados.
+  const displayPrice = (
+    selectedVariant?.price_with_tax
+    ?? selectedVariant?.effective_price
+    ?? selectedVariant?.price
+    ?? price_with_tax
+  );
   const isAvailable = hasVariants
     ? variants.some((v) => v.stock > 0)
     : availability === 'IN_STOCK';
