@@ -88,6 +88,7 @@ const AdminNewsletterSubscribersPage = lazy(() => import('@pages/admin/AdminNews
 const AdminNewsletterComposePage     = lazy(() => import('@pages/admin/AdminNewsletterComposePage'));
 const AdminQuestionsAnswerPage       = lazy(() => import('@pages/admin/AdminQuestionsAnswerPage'));
 const AdminQuestionsModerationPage   = lazy(() => import('@pages/admin/AdminQuestionsModerationPage'));
+const AdminPaymentRefundPage         = lazy(() => import('@pages/admin/AdminPaymentRefundPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -209,6 +210,8 @@ export default function AppRouter() {
               <Route path="admin/questions/answer"                element={<AdminQuestionsAnswerPage />} />
               {/* UC-QST-04 — Cola de moderacion */}
               <Route path="admin/questions/moderation"            element={<AdminQuestionsModerationPage />} />
+              {/* UC-PAY-09 — Procesar reembolso manual */}
+              <Route path="admin/payments/:paymentId/refund"      element={<AdminPaymentRefundPage />} />
             </Route>
           </Route>
 
