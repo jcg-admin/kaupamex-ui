@@ -1,0 +1,203 @@
+@use '../../styles/abstracts' as *;
+
+.page {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $spacing-8 $spacing-4;
+}
+
+.header {
+  margin-bottom: $spacing-4;
+}
+
+.title {
+  margin: 0 0 $spacing-1;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  color: $text-secondary;
+}
+
+.subtitle {
+  margin: 0;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: $spacing-6;
+  color: $text-muted;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: $spacing-3;
+}
+
+.item {
+  display: flex;
+  gap: $spacing-4;
+  padding: $spacing-4;
+  background: #fff;
+  border: 1px solid #e9e5e0;
+  border-radius: 8px;
+  align-items: flex-start;
+}
+
+.info {
+  flex: 1;
+}
+
+.recipient {
+  margin: 0 0 $spacing-1;
+  font-weight: 600;
+}
+
+.badge {
+  margin-left: $spacing-2;
+  display: inline-block;
+  padding: 2px 8px;
+  background: #B8860B;
+  color: #fff;
+  border-radius: 12px;
+  font-size: $font-size-xs;
+}
+
+.line {
+  margin: 2px 0;
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.form {
+  background: #fff;
+  border: 1px solid #e9e5e0;
+  border-radius: 8px;
+  padding: $spacing-4;
+  display: grid;
+  gap: $spacing-3;
+}
+
+.formTitle {
+  margin: 0 0 $spacing-2;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+}
+
+.field {
+  display: grid;
+  gap: 4px;
+
+  label {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+
+  input {
+    padding: $spacing-2 $spacing-3;
+    border: 1px solid #d4c4a8;
+    border-radius: 4px;
+  }
+}
+
+.fieldError {
+  color: #c0392b;
+  font-size: $font-size-xs;
+}
+
+.zoneError {
+  background: #fae3e1;
+  color: #8a3a30;
+  padding: $spacing-2 $spacing-3;
+  border-radius: 4px;
+}
+
+.formActions {
+  display: flex;
+  gap: $spacing-3;
+}
+
+.footer {
+  margin-top: $spacing-4;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+}
+
+.btnPrimary {
+  background: #B8860B;
+  color: #fff;
+  border: none;
+  padding: $spacing-2 $spacing-4;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    background: #c8b88a;
+    cursor: not-allowed;
+  }
+}
+
+.btnSecondary {
+  background: transparent;
+  color: $text-secondary;
+  border: 1px solid #d4c4a8;
+  padding: $spacing-2 $spacing-3;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: #faf5e8;
+  }
+}
+
+.btnDanger {
+  background: transparent;
+  color: #c0392b;
+  border: 1px solid #e0bdb8;
+  padding: $spacing-2 $spacing-3;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.success {
+  background: #e5f1e5;
+  color: #2d5a2d;
+  padding: $spacing-2 $spacing-3;
+  border-radius: 4px;
+  margin-bottom: $spacing-3;
+}
+
+.error {
+  background: #fae3e1;
+  color: #8a3a30;
+  padding: $spacing-2 $spacing-3;
+  border-radius: 4px;
+  margin-bottom: $spacing-3;
+}
+
+.cancelLink {
+  color: $text-muted;
+  text-decoration: none;
+  font-size: $font-size-sm;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
