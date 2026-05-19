@@ -39,6 +39,7 @@ const AdminProductsPage   = lazy(() => import('@pages/admin/AdminProductsPage'))
 const AdminOrdersPage     = lazy(() => import('@pages/admin/AdminOrdersPage'));
 const AdminUsersPage      = lazy(() => import('@pages/admin/AdminUsersPage'));
 const AdminUserDetailPage = lazy(() => import('@pages/admin/AdminUserDetailPage'));
+const AdminVouchersPage   = lazy(() => import('@pages/admin/AdminVouchersPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -89,6 +90,7 @@ export default function AppRouter() {
               <Route path="admin/orders"      element={<AdminOrdersPage />} />
               <Route path="admin/users"       element={<AdminUsersPage />} />
               <Route path="admin/users/:pk"   element={<AdminUserDetailPage />} />
+              <Route path="admin/vouchers"    element={<AdminVouchersPage />} />
             </Route>
           </Route>
 
