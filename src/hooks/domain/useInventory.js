@@ -10,7 +10,7 @@ import apiService from '@services/apiService';
 
 const STOCK_URL = '/api/v1/admin/inventory/';
 const MOVEMENTS = (variantId) =>
-  `/api/v1/admin/inventory/${variantId}/movements/`;
+  `/api/v1/admin/inventory/variants/${variantId}/movements/`;
 
 export const INVENTORY_KEY           = ['inventory'];
 export const INVENTORY_MOVEMENTS_KEY = ['inventory', 'movements'];
