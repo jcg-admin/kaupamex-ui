@@ -53,6 +53,7 @@ const SupportTicketDetailPage  = lazy(() => import('@pages/account/SupportTicket
 const ReturnsPage             = lazy(() => import('@pages/account/ReturnsPage'));
 const ReturnCreatePage        = lazy(() => import('@pages/account/ReturnCreatePage'));
 const ReturnDetailPage        = lazy(() => import('@pages/account/ReturnDetailPage'));
+const ProductReviewCreatePage = lazy(() => import('@pages/account/ProductReviewCreatePage'));
 
 // Lazy pages — Notificaciones (comprador)
 const NotificationPreferencesPage = lazy(() => import('@pages/account/NotificationPreferencesPage'));
@@ -171,6 +172,11 @@ export default function AppRouter() {
               <Route path="account/returns"     element={<ReturnsPage />} />
               <Route path="account/returns/new" element={<ReturnCreatePage />} />
               <Route path="account/returns/:id" element={<ReturnDetailPage />} />
+              {/* UC-REV-01 — Dejar resena del producto comprado */}
+              <Route
+                path="account/orders/:orderId/products/:productId/review"
+                element={<ProductReviewCreatePage />}
+              />
               <Route path="account/notifications/preferences" element={<NotificationPreferencesPage />} />
               {/* UC-PAY-05 — Estado actual del pago de una orden propia */}
               <Route path="account/orders/:orderId/payment" element={<PaymentStatusPage />} />

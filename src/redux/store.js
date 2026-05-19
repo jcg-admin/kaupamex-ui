@@ -42,6 +42,7 @@ import permissionsReducer       from './slices/permissionsSlice';
 import settingsReducer          from './slices/settingsSlice';
 import backupsReducer           from './slices/backupsSlice';
 import logisticsReducer         from './slices/logisticsSlice';
+import reviewsReducer           from './slices/reviewsSlice';
 
 import {
   errorHandlingMiddleware,
@@ -77,6 +78,7 @@ const store = configureStore({
     settings:         settingsReducer,
     backups:          backupsReducer,
     logistics:        logisticsReducer,
+    reviews:          reviewsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
