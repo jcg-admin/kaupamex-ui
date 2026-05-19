@@ -58,6 +58,7 @@ const AdminInventoryImportPage       = lazy(() => import('@pages/admin/AdminInve
 const AdminInventoryMovementsPage    = lazy(() => import('@pages/admin/AdminInventoryMovementsPage'));
 const AdminInventoryAdjustPage       = lazy(() => import('@pages/admin/AdminInventoryAdjustPage'));
 const AdminVariantsPage              = lazy(() => import('@pages/admin/AdminVariantsPage'));
+const AdminVariantPricePage          = lazy(() => import('@pages/admin/AdminVariantPricePage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -128,8 +129,9 @@ export default function AppRouter() {
               <Route path="admin/inventory/import"                element={<AdminInventoryImportPage />} />
               <Route path="admin/inventory/:variantId/movements"  element={<AdminInventoryMovementsPage />} />
               <Route path="admin/inventory/:variantId/adjust"     element={<AdminInventoryAdjustPage />} />
-              {/* UC-CHT-03 — Gestion de variantes Yoruba */}
+              {/* UC-CHT-03 / UC-CHT-04 — Variantes Yoruba */}
               <Route path="admin/products/:productId/variants"    element={<AdminVariantsPage />} />
+              <Route path="admin/variants/:variantId/price"       element={<AdminVariantPricePage />} />
             </Route>
           </Route>
 
