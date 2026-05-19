@@ -16,6 +16,8 @@ import PageLoader       from '@components/shared/LazyLoad/PageLoader';
 const HomePage        = lazy(() => import('@pages/home/HomePage'));
 const CatalogPage     = lazy(() => import('@pages/catalog/CatalogPage'));
 const ProductPage     = lazy(() => import('@pages/catalog/ProductPage'));
+// UC-CAT-08 — Arbol publico de categorias
+const CategoryListPage = lazy(() => import('@pages/catalog/CategoryListPage'));
 const CartPage        = lazy(() => import('@pages/cart/CartPage'));
 const CheckoutPage    = lazy(() => import('@pages/checkout/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
@@ -27,6 +29,7 @@ const NewsletterSubscribePage   = lazy(() => import('@pages/NewsletterSubscribeP
 const NewsletterUnsubscribePage = lazy(() => import('@pages/NewsletterUnsubscribePage'));
 const ProductQuestionAskPage    = lazy(() => import('@pages/catalog/ProductQuestionAskPage'));
 const ProductQuestionsListPage  = lazy(() => import('@pages/catalog/ProductQuestionsListPage'));
+const ProductReviewsListPage    = lazy(() => import('@pages/catalog/ProductReviewsListPage'));
 
 // Lazy pages — Auth
 const LoginPage       = lazy(() => import('@pages/auth/LoginPage'));
@@ -119,6 +122,8 @@ export default function AppRouter() {
           <Route element={<StorefrontLayout />}>
             <Route index element={<HomePage />} />
             <Route path="catalog" element={<CatalogPage />} />
+            {/* UC-CAT-08 — Arbol publico de categorias */}
+            <Route path="categories" element={<CategoryListPage />} />
             <Route path="catalog/:slug" element={<ProductPage />} />
             <Route path="cart" element={<CartPage />} />
             {/* UC-COM-01 — Formulario publico de contacto */}
@@ -131,6 +136,8 @@ export default function AppRouter() {
             <Route path="catalog/:productId/ask" element={<ProductQuestionAskPage />} />
             {/* UC-QST-02 — Listado publico de preguntas con respuesta */}
             <Route path="catalog/:productId/questions" element={<ProductQuestionsListPage />} />
+            {/* UC-REV-02 — Listado publico de resenas aprobadas */}
+            <Route path="catalog/:productId/reviews" element={<ProductReviewsListPage />} />
           </Route>
 
           {/* ─── Auth ─── */}
