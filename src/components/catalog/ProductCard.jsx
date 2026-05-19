@@ -20,7 +20,7 @@ export default function ProductCard({ product }) {
   const isAvailable = stock > 0;
 
   return (
-    <Link to={`/catalogo/${slug}`} className={styles.card}>
+    <Link to={`/catalog/${slug}`} className={styles.card}>
       {is_featured && <span className={styles.badge}>Destacado</span>}
 
       <div className={styles.imageArea}>

@@ -187,6 +187,6 @@ describe('CatalogPage — ProductCard', () => {
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByText('Collar Oshun');
     const link = screen.getByRole('link', { name: /Collar Oshun/i });
-    expect(link).toHaveAttribute('href', '/catalogo/collar-oshun');
+    expect(link).toHaveAttribute('href', '/catalog/collar-oshun');
   });
 });

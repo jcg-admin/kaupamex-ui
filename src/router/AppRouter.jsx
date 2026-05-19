@@ -51,44 +51,44 @@ export default function AppRouter() {
           {/* ─── Tienda pública ─── */}
           <Route element={<StorefrontLayout />}>
             <Route index element={<HomePage />} />
-            <Route path="catalogo" element={<CatalogPage />} />
-            <Route path="catalogo/:slug" element={<ProductPage />} />
-            <Route path="carrito" element={<CartPage />} />
+            <Route path="catalog" element={<CatalogPage />} />
+            <Route path="catalog/:slug" element={<ProductPage />} />
+            <Route path="cart" element={<CartPage />} />
           </Route>
 
           {/* ─── Auth ─── */}
           <Route path="auth">
-            <Route path="login"             element={<LoginPage />} />
-            <Route path="registro"          element={<RegisterPage />} />
-            <Route path="recuperar"         element={<ForgotPasswordPage />} />
-            <Route path="restablecer/:uid/:token" element={<ResetPasswordPage />} />
+            <Route path="login"                    element={<LoginPage />} />
+            <Route path="register"                 element={<RegisterPage />} />
+            <Route path="forgot-password"          element={<ForgotPasswordPage />} />
+            <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
           </Route>
 
           {/* ─── Checkout (requiere auth) ─── */}
           <Route element={<ProtectedRoute />}>
-            <Route path="checkout"    element={<CheckoutPage />} />
-            <Route path="pedido/:id/confirmacion" element={<OrderSuccessPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="order/:id/confirmation" element={<OrderSuccessPage />} />
           </Route>
 
           {/* ─── Cuenta del comprador ─── */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AccountLayout />}>
-              <Route path="mi-cuenta"       element={<AccountPage />} />
-              <Route path="mi-cuenta/pedidos"    element={<OrdersPage />} />
-              <Route path="mi-cuenta/pedidos/:id" element={<OrderDetailPage />} />
-              <Route path="mi-cuenta/favoritos"  element={<WishlistPage />} />
-              <Route path="mi-cuenta/perfil"     element={<ProfilePage />} />
+              <Route path="account"             element={<AccountPage />} />
+              <Route path="account/orders"      element={<OrdersPage />} />
+              <Route path="account/orders/:id"  element={<OrderDetailPage />} />
+              <Route path="account/wishlist"    element={<WishlistPage />} />
+              <Route path="account/profile"     element={<ProfilePage />} />
             </Route>
           </Route>
 
           {/* ─── Admin ─── */}
           <Route element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
-              <Route path="admin"              element={<AdminDashboardPage />} />
-              <Route path="admin/productos"    element={<AdminProductsPage />} />
-              <Route path="admin/pedidos"      element={<AdminOrdersPage />} />
-              <Route path="admin/usuarios"     element={<AdminUsersPage />} />
-              <Route path="admin/usuarios/:pk" element={<AdminUserDetailPage />} />
+              <Route path="admin"             element={<AdminDashboardPage />} />
+              <Route path="admin/products"    element={<AdminProductsPage />} />
+              <Route path="admin/orders"      element={<AdminOrdersPage />} />
+              <Route path="admin/users"       element={<AdminUsersPage />} />
+              <Route path="admin/users/:pk"   element={<AdminUserDetailPage />} />
             </Route>
           </Route>
 

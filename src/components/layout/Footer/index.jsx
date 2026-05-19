@@ -16,16 +16,16 @@ export default function Footer() {
         <nav className={styles.nav} aria-label="Footer">
           <div className={styles.col}>
             <h4 className={styles.colTitle}>Tienda</h4>
-            <Link to="/catalogo">Catálogo</Link>
-            <Link to="/catalogo?cat=collares">Collares</Link>
-            <Link to="/catalogo?cat=pulseras">Pulseras</Link>
-            <Link to="/catalogo?cat=ofrendas">Ofrendas</Link>
+            <Link to="/catalog">Catálogo</Link>
+            <Link to="/catalog?cat=collares">Collares</Link>
+            <Link to="/catalog?cat=pulseras">Pulseras</Link>
+            <Link to="/catalog?cat=ofrendas">Ofrendas</Link>
           </div>
           <div className={styles.col}>
             <h4 className={styles.colTitle}>Mi cuenta</h4>
-            <Link to="/mi-cuenta">Panel</Link>
-            <Link to="/mi-cuenta/pedidos">Mis pedidos</Link>
-            <Link to="/mi-cuenta/favoritos">Favoritos</Link>
+            <Link to="/account">Panel</Link>
+            <Link to="/account/orders">Mis pedidos</Link>
+            <Link to="/account/wishlist">Favoritos</Link>
           </div>
           <div className={styles.col}>
             <h4 className={styles.colTitle}>Ayuda</h4>

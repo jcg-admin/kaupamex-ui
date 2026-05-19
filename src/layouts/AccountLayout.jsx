@@ -13,10 +13,10 @@ import ToastContainer from '@components/common/Toast/ToastContainer';
 import styles from './AccountLayout.module.scss';
 
 const NAV_ITEMS = [
-  { to: '/mi-cuenta',           label: 'Resumen',     end: true },
-  { to: '/mi-cuenta/pedidos',   label: 'Mis pedidos'  },
-  { to: '/mi-cuenta/favoritos', label: 'Mis favoritos'},
-  { to: '/mi-cuenta/perfil',    label: 'Mi perfil'    },
+  { to: '/account',          label: 'Resumen',     end: true },
+  { to: '/account/orders',   label: 'Mis pedidos'  },
+  { to: '/account/wishlist', label: 'Mis favoritos'},
+  { to: '/account/profile',  label: 'Mi perfil'    },
 ];
 
 export default function AccountLayout() {

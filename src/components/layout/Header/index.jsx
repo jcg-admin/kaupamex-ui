@@ -14,10 +14,10 @@ import { toggleSearch, openModal } from '@redux/slices/uiSlice';
 import styles from './Header.module.scss';
 
 const MAIN_NAV = [
-  { to: '/catalogo',               label: 'Catálogo' },
-  { to: '/catalogo?cat=collares',  label: 'Collares' },
-  { to: '/catalogo?cat=pulseras',  label: 'Pulseras' },
-  { to: '/catalogo?cat=ofrendas',  label: 'Ofrendas' },
+  { to: '/catalog',               label: 'Catálogo' },
+  { to: '/catalog?cat=collares',  label: 'Collares' },
+  { to: '/catalog?cat=pulseras',  label: 'Pulseras' },
+  { to: '/catalog?cat=ofrendas',  label: 'Ofrendas' },
 ];
 
 export default function Header() {
@@ -66,7 +66,7 @@ export default function Header() {
 
           {/* Cuenta / Login */}
           {isAuth ? (
-            <Link to="/mi-cuenta" className={styles.iconBtn} aria-label="Mi cuenta">
+            <Link to="/account" className={styles.iconBtn} aria-label="Mi cuenta">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
@@ -87,7 +87,7 @@ export default function Header() {
           )}
 
           {/* Carrito */}
-          <Link to="/carrito" className={styles.cartBtn} aria-label={`Carrito (${cartCount} items)`}>
+          <Link to="/cart" className={styles.cartBtn} aria-label={`Carrito (${cartCount} items)`}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />

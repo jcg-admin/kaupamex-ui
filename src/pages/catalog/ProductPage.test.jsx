@@ -20,9 +20,9 @@ const makeStore = () =>
 
 const wrap = (slug, store) => (
   <Provider store={store}>
-    <MemoryRouter initialEntries={[`/catalogo/${slug}`]}>
+    <MemoryRouter initialEntries={[`/catalog/${slug}`]}>
       <Routes>
-        <Route path="/catalogo/:slug" element={<ProductPage />} />
+        <Route path="/catalog/:slug" element={<ProductPage />} />
       </Routes>
     </MemoryRouter>
   </Provider>

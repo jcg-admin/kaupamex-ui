@@ -26,9 +26,9 @@ const makeStore = () =>
 
 const wrap = (pk, store) => (
   <Provider store={store}>
-    <MemoryRouter initialEntries={[`/admin/usuarios/${pk}`]}>
+    <MemoryRouter initialEntries={[`/admin/users/${pk}`]}>
       <Routes>
-        <Route path="/admin/usuarios/:pk" element={<AdminUserDetailPage />} />
+        <Route path="/admin/users/:pk" element={<AdminUserDetailPage />} />
       </Routes>
     </MemoryRouter>
   </Provider>

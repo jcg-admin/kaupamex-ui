@@ -37,7 +37,7 @@ export default function ProductPage() {
       <div className={styles.notFound}>
         <h1>Producto no disponible</h1>
         <p>Este producto no existe o ya no está publicado.</p>
-        <Link to="/catalogo" className={styles.backLink}>
+        <Link to="/catalog" className={styles.backLink}>
           Ver catálogo completo
         </Link>
       </div>
@@ -60,11 +60,11 @@ export default function ProductPage() {
     <main className={styles.page}>
       {/* Breadcrumb */}
       <nav className={styles.breadcrumb} aria-label="Ruta de navegación">
-        <Link to="/catalogo">Catálogo</Link>
+        <Link to="/catalog">Catálogo</Link>
         {category && (
           <>
             <span aria-hidden="true"> / </span>
-            <Link to={`/catalogo?category=${category.id}`}>{category.name}</Link>
+            <Link to={`/catalog?category=${category.id}`}>{category.name}</Link>
           </>
         )}
         <span aria-hidden="true"> / </span>
@@ -92,7 +92,7 @@ export default function ProductPage() {
           )}
           {category && (
             <Link
-              to={`/catalogo?category=${category.id}`}
+              to={`/catalog?category=${category.id}`}
               className={styles.categoryLink}
             >
               {category.name}

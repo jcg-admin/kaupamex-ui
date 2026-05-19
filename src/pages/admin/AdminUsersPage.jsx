@@ -253,7 +253,7 @@ export default function AdminUsersPage() {
                       </td>
                       <td>
                         <Link
-                          to={`/admin/usuarios/${u.id}`}
+                          to={`/admin/users/${u.id}`}
                           className={styles.linkBtn}
                           aria-label={`Ver perfil de ${u.username}`}
                         >
