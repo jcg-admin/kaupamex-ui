@@ -10,6 +10,9 @@ import {
   fetchAdminUsers, createAdminUser,
   setSearch, clearActionState,
 } from '@redux/slices/adminSlice';
+import {
+  changeUserRole, clearAdminUsersActionState,
+} from '@redux/slices/adminUsersSlice';
 import styles from './AdminUsersPage.module.scss';
 
 // =============================================================================
@@ -146,7 +149,9 @@ export default function AdminUsersPage() {
     useSelector((s) => s.admin);
 
   const [localSearch, setLocalSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const adminUsersState = useSelector((s) => s.adminUsers ?? { isActioning: false });
 
   useEffect(() => {
     dispatch(fetchAdminUsers());
@@ -155,8 +160,21 @@ export default function AdminUsersPage() {
   const handleSearch = useCallback((e) => {
     e.preventDefault();
     dispatch(setSearch(localSearch));
-    dispatch(fetchAdminUsers({ search: localSearch }));
-  }, [dispatch, localSearch]);
+    const params = { search: localSearch };
+    if (roleFilter !== 'all') params.role = roleFilter;
+    dispatch(fetchAdminUsers(params));
+  }, [dispatch, localSearch, roleFilter]);
+
+  const handleRoleChange = useCallback(async (user, newRole) => {
+    if (newRole === (user.is_staff ? 'admin' : 'buyer')) return;
+    const result = await dispatch(changeUserRole({ id: user.id, role: newRole }));
+    if (changeUserRole.fulfilled.match(result)) {
+      dispatch(clearAdminUsersActionState());
+      const params = { search: localSearch };
+      if (roleFilter !== 'all') params.role = roleFilter;
+      dispatch(fetchAdminUsers(params));
+    }
+  }, [dispatch, localSearch, roleFilter]);
 
   const handleCreated = useCallback(() => {
     dispatch(clearActionState());
@@ -191,6 +209,18 @@ export default function AdminUsersPage() {
           onChange={(e) => setLocalSearch(e.target.value)}
           aria-label="Buscar usuarios"
         />
+        <label className={styles.roleFilter}>
+          <span>Rol</span>
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            aria-label="Filtrar por rol"
+          >
+            <option value="all">Todos</option>
+            <option value="admin">Administrador</option>
+            <option value="buyer">Comprador</option>
+          </select>
+        </label>
         <button type="submit" className={styles.btnSecondary}>
           Buscar
         </button>
@@ -259,6 +289,15 @@ export default function AdminUsersPage() {
                         >
                           Ver
                         </Link>
+                        <select
+                          aria-label={`Cambiar rol de ${u.username}`}
+                          value={u.is_staff ? 'admin' : 'buyer'}
+                          onChange={(e) => handleRoleChange(u, e.target.value)}
+                          disabled={adminUsersState.isActioning}
+                        >
+                          <option value="buyer">Comprador</option>
+                          <option value="admin">Administrador</option>
+                        </select>
                       </td>
                     </tr>
                   ))}
