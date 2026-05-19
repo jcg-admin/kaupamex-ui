@@ -105,6 +105,8 @@ const AdminPaymentsPage              = lazy(() => import('@pages/admin/AdminPaym
 const AdminCategoriesPage            = lazy(() => import('@pages/admin/AdminCategoriesPage'));
 const AdminProductCreatePage         = lazy(() => import('@pages/admin/AdminProductCreatePage'));
 const AdminProductEditPage           = lazy(() => import('@pages/admin/AdminProductEditPage'));
+// UC-CAT-12 — Sincronizacion masiva de precios (CSV / ajuste porcentual)
+const AdminPriceSyncPage             = lazy(() => import('@pages/admin/AdminPriceSyncPage'));
 // UC-ADM-02..05 — Permisos, auditoria, settings, backups
 const AdminPermissionsPage           = lazy(() => import('@pages/admin/AdminPermissionsPage'));
 const AdminAuditLogPage              = lazy(() => import('@pages/admin/AdminAuditLogPage'));
@@ -223,6 +225,8 @@ export default function AppRouter() {
               <Route path="admin/products/:id/edit"  element={<AdminProductEditPage />} />
               {/* UC-CAT-06 — Gestionar categorias */}
               <Route path="admin/categories"         element={<AdminCategoriesPage />} />
+              {/* UC-CAT-12 — Sincronizar precios en lote */}
+              <Route path="admin/price-sync"         element={<AdminPriceSyncPage />} />
               {/* UC-ADM-02 — Matriz de permisos */}
               <Route path="admin/permissions"        element={<AdminPermissionsPage />} />
               {/* UC-ADM-03 — Auditoria */}
