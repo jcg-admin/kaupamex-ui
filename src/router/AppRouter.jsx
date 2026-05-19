@@ -68,6 +68,9 @@ const AdminVariantPricePage          = lazy(() => import('@pages/admin/AdminVari
 const AdminNotificationComposePage   = lazy(() => import('@pages/admin/AdminNotificationComposePage'));
 const AdminProductDiscountsPage      = lazy(() => import('@pages/admin/AdminProductDiscountsPage'));
 const AdminReportSalesPage           = lazy(() => import('@pages/admin/AdminReportSalesPage'));
+const AdminReportTopSellersPage      = lazy(() => import('@pages/admin/AdminReportTopSellersPage'));
+const AdminContactMessagesPage       = lazy(() => import('@pages/admin/AdminContactMessagesPage'));
+const AdminContactMessageDetailPage  = lazy(() => import('@pages/admin/AdminContactMessageDetailPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -150,6 +153,8 @@ export default function AppRouter() {
               <Route path="admin/product-discounts"               element={<AdminProductDiscountsPage />} />
               {/* UC-REP-01 — Reporte de ingresos y ventas */}
               <Route path="admin/reports/sales"                   element={<AdminReportSalesPage />} />
+              {/* UC-REP-02 — Reporte top sellers */}
+              <Route path="admin/reports/top-sellers"             element={<AdminReportTopSellersPage />} />
             </Route>
           </Route>
 
