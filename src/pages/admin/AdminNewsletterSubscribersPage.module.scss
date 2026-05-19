@@ -1,0 +1,56 @@
+/* AdminNewsletterSubscribersPage — PracticaYoruba */
+@use '@styles/abstracts' as *;
+
+.page { padding: 1.5rem; }
+.header { margin-bottom: 1rem; }
+.title { font-size: 1.6rem; margin: 0 0 0.4rem; }
+.summary { color: rgba(0, 0, 0, 0.65); margin: 0; }
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  select {
+    padding: 0.45rem 0.7rem;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 0.4rem;
+    font-size: 0.95rem;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.6rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  th {
+    background: rgba(0, 0, 0, 0.03);
+    font-weight: 600;
+  }
+}
+
+.secondaryBtn {
+  background: transparent;
+  color: #1f7a4d;
+  border: 1px solid #1f7a4d;
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.empty { color: rgba(0, 0, 0, 0.6); font-style: italic; }
+.success { color: #1f7a4d; }
+.error { color: #b00020; }

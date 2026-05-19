@@ -75,6 +75,8 @@ const AdminReportCustomersRfmPage    = lazy(() => import('@pages/admin/AdminRepo
 const AdminReportDashboardPage       = lazy(() => import('@pages/admin/AdminReportDashboardPage'));
 const AdminContactMessagesPage       = lazy(() => import('@pages/admin/AdminContactMessagesPage'));
 const AdminContactMessageDetailPage  = lazy(() => import('@pages/admin/AdminContactMessageDetailPage'));
+const AdminNewsletterSubscribersPage = lazy(() => import('@pages/admin/AdminNewsletterSubscribersPage'));
+const AdminNewsletterComposePage     = lazy(() => import('@pages/admin/AdminNewsletterComposePage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -170,6 +172,10 @@ export default function AppRouter() {
               {/* UC-COM-02 / UC-COM-03 — Bandeja y respuesta de contacto */}
               <Route path="admin/contact/messages"                element={<AdminContactMessagesPage />} />
               <Route path="admin/contact/messages/:id"            element={<AdminContactMessageDetailPage />} />
+              {/* UC-NEW-03 — Gestion de suscriptores */}
+              <Route path="admin/newsletter/subscribers"          element={<AdminNewsletterSubscribersPage />} />
+              {/* UC-NEW-04 — Compositor de campana newsletter */}
+              <Route path="admin/newsletter/compose"              element={<AdminNewsletterComposePage />} />
             </Route>
           </Route>
 
