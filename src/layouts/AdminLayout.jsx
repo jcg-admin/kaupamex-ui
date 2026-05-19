@@ -32,7 +32,7 @@ const ADMIN_NAV = [
   { section: 'Operaciones' },
   { to: '/admin/inventory',   label: 'Inventario' },
   { to: '/admin/logistics',   label: 'Logística' },
-  { to: '/admin/reports',     label: 'Reportes' },
+  { to: '/admin/reports/sales', label: 'Reportes: Ventas' },
   { section: 'Configuración' },
   { to: '/admin/config',      label: 'Configuración' },
 ];

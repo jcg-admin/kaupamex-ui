@@ -67,6 +67,7 @@ const AdminVariantsPage              = lazy(() => import('@pages/admin/AdminVari
 const AdminVariantPricePage          = lazy(() => import('@pages/admin/AdminVariantPricePage'));
 const AdminNotificationComposePage   = lazy(() => import('@pages/admin/AdminNotificationComposePage'));
 const AdminProductDiscountsPage      = lazy(() => import('@pages/admin/AdminProductDiscountsPage'));
+const AdminReportSalesPage           = lazy(() => import('@pages/admin/AdminReportSalesPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -147,6 +148,8 @@ export default function AppRouter() {
               <Route path="admin/notifications/compose"           element={<AdminNotificationComposePage />} />
               {/* UC-DASH-01..04 — Descuentos de producto */}
               <Route path="admin/product-discounts"               element={<AdminProductDiscountsPage />} />
+              {/* UC-REP-01 — Reporte de ingresos y ventas */}
+              <Route path="admin/reports/sales"                   element={<AdminReportSalesPage />} />
             </Route>
           </Route>
 
