@@ -21,6 +21,7 @@ import {
   clearProductDiscountsActionState,
 } from '@redux/slices/productDiscountsSlice';
 import ProductDiscountCreateForm from '@components/admin/ProductDiscountCreateForm';
+import ProductDiscountEditForm   from '@components/admin/ProductDiscountEditForm';
 import styles from './AdminProductDiscountsPage.module.scss';
 
 const STATUS_OPTIONS = [
@@ -66,14 +67,19 @@ export default function AdminProductDiscountsPage() {
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.productDiscounts);
 
-  const [filters, setFilters]       = useState({ status: '' });
+  const [filters, setFilters]         = useState({ status: '' });
   const [isCreateOpen, setCreateOpen] = useState(false);
+  const [editingDiscount, setEditingDiscount] = useState(null);
   const params = filters.status ? { status: filters.status } : {};
   const { data, isLoading, isError } = useProductDiscounts(params);
   const items = Array.isArray(data) ? data : [];
 
   useEffect(() => {
-    if (lastAction === 'deactivated' || lastAction === 'created') {
+    if (
+      lastAction === 'deactivated' ||
+      lastAction === 'created' ||
+      lastAction === 'updated'
+    ) {
       queryClient.invalidateQueries({ queryKey: PRODUCT_DISCOUNTS_QUERY_KEY });
       dispatch(clearProductDiscountsActionState());
     }
@@ -169,6 +175,15 @@ export default function AdminProductDiscountsPage() {
                 <td>
                   <button
                     type="button"
+                    className={styles.editBtn}
+                    aria-label={`Editar descuento ${d.product_name}`}
+                    onClick={() => setEditingDiscount(d)}
+                    disabled={isActioning}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    type="button"
                     className={styles.dangerBtn}
                     aria-label={`Desactivar descuento ${d.product_name}`}
                     onClick={() => handleDeactivate(d)}
@@ -185,6 +200,13 @@ export default function AdminProductDiscountsPage() {
 
       {isCreateOpen && (
         <ProductDiscountCreateForm onClose={() => setCreateOpen(false)} />
+      )}
+
+      {editingDiscount && (
+        <ProductDiscountEditForm
+          discount={editingDiscount}
+          onClose={() => setEditingDiscount(null)}
+        />
       )}
     </section>
   );

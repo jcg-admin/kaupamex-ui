@@ -3,6 +3,7 @@
  * UC-DASH-04: Ver descuentos activos del catalogo
  * UC-DASH-03: Desactivar descuento (acceso desde la lista)
  * UC-DASH-01: Abrir formulario de crear descuento
+ * UC-DASH-02: Abrir formulario de editar descuento
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }        from 'react-redux';
@@ -209,6 +210,31 @@ describe('AdminProductDiscountsPage — crear (UC-DASH-01)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Nuevo descuento/i }));
     expect(
       await screen.findByRole('dialog', { name: /Nuevo descuento de producto/i }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('AdminProductDiscountsPage — editar (UC-DASH-02)', () => {
+  it('muestra un boton de editar por cada descuento', async () => {
+    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    render(wrap(<AdminProductDiscountsPage />, makeStore()));
+    await screen.findByText('Camiseta Yoruba');
+    expect(screen.getByRole('button', {
+      name: /Editar descuento Camiseta Yoruba/i,
+    })).toBeInTheDocument();
+  });
+
+  it('abre el modal de edicion al pulsar Editar', async () => {
+    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    render(wrap(<AdminProductDiscountsPage />, makeStore()));
+    await screen.findByText('Camiseta Yoruba');
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /Editar descuento Camiseta Yoruba/i,
+    }));
+
+    expect(
+      await screen.findByRole('dialog', { name: /Editar descuento de producto/i }),
     ).toBeInTheDocument();
   });
 });
