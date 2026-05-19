@@ -12,6 +12,7 @@ import {
 import { clearSelectedVariant } from '@redux/slices/yorubaVariantsSlice';
 import VariantSelector from '@components/catalog/VariantSelector';
 import AddToWishlistButton from '@components/wishlist/AddToWishlistButton';
+import RelatedProductsSection from '@components/catalog/RelatedProductsSection';
 import useAddProductWithVariant from '@hooks/useAddProductWithVariant';
 import styles from './ProductPage.module.scss';
 
@@ -234,6 +235,9 @@ export default function ProductPage() {
           )}
         </section>
       </div>
+
+      {/* UC-CAT-07 — Productos relacionados (se oculta solo si vacio/error) */}
+      <RelatedProductsSection slug={slug} />
     </main>
   );
 }

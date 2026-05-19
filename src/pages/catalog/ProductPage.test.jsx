@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react';
 import { Provider }       from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
@@ -28,13 +29,18 @@ const makeStore = () =>
     },
   });
 
-const wrap = (slug, store) => (
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+const wrap = (slug, store, client = makeClient()) => (
   <Provider store={store}>
-    <MemoryRouter initialEntries={[`/catalog/${slug}`]}>
-      <Routes>
-        <Route path="/catalog/:slug" element={<ProductPage />} />
-      </Routes>
-    </MemoryRouter>
+    <QueryClientProvider client={client}>
+      <MemoryRouter initialEntries={[`/catalog/${slug}`]}>
+        <Routes>
+          <Route path="/catalog/:slug" element={<ProductPage />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
   </Provider>
 );
 
