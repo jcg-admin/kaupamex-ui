@@ -11,6 +11,7 @@
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const CUSTOMER_URL = '/api/v1/returns/';
 const ADMIN_URL    = '/api/v1/admin/returns/';
@@ -27,7 +28,7 @@ export const createReturnRequest = createAsyncThunk(
       const res = await apiService.post(CUSTOMER_URL, payload);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -40,7 +41,7 @@ export const fetchCustomerReturns = createAsyncThunk(
       const res = await apiService.get(CUSTOMER_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -53,7 +54,7 @@ export const fetchCustomerReturnDetail = createAsyncThunk(
       const res = await apiService.get(`${CUSTOMER_URL}${id}/`);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -70,7 +71,7 @@ export const fetchAdminReturns = createAsyncThunk(
       const res = await apiService.get(ADMIN_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -83,7 +84,7 @@ export const fetchAdminReturnDetail = createAsyncThunk(
       const res = await apiService.get(`${ADMIN_URL}${id}/`);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -99,7 +100,7 @@ export const approveReturnRequest = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -114,7 +115,7 @@ export const rejectReturnRequest = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -129,7 +130,7 @@ export const requestInfoReturnRequest = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -145,7 +146,7 @@ export const registerReturnReception = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -160,7 +161,7 @@ export const processReturnRefund = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
