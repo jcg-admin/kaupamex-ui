@@ -53,6 +53,10 @@ const AdminVouchersPage   = lazy(() => import('@pages/admin/AdminVouchersPage'))
 const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 const AdminReturnsPage    = lazy(() => import('@pages/admin/AdminReturnsPage'));
 const AdminReturnDetailPage = lazy(() => import('@pages/admin/AdminReturnDetailPage'));
+const AdminInventoryPage             = lazy(() => import('@pages/admin/AdminInventoryPage'));
+const AdminInventoryImportPage       = lazy(() => import('@pages/admin/AdminInventoryImportPage'));
+const AdminInventoryMovementsPage    = lazy(() => import('@pages/admin/AdminInventoryMovementsPage'));
+const AdminInventoryAdjustPage       = lazy(() => import('@pages/admin/AdminInventoryAdjustPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -119,6 +123,10 @@ export default function AppRouter() {
               <Route path="admin/support"     element={<AdminSupportPage />} />
               <Route path="admin/returns"     element={<AdminReturnsPage />} />
               <Route path="admin/returns/:id" element={<AdminReturnDetailPage />} />
+              <Route path="admin/inventory"                       element={<AdminInventoryPage />} />
+              <Route path="admin/inventory/import"                element={<AdminInventoryImportPage />} />
+              <Route path="admin/inventory/:variantId/movements"  element={<AdminInventoryMovementsPage />} />
+              <Route path="admin/inventory/:variantId/adjust"     element={<AdminInventoryAdjustPage />} />
             </Route>
           </Route>
 
