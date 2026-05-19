@@ -2,19 +2,144 @@
 
 .page {
   width: 100%;
-  padding: $spacing-8 0;
 }
 
-.placeholder {
-  @include flex-column-center;
-  min-height: 40vh;
-  gap: $spacing-4;
+.hero {
+  background: linear-gradient(135deg, $primary-dark, $primary-color);
+  color: #fff;
+  padding: $spacing-12 $spacing-6;
   text-align: center;
-  color: $text-muted;
+}
 
-  h1 {
-    font-family: $font-family-display;
-    font-size: $font-size-2xl;
-    color: $text-secondary;
+.heroInner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  margin: 0 0 $spacing-3;
+}
+
+.heroSubtitle {
+  font-size: $font-size-lg;
+  margin: 0 0 $spacing-6;
+  opacity: 0.95;
+}
+
+.heroActions {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-3;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  background: #fff;
+  color: $primary-dark;
+  padding: $spacing-3 $spacing-6;
+  border-radius: $border-radius-md;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.secondaryBtn {
+  background: transparent;
+  color: #fff;
+  padding: $spacing-3 $spacing-6;
+  border: 1px solid #fff;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+}
+
+.sectionTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  margin: 0 0 $spacing-5;
+  color: $text-primary;
+}
+
+.categories {
+  padding: $spacing-10 $spacing-6;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.categoryList {
+  list-style: none;
+  display: flex;
+  gap: $spacing-4;
+  flex-wrap: wrap;
+  padding: 0;
+  margin: 0;
+}
+
+.categoryLink {
+  display: inline-block;
+  padding: $spacing-3 $spacing-5;
+  background: $primary-50;
+  color: $text-primary;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    background: $primary-100;
+  }
+}
+
+.featured {
+  padding: $spacing-10 $spacing-6;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: $spacing-5;
+}
+
+.featuredFooter {
+  margin-top: $spacing-6;
+  text-align: right;
+}
+
+.linkInline {
+  color: $primary-color;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.ctaRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: $spacing-4;
+  padding: $spacing-10 $spacing-6;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.ctaCard {
+  display: block;
+  background: $primary-50;
+  color: $text-primary;
+  padding: $spacing-5;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+
+  h3 {
+    margin: 0 0 $spacing-2;
+    color: $text-primary;
+  }
+
+  p {
+    margin: 0;
+    color: $text-muted;
+  }
+
+  &:hover {
+    background: $primary-100;
   }
 }
