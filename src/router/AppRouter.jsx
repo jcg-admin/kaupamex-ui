@@ -48,6 +48,8 @@ const WishlistPage    = lazy(() => import('@pages/account/WishlistPage'));
 const ProfilePage     = lazy(() => import('@pages/account/ProfilePage'));
 const ChangePasswordPage = lazy(() => import('@pages/account/ChangePasswordPage'));
 const AddressesPage      = lazy(() => import('@pages/account/AddressesPage'));
+// UC-SRCH-03 — Historial personal de busquedas
+const SearchHistoryPage  = lazy(() => import('@pages/account/SearchHistoryPage'));
 
 // Lazy pages — Soporte (tickets del comprador)
 const SupportTicketsPage       = lazy(() => import('@pages/account/SupportTicketsPage'));
@@ -181,6 +183,8 @@ export default function AppRouter() {
               <Route path="account/change-password" element={<ChangePasswordPage />} />
               {/* UC-AUTH-07 — Libreta de direcciones */}
               <Route path="account/addresses"   element={<AddressesPage />} />
+              {/* UC-SRCH-03 — Historial personal de busquedas */}
+              <Route path="account/search-history" element={<SearchHistoryPage />} />
               <Route path="account/returns"     element={<ReturnsPage />} />
               <Route path="account/returns/new" element={<ReturnCreatePage />} />
               <Route path="account/returns/:id" element={<ReturnDetailPage />} />
