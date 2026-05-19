@@ -16,6 +16,7 @@
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const ADMIN_VARIANTS_URL = (productId) => `/api/v1/admin/products/${productId}/variants/`;
 const ADMIN_VARIANT_PRICE_URL = (variantId) => `/api/v1/admin/variants/${variantId}/price/`;
@@ -32,7 +33,7 @@ export const fetchAdminVariants = createAsyncThunk(
       const res = await apiService.get(ADMIN_VARIANTS_URL(productId));
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
@@ -49,7 +50,7 @@ export const createVariant = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.body || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
@@ -65,7 +66,7 @@ export const toggleVariantActive = createAsyncThunk(
       );
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.body || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
@@ -80,7 +81,7 @@ export const setVariantPrice = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.body || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
@@ -93,7 +94,7 @@ export const clearVariantPrice = createAsyncThunk(
       const res = await apiService.delete(ADMIN_VARIANT_PRICE_URL(variantId));
       return { variant_id: variantId, data: res.data };
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.body || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
