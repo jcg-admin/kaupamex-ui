@@ -9,6 +9,7 @@ import {
   fetchSupportTicketDetail,
   clearCurrentSupportTicket,
 } from '@redux/slices/supportTicketsSlice';
+import SupportTicketReplyForm from '@components/support/SupportTicketReplyForm';
 import styles from './SupportTicketDetailPage.module.scss';
 
 const STATUS_LABEL = {
@@ -110,6 +111,10 @@ export default function SupportTicketDetailPage() {
           </article>
         ))}
       </section>
+
+      {current.status !== 'CLOSED' && (
+        <SupportTicketReplyForm ticketId={current.id} />
+      )}
     </section>
   );
 }
