@@ -52,6 +52,7 @@ const AdminUserDetailPage = lazy(() => import('@pages/admin/AdminUserDetailPage'
 const AdminVouchersPage   = lazy(() => import('@pages/admin/AdminVouchersPage'));
 const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 const AdminReturnsPage    = lazy(() => import('@pages/admin/AdminReturnsPage'));
+const AdminReturnDetailPage = lazy(() => import('@pages/admin/AdminReturnDetailPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -117,6 +118,7 @@ export default function AppRouter() {
               <Route path="admin/vouchers"    element={<AdminVouchersPage />} />
               <Route path="admin/support"     element={<AdminSupportPage />} />
               <Route path="admin/returns"     element={<AdminReturnsPage />} />
+              <Route path="admin/returns/:id" element={<AdminReturnDetailPage />} />
             </Route>
           </Route>
 

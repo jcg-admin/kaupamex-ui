@@ -1,0 +1,74 @@
+/* AdminReturnDetailPage — PracticaYoruba */
+@use '@styles/abstracts' as *;
+
+.page {
+  padding: 1.5rem;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.backLink {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: $color-primary;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.title { font-size: 1.5rem; margin: 0; }
+.meta  { color: rgba(0, 0, 0, 0.6); margin: 0.35rem 0 0; }
+
+.block {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.4rem;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.blockTitle { font-size: 1rem; margin: 0 0 0.5rem; }
+
+.reason       { margin: 0; font-weight: 600; }
+.description  { margin: 0.4rem 0 0; color: rgba(0, 0, 0, 0.75); }
+.customerEmail { color: rgba(0, 0, 0, 0.55); font-size: 0.9rem; }
+
+.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.itemRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemQty { color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; }
+
+%badge {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badgePending   { @extend %badge; background: rgba(244, 162, 0, 0.18);   color: #c47a00; }
+.badgeInfo      { @extend %badge; background: rgba(125, 90, 240, 0.18);  color: #5a36d0; }
+.badgeApproved  { @extend %badge; background: rgba(64, 132, 245, 0.18);  color: #1c5bd8; }
+.badgeRejected  { @extend %badge; background: rgba(220, 53, 69, 0.18);   color: #b1192c; }
+.badgeCompleted { @extend %badge; background: rgba(40, 167, 69, 0.18);   color: #1f7a3a; }
+
+.empty { color: rgba(0, 0, 0, 0.6); margin: 0; }
+.error { color: $color-danger; }
