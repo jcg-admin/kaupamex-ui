@@ -1,0 +1,42 @@
+/* AdminReturnReceptionPanel — PracticaYoruba */
+@use '@styles/abstracts' as *;
+
+.panel {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.4rem;
+  padding: 1rem 1.15rem;
+  margin-top: 1rem;
+}
+
+.title { font-size: 1rem; margin: 0 0 0.75rem; }
+
+.form { display: grid; gap: 0.75rem; }
+
+.field {
+  display: grid;
+  gap: 0.35rem;
+
+  label { font-weight: 600; }
+
+  select, textarea {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.3rem;
+    font: inherit;
+  }
+}
+
+.primaryBtn {
+  align-self: flex-start;
+  background: $color-primary;
+  color: #fff;
+  border: 0;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.error   { color: $color-danger; font-size: 0.9rem; }
+.success { color: #1f7a3a; font-weight: 600; }

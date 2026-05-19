@@ -21,7 +21,8 @@ import {
   RETURN_STATUS_CLASS,
   REASON_LABEL,
 } from '@pages/account/returnStatus';
-import AdminReturnReviewPanel from '@components/returns/AdminReturnReviewPanel';
+import AdminReturnReviewPanel    from '@components/returns/AdminReturnReviewPanel';
+import AdminReturnReceptionPanel from '@components/returns/AdminReturnReceptionPanel';
 import styles from './AdminReturnDetailPage.module.scss';
 
 function formatDateTime(iso) {
@@ -124,7 +125,8 @@ export default function AdminReturnDetailPage() {
         )}
       </section>
 
-      <AdminReturnReviewPanel returnRequest={current} />
+      <AdminReturnReviewPanel    returnRequest={current} />
+      <AdminReturnReceptionPanel returnRequest={current} />
     </section>
   );
 }
