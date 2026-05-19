@@ -87,13 +87,13 @@ export default function AdminInventoryImportPage() {
         <section className={styles.report} aria-label="Reporte de importación">
           <h2 className={styles.reportTitle}>Reporte de importación</h2>
           <p className={styles.created}>
-            {importReport.productos_creados ?? 0} productos creados.
+            {importReport.products_created ?? 0} productos creados.
           </p>
           <p className={styles.failed}>
-            {importReport.productos_fallidos ?? 0} productos fallidos.
+            {importReport.products_failed ?? 0} productos fallidos.
           </p>
 
-          {(importReport.reporte_errores ?? []).length > 0 && (
+          {(importReport.error_report ?? []).length > 0 && (
             <table className={styles.errors}>
               <thead>
                 <tr>
@@ -103,15 +103,23 @@ export default function AdminInventoryImportPage() {
                 </tr>
               </thead>
               <tbody>
-                {importReport.reporte_errores.map((row, idx) => (
+                {importReport.error_report.map((row, idx) => (
                   <tr key={idx}>
-                    <td>{row.fila ?? '—'}</td>
-                    <td>{row.campo ?? '—'}</td>
-                    <td>{row.motivo ?? '—'}</td>
+                    <td>{row.row ?? '—'}</td>
+                    <td>{row.field ?? '—'}</td>
+                    <td>{row.reason ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          )}
+
+          {importReport.download_url && (
+            <p className={styles.downloadLink}>
+              <a href={importReport.download_url} download>
+                Descargar reporte de errores
+              </a>
+            </p>
           )}
         </section>
       )}
