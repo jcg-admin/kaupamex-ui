@@ -84,7 +84,7 @@ describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
     const store = makeStore();
     await store.dispatch(fetchStockMovements(99));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/inventory/99/movements/',
+      '/api/v1/admin/inventory/variants/99/movements/',
     );
   });
 });
@@ -92,7 +92,7 @@ describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
 describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
   it('fulfilled — marca lastAction y aplica el nuevo stock al item', async () => {
     apiService.post.mockResolvedValue({
-      data: { variant_id: 10, stock_nuevo: 25, stock_anterior: 3, delta: 22 },
+      data: { variant_id: 10, new_stock: 25, previous_stock: 3, delta: 22, movement_id: 99 },
     });
     const store = makeStore();
     // seed
@@ -133,8 +133,9 @@ describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
   it('fulfilled — guarda importReport y lastAction=imported', async () => {
     apiService.post.mockResolvedValue({
       data: {
-        productos_creados: 8, productos_fallidos: 2,
-        reporte_errores: [{ fila: 3, campo: 'sku', motivo: 'duplicado' }],
+        products_created: 8, products_failed: 2,
+        error_report: [{ row: 3, field: 'sku', reason: 'duplicado' }],
+        download_url: '/media/reports/import-123.csv',
       },
     });
     const store = makeStore();
@@ -142,8 +143,8 @@ describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
     await store.dispatch(importProductsCsv({ file }));
     const s = store.getState().inventory;
     expect(s.lastAction).toBe('imported');
-    expect(s.importReport.productos_creados).toBe(8);
-    expect(s.importReport.productos_fallidos).toBe(2);
+    expect(s.importReport.products_created).toBe(8);
+    expect(s.importReport.products_failed).toBe(2);
   });
 
   it('rejected — guarda actionError', async () => {
@@ -161,7 +162,7 @@ describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
   it('clearImportReport limpia el reporte', () => {
     const store = makeStore();
     store.dispatch({ type: 'inventory/importCsv/fulfilled',
-                     payload: { productos_creados: 1 } });
+                     payload: { products_created: 1 } });
     store.dispatch(clearImportReport());
     expect(store.getState().inventory.importReport).toBeNull();
   });

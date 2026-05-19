@@ -13,8 +13,8 @@ import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
 const STOCK_URL    = '/api/v1/admin/inventory/';
-const MOVEMENTS    = (variantId) => `/api/v1/admin/inventory/${variantId}/movements/`;
-const ADJUST       = (variantId) => `/api/v1/admin/inventory/${variantId}/adjust/`;
+const MOVEMENTS    = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/movements/`;
+const ADJUST       = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/adjust/`;
 const IMPORT_CSV   = '/api/v1/admin/inventory/import/';
 
 // =============================================================================
@@ -158,7 +158,7 @@ const inventorySlice = createSlice({
         if (updated?.variant_id != null) {
           state.items = state.items.map((it) =>
             it.variant_id === updated.variant_id
-              ? { ...it, stock: updated.stock_nuevo ?? it.stock }
+              ? { ...it, stock: updated.new_stock ?? it.stock }
               : it,
           );
         }
