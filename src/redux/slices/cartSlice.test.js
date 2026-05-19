@@ -12,6 +12,7 @@ jest.mock('@services/apiService', () => ({
 import apiService from '@services/apiService';
 import cartReducer, {
   addToCart,
+  syncCartOnLogin,
   clearCartActionState,
 } from './cartSlice';
 
@@ -65,6 +66,41 @@ describe('cartSlice (UC-CART-01)', () => {
       statusCode: 400,
     });
     expect(state.isActioning).toBe(false);
+  });
+
+  it('UC-CART-06 — syncCartOnLogin: hace POST /api/cart/sync/ y carga items fusionados', async () => {
+    apiService.post.mockResolvedValue({
+      data: {
+        items: [
+          { id: 1, product_id: 10, name: 'Anonimo', price: 100, quantity: 1 },
+          { id: 2, product_id: 20, name: 'Cuenta',  price: 50,  quantity: 2 },
+        ],
+        voucher: null,
+      },
+    });
+    const store = makeStore();
+    await store.dispatch(syncCartOnLogin());
+
+    expect(apiService.post).toHaveBeenCalledWith('/api/cart/sync/', {});
+    const state = store.getState().cart;
+    expect(state.items).toHaveLength(2);
+    expect(state.lastAction).toBe('synced');
+    expect(state.itemCount).toBe(3);
+  });
+
+  it('UC-CART-06 — syncCartOnLogin: en error guarda actionError serializado', async () => {
+    apiService.post.mockRejectedValue({
+      message: 'Error al fusionar',
+      code: 'FUSION_ERROR',
+      status: 500,
+    });
+    const store = makeStore();
+    await store.dispatch(syncCartOnLogin());
+    const state = store.getState().cart;
+    expect(state.actionError).toMatchObject({
+      message: 'Error al fusionar',
+      code: 'FUSION_ERROR',
+    });
   });
 
   it('clearCartActionState: limpia isActioning, actionError y lastAction', () => {

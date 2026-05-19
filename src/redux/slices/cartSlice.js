@@ -28,6 +28,7 @@ const CART_ITEMS_URL    = '/api/cart/items/';
 const CART_ITEM_URL     = (id) => `/api/cart/items/${id}/`;
 const CART_VOUCHER_URL  = '/api/cart/voucher/';
 const CART_SAVE_URL     = '/api/cart/save/';
+const CART_SYNC_URL     = '/api/cart/sync/';
 
 // ─── Thunks ───────────────────────────────────────────────────────────
 
@@ -113,6 +114,19 @@ export const saveCartForLater = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await apiService.post(CART_SAVE_URL, {});
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** UC-CART-06 — sincronizar (fusionar) carrito anonimo al autenticar. */
+export const syncCartOnLogin = createAsyncThunk(
+  'cart/sync',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(CART_SYNC_URL, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -230,6 +244,21 @@ const cartSlice = createSlice({
         state.lastAction  = 'saved';
       })
       .addCase(saveCartForLater.rejected, (state, a) => {
+        state.isActioning = false;
+        state.actionError = a.payload;
+      });
+
+    builder
+      .addCase(syncCartOnLogin.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(syncCartOnLogin.fulfilled, (state, action) => {
+        setCart(state, action);
+        state.isActioning = false;
+        state.lastAction  = 'synced';
+      })
+      .addCase(syncCartOnLogin.rejected, (state, a) => {
         state.isActioning = false;
         state.actionError = a.payload;
       });
