@@ -2,7 +2,7 @@
  * ProductPage — PracticaYoruba
  * UC-CAT-02: Ficha completa de un producto.
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@redux/slices/catalogSlice';
 import { clearSelectedVariant } from '@redux/slices/yorubaVariantsSlice';
 import VariantSelector from '@components/catalog/VariantSelector';
+import useAddProductWithVariant from '@hooks/useAddProductWithVariant';
 import styles from './ProductPage.module.scss';
 
 export default function ProductPage() {
@@ -23,6 +24,9 @@ export default function ProductPage() {
     (s) => s.yorubaVariants?.selectedVariantId ?? null,
   );
 
+  const { addProduct } = useAddProductWithVariant();
+  const [cartFeedback, setCartFeedback] = useState(null);
+
   useEffect(() => {
     dispatch(fetchProduct(slug));
     return () => {
@@ -30,6 +34,20 @@ export default function ProductPage() {
       dispatch(clearSelectedVariant());
     };
   }, [dispatch, slug]);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    const outcome = await addProduct(product, 1);
+    if (outcome.ok) {
+      setCartFeedback({ type: 'success', message: 'Producto agregado al carrito.' });
+    } else if (outcome.error === 'VARIANTE_REQUERIDA') {
+      setCartFeedback({ type: 'error', message: 'Selecciona una variante antes de agregar al carrito.' });
+    } else if (outcome.error === 'VARIANTE_SIN_STOCK') {
+      setCartFeedback({ type: 'error', message: 'La variante seleccionada no tiene stock disponible.' });
+    } else {
+      setCartFeedback({ type: 'error', message: 'No se pudo agregar al carrito.' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -173,6 +191,7 @@ export default function ProductPage() {
             className={styles.addToCart}
             disabled={!isAvailable || (hasVariants && !selectedVariant)}
             aria-disabled={!isAvailable || (hasVariants && !selectedVariant)}
+            onClick={handleAddToCart}
           >
             {isAvailable
               ? hasVariants && !selectedVariant
@@ -180,6 +199,18 @@ export default function ProductPage() {
                 : 'Agregar al carrito'
               : 'Sin disponibilidad'}
           </button>
+
+          {/* UC-CHT-02: feedback al intentar agregar al carrito */}
+          {cartFeedback && (
+            <p
+              role={cartFeedback.type === 'error' ? 'alert' : 'status'}
+              className={
+                cartFeedback.type === 'error' ? styles.cartError : styles.cartSuccess
+              }
+            >
+              {cartFeedback.message}
+            </p>
+          )}
 
           {/* Descripción completa */}
           {description && (

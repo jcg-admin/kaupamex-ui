@@ -8,18 +8,22 @@ import { configureStore } from '@reduxjs/toolkit';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
-  default: { get: jest.fn() },
+  default: { get: jest.fn(), post: jest.fn() },
 }));
 
 import apiService from '@services/apiService';
 import catalogReducer from '@redux/slices/catalogSlice';
-import yorubaVariantsReducer from '@redux/slices/yorubaVariantsSlice';
+import cartReducer from '@redux/slices/cartSlice';
+import yorubaVariantsReducer, {
+  selectVariant,
+} from '@redux/slices/yorubaVariantsSlice';
 import ProductPage from './ProductPage';
 
 const makeStore = () =>
   configureStore({
     reducer: {
-      catalog: catalogReducer,
+      catalog:        catalogReducer,
+      cart:           cartReducer,
       yorubaVariants: yorubaVariantsReducer,
     },
   });
@@ -170,6 +174,35 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Chico/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Mediano/ })).toBeInTheDocument();
+  });
+
+  it('UC-CHT-02: al hacer click sobre Agregar al carrito con variante seleccionada llama al API con variant_id', async () => {
+    const { fireEvent } = require('@testing-library/react');
+    apiService.get.mockResolvedValue({
+      data: {
+        ...PRODUCT,
+        variants: [
+          { id: 1, name: 'Chico',   price: 1200, stock: 4, is_active: true },
+          { id: 2, name: 'Mediano', price: 1500, stock: 3, is_active: true },
+        ],
+      },
+    });
+    apiService.post.mockResolvedValue({ data: { items: [], voucher: null } });
+    const store = makeStore();
+    render(wrap('collar-oshun-dorado', store));
+
+    fireEvent.click(await screen.findByRole('button', { name: /Chico/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Agregar al carrito$/ }));
+
+    await screen.findByRole('status');
+    expect(apiService.post).toHaveBeenCalledWith(
+      '/api/cart/items/',
+      expect.objectContaining({
+        product_id: PRODUCT.id,
+        variant_id: 1,
+        quantity:   1,
+      }),
+    );
   });
 
   it('UC-CHT-01: el CTA pide seleccionar variante si hay variantes pero ninguna seleccionada', async () => {
