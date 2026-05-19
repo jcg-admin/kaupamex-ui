@@ -25,6 +25,7 @@ import wishlistReducer from './slices/wishlistSlice';
 import errorReducer    from './slices/errorSlice';
 import adminReducer    from './slices/adminSlice';
 import vouchersReducer from './slices/vouchersSlice';
+import supportTicketsReducer from './slices/supportTicketsSlice';
 
 import {
   errorHandlingMiddleware,
@@ -43,6 +44,7 @@ const store = configureStore({
     error:    errorReducer,
     admin:    adminReducer,
     vouchers: vouchersReducer,
+    supportTickets: supportTicketsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

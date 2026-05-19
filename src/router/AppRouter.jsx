@@ -33,6 +33,11 @@ const OrderDetailPage = lazy(() => import('@pages/account/OrderDetailPage'));
 const WishlistPage    = lazy(() => import('@pages/account/WishlistPage'));
 const ProfilePage     = lazy(() => import('@pages/account/ProfilePage'));
 
+// Lazy pages — Soporte (tickets del comprador)
+const SupportTicketsPage       = lazy(() => import('@pages/account/SupportTicketsPage'));
+const SupportTicketCreatePage  = lazy(() => import('@pages/account/SupportTicketCreatePage'));
+const SupportTicketDetailPage  = lazy(() => import('@pages/account/SupportTicketDetailPage'));
+
 // Lazy pages — Admin
 const AdminDashboardPage  = lazy(() => import('@pages/admin/AdminDashboardPage'));
 const AdminProductsPage   = lazy(() => import('@pages/admin/AdminProductsPage'));
@@ -40,6 +45,7 @@ const AdminOrdersPage     = lazy(() => import('@pages/admin/AdminOrdersPage'));
 const AdminUsersPage      = lazy(() => import('@pages/admin/AdminUsersPage'));
 const AdminUserDetailPage = lazy(() => import('@pages/admin/AdminUserDetailPage'));
 const AdminVouchersPage   = lazy(() => import('@pages/admin/AdminVouchersPage'));
+const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -82,6 +88,15 @@ export default function AppRouter() {
             </Route>
           </Route>
 
+          {/* ─── Soporte (tickets del comprador) ─── */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AccountLayout />}>
+              <Route path="support/tickets"      element={<SupportTicketsPage />} />
+              <Route path="support/tickets/new"  element={<SupportTicketCreatePage />} />
+              <Route path="support/tickets/:id"  element={<SupportTicketDetailPage />} />
+            </Route>
+          </Route>
+
           {/* ─── Admin ─── */}
           <Route element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
@@ -91,6 +106,7 @@ export default function AppRouter() {
               <Route path="admin/users"       element={<AdminUsersPage />} />
               <Route path="admin/users/:pk"   element={<AdminUserDetailPage />} />
               <Route path="admin/vouchers"    element={<AdminVouchersPage />} />
+              <Route path="admin/support"     element={<AdminSupportPage />} />
             </Route>
           </Route>
 
