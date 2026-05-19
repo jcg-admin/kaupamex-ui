@@ -115,7 +115,9 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
     await store.dispatch(adjustStockManually({
       variantId: 10, newQuantity: -1, reason: 'MERMA',
     }));
-    expect(store.getState().inventory.actionError).toBe('STOCK_NEGATIVO_NO_PERMITIDO');
+    expect(store.getState().inventory.actionError).toMatchObject({
+      message: 'STOCK_NEGATIVO_NO_PERMITIDO',
+    });
   });
 
   it('clearInventoryActionState limpia el error', () => {
@@ -151,7 +153,9 @@ describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
     const store = makeStore();
     const file = new File([''], 'bad.csv', { type: 'text/csv' });
     await store.dispatch(importProductsCsv({ file }));
-    expect(store.getState().inventory.actionError).toBe('ENCABEZADO_CSV_INVALIDO');
+    expect(store.getState().inventory.actionError).toMatchObject({
+      message: 'ENCABEZADO_CSV_INVALIDO',
+    });
   });
 
   it('clearImportReport limpia el reporte', () => {

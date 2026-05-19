@@ -39,6 +39,7 @@ export default function AdminInventoryImportPage() {
     if (!actionError) return null;
     if (typeof actionError === 'string') return actionError;
     if (actionError?.detail) return actionError.detail;
+    if (actionError?.message) return actionError.message;
     return 'No se pudo procesar el archivo CSV. Intenta de nuevo.';
   })();
 

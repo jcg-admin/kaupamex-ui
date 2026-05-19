@@ -10,6 +10,7 @@
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const STOCK_URL    = '/api/v1/admin/inventory/';
 const MOVEMENTS    = (variantId) => `/api/v1/admin/inventory/${variantId}/movements/`;
@@ -28,7 +29,7 @@ export const fetchInventory = createAsyncThunk(
       const res = await apiService.get(STOCK_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
@@ -41,7 +42,7 @@ export const fetchStockMovements = createAsyncThunk(
       const res = await apiService.get(MOVEMENTS(variantId));
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
@@ -58,7 +59,7 @@ export const adjustStockManually = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.body || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );
@@ -74,7 +75,7 @@ export const importProductsCsv = createAsyncThunk(
       const res = await apiService.post(IMPORT_CSV, formData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.body?.detail || err.body || err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   },
 );

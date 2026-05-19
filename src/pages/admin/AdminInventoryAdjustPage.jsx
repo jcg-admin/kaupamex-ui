@@ -49,6 +49,7 @@ export default function AdminInventoryAdjustPage() {
     if (!actionError) return null;
     if (typeof actionError === 'string') return actionError;
     if (actionError?.detail) return actionError.detail;
+    if (actionError?.message) return actionError.message;
     return 'No se pudo ajustar el stock. Intenta de nuevo.';
   })();
 
