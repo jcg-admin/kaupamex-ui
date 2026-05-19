@@ -49,8 +49,9 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
   it('al subir un CSV y enviar, hace POST al endpoint con FormData', async () => {
     apiService.post.mockResolvedValue({
       data: {
-        productos_creados: 5, productos_fallidos: 1,
-        reporte_errores: [{ fila: 3, campo: 'sku', motivo: 'duplicado' }],
+        products_created: 5, products_failed: 1,
+        error_report: [{ row: 3, field: 'sku', reason: 'duplicado' }],
+        download_url: '/media/reports/import-456.csv',
       },
     });
     render(wrap(<AdminInventoryImportPage />, makeStore()));
@@ -71,8 +72,9 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
   it('muestra el reporte con productos creados y fallados tras un import exitoso', async () => {
     apiService.post.mockResolvedValue({
       data: {
-        productos_creados: 5, productos_fallidos: 1,
-        reporte_errores: [{ fila: 3, campo: 'sku', motivo: 'duplicado' }],
+        products_created: 5, products_failed: 1,
+        error_report: [{ row: 3, field: 'sku', reason: 'duplicado' }],
+        download_url: '/media/reports/import-456.csv',
       },
     });
     render(wrap(<AdminInventoryImportPage />, makeStore()));

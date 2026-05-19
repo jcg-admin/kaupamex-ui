@@ -54,7 +54,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
 
   it('al enviar, hace POST al endpoint /adjust con la nueva cantidad y motivo', async () => {
     apiService.post.mockResolvedValue({
-      data: { variant_id: 10, stock_anterior: 5, stock_nuevo: 12, delta: 7 },
+      data: { variant_id: 10, previous_stock: 5, new_stock: 12, delta: 7, movement_id: 42 },
     });
     render(wrap(makeStore()));
     fireEvent.change(screen.getByLabelText(/Cantidad nueva/i),
@@ -65,7 +65,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/inventory/10/adjust/',
+        '/api/v1/admin/inventory/variants/10/adjust/',
         expect.objectContaining({
           new_quantity: 12,
           reason: 'CONTEO_FISICO',
@@ -76,7 +76,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
 
   it('muestra un mensaje de exito tras un ajuste correcto', async () => {
     apiService.post.mockResolvedValue({
-      data: { variant_id: 10, stock_anterior: 5, stock_nuevo: 12, delta: 7 },
+      data: { variant_id: 10, previous_stock: 5, new_stock: 12, delta: 7, movement_id: 42 },
     });
     render(wrap(makeStore()));
     fireEvent.change(screen.getByLabelText(/Cantidad nueva/i),

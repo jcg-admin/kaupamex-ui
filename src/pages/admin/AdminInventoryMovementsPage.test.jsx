@@ -72,7 +72,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
     apiService.get.mockResolvedValue({ data: { results: [] } });
     render(wrap(makeStore()));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/inventory/10/movements/',
+      '/api/v1/admin/inventory/variants/10/movements/',
     );
   });
 
