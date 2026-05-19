@@ -2,6 +2,7 @@
  * Tests — AdminProductDiscountsPage
  * UC-DASH-04: Ver descuentos activos del catalogo
  * UC-DASH-03: Desactivar descuento (acceso desde la lista)
+ * UC-DASH-01: Abrir formulario de crear descuento
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }        from 'react-redux';
@@ -196,5 +197,18 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
     ).toBeInTheDocument();
 
     confirmSpy.mockRestore();
+  });
+});
+
+describe('AdminProductDiscountsPage — crear (UC-DASH-01)', () => {
+  it('abre el modal al pulsar Nuevo descuento', async () => {
+    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    render(wrap(<AdminProductDiscountsPage />, makeStore()));
+    await screen.findByText('Camiseta Yoruba');
+
+    fireEvent.click(screen.getByRole('button', { name: /Nuevo descuento/i }));
+    expect(
+      await screen.findByRole('dialog', { name: /Nuevo descuento de producto/i }),
+    ).toBeInTheDocument();
   });
 });

@@ -20,6 +20,7 @@ import {
   deactivateProductDiscount,
   clearProductDiscountsActionState,
 } from '@redux/slices/productDiscountsSlice';
+import ProductDiscountCreateForm from '@components/admin/ProductDiscountCreateForm';
 import styles from './AdminProductDiscountsPage.module.scss';
 
 const STATUS_OPTIONS = [
@@ -65,13 +66,14 @@ export default function AdminProductDiscountsPage() {
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.productDiscounts);
 
-  const [filters, setFilters] = useState({ status: '' });
+  const [filters, setFilters]       = useState({ status: '' });
+  const [isCreateOpen, setCreateOpen] = useState(false);
   const params = filters.status ? { status: filters.status } : {};
   const { data, isLoading, isError } = useProductDiscounts(params);
   const items = Array.isArray(data) ? data : [];
 
   useEffect(() => {
-    if (lastAction === 'deactivated') {
+    if (lastAction === 'deactivated' || lastAction === 'created') {
       queryClient.invalidateQueries({ queryKey: PRODUCT_DISCOUNTS_QUERY_KEY });
       dispatch(clearProductDiscountsActionState());
     }
@@ -92,7 +94,11 @@ export default function AdminProductDiscountsPage() {
         <h1 id="discounts-title" className={styles.title}>
           Descuentos de Producto
         </h1>
-        <button type="button" className={styles.primaryBtn}>
+        <button
+          type="button"
+          className={styles.primaryBtn}
+          onClick={() => setCreateOpen(true)}
+        >
           Nuevo descuento
         </button>
       </header>
@@ -175,6 +181,10 @@ export default function AdminProductDiscountsPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {isCreateOpen && (
+        <ProductDiscountCreateForm onClose={() => setCreateOpen(false)} />
       )}
     </section>
   );
