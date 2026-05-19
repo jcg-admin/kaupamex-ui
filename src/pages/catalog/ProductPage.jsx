@@ -11,6 +11,7 @@ import {
 } from '@redux/slices/catalogSlice';
 import { clearSelectedVariant } from '@redux/slices/yorubaVariantsSlice';
 import VariantSelector from '@components/catalog/VariantSelector';
+import AddToWishlistButton from '@components/wishlist/AddToWishlistButton';
 import useAddProductWithVariant from '@hooks/useAddProductWithVariant';
 import styles from './ProductPage.module.scss';
 
@@ -205,6 +206,12 @@ export default function ProductPage() {
                 : 'Agregar al carrito'
               : 'Sin disponibilidad'}
           </button>
+
+          {/* UC-WISH-01: agregar a la lista de deseos */}
+          <AddToWishlistButton
+            productId={product.id}
+            variantId={selectedVariantId ?? null}
+          />
 
           {/* UC-CHT-02: feedback al intentar agregar al carrito */}
           {cartFeedback && (
