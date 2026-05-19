@@ -19,6 +19,7 @@ const ProductPage     = lazy(() => import('@pages/catalog/ProductPage'));
 const CartPage        = lazy(() => import('@pages/cart/CartPage'));
 const CheckoutPage    = lazy(() => import('@pages/checkout/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
+const PaymentSelectionPage = lazy(() => import('@pages/checkout/PaymentSelectionPage'));
 
 // Lazy pages — Comms publicas (contacto, newsletter, preguntas)
 const ContactPage               = lazy(() => import('@pages/ContactPage'));
@@ -121,6 +122,8 @@ export default function AppRouter() {
           {/* ─── Checkout (requiere auth) ─── */}
           <Route element={<ProtectedRoute />}>
             <Route path="checkout" element={<CheckoutPage />} />
+            {/* UC-PAY-01 / UC-PAY-02 — Seleccion de gateway de pago */}
+            <Route path="checkout/payment/:orderId" element={<PaymentSelectionPage />} />
             <Route path="order/:id/confirmation" element={<OrderSuccessPage />} />
           </Route>
 
