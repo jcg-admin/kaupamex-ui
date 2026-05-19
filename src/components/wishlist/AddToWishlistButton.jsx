@@ -6,7 +6,7 @@
  * autenticado redirige a login. Retroalimentacion visual: el icono
  * cambia para confirmar que el producto fue guardado (RNF Usabilidad).
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -24,6 +24,15 @@ export default function AddToWishlistButton({ productId, variantId = null }) {
   const lastAction      = useSelector((s) => s.wishlist?.lastAction);
 
   const [added, setAdded] = useState(false);
+
+  // Reset el flag local cuando cambia el producto/variante.
+  // Si el componente queda montado y solo cambia el param de ruta
+  // (p. ej. al navegar a otra ficha), sin esto el boton quedaria
+  // deshabilitado para el nuevo producto. Codex review 2026-05-19.
+  useEffect(() => {
+    setAdded(false);
+    dispatch(clearWishlistActionState());
+  }, [productId, variantId, dispatch]);
 
   const handleClick = async () => {
     if (!isAuthenticated) {

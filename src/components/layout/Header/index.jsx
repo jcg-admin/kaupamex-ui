@@ -70,10 +70,11 @@ export default function Header() {
             </svg>
           </button>
 
-          {/* Notificaciones (badge) — solo para usuarios autenticados */}
+          {/* Notificaciones (badge) — solo para usuarios autenticados.
+              Apunta a /preferences hasta que UC-NOT-inbox tenga su pagina. */}
           {isAuth && (
             <Link
-              to="/account/notifications"
+              to="/account/notifications/preferences"
               className={styles.notificationBtn}
               aria-label={`Notificaciones (${unreadCount} sin leer)`}
             >

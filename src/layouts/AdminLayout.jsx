@@ -21,7 +21,9 @@ const ADMIN_NAV = [
   { to: '/admin/products',     label: 'Productos' },
   { to: '/admin/products/new', label: 'Crear Producto' },
   { to: '/admin/categories',   label: 'Categorías' },
-  { to: '/admin/variants',    label: 'Variantes (Chartsize)' },
+  // Variantes (chartsize) viven bajo /admin/products/:productId/variants
+  // — se accede desde el detalle del producto, no es una entrada
+  // independiente del sidebar. Codex review 2026-05-19.
   { section: 'Ventas' },
   { to: '/admin/orders',      label: 'Pedidos' },
   { to: '/admin/payments',    label: 'Pagos' },
