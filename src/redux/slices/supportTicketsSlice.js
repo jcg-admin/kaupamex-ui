@@ -10,6 +10,7 @@
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const TICKETS_URL       = '/api/v1/support/tickets/';
 const ADMIN_TICKETS_URL = '/api/v1/admin/support/tickets/';
@@ -26,7 +27,7 @@ export const fetchSupportTickets = createAsyncThunk(
       const res = await apiService.get(TICKETS_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -39,7 +40,7 @@ export const fetchSupportTicketDetail = createAsyncThunk(
       const res = await apiService.get(`${TICKETS_URL}${id}/`);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -52,7 +53,7 @@ export const createSupportTicket = createAsyncThunk(
       const res = await apiService.post(TICKETS_URL, ticketData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -68,7 +69,7 @@ export const replySupportTicket = createAsyncThunk(
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -81,7 +82,7 @@ export const closeSupportTicket = createAsyncThunk(
       const res = await apiService.post(`${TICKETS_URL}${id}/close/`, { reason });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -94,7 +95,7 @@ export const reopenSupportTicket = createAsyncThunk(
       const res = await apiService.post(`${TICKETS_URL}${id}/reopen/`);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -107,7 +108,7 @@ export const fetchAdminSupportTickets = createAsyncThunk(
       const res = await apiService.get(ADMIN_TICKETS_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
