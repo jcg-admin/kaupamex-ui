@@ -19,6 +19,7 @@ import {
   removeCartItem,
   applyVoucher,
   removeVoucher,
+  saveCartForLater,
   clearCartActionState,
 } from '@redux/slices/cartSlice';
 import styles from './CartPage.module.scss';
@@ -193,6 +194,7 @@ export default function CartPage() {
   const handleRemoveItem  = (itemId) => dispatch(removeCartItem(itemId));
   const handleApplyVoucher = (code) => dispatch(applyVoucher(code));
   const handleRemoveVoucher = () => dispatch(removeVoucher());
+  const handleSaveForLater = () => dispatch(saveCartForLater());
 
   if (isLoading && items.length === 0) {
     return (
@@ -239,7 +241,8 @@ export default function CartPage() {
           onRemoveVoucher={handleRemoveVoucher}
           isActioning={isActioning}
           actionError={actionError}
-          canSave={false}
+          onSaveForLater={handleSaveForLater}
+          canSave={isAuthenticated}
         />
       </div>
 

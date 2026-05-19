@@ -27,6 +27,7 @@ const CART_URL          = '/api/cart/';
 const CART_ITEMS_URL    = '/api/cart/items/';
 const CART_ITEM_URL     = (id) => `/api/cart/items/${id}/`;
 const CART_VOUCHER_URL  = '/api/cart/voucher/';
+const CART_SAVE_URL     = '/api/cart/save/';
 
 // ─── Thunks ───────────────────────────────────────────────────────────
 
@@ -100,6 +101,19 @@ export const removeVoucher = createAsyncThunk(
     try {
       await apiService.delete(CART_VOUCHER_URL);
       return null;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** UC-CART-05 — guardar carrito para mas tarde (requiere auth). */
+export const saveCartForLater = createAsyncThunk(
+  'cart/saveForLater',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(CART_SAVE_URL, {});
+      return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
     }
@@ -205,6 +219,20 @@ const cartSlice = createSlice({
         state.actionError = a.payload;
       })
       .addCase(removeVoucher.fulfilled, setCart);
+
+    builder
+      .addCase(saveCartForLater.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(saveCartForLater.fulfilled, (state) => {
+        state.isActioning = false;
+        state.lastAction  = 'saved';
+      })
+      .addCase(saveCartForLater.rejected, (state, a) => {
+        state.isActioning = false;
+        state.actionError = a.payload;
+      });
   },
 });
 

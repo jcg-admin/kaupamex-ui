@@ -20,11 +20,17 @@ import apiService from '@services/apiService';
 import cartReducer from '@redux/slices/cartSlice';
 import CartPage   from './CartPage';
 
+const authReducer = (state = { isAuthenticated: false }) => state;
+
 const makeStore = (preloadedState) =>
   configureStore({
-    reducer: { cart: cartReducer },
+    reducer: { cart: cartReducer, auth: authReducer },
     preloadedState,
   });
+
+const authedState = {
+  auth: { isAuthenticated: true },
+};
 
 const wrap = (ui, store) => (
   <Provider store={store}>
@@ -59,7 +65,7 @@ const CART_PAYLOAD = {
 
 afterEach(() => jest.clearAllMocks());
 
-describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04)', () => {
+describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
   it('al montar, hace GET a /api/cart/ y muestra los items', async () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     render(wrap(<CartPage />, makeStore()));
@@ -137,6 +143,34 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Aplicar/i }));
 
     expect(await screen.findByText(/no es valido/i)).toBeInTheDocument();
+  });
+
+  it('UC-CART-05 — usuario anonimo NO ve el boton de guardar para mas tarde', async () => {
+    apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
+    render(wrap(<CartPage />, makeStore()));
+
+    await screen.findByText(/Collar Yemaya/);
+    expect(
+      screen.queryByRole('button', { name: /Guardar para mas tarde/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('UC-CART-05 — usuario autenticado guarda el carrito via POST /api/cart/save/', async () => {
+    apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
+    apiService.post.mockResolvedValue({ data: { saved: true } });
+    render(wrap(<CartPage />, makeStore(authedState)));
+
+    await screen.findByText(/Collar Yemaya/);
+    fireEvent.click(
+      screen.getByRole('button', { name: /Guardar para mas tarde/i }),
+    );
+
+    await waitFor(() => {
+      expect(apiService.post).toHaveBeenCalledWith('/api/cart/save/', {});
+    });
+    expect(
+      await screen.findByText(/Carrito guardado/i),
+    ).toBeInTheDocument();
   });
 
   it('al cambiar la cantidad, hace PATCH /api/cart/items/:id/', async () => {
