@@ -18,7 +18,12 @@
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAdminProducts } from '@hooks/domain/useAdminProducts';
+import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAdminProducts, ADMIN_PRODUCTS_KEY } from '@hooks/domain/useAdminProducts';
+import {
+  deactivateProduct, activateProduct, clearProductsActionState,
+} from '@redux/slices/productsSlice';
 import styles from './AdminProductsPage.module.scss';
 
 const STATUS_OPTIONS = [
@@ -32,9 +37,21 @@ function formatPrice(value) {
 }
 
 export default function AdminProductsPage() {
+  const dispatch     = useDispatch();
+  const queryClient  = useQueryClient();
+  const { isActioning } = useSelector((s) => s.products);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [page,   setPage]   = useState(1);
+
+  const handleToggle = async (product) => {
+    const fn = product.is_active ? deactivateProduct : activateProduct;
+    const result = await dispatch(fn(product.id));
+    if (fn.fulfilled.match(result)) {
+      dispatch(clearProductsActionState());
+      queryClient.invalidateQueries({ queryKey: ADMIN_PRODUCTS_KEY });
+    }
+  };
 
   const params = { page };
   if (search) params.search = search;
@@ -141,6 +158,17 @@ export default function AdminProductsPage() {
                             aria-label={`Descuentos de ${p.name}`}>
                         Descuentos
                       </Link>
+                      <button
+                        type="button"
+                        className={styles.actionLink}
+                        onClick={() => handleToggle(p)}
+                        disabled={isActioning}
+                        aria-label={p.is_active
+                          ? `Desactivar ${p.name}`
+                          : `Reactivar ${p.name}`}
+                      >
+                        {p.is_active ? 'Desactivar' : 'Reactivar'}
+                      </button>
                     </div>
                   </td>
                 </tr>

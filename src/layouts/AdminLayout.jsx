@@ -18,8 +18,9 @@ const ADMIN_NAV = [
   { section: 'Principal' },
   { to: '/admin',             label: 'Dashboard',    end: true },
   { section: 'Catálogo' },
-  { to: '/admin/products',    label: 'Productos' },
-  { to: '/admin/categories',  label: 'Categorías' },
+  { to: '/admin/products',     label: 'Productos' },
+  { to: '/admin/products/new', label: 'Crear Producto' },
+  { to: '/admin/categories',   label: 'Categorías' },
   { to: '/admin/variants',    label: 'Variantes (Chartsize)' },
   { section: 'Ventas' },
   { to: '/admin/orders',      label: 'Pedidos' },
@@ -28,6 +29,7 @@ const ADMIN_NAV = [
   { to: '/admin/vouchers',    label: 'Cupones' },
   { section: 'Clientes' },
   { to: '/admin/users',       label: 'Usuarios' },
+  { to: '/admin/permissions', label: 'Permisos' },
   { to: '/admin/support',     label: 'Soporte (Tickets)' },
   { section: 'Operaciones' },
   { to: '/admin/inventory',   label: 'Inventario' },
@@ -37,7 +39,10 @@ const ADMIN_NAV = [
   { to: '/admin/reports/top-sellers',  label: 'Reportes: Top sellers' },
   { to: '/admin/reports/customers-rfm', label: 'Reportes: Clientes RFM' },
   { section: 'Configuración' },
-  { to: '/admin/config',      label: 'Configuración' },
+  { to: '/admin/config',           label: 'Configuración' },
+  { to: '/admin/system-settings',  label: 'Configuración Sistema' },
+  { to: '/admin/audit-log',        label: 'Auditoría' },
+  { to: '/admin/backups',          label: 'Backups' },
 ];
 
 export default function AdminLayout() {

@@ -11,6 +11,8 @@
  *     descuentos (UC-DASH-01..04).
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -20,6 +22,7 @@ jest.mock('@services/apiService', () => ({
 }));
 
 import apiService from '@services/apiService';
+import productsReducer from '@redux/slices/productsSlice';
 import AdminProductsPage from './AdminProductsPage';
 
 const PRODUCTS = [
@@ -39,9 +42,13 @@ const RESPONSE_PAGE_1 = { count: 27, next: 'page=2', previous: null, results: PR
 const makeClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
+const makeStore = () => configureStore({ reducer: { products: productsReducer } });
+
 const wrap = (ui) => (
   <QueryClientProvider client={makeClient()}>
-    <MemoryRouter>{ui}</MemoryRouter>
+    <Provider store={makeStore()}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </Provider>
   </QueryClientProvider>
 );
 
