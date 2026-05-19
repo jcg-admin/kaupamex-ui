@@ -59,7 +59,7 @@ const CART_PAYLOAD = {
 
 afterEach(() => jest.clearAllMocks());
 
-describe('CartPage (UC-CART-02 / UC-CART-03)', () => {
+describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04)', () => {
   it('al montar, hace GET a /api/cart/ y muestra los items', async () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     render(wrap(<CartPage />, makeStore()));
@@ -97,6 +97,46 @@ describe('CartPage (UC-CART-02 / UC-CART-03)', () => {
     expect(
       await screen.findByText(/Tu carrito esta vac[ií]o/i),
     ).toBeInTheDocument();
+  });
+
+  it('UC-CART-04 — aplica un cupon via POST /api/cart/voucher/', async () => {
+    apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
+    apiService.post.mockResolvedValue({
+      data: {
+        ...CART_PAYLOAD,
+        voucher: { code: 'YORUBA10', type: 'PERCENT', value: 10 },
+      },
+    });
+    render(wrap(<CartPage />, makeStore()));
+
+    await screen.findByText(/Collar Yemaya/);
+    fireEvent.change(screen.getByLabelText(/C[oó]digo de cup[oó]n/i),
+      { target: { value: 'YORUBA10' } });
+    fireEvent.click(screen.getByRole('button', { name: /Aplicar/i }));
+
+    await waitFor(() => {
+      expect(apiService.post).toHaveBeenCalledWith(
+        '/api/cart/voucher/',
+        { code: 'YORUBA10' },
+      );
+    });
+  });
+
+  it('UC-CART-04 — muestra error si el cupon es invalido', async () => {
+    apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
+    apiService.post.mockRejectedValue({
+      message: 'El cupon no es valido o ya expiro.',
+      code: 'CUPON_INVALIDO',
+      status: 400,
+    });
+    render(wrap(<CartPage />, makeStore()));
+
+    await screen.findByText(/Collar Yemaya/);
+    fireEvent.change(screen.getByLabelText(/C[oó]digo de cup[oó]n/i),
+      { target: { value: 'NOEXISTE' } });
+    fireEvent.click(screen.getByRole('button', { name: /Aplicar/i }));
+
+    expect(await screen.findByText(/no es valido/i)).toBeInTheDocument();
   });
 
   it('al cambiar la cantidad, hace PATCH /api/cart/items/:id/', async () => {
