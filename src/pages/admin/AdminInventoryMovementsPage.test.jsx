@@ -1,0 +1,93 @@
+/**
+ * Tests — AdminInventoryMovementsPage
+ * UC-INV-02: Decremento de stock (movimientos tipo SALE)
+ * UC-INV-03: Restauración de stock (movimientos tipo CANCELLATION)
+ */
+import { render, screen } from '@testing-library/react';
+import { Provider }     from 'react-redux';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { configureStore } from '@reduxjs/toolkit';
+
+jest.mock('@services/apiService', () => ({
+  __esModule: true,
+  default: { get: jest.fn(), post: jest.fn() },
+}));
+
+import apiService from '@services/apiService';
+import inventoryReducer from '@redux/slices/inventorySlice';
+import AdminInventoryMovementsPage from './AdminInventoryMovementsPage';
+
+const makeStore = () =>
+  configureStore({ reducer: { inventory: inventoryReducer } });
+
+const wrap = (store) => (
+  <Provider store={store}>
+    <MemoryRouter initialEntries={['/admin/inventory/10/movements']}>
+      <Routes>
+        <Route path="/admin/inventory/:variantId/movements"
+               element={<AdminInventoryMovementsPage />} />
+      </Routes>
+    </MemoryRouter>
+  </Provider>
+);
+
+const MOVEMENTS = [
+  { id: 1, type: 'SALE',         delta: -2, stock_after: 8,
+    reference: 'ORD-100', created_at: '2026-05-01T10:00:00Z' },
+  { id: 2, type: 'CANCELLATION', delta:  2, stock_after: 10,
+    reference: 'ORD-100', created_at: '2026-05-02T10:00:00Z' },
+  { id: 3, type: 'MANUAL',       delta: -1, stock_after: 9,
+    reference: 'ADMIN:5', reason: 'MERMA',
+    created_at: '2026-05-03T10:00:00Z' },
+];
+
+afterEach(() => jest.clearAllMocks());
+
+describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
+  it('muestra el titulo de la pagina de movimientos', async () => {
+    apiService.get.mockResolvedValue({ data: { results: MOVEMENTS } });
+    render(wrap(makeStore()));
+    expect(
+      await screen.findByRole('heading', { name: /Movimientos de inventario/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('UC-INV-02: muestra los movimientos tipo SALE (venta)', async () => {
+    apiService.get.mockResolvedValue({ data: { results: MOVEMENTS } });
+    render(wrap(makeStore()));
+    expect(await screen.findByText('Venta')).toBeInTheDocument();
+    // delta negativo formateado
+    expect(screen.getByText('-2')).toBeInTheDocument();
+  });
+
+  it('UC-INV-03: muestra los movimientos tipo CANCELLATION (cancelacion)', async () => {
+    apiService.get.mockResolvedValue({ data: { results: MOVEMENTS } });
+    render(wrap(makeStore()));
+    expect(await screen.findByText(/Cancelaci[oó]n/i)).toBeInTheDocument();
+    // delta positivo
+    expect(screen.getByText('+2')).toBeInTheDocument();
+  });
+
+  it('llama al endpoint de movimientos con el variantId de la URL', async () => {
+    apiService.get.mockResolvedValue({ data: { results: [] } });
+    render(wrap(makeStore()));
+    expect(apiService.get).toHaveBeenCalledWith(
+      '/api/v1/admin/inventory/10/movements/',
+    );
+  });
+
+  it('muestra estado vacio si la variante no tiene movimientos', async () => {
+    apiService.get.mockResolvedValue({ data: { results: [] } });
+    render(wrap(makeStore()));
+    expect(
+      await screen.findByText(/Sin movimientos registrados/i),
+    ).toBeInTheDocument();
+  });
+
+  it('cada fila muestra la referencia (orden o admin)', async () => {
+    apiService.get.mockResolvedValue({ data: { results: MOVEMENTS } });
+    render(wrap(makeStore()));
+    expect(await screen.findAllByText('ORD-100')).toHaveLength(2);
+    expect(screen.getByText('ADMIN:5')).toBeInTheDocument();
+  });
+});
