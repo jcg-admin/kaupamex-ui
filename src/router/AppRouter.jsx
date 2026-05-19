@@ -53,6 +53,7 @@ const ReturnDetailPage        = lazy(() => import('@pages/account/ReturnDetailPa
 
 // Lazy pages — Notificaciones (comprador)
 const NotificationPreferencesPage = lazy(() => import('@pages/account/NotificationPreferencesPage'));
+const PaymentStatusPage    = lazy(() => import('@pages/account/PaymentStatusPage'));
 
 // Lazy pages — Admin
 const AdminDashboardPage  = lazy(() => import('@pages/admin/AdminDashboardPage'));
@@ -139,6 +140,8 @@ export default function AppRouter() {
               <Route path="account/returns/new" element={<ReturnCreatePage />} />
               <Route path="account/returns/:id" element={<ReturnDetailPage />} />
               <Route path="account/notifications/preferences" element={<NotificationPreferencesPage />} />
+              {/* UC-PAY-05 — Estado actual del pago de una orden propia */}
+              <Route path="account/orders/:orderId/payment" element={<PaymentStatusPage />} />
             </Route>
           </Route>
 
