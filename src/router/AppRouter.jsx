@@ -20,6 +20,9 @@ const CartPage        = lazy(() => import('@pages/cart/CartPage'));
 const CheckoutPage    = lazy(() => import('@pages/checkout/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
 
+// Lazy pages — Comms publicas (contacto, newsletter, preguntas)
+const ContactPage     = lazy(() => import('@pages/ContactPage'));
+
 // Lazy pages — Auth
 const LoginPage       = lazy(() => import('@pages/auth/LoginPage'));
 const RegisterPage    = lazy(() => import('@pages/auth/RegisterPage'));
@@ -63,6 +66,7 @@ const AdminInventoryAdjustPage       = lazy(() => import('@pages/admin/AdminInve
 const AdminVariantsPage              = lazy(() => import('@pages/admin/AdminVariantsPage'));
 const AdminVariantPricePage          = lazy(() => import('@pages/admin/AdminVariantPricePage'));
 const AdminNotificationComposePage   = lazy(() => import('@pages/admin/AdminNotificationComposePage'));
+const AdminProductDiscountsPage      = lazy(() => import('@pages/admin/AdminProductDiscountsPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
@@ -78,6 +82,8 @@ export default function AppRouter() {
             <Route path="catalog" element={<CatalogPage />} />
             <Route path="catalog/:slug" element={<ProductPage />} />
             <Route path="cart" element={<CartPage />} />
+            {/* UC-COM-01 — Formulario publico de contacto */}
+            <Route path="contact" element={<ContactPage />} />
           </Route>
 
           {/* ─── Auth ─── */}
@@ -139,6 +145,8 @@ export default function AppRouter() {
               <Route path="admin/variants/:variantId/price"       element={<AdminVariantPricePage />} />
               {/* UC-NOT-07 — Compositor de notificacion manual */}
               <Route path="admin/notifications/compose"           element={<AdminNotificationComposePage />} />
+              {/* UC-DASH-01..04 — Descuentos de producto */}
+              <Route path="admin/product-discounts"               element={<AdminProductDiscountsPage />} />
             </Route>
           </Route>
 
