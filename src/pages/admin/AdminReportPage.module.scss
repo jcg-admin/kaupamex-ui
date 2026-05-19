@@ -1,0 +1,108 @@
+/* AdminReport*Page — PracticaYoruba */
+@use '@styles/abstracts' as *;
+
+.page { padding: 1.5rem; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.title { font-size: 1.5rem; margin: 0; }
+
+.exportGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.exportLink {
+  background: #1f3a8a;
+  color: #fff;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.3rem;
+  text-decoration: none;
+  font-size: 0.9rem;
+
+  &:hover { background: #14296b; }
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.metric {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.35rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.metricLabel { color: rgba(0, 0, 0, 0.6); font-size: 0.85rem; }
+.metricValue { font-size: 1.5rem; font-weight: 700; }
+.metricDelta { font-size: 0.85rem; margin-top: 0.15rem; }
+.metricDeltaUp   { color: #0a6b0a; }
+.metricDeltaDown { color: #b00020; }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+
+  select, input {
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.3rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    font: inherit;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  margin-bottom: 1.25rem;
+
+  th, td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    text-align: left;
+  }
+
+  thead th {
+    background: rgba(0, 0, 0, 0.04);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  margin: 1rem 0 0.5rem;
+}
+
+.error { color: #b00020; }
+.empty { padding: 1rem 0; color: rgba(0, 0, 0, 0.6); }
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}

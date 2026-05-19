@@ -8,15 +8,19 @@
  * USAR SOLO EN DEVELOPMENT.
  *
  * Endpoints cubiertos:
- *   Auth:     /api/auth/*, /api/token/
- *   Catalog:  /api/products/*, /api/categories/*
- *   Cart:     /api/cart/*
- *   Orders:   /api/orders/*
- *   Checkout: /api/payments/*
- *   Wishlist: /api/wishlist/*
+ *   Auth:      /api/auth/*, /api/token/
+ *   Catalog:   /api/products/*, /api/categories/*
+ *   Cart:      /api/cart/*
+ *   Orders:    /api/orders/*
+ *   Checkout:  /api/payments/*
+ *   Wishlist:  /api/wishlist/*
+ *   Returns:   /api/v1/returns/*, /api/v1/admin/returns/*   (D-007)
+ *   Inventory: /api/v1/admin/inventory/*                    (D-007)
  */
 
 import { SENSITIVE_FIELDS } from '@config/securityConfig';
+import { interceptReturns }   from './interceptors/returns';
+import { interceptInventory } from './interceptors/inventory';
 
 class MockInterceptor {
   constructor() {
@@ -73,6 +77,14 @@ class MockInterceptor {
     if (url.match(/\/api\/wishlist\/\d+\//) && method === 'DELETE') return this._removeWishlist(url);
     if (url.includes('/api/wishlist/') && method === 'POST') return this._addWishlist(body);
     if (url.includes('/api/wishlist/')) return this._getWishlist();
+
+    // ─── Returns (D-007) ─────────────────────────────────────────
+    const returnsResp = interceptReturns(url, options);
+    if (returnsResp) return returnsResp;
+
+    // ─── Inventory (D-007) ───────────────────────────────────────
+    const inventoryResp = interceptInventory(url, options);
+    if (inventoryResp) return inventoryResp;
 
     return this._notFound(url);
   }

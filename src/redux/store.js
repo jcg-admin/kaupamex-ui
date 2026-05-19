@@ -24,6 +24,27 @@ import ordersReducer   from './slices/ordersSlice';
 import wishlistReducer from './slices/wishlistSlice';
 import errorReducer    from './slices/errorSlice';
 import adminReducer    from './slices/adminSlice';
+import vouchersReducer from './slices/vouchersSlice';
+import supportTicketsReducer from './slices/supportTicketsSlice';
+import returnsReducer        from './slices/returnsSlice';
+import inventoryReducer      from './slices/inventorySlice';
+import yorubaVariantsReducer from './slices/yorubaVariantsSlice';
+import notificationsReducer    from './slices/notificationsSlice';
+import productDiscountsReducer from './slices/productDiscountsSlice';
+import contactReducer          from './slices/contactSlice';
+import newsletterReducer       from './slices/newsletterSlice';
+import questionsReducer        from './slices/questionsSlice';
+import paymentsReducer         from './slices/paymentsSlice';
+import categoriesReducer        from './slices/categoriesSlice';
+import productsReducer          from './slices/productsSlice';
+import adminUsersReducer        from './slices/adminUsersSlice';
+import permissionsReducer       from './slices/permissionsSlice';
+import settingsReducer          from './slices/settingsSlice';
+import backupsReducer           from './slices/backupsSlice';
+import logisticsReducer         from './slices/logisticsSlice';
+import reviewsReducer           from './slices/reviewsSlice';
+import searchHistoryReducer     from './slices/searchHistorySlice';
+import priceSyncReducer         from './slices/priceSyncSlice';
 
 import {
   errorHandlingMiddleware,
@@ -41,6 +62,27 @@ const store = configureStore({
     wishlist: wishlistReducer,
     error:    errorReducer,
     admin:    adminReducer,
+    vouchers: vouchersReducer,
+    supportTickets: supportTicketsReducer,
+    returns:        returnsReducer,
+    inventory:      inventoryReducer,
+    yorubaVariants: yorubaVariantsReducer,
+    notifications:  notificationsReducer,
+    productDiscounts: productDiscountsReducer,
+    contact:          contactReducer,
+    newsletter:       newsletterReducer,
+    questions:        questionsReducer,
+    payments:         paymentsReducer,
+    categories:       categoriesReducer,
+    products:         productsReducer,
+    adminUsers:       adminUsersReducer,
+    permissions:      permissionsReducer,
+    settings:         settingsReducer,
+    backups:          backupsReducer,
+    logistics:        logisticsReducer,
+    reviews:          reviewsReducer,
+    searchHistory:    searchHistoryReducer,
+    priceSync:        priceSyncReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

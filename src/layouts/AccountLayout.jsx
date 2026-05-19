@@ -13,10 +13,14 @@ import ToastContainer from '@components/common/Toast/ToastContainer';
 import styles from './AccountLayout.module.scss';
 
 const NAV_ITEMS = [
-  { to: '/mi-cuenta',           label: 'Resumen',     end: true },
-  { to: '/mi-cuenta/pedidos',   label: 'Mis pedidos'  },
-  { to: '/mi-cuenta/favoritos', label: 'Mis favoritos'},
-  { to: '/mi-cuenta/perfil',    label: 'Mi perfil'    },
+  { to: '/account',                              label: 'Resumen',          end: true },
+  { to: '/account/orders',                       label: 'Mis pedidos'  },
+  { to: '/account/wishlist',                     label: 'Mis favoritos' },
+  { to: '/account/returns',                      label: 'Mis devoluciones' },
+  { to: '/support/tickets',                      label: 'Soporte' },
+  { to: '/account/notifications/preferences',    label: 'Notificaciones' },
+  { to: '/account/profile',                      label: 'Mi perfil' },
+  { to: '/account/change-password',              label: 'Cambiar contrasena' },
 ];
 
 export default function AccountLayout() {
@@ -38,7 +42,7 @@ export default function AccountLayout() {
               <p className={styles.userEmail}>{user?.email}</p>
             </div>
           </div>
-          <nav className={styles.nav}>
+          <nav className={styles.nav} aria-label="Menu de cuenta">
             {NAV_ITEMS.map(({ to, label, end }) => (
               <NavLink
                 key={to}

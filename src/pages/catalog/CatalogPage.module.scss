@@ -100,3 +100,16 @@
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap:                   24px;
 }
+
+/* UC-CAT-04 + UC-CAT-05 — layout con filtros laterales */
+.layoutWithFilters {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .layoutWithFilters {
+    grid-template-columns: 1fr;
+  }
+}
+.results { min-width: 0; }

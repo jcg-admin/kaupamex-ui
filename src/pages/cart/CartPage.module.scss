@@ -3,18 +3,204 @@
 .page {
   width: 100%;
   padding: $spacing-8 0;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.placeholder {
-  @include flex-column-center;
-  min-height: 40vh;
-  gap: $spacing-4;
-  text-align: center;
-  color: $text-muted;
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  color: $text-secondary;
+  margin-bottom: $spacing-6;
+}
 
-  h1 {
-    font-family: $font-family-display;
-    font-size: $font-size-2xl;
-    color: $text-secondary;
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: $spacing-6;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
   }
+}
+
+.lineList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lineItem {
+  display: grid;
+  grid-template-columns: 1fr 90px 100px auto;
+  gap: $spacing-4;
+  align-items: center;
+  padding: $spacing-4 0;
+  border-bottom: 1px solid $border-color;
+}
+
+.lineInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.lineName {
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.lineVariant {
+  color: $text-muted;
+  font-size: $font-size-sm;
+}
+
+.qtyField {
+  display: block;
+
+  input {
+    width: 80px;
+    padding: $spacing-2;
+    border: 1px solid $border-color;
+    border-radius: 4px;
+  }
+}
+
+.linePrice {
+  font-weight: 600;
+}
+
+.removeBtn {
+  background: transparent;
+  border: 1px solid $border-color;
+  padding: $spacing-2 $spacing-3;
+  border-radius: 4px;
+  cursor: pointer;
+  color: $text-secondary;
+
+  &:hover {
+    border-color: $text-secondary;
+  }
+}
+
+.summary {
+  background: $surface;
+  padding: $spacing-6;
+  border-radius: 8px;
+  border: 1px solid $border-color;
+  align-self: start;
+}
+
+.summaryTitle {
+  font-size: $font-size-lg;
+  margin-bottom: $spacing-4;
+  color: $text-primary;
+}
+
+.summaryList {
+  margin: 0 0 $spacing-4 0;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-2 0;
+
+  dt { color: $text-muted; }
+  dd { font-weight: 600; }
+}
+
+.summaryTotal {
+  border-top: 1px solid $border-color;
+  margin-top: $spacing-2;
+  padding-top: $spacing-3;
+
+  dt, dd {
+    color: $text-primary;
+    font-size: $font-size-lg;
+    font-weight: 700;
+  }
+}
+
+.voucherForm {
+  margin-bottom: $spacing-4;
+
+  label {
+    display: block;
+    margin-bottom: $spacing-2;
+    color: $text-muted;
+    font-size: $font-size-sm;
+  }
+}
+
+.voucherInputRow {
+  display: flex;
+  gap: $spacing-2;
+
+  input {
+    flex: 1;
+    padding: $spacing-2 $spacing-3;
+    border: 1px solid $border-color;
+    border-radius: 4px;
+  }
+}
+
+.voucherApplied {
+  margin-top: $spacing-2;
+  color: $text-primary;
+  font-size: $font-size-sm;
+}
+
+.primaryBtn {
+  display: inline-block;
+  padding: $spacing-3 $spacing-4;
+  background: $color-primary;
+  color: white;
+  border: 0;
+  border-radius: 4px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.secondaryBtn {
+  display: inline-block;
+  padding: $spacing-3 $spacing-4;
+  background: transparent;
+  border: 1px solid $border-color;
+  border-radius: 4px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  color: $text-primary;
+  margin-top: $spacing-3;
+  width: 100%;
+}
+
+.checkoutBtn {
+  @extend .primaryBtn;
+  display: block;
+  width: 100%;
+  margin-top: $spacing-4;
+}
+
+.emptyMsg {
+  color: $text-muted;
+  margin-bottom: $spacing-4;
+}
+
+.error {
+  color: $color-error;
+  font-size: $font-size-sm;
+  margin-top: $spacing-2;
+}
+
+.successBanner {
+  background: $surface;
+  color: $text-primary;
+  padding: $spacing-3 $spacing-4;
+  border-left: 4px solid $color-primary;
+  margin-top: $spacing-4;
 }

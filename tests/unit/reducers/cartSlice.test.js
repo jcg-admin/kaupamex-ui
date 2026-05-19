@@ -17,6 +17,9 @@ const INITIAL_STATE = {
   itemCount: 0,
   isLoading: false,
   error: null,
+  isActioning: false,
+  actionError: null,
+  lastAction: null,
 };
 
 const ITEM_A = { id: 1, product_id: 10, name: 'Collar Oshun', price: 350, quantity: 2 };
@@ -107,10 +110,10 @@ describe('cartSlice', () => {
       expect(next.totals.total).toBeCloseTo(730.8);
     });
 
-    it('rejected — debe guardar el error de voucher inválido', () => {
+    it('rejected — debe guardar el error de voucher inválido en actionError', () => {
       const action = { type: applyVoucher.rejected.type, payload: 'Voucher expirado' };
       const next   = cartReducer(INITIAL_STATE, action);
-      expect(next.error).toBe('Voucher expirado');
+      expect(next.actionError).toBe('Voucher expirado');
     });
   });
 });

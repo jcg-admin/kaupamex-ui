@@ -98,7 +98,7 @@ export default function AdminUserDetailPage() {
       <div className={styles.notFound}>
         <h1>Usuario no encontrado</h1>
         <p>El usuario solicitado no existe o no tienes acceso.</p>
-        <Link to="/admin/usuarios" className={styles.btnSecondary}>
+        <Link to="/admin/users" className={styles.btnSecondary}>
           Volver al listado
         </Link>
       </div>
@@ -113,7 +113,7 @@ export default function AdminUserDetailPage() {
     <main className={styles.page}>
       {/* Navegación */}
       <nav className={styles.breadcrumb} aria-label="Navegación">
-        <Link to="/admin/usuarios" className={styles.backLink}>
+        <Link to="/admin/users" className={styles.backLink}>
           Volver al listado de usuarios
         </Link>
       </nav>

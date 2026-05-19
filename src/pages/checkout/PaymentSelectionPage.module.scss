@@ -1,0 +1,77 @@
+.page {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  margin: 0 0 .25rem;
+  color: #2c2418;
+}
+
+.subtitle {
+  color: #6b5f50;
+  margin: 0;
+}
+
+.gateway {
+  border: 1px solid #e8e0d5;
+  border-radius: .5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background: #fffdf9;
+}
+
+.gatewayTitle {
+  font-size: 1.15rem;
+  margin: 0 0 .75rem;
+  color: #2c2418;
+}
+
+.installments {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  margin-bottom: .75rem;
+  font-size: .9rem;
+  color: #4a3f33;
+
+  select {
+    padding: .4rem .5rem;
+    border-radius: .25rem;
+    border: 1px solid #cfc4b3;
+  }
+}
+
+.primaryBtn,
+.secondaryBtn {
+  display: inline-block;
+  padding: .6rem 1.2rem;
+  border-radius: .35rem;
+  border: 0;
+  font-weight: 600;
+  cursor: pointer;
+  &:disabled { opacity: .55; cursor: not-allowed; }
+}
+
+.primaryBtn  { background: #b8860b; color: #fff; }
+.secondaryBtn { background: #003087; color: #fff; }
+
+.legal {
+  font-size: .85rem;
+  color: #6b5f50;
+  margin-top: 1rem;
+}
+
+.error {
+  background: #fdecea;
+  color: #a32018;
+  padding: .6rem .8rem;
+  border-radius: .35rem;
+  margin-bottom: 1rem;
+}

@@ -1,0 +1,54 @@
+/* SupportTicketReplyForm — PracticaYoruba */
+@use '@styles/abstracts' as *;
+
+.form {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.4rem;
+  background: #fff;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  label { font-weight: 600; font-size: 0.95rem; }
+
+  textarea {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.25rem;
+    font: inherit;
+    resize: vertical;
+    min-height: 100px;
+  }
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.error { color: $color-danger; font-size: 0.85rem; }
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primaryBtn {
+  background: $color-primary;
+  color: #fff;
+  border: 0;
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.65; cursor: not-allowed; }
+}

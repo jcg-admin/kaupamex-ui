@@ -2,13 +2,18 @@
  * ProductPage — PracticaYoruba
  * UC-CAT-02: Ficha completa de un producto.
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchProduct,
   clearCurrentProduct,
 } from '@redux/slices/catalogSlice';
+import { clearSelectedVariant } from '@redux/slices/yorubaVariantsSlice';
+import VariantSelector from '@components/catalog/VariantSelector';
+import AddToWishlistButton from '@components/wishlist/AddToWishlistButton';
+import RelatedProductsSection from '@components/catalog/RelatedProductsSection';
+import useAddProductWithVariant from '@hooks/useAddProductWithVariant';
 import styles from './ProductPage.module.scss';
 
 export default function ProductPage() {
@@ -17,11 +22,34 @@ export default function ProductPage() {
   const navigate   = useNavigate();
 
   const { currentProduct: product, isLoading, error } = useSelector((s) => s.catalog);
+  const selectedVariantId = useSelector(
+    (s) => s.yorubaVariants?.selectedVariantId ?? null,
+  );
+
+  const { addProduct } = useAddProductWithVariant();
+  const [cartFeedback, setCartFeedback] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProduct(slug));
-    return () => { dispatch(clearCurrentProduct()); };
+    return () => {
+      dispatch(clearCurrentProduct());
+      dispatch(clearSelectedVariant());
+    };
   }, [dispatch, slug]);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+    const outcome = await addProduct(product, 1);
+    if (outcome.ok) {
+      setCartFeedback({ type: 'success', message: 'Producto agregado al carrito.' });
+    } else if (outcome.error === 'VARIANTE_REQUERIDA') {
+      setCartFeedback({ type: 'error', message: 'Selecciona una variante antes de agregar al carrito.' });
+    } else if (outcome.error === 'VARIANTE_SIN_STOCK') {
+      setCartFeedback({ type: 'error', message: 'La variante seleccionada no tiene stock disponible.' });
+    } else {
+      setCartFeedback({ type: 'error', message: 'No se pudo agregar al carrito.' });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -37,7 +65,7 @@ export default function ProductPage() {
       <div className={styles.notFound}>
         <h1>Producto no disponible</h1>
         <p>Este producto no existe o ya no está publicado.</p>
-        <Link to="/catalogo" className={styles.backLink}>
+        <Link to="/catalog" className={styles.backLink}>
           Ver catálogo completo
         </Link>
       </div>
@@ -52,19 +80,36 @@ export default function ProductPage() {
     availability, stock,
     category, images, discount,
     is_featured,
+    variants,
   } = product;
 
-  const isAvailable = availability === 'IN_STOCK';
+  const hasVariants = Array.isArray(variants) && variants.length > 0;
+  const selectedVariant = hasVariants
+    ? variants.find((v) => v.id === selectedVariantId) ?? null
+    : null;
+
+  // UC-CHT-01: el precio mostrado refleja la variante seleccionada. El
+  // contrato real (apps/chartsize commit 5e72899) expone price_with_tax;
+  // mantenemos fallback a effective_price / price para mocks heredados.
+  const displayPrice = (
+    selectedVariant?.price_with_tax
+    ?? selectedVariant?.effective_price
+    ?? selectedVariant?.price
+    ?? price_with_tax
+  );
+  const isAvailable = hasVariants
+    ? variants.some((v) => v.stock > 0)
+    : availability === 'IN_STOCK';
 
   return (
     <main className={styles.page}>
       {/* Breadcrumb */}
       <nav className={styles.breadcrumb} aria-label="Ruta de navegación">
-        <Link to="/catalogo">Catálogo</Link>
+        <Link to="/catalog">Catálogo</Link>
         {category && (
           <>
             <span aria-hidden="true"> / </span>
-            <Link to={`/catalogo?category=${category.id}`}>{category.name}</Link>
+            <Link to={`/catalog?category=${category.id}`}>{category.name}</Link>
           </>
         )}
         <span aria-hidden="true"> / </span>
@@ -92,7 +137,7 @@ export default function ProductPage() {
           )}
           {category && (
             <Link
-              to={`/catalogo?category=${category.id}`}
+              to={`/catalog?category=${category.id}`}
               className={styles.categoryLink}
             >
               {category.name}
@@ -126,7 +171,7 @@ export default function ProductPage() {
               </>
             ) : (
               <span className={styles.price}>
-                ${Number(price_with_tax).toLocaleString('es-MX', {
+                ${Number(displayPrice).toLocaleString('es-MX', {
                   minimumFractionDigits: 2,
                 })}
               </span>
@@ -145,15 +190,41 @@ export default function ProductPage() {
             )}
           </div>
 
+          {/* UC-CHT-01: selector de variantes Yoruba (Tamano, Presentacion, Material) */}
+          {hasVariants && <VariantSelector variants={variants} />}
+
           {/* CTA */}
           <button
             type="button"
             className={styles.addToCart}
-            disabled={!isAvailable}
-            aria-disabled={!isAvailable}
+            disabled={!isAvailable || (hasVariants && !selectedVariant)}
+            aria-disabled={!isAvailable || (hasVariants && !selectedVariant)}
+            onClick={handleAddToCart}
           >
-            {isAvailable ? 'Agregar al carrito' : 'Sin disponibilidad'}
+            {isAvailable
+              ? hasVariants && !selectedVariant
+                ? 'Selecciona una variante'
+                : 'Agregar al carrito'
+              : 'Sin disponibilidad'}
           </button>
+
+          {/* UC-WISH-01: agregar a la lista de deseos */}
+          <AddToWishlistButton
+            productId={product.id}
+            variantId={selectedVariantId ?? null}
+          />
+
+          {/* UC-CHT-02: feedback al intentar agregar al carrito */}
+          {cartFeedback && (
+            <p
+              role={cartFeedback.type === 'error' ? 'alert' : 'status'}
+              className={
+                cartFeedback.type === 'error' ? styles.cartError : styles.cartSuccess
+              }
+            >
+              {cartFeedback.message}
+            </p>
+          )}
 
           {/* Descripción completa */}
           {description && (
@@ -164,6 +235,9 @@ export default function ProductPage() {
           )}
         </section>
       </div>
+
+      {/* UC-CAT-07 — Productos relacionados (se oculta solo si vacio/error) */}
+      <RelatedProductsSection slug={slug} />
     </main>
   );
 }
