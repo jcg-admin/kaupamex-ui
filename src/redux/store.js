@@ -32,6 +32,7 @@ import yorubaVariantsReducer from './slices/yorubaVariantsSlice';
 import notificationsReducer    from './slices/notificationsSlice';
 import productDiscountsReducer from './slices/productDiscountsSlice';
 import contactReducer          from './slices/contactSlice';
+import newsletterReducer       from './slices/newsletterSlice';
 
 import {
   errorHandlingMiddleware,
@@ -57,6 +58,7 @@ const store = configureStore({
     notifications:  notificationsReducer,
     productDiscounts: productDiscountsReducer,
     contact:          contactReducer,
+    newsletter:       newsletterReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
