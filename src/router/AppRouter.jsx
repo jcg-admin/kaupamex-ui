@@ -69,6 +69,7 @@ const AdminNotificationComposePage   = lazy(() => import('@pages/admin/AdminNoti
 const AdminProductDiscountsPage      = lazy(() => import('@pages/admin/AdminProductDiscountsPage'));
 const AdminReportSalesPage           = lazy(() => import('@pages/admin/AdminReportSalesPage'));
 const AdminReportTopSellersPage      = lazy(() => import('@pages/admin/AdminReportTopSellersPage'));
+const AdminReportCustomersRfmPage    = lazy(() => import('@pages/admin/AdminReportCustomersRfmPage'));
 const AdminContactMessagesPage       = lazy(() => import('@pages/admin/AdminContactMessagesPage'));
 const AdminContactMessageDetailPage  = lazy(() => import('@pages/admin/AdminContactMessageDetailPage'));
 
@@ -155,6 +156,11 @@ export default function AppRouter() {
               <Route path="admin/reports/sales"                   element={<AdminReportSalesPage />} />
               {/* UC-REP-02 — Reporte top sellers */}
               <Route path="admin/reports/top-sellers"             element={<AdminReportTopSellersPage />} />
+              {/* UC-REP-04 — Reporte de clientes (RFM) */}
+              <Route path="admin/reports/customers-rfm"           element={<AdminReportCustomersRfmPage />} />
+              {/* UC-COM-02 / UC-COM-03 — Bandeja y respuesta de contacto */}
+              <Route path="admin/contact/messages"                element={<AdminContactMessagesPage />} />
+              <Route path="admin/contact/messages/:id"            element={<AdminContactMessageDetailPage />} />
             </Route>
           </Route>
 

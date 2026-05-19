@@ -34,6 +34,7 @@ const ADMIN_NAV = [
   { to: '/admin/logistics',   label: 'Logística' },
   { to: '/admin/reports/sales',        label: 'Reportes: Ventas' },
   { to: '/admin/reports/top-sellers',  label: 'Reportes: Top sellers' },
+  { to: '/admin/reports/customers-rfm', label: 'Reportes: Clientes RFM' },
   { section: 'Configuración' },
   { to: '/admin/config',      label: 'Configuración' },
 ];
