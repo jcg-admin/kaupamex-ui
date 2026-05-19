@@ -2,10 +2,8 @@
  * SupportTicketsPage — PracticaYoruba
  * UC-SUPP-02: Listar tickets de soporte del comprador autenticado.
  */
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchSupportTickets } from '@redux/slices/supportTicketsSlice';
+import { useSupportTickets } from '@hooks/domain/useSupportTickets';
 import styles from './SupportTicketsPage.module.scss';
 
 const STATUS_LABEL = {
@@ -28,12 +26,7 @@ function formatDate(iso) {
 }
 
 export default function SupportTicketsPage() {
-  const dispatch = useDispatch();
-  const { items, isLoading, error } = useSelector((s) => s.supportTickets);
-
-  useEffect(() => {
-    dispatch(fetchSupportTickets());
-  }, [dispatch]);
+  const { data: items = [], isLoading, isError } = useSupportTickets();
 
   return (
     <section className={styles.page} aria-labelledby="tickets-title">
@@ -48,7 +41,7 @@ export default function SupportTicketsPage() {
 
       {isLoading && <p>Cargando tickets…</p>}
 
-      {error && (
+      {isError && (
         <p role="alert" className={styles.error}>
           No se pudieron cargar tus tickets. Intenta de nuevo.
         </p>

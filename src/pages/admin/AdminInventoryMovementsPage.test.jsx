@@ -7,6 +7,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
@@ -20,14 +21,19 @@ import AdminInventoryMovementsPage from './AdminInventoryMovementsPage';
 const makeStore = () =>
   configureStore({ reducer: { inventory: inventoryReducer } });
 
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const wrap = (store) => (
   <Provider store={store}>
-    <MemoryRouter initialEntries={['/admin/inventory/10/movements']}>
-      <Routes>
-        <Route path="/admin/inventory/:variantId/movements"
-               element={<AdminInventoryMovementsPage />} />
-      </Routes>
-    </MemoryRouter>
+    <QueryClientProvider client={makeClient()}>
+      <MemoryRouter initialEntries={['/admin/inventory/10/movements']}>
+        <Routes>
+          <Route path="/admin/inventory/:variantId/movements"
+                 element={<AdminInventoryMovementsPage />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
   </Provider>
 );
 
@@ -57,7 +63,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
     render(wrap(makeStore()));
     expect(await screen.findByText('Venta')).toBeInTheDocument();
     // delta negativo formateado
-    expect(screen.getByText('-2')).toBeInTheDocument();
+    expect(await screen.findByText('-2')).toBeInTheDocument();
   });
 
   it('UC-INV-03: muestra los movimientos tipo CANCELLATION (cancelacion)', async () => {
@@ -65,14 +71,16 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
     render(wrap(makeStore()));
     expect(await screen.findByText(/Cancelaci[oó]n/i)).toBeInTheDocument();
     // delta positivo
-    expect(screen.getByText('+2')).toBeInTheDocument();
+    expect(await screen.findByText('+2')).toBeInTheDocument();
   });
 
   it('llama al endpoint de movimientos con el variantId de la URL', async () => {
     apiService.get.mockResolvedValue({ data: { results: [] } });
     render(wrap(makeStore()));
+    await screen.findByText(/Sin movimientos/i);
     expect(apiService.get).toHaveBeenCalledWith(
       '/api/v1/admin/inventory/variants/10/movements/',
+      expect.anything(),
     );
   });
 

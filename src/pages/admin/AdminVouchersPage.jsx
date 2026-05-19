@@ -5,11 +5,12 @@
  */
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import {
-  fetchVouchers,
   deactivateVoucher,
   clearVoucherActionState,
 } from '@redux/slices/vouchersSlice';
+import { useVouchers, VOUCHERS_QUERY_KEY } from '@hooks/domain/useVouchers';
 import VoucherCreateForm from '@components/admin/VoucherCreateForm';
 import styles from './AdminVouchersPage.module.scss';
 
@@ -21,21 +22,20 @@ function formatValue(voucher) {
 }
 
 export default function AdminVouchersPage() {
-  const dispatch = useDispatch();
-  const { items, isLoading, error, isActioning, actionError, lastAction } =
+  const dispatch    = useDispatch();
+  const queryClient = useQueryClient();
+  const { data: items = [], isLoading, isError } = useVouchers();
+  const { isActioning, actionError, lastAction } =
     useSelector((s) => s.vouchers);
   const [isCreateOpen, setCreateOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchVouchers());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (lastAction === 'created') {
+    if (lastAction === 'created' || lastAction === 'deactivated') {
       setCreateOpen(false);
+      queryClient.invalidateQueries({ queryKey: VOUCHERS_QUERY_KEY });
       dispatch(clearVoucherActionState());
     }
-  }, [lastAction, dispatch]);
+  }, [lastAction, dispatch, queryClient]);
 
   const handleDeactivate = (voucher) => {
     const ok = window.confirm(
@@ -62,7 +62,7 @@ export default function AdminVouchersPage() {
 
       {isLoading && <p>Cargando cupones…</p>}
 
-      {error && (
+      {isError && (
         <p role="alert" className={styles.error}>
           No se pudieron cargar los cupones. Intenta de nuevo.
         </p>

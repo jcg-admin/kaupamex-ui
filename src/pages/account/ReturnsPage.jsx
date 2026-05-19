@@ -1,11 +1,12 @@
 /**
  * ReturnsPage — PracticaYoruba
  * UC-RET-04: Listar devoluciones del comprador autenticado.
+ *
+ * Lectura via React Query (`useReturns`). Las mutaciones (UC-RET-01)
+ * permanecen en `returnsSlice`.
  */
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchCustomerReturns } from '@redux/slices/returnsSlice';
+import { useReturns } from '@hooks/domain/useReturns';
 import { RETURN_STATUS_LABEL, RETURN_STATUS_CLASS } from './returnStatus';
 import styles from './ReturnsPage.module.scss';
 
@@ -17,12 +18,7 @@ function formatDate(iso) {
 }
 
 export default function ReturnsPage() {
-  const dispatch = useDispatch();
-  const { items, isLoading, error } = useSelector((s) => s.returns);
-
-  useEffect(() => {
-    dispatch(fetchCustomerReturns());
-  }, [dispatch]);
+  const { data: items = [], isLoading, isError } = useReturns();
 
   return (
     <section className={styles.page} aria-labelledby="returns-title">
@@ -37,7 +33,7 @@ export default function ReturnsPage() {
 
       {isLoading && <p>Cargando devoluciones…</p>}
 
-      {error && (
+      {isError && (
         <p role="alert" className={styles.error}>
           No se pudieron cargar tus devoluciones. Intenta de nuevo.
         </p>

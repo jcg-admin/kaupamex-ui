@@ -45,4 +45,15 @@ export function useAdminReturns(params = {}) {
   });
 }
 
+export function useAdminReturn(id) {
+  return useQuery({
+    queryKey: [...ADMIN_RETURNS_KEY, 'detail', id],
+    enabled:  Boolean(id),
+    queryFn:  async ({ signal }) => {
+      const { data } = await apiService.get(`${ADMIN_URL}${id}/`, { signal });
+      return data;
+    },
+  });
+}
+
 export default useReturns;

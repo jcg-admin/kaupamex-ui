@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
@@ -19,13 +20,18 @@ import ReturnDetailPage from './ReturnDetailPage';
 const makeStore = () =>
   configureStore({ reducer: { returns: returnsReducer } });
 
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const wrap = (ui, store, initial = '/account/returns/77') => (
   <Provider store={store}>
-    <MemoryRouter initialEntries={[initial]}>
-      <Routes>
-        <Route path="/account/returns/:id" element={ui} />
-      </Routes>
-    </MemoryRouter>
+    <QueryClientProvider client={makeClient()}>
+      <MemoryRouter initialEntries={[initial]}>
+        <Routes>
+          <Route path="/account/returns/:id" element={ui} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
   </Provider>
 );
 
@@ -53,6 +59,7 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
     await screen.findByText(/Devoluci.n #77/);
     expect(apiService.get).toHaveBeenCalledWith(
       expect.stringContaining('/returns/77/'),
+      expect.anything(),
     );
   });
 

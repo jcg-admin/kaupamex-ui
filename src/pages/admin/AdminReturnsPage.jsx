@@ -2,10 +2,9 @@
  * AdminReturnsPage — PracticaYoruba
  * UC-RET-05: Bandeja de devoluciones pendientes (Admin)
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAdminReturns } from '@redux/slices/returnsSlice';
+import { useAdminReturns } from '@hooks/domain/useReturns';
 import {
   RETURN_STATUS_LABEL,
   REASON_LABEL,
@@ -27,15 +26,11 @@ function formatDate(iso) {
 }
 
 export default function AdminReturnsPage() {
-  const dispatch = useDispatch();
-  const { items, metrics, isLoading, error } = useSelector((s) => s.returns);
   const [filters, setFilters] = useState({ status: '' });
-
-  useEffect(() => {
-    const params = {};
-    if (filters.status) params.status = filters.status;
-    dispatch(fetchAdminReturns(params));
-  }, [filters, dispatch]);
+  const params = filters.status ? { status: filters.status } : {};
+  const { data, isLoading, isError } = useAdminReturns(params);
+  const items   = data?.results ?? (Array.isArray(data) ? data : []);
+  const metrics = data?.metrics ?? null;
 
   const summary = useMemo(() => ({
     pendientes:     metrics?.pendientes     ?? 0,
@@ -83,7 +78,7 @@ export default function AdminReturnsPage() {
 
       {isLoading && <p>Cargando bandeja…</p>}
 
-      {error && (
+      {isError && (
         <p role="alert" className={styles.error}>
           No se pudo cargar la bandeja de devoluciones. Intenta de nuevo.
         </p>

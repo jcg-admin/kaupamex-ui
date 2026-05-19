@@ -4,10 +4,9 @@
  * UC-INV-03: Movimientos tipo CANCELLATION (restauración por cancelación).
  * Tambien expone movimientos MANUAL (UC-INV-04) para auditoria completa.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchStockMovements } from '@redux/slices/inventorySlice';
+import { useInventoryMovements } from '@hooks/domain/useInventory';
 import styles from './AdminInventoryMovementsPage.module.scss';
 
 const TYPE_FILTER_OPTIONS = [
@@ -43,13 +42,8 @@ function formatDelta(delta) {
 
 export default function AdminInventoryMovementsPage() {
   const { variantId } = useParams();
-  const dispatch = useDispatch();
-  const { movements, isLoading, error } = useSelector((s) => s.inventory);
+  const { data: movements = [], isLoading, isError } = useInventoryMovements(variantId);
   const [typeFilter, setTypeFilter] = useState('');
-
-  useEffect(() => {
-    if (variantId) dispatch(fetchStockMovements(variantId));
-  }, [variantId, dispatch]);
 
   const visibleMovements = useMemo(() => (
     typeFilter ? movements.filter((mv) => mv.type === typeFilter) : movements
@@ -80,7 +74,7 @@ export default function AdminInventoryMovementsPage() {
 
       {isLoading && <p>Cargando movimientos…</p>}
 
-      {error && (
+      {isError && (
         <p role="alert" className={styles.error}>
           No se pudieron cargar los movimientos.
         </p>

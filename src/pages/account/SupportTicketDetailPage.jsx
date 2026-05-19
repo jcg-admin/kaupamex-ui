@@ -4,11 +4,12 @@
  */
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import {
-  fetchSupportTicketDetail,
-  clearCurrentSupportTicket,
-} from '@redux/slices/supportTicketsSlice';
+  useSupportTicket,
+  SUPPORT_TICKETS_KEY,
+} from '@hooks/domain/useSupportTickets';
 import SupportTicketReplyForm from '@components/support/SupportTicketReplyForm';
 import SupportTicketActions  from '@components/support/SupportTicketActions';
 import styles from './SupportTicketDetailPage.module.scss';
@@ -38,20 +39,21 @@ function authorLabel(reply) {
 }
 
 export default function SupportTicketDetailPage() {
-  const { id }    = useParams();
-  const dispatch  = useDispatch();
-  const { current, isLoading, error } =
-    useSelector((s) => s.supportTickets);
+  const { id }      = useParams();
+  const queryClient = useQueryClient();
+  const { data: current, isLoading, isError } = useSupportTicket(id);
+  const lastAction = useSelector((s) => s.supportTickets.lastAction);
 
+  // Tras una respuesta/cierre/reapertura desde los paneles, refrescamos
+  // el detalle desde el servidor (React Query cache invalidation).
   useEffect(() => {
-    if (!id) return;
-    dispatch(fetchSupportTicketDetail(id));
-    return () => { dispatch(clearCurrentSupportTicket()); };
-  }, [id, dispatch]);
+    if (!lastAction) return;
+    queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_KEY });
+  }, [lastAction, queryClient]);
 
   if (isLoading) return <p className={styles.page}>Cargando ticket…</p>;
 
-  if (error) {
+  if (isError) {
     return (
       <section className={styles.page}>
         <p role="alert" className={styles.error}>

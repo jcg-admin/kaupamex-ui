@@ -1,14 +1,12 @@
 /**
  * ReturnDetailPage — PracticaYoruba
  * UC-RET-04: Detalle del estado de la devolucion del comprador.
+ *
+ * Lectura via React Query (`useReturn`). Las mutaciones permanecen
+ * en `returnsSlice`.
  */
-import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchCustomerReturnDetail,
-  clearCurrentReturn,
-} from '@redux/slices/returnsSlice';
+import { useReturn } from '@hooks/domain/useReturns';
 import {
   RETURN_STATUS_LABEL,
   RETURN_STATUS_CLASS,
@@ -25,19 +23,12 @@ function formatDateTime(iso) {
 }
 
 export default function ReturnDetailPage() {
-  const { id }    = useParams();
-  const dispatch  = useDispatch();
-  const { current, isLoading, error } = useSelector((s) => s.returns);
-
-  useEffect(() => {
-    if (!id) return;
-    dispatch(fetchCustomerReturnDetail(id));
-    return () => { dispatch(clearCurrentReturn()); };
-  }, [id, dispatch]);
+  const { id } = useParams();
+  const { data: current, isLoading, isError } = useReturn(id);
 
   if (isLoading) return <p className={styles.page}>Cargando devolución…</p>;
 
-  if (error) {
+  if (isError) {
     return (
       <section className={styles.page}>
         <p role="alert" className={styles.error}>

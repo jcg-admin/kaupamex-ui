@@ -2,10 +2,9 @@
  * AdminInventoryPage — PracticaYoruba
  * UC-INV-01: Ver stock actual de productos
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchInventory } from '@redux/slices/inventorySlice';
+import { useInventory } from '@hooks/domain/useInventory';
 import styles from './AdminInventoryPage.module.scss';
 
 const STATUS_OPTIONS = [
@@ -28,15 +27,11 @@ const STATUS_CLASS = {
 };
 
 export default function AdminInventoryPage() {
-  const dispatch = useDispatch();
-  const { items, summary, isLoading, error } = useSelector((s) => s.inventory);
   const [filters, setFilters] = useState({ status: '' });
-
-  useEffect(() => {
-    const params = {};
-    if (filters.status) params.status = filters.status;
-    dispatch(fetchInventory(params));
-  }, [filters, dispatch]);
+  const params = filters.status ? { status: filters.status } : {};
+  const { data, isLoading, isError } = useInventory(params);
+  const items   = data?.results ?? data?.productos ?? (Array.isArray(data) ? data : []);
+  const summary = data?.summary ?? data?.resumen ?? null;
 
   const counts = useMemo(() => ({
     normales: summary?.productos_normales   ?? 0,
@@ -86,7 +81,7 @@ export default function AdminInventoryPage() {
 
       {isLoading && <p>Cargando inventario…</p>}
 
-      {error && (
+      {isError && (
         <p role="alert" className={styles.error}>
           No se pudo cargar el inventario. Intenta de nuevo.
         </p>

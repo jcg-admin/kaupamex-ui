@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
@@ -19,13 +20,18 @@ import SupportTicketDetailPage from './SupportTicketDetailPage';
 const makeStore = () =>
   configureStore({ reducer: { supportTickets: supportTicketsReducer } });
 
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const renderAt = (path, store) => render(
   <Provider store={store}>
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/support/tickets/:id" element={<SupportTicketDetailPage />} />
-      </Routes>
-    </MemoryRouter>
+    <QueryClientProvider client={makeClient()}>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/support/tickets/:id" element={<SupportTicketDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
   </Provider>
 );
 
@@ -79,6 +85,7 @@ describe('SupportTicketDetailPage (UC-SUPP-02 detalle)', () => {
     await screen.findByText(/Pedido tardio/);
     expect(apiService.get).toHaveBeenCalledWith(
       expect.stringContaining('/support/tickets/42/'),
+      expect.anything(),
     );
   });
 });

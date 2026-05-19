@@ -7,6 +7,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }    from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
@@ -20,9 +21,14 @@ import AdminVouchersPage from './AdminVouchersPage';
 const makeStore = () =>
   configureStore({ reducer: { vouchers: vouchersReducer } });
 
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const wrap = (ui, store) => (
   <Provider store={store}>
-    <MemoryRouter>{ui}</MemoryRouter>
+    <QueryClientProvider client={makeClient()}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>
   </Provider>
 );
 

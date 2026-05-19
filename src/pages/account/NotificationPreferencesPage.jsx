@@ -2,43 +2,49 @@
  * NotificationPreferencesPage — PracticaYoruba
  * UC-NOT-06: Gestionar preferencias de notificacion por email.
  *
- * Lectura inicial via Redux (`fetchNotificationPreferences`) y mutacion
- * con `updateNotificationPreferences`. Las preferencias `mandatory: true`
- * (UC-NOT-01/02 — confirmacion de orden, cambio de estado) no se pueden
- * desactivar.
+ * Lectura inicial via React Query (`useNotificationPreferences`). La
+ * mutacion (`updateNotificationPreferences`) sigue en Redux porque
+ * comparte `lastAction`/`isActioning` con el resto del slice. Tras
+ * exito invalidamos la query para refrescar el draft.
  */
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import {
-  fetchNotificationPreferences,
   updateNotificationPreferences,
   clearNotificationsActionState,
 } from '@redux/slices/notificationsSlice';
+import {
+  useNotificationPreferences,
+  NOTIFICATION_PREFERENCES_KEY,
+} from '@hooks/domain/useNotifications';
 import styles from './NotificationPreferencesPage.module.scss';
 
 export default function NotificationPreferencesPage() {
-  const dispatch = useDispatch();
+  const dispatch    = useDispatch();
+  const queryClient = useQueryClient();
   const {
-    preferences,
+    data: preferences,
     isLoading,
-    isActioning,
-    error,
-    actionError,
-    lastAction,
-  } = useSelector((s) => s.notifications);
+    isError: isReadError,
+  } = useNotificationPreferences();
+  const { isActioning, actionError, lastAction } =
+    useSelector((s) => s.notifications);
 
   const [draft, setDraft] = useState([]);
 
-  useEffect(() => {
-    dispatch(fetchNotificationPreferences());
-    return () => {
-      dispatch(clearNotificationsActionState());
-    };
-  }, [dispatch]);
+  useEffect(() => () => { dispatch(clearNotificationsActionState()); }, [dispatch]);
 
   useEffect(() => {
-    setDraft(preferences);
+    if (preferences) setDraft(preferences);
   }, [preferences]);
+
+  // Tras un guardado exitoso, refresca la query (cache invalidation).
+  useEffect(() => {
+    if (lastAction === 'preferences_saved') {
+      queryClient.invalidateQueries({ queryKey: NOTIFICATION_PREFERENCES_KEY });
+    }
+  }, [lastAction, queryClient]);
 
   const handleToggle = (type) => {
     setDraft((items) =>
@@ -75,7 +81,7 @@ export default function NotificationPreferencesPage() {
 
       {isLoading && <p>Cargando preferencias…</p>}
 
-      {error && (
+      {isReadError && (
         <p role="alert" className={styles.error}>
           No se pudieron cargar tus preferencias.
         </p>

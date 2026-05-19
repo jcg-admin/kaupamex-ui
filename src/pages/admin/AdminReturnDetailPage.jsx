@@ -11,11 +11,12 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
+import { clearReturnsActionState } from '@redux/slices/returnsSlice';
 import {
-  fetchAdminReturnDetail,
-  clearCurrentReturn,
-  clearReturnsActionState,
-} from '@redux/slices/returnsSlice';
+  useAdminReturn,
+  ADMIN_RETURNS_KEY,
+} from '@hooks/domain/useReturns';
 import {
   RETURN_STATUS_LABEL,
   RETURN_STATUS_CLASS,
@@ -34,22 +35,24 @@ function formatDateTime(iso) {
 }
 
 export default function AdminReturnDetailPage() {
-  const { id }    = useParams();
-  const dispatch  = useDispatch();
-  const { current, isLoading, error } = useSelector((s) => s.returns);
+  const { id }      = useParams();
+  const dispatch    = useDispatch();
+  const queryClient = useQueryClient();
+  const { data: current, isLoading, isError } = useAdminReturn(id);
+  const lastAction = useSelector((s) => s.returns.lastAction);
 
+  // Tras una mutacion exitosa (aprobar/rechazar/etc) refrescamos el detalle.
   useEffect(() => {
-    if (!id) return;
-    dispatch(fetchAdminReturnDetail(id));
-    return () => {
-      dispatch(clearCurrentReturn());
-      dispatch(clearReturnsActionState());
-    };
-  }, [id, dispatch]);
+    if (!lastAction) return;
+    queryClient.invalidateQueries({ queryKey: ADMIN_RETURNS_KEY });
+  }, [lastAction, queryClient]);
+
+  // Al desmontar, limpiar el estado de mutaciones del slice.
+  useEffect(() => () => { dispatch(clearReturnsActionState()); }, [dispatch]);
 
   if (isLoading) return <p className={styles.page}>Cargando devolución…</p>;
 
-  if (error) {
+  if (isError) {
     return (
       <section className={styles.page}>
         <p role="alert" className={styles.error}>

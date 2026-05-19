@@ -6,6 +6,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
@@ -19,13 +20,18 @@ import AdminReturnDetailPage from './AdminReturnDetailPage';
 const makeStore = () =>
   configureStore({ reducer: { returns: returnsReducer } });
 
+const makeClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const wrap = (ui, store, initial = '/admin/returns/300') => (
   <Provider store={store}>
-    <MemoryRouter initialEntries={[initial]}>
-      <Routes>
-        <Route path="/admin/returns/:id" element={ui} />
-      </Routes>
-    </MemoryRouter>
+    <QueryClientProvider client={makeClient()}>
+      <MemoryRouter initialEntries={[initial]}>
+        <Routes>
+          <Route path="/admin/returns/:id" element={ui} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
   </Provider>
 );
 
@@ -52,6 +58,7 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
     await screen.findByText(/Devoluci.n #300/);
     expect(apiService.get).toHaveBeenCalledWith(
       expect.stringContaining('/admin/returns/300/'),
+      expect.anything(),
     );
   });
 

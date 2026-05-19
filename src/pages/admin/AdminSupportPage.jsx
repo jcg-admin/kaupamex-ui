@@ -2,10 +2,9 @@
  * AdminSupportPage — PracticaYoruba
  * UC-SUPP-05: Bandeja y reporte de tickets para el equipo de soporte.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchAdminSupportTickets } from '@redux/slices/supportTicketsSlice';
+import { useAdminSupportTickets } from '@hooks/domain/useSupportTickets';
 import styles from './AdminSupportPage.module.scss';
 
 const STATUS_LABEL = {
@@ -29,17 +28,13 @@ function formatDate(iso) {
 }
 
 export default function AdminSupportPage() {
-  const dispatch = useDispatch();
-  const { items, metrics, isLoading, error } =
-    useSelector((s) => s.supportTickets);
   const [filters, setFilters] = useState({ status: '', q: '' });
-
-  useEffect(() => {
-    const params = {};
-    if (filters.status) params.status = filters.status;
-    if (filters.q)      params.q      = filters.q;
-    dispatch(fetchAdminSupportTickets(params));
-  }, [filters, dispatch]);
+  const params = {};
+  if (filters.status) params.status = filters.status;
+  if (filters.q)      params.q      = filters.q;
+  const { data, isLoading, isError } = useAdminSupportTickets(params);
+  const items   = data?.results ?? (Array.isArray(data) ? data : []);
+  const metrics = data?.metrics ?? null;
 
   const summary = useMemo(() => ({
     open:     metrics?.open     ?? 0,
@@ -107,7 +102,7 @@ export default function AdminSupportPage() {
 
       {isLoading && <p>Cargando bandeja…</p>}
 
-      {error && (
+      {isError && (
         <p role="alert" className={styles.error}>
           No se pudo cargar la bandeja de soporte. Intenta de nuevo.
         </p>
