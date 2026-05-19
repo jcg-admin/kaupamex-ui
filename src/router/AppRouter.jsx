@@ -21,7 +21,9 @@ const CheckoutPage    = lazy(() => import('@pages/checkout/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
 
 // Lazy pages — Comms publicas (contacto, newsletter, preguntas)
-const ContactPage     = lazy(() => import('@pages/ContactPage'));
+const ContactPage               = lazy(() => import('@pages/ContactPage'));
+const NewsletterSubscribePage   = lazy(() => import('@pages/NewsletterSubscribePage'));
+const NewsletterUnsubscribePage = lazy(() => import('@pages/NewsletterUnsubscribePage'));
 
 // Lazy pages — Auth
 const LoginPage       = lazy(() => import('@pages/auth/LoginPage'));
@@ -70,6 +72,7 @@ const AdminProductDiscountsPage      = lazy(() => import('@pages/admin/AdminProd
 const AdminReportSalesPage           = lazy(() => import('@pages/admin/AdminReportSalesPage'));
 const AdminReportTopSellersPage      = lazy(() => import('@pages/admin/AdminReportTopSellersPage'));
 const AdminReportCustomersRfmPage    = lazy(() => import('@pages/admin/AdminReportCustomersRfmPage'));
+const AdminReportDashboardPage       = lazy(() => import('@pages/admin/AdminReportDashboardPage'));
 const AdminContactMessagesPage       = lazy(() => import('@pages/admin/AdminContactMessagesPage'));
 const AdminContactMessageDetailPage  = lazy(() => import('@pages/admin/AdminContactMessageDetailPage'));
 
@@ -89,6 +92,10 @@ export default function AppRouter() {
             <Route path="cart" element={<CartPage />} />
             {/* UC-COM-01 — Formulario publico de contacto */}
             <Route path="contact" element={<ContactPage />} />
+            {/* UC-NEW-01 — Suscripcion publica al newsletter */}
+            <Route path="newsletter" element={<NewsletterSubscribePage />} />
+            {/* UC-NEW-02 — Desuscripcion via token firmado */}
+            <Route path="newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
           </Route>
 
           {/* ─── Auth ─── */}
@@ -158,6 +165,8 @@ export default function AppRouter() {
               <Route path="admin/reports/top-sellers"             element={<AdminReportTopSellersPage />} />
               {/* UC-REP-04 — Reporte de clientes (RFM) */}
               <Route path="admin/reports/customers-rfm"           element={<AdminReportCustomersRfmPage />} />
+              {/* UC-REP-03 — Dashboard analitico */}
+              <Route path="admin/reports"                         element={<AdminReportDashboardPage />} />
               {/* UC-COM-02 / UC-COM-03 — Bandeja y respuesta de contacto */}
               <Route path="admin/contact/messages"                element={<AdminContactMessagesPage />} />
               <Route path="admin/contact/messages/:id"            element={<AdminContactMessageDetailPage />} />
