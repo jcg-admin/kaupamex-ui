@@ -27,13 +27,14 @@ export function useNotificationsList(params = {}) {
   });
 }
 
-export function useUnreadNotificationsCount() {
+export function useUnreadNotificationsCount({ enabled = true } = {}) {
   return useQuery({
     queryKey: NOTIFICATIONS_UNREAD_COUNT_KEY,
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(UNREAD_COUNT_URL, { signal });
       return data?.count ?? data?.unread_count ?? 0;
     },
+    enabled,
     // Refresca el badge cada minuto sin requerir interaccion.
     refetchInterval: 60_000,
   });

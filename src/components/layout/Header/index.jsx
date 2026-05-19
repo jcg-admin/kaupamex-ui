@@ -11,6 +11,7 @@ import {
   selectIsSearchOpen,
 } from '@redux/selectors';
 import { toggleSearch, openModal } from '@redux/slices/uiSlice';
+import { useUnreadNotificationsCount } from '@hooks/domain/useNotifications';
 import styles from './Header.module.scss';
 
 const MAIN_NAV = [
@@ -25,6 +26,11 @@ export default function Header() {
   const isAuth          = useSelector(selectIsAuthenticated);
   const cartCount       = useSelector(selectCartItemCount);
   const isSearchOpen    = useSelector(selectIsSearchOpen);
+  // Solo consultar el badge cuando hay sesion activa; el hook se monta
+  // siempre (regla de hooks) pero el query queda deshabilitado para
+  // visitantes anonimos.
+  const unreadQuery     = useUnreadNotificationsCount({ enabled: isAuth });
+  const unreadCount     = isAuth ? (unreadQuery.data ?? 0) : 0;
 
   return (
     <header className={styles.header}>
@@ -63,6 +69,25 @@ export default function Header() {
               <path d="m21 21-4.35-4.35" />
             </svg>
           </button>
+
+          {/* Notificaciones (badge) — solo para usuarios autenticados */}
+          {isAuth && (
+            <Link
+              to="/account/notifications"
+              className={styles.notificationBtn}
+              aria-label={`Notificaciones (${unreadCount} sin leer)`}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              {unreadCount > 0 && (
+                <span className={styles.notificationCount}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           {/* Cuenta / Login */}
           {isAuth ? (

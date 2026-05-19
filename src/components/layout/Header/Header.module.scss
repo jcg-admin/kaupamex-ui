@@ -94,7 +94,13 @@
   position: relative;
 }
 
-.cartCount {
+.notificationBtn {
+  @extend .iconBtn;
+  position: relative;
+}
+
+.cartCount,
+.notificationCount {
   position: absolute;
   top: -2px;
   right: -2px;
