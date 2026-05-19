@@ -5,6 +5,19 @@
   padding: $spacing-8 0;
 }
 
+.guestNotice {
+  background: $primary-50;
+  color: $text-primary;
+  padding: $spacing-3 $spacing-4;
+  border-radius: $border-radius-md;
+  margin: 0 0 $spacing-4;
+
+  a {
+    color: $primary-color;
+    font-weight: 500;
+  }
+}
+
 .placeholder {
   @include flex-column-center;
   min-height: 40vh;

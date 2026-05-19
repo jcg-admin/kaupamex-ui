@@ -14,10 +14,23 @@ jest.mock('@services/apiService', () => ({
 
 import apiService from '@services/apiService';
 import ordersReducer from '@redux/slices/ordersSlice';
+import authReducer from '@redux/slices/authSlice';
 import CheckoutPage from './CheckoutPage';
 
-const wrap = () => {
-  const store = configureStore({ reducer: { orders: ordersReducer } });
+const wrap = ({ isAuthenticated = true } = {}) => {
+  const store = configureStore({
+    reducer: { orders: ordersReducer, auth: authReducer },
+    preloadedState: {
+      auth: {
+        user: isAuthenticated ? { id: 1, email: 'a@b.com' } : null,
+        isAuthenticated,
+        accessToken:  isAuthenticated ? 'token' : null,
+        refreshToken: isAuthenticated ? 'rtoken' : null,
+        status: 'idle',
+        error:  null,
+      },
+    },
+  });
   return (
     <Provider store={store}>
       <MemoryRouter initialEntries={['/checkout']}>
@@ -101,5 +114,36 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(
       screen.getByRole('button', { name: /Confirmar pedido/i })
     ).toBeDisabled();
+  });
+
+  describe('guest checkout (UC-ORD-01 invitado)', () => {
+    it('renderiza aviso de compra como invitado cuando no hay sesion', () => {
+      render(wrap({ isAuthenticated: false }));
+      expect(screen.getByRole('note')).toHaveTextContent(/comprando como invitado/i);
+    });
+
+    it('pide email y nombre del invitado y los manda en el payload', async () => {
+      apiService.post.mockResolvedValue({
+        data: { order_number: 'PY-2026-000999', status: 'PENDING' },
+      });
+      const user = userEvent.setup();
+      render(wrap({ isAuthenticated: false }));
+
+      await user.type(screen.getByLabelText(/Correo electronico/i), 'guest@example.com');
+      await user.type(screen.getByLabelText(/Nombre completo/i),    'Visitante Anonimo');
+      await fillAddress(user);
+      await user.click(screen.getByLabelText(/Acepto los terminos/i));
+      await user.click(screen.getByRole('button', { name: /Confirmar pedido/i }));
+
+      await waitFor(() => {
+        expect(apiService.post).toHaveBeenCalledWith(
+          '/api/v1/checkout/',
+          expect.objectContaining({
+            guest_email: 'guest@example.com',
+            guest_name:  'Visitante Anonimo',
+          }),
+        );
+      });
+    });
   });
 });

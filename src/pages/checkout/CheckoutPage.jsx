@@ -7,7 +7,7 @@
  * Tras exito redirige a /order/<order_number>/confirmation.
  */
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkoutOrder, clearOrdersActionState } from '@redux/slices/ordersSlice';
 import styles from './CheckoutPage.module.scss';
@@ -26,11 +26,16 @@ export default function CheckoutPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isActioning, actionError, lastAction, lastOrder } = useSelector((s) => s.orders);
+  // Tolerar stores que no incluyen el slice de auth (tests previos UC-ORD-01).
+  const isAuthenticated = useSelector((s) => s.auth?.isAuthenticated ?? false);
 
   const [address,       setAddress]       = useState(EMPTY_ADDRESS);
   const [shippingId,    setShippingId]    = useState('');
   const [notes,         setNotes]         = useState('');
   const [acceptTerms,   setAcceptTerms]   = useState(false);
+  // UC-ORD-01: campos requeridos solo para invitados (sin JWT).
+  const [guestEmail,    setGuestEmail]    = useState('');
+  const [guestName,     setGuestName]     = useState('');
 
   useEffect(() => {
     if (lastAction === 'checkout' && lastOrder?.order_number) {
@@ -49,6 +54,12 @@ export default function CheckoutPage() {
       notes,
     };
     if (shippingId) payload.shipping_method_id = Number(shippingId);
+    if (!isAuthenticated) {
+      // Guest checkout — UC-ORD-01: backend requiere email y nombre
+      // del comprador cuando no hay JWT.
+      payload.guest_email = guestEmail;
+      payload.guest_name  = guestName;
+    }
     dispatch(checkoutOrder(payload));
   };
 
@@ -61,7 +72,41 @@ export default function CheckoutPage() {
         </p>
       </header>
 
+      {!isAuthenticated && (
+        <aside className={styles.guestNotice} role="note">
+          <p>
+            Estas comprando como invitado. Si lo prefieres,{' '}
+            <Link to="/auth/login" state={{ from: { pathname: '/checkout' } }}>
+              inicia sesion
+            </Link>{' '}
+            para guardar tu pedido en tu cuenta.
+          </p>
+        </aside>
+      )}
+
       <form onSubmit={onSubmit} className={styles.form} aria-label="Formulario de checkout">
+        {!isAuthenticated && (
+          <fieldset className={styles.fieldset}>
+            <legend>Datos de contacto</legend>
+            <label>Correo electronico
+              <input
+                type="email"
+                value={guestEmail}
+                onChange={(e) => setGuestEmail(e.target.value)}
+                required
+              />
+            </label>
+            <label>Nombre completo
+              <input
+                type="text"
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                required
+              />
+            </label>
+          </fieldset>
+        )}
+
         <fieldset className={styles.fieldset}>
           <legend>Direccion de envio</legend>
           <label>Destinatario
