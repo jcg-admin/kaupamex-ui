@@ -59,7 +59,7 @@ const CART_PAYLOAD = {
 
 afterEach(() => jest.clearAllMocks());
 
-describe('CartPage (UC-CART-02)', () => {
+describe('CartPage (UC-CART-02 / UC-CART-03)', () => {
   it('al montar, hace GET a /api/cart/ y muestra los items', async () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     render(wrap(<CartPage />, makeStore()));
@@ -75,6 +75,28 @@ describe('CartPage (UC-CART-02)', () => {
 
     // subtotal = 199*2 + 50 = 448
     expect(await screen.findByText(/448/)).toBeInTheDocument();
+  });
+
+  it('UC-CART-03 — al hacer click en Eliminar, hace DELETE /api/cart/items/:id/', async () => {
+    apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
+    apiService.delete.mockResolvedValue({ data: { ok: true } });
+    render(wrap(<CartPage />, makeStore()));
+
+    const removeBtns = await screen.findAllByRole('button', { name: /Eliminar/i });
+    fireEvent.click(removeBtns[0]);
+
+    await waitFor(() => {
+      expect(apiService.delete).toHaveBeenCalledWith('/api/cart/items/11/');
+    });
+  });
+
+  it('UC-CART-03 — muestra mensaje cuando el carrito esta vacio', async () => {
+    apiService.get.mockResolvedValue({ data: { items: [], voucher: null } });
+    render(wrap(<CartPage />, makeStore()));
+
+    expect(
+      await screen.findByText(/Tu carrito esta vac[ií]o/i),
+    ).toBeInTheDocument();
   });
 
   it('al cambiar la cantidad, hace PATCH /api/cart/items/:id/', async () => {
