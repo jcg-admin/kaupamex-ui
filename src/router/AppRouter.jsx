@@ -43,6 +43,9 @@ const ReturnsPage             = lazy(() => import('@pages/account/ReturnsPage'))
 const ReturnCreatePage        = lazy(() => import('@pages/account/ReturnCreatePage'));
 const ReturnDetailPage        = lazy(() => import('@pages/account/ReturnDetailPage'));
 
+// Lazy pages — Notificaciones (comprador)
+const NotificationPreferencesPage = lazy(() => import('@pages/account/NotificationPreferencesPage'));
+
 // Lazy pages — Admin
 const AdminDashboardPage  = lazy(() => import('@pages/admin/AdminDashboardPage'));
 const AdminProductsPage   = lazy(() => import('@pages/admin/AdminProductsPage'));
@@ -101,6 +104,7 @@ export default function AppRouter() {
               <Route path="account/returns"     element={<ReturnsPage />} />
               <Route path="account/returns/new" element={<ReturnCreatePage />} />
               <Route path="account/returns/:id" element={<ReturnDetailPage />} />
+              <Route path="account/notifications/preferences" element={<NotificationPreferencesPage />} />
             </Route>
           </Route>
 
