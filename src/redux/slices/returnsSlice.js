@@ -20,12 +20,36 @@ const ADMIN_URL    = '/api/v1/admin/returns/';
 // Thunks — Comprador
 // =============================================================================
 
-/** UC-RET-01: crea una nueva solicitud de devolucion. */
+/**
+ * UC-RET-01: crea una nueva solicitud de devolucion.
+ *
+ * Acepta dos formas:
+ *   - payload JSON (sin fotos): `{ order_id, reason, description }`.
+ *   - payload con fotos (UC-RET-01 Alt A): `{ order_id, reason,
+ *     description, photos: File[] }` — se serializa como `multipart/form-data`.
+ *
+ * Cuando hay fotos, el thunk arma un `FormData` con los campos planos +
+ * cada `File` bajo la clave `photos`. apiService delega en axios, que
+ * detecta el `FormData` y setea el `Content-Type` con el boundary
+ * correcto.
+ */
 export const createReturnRequest = createAsyncThunk(
   'returns/create',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(CUSTOMER_URL, payload);
+      const photos = Array.isArray(payload?.photos) ? payload.photos : [];
+      let body = payload;
+      if (photos.length > 0) {
+        const form = new FormData();
+        Object.entries(payload).forEach(([key, value]) => {
+          if (key === 'photos') return;
+          if (value === undefined || value === null) return;
+          form.append(key, value);
+        });
+        photos.forEach((file) => form.append('photos', file));
+        body = form;
+      }
+      const res = await apiService.post(CUSTOMER_URL, body);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

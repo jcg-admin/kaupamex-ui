@@ -26,13 +26,28 @@ const INITIAL = {
   description: '',
 };
 
-function validate({ order_id, description }) {
+// UC-RET-01 Alt A: la subida de evidencias fotograficas es opcional pero
+// limitada para evitar payloads abusivos. El backend hace la validacion
+// definitiva (image/* MIME, < 5 MB) y devuelve 422 PHOTO_INVALID.
+const MAX_PHOTOS         = 4;
+const MAX_PHOTO_BYTES    = 5 * 1024 * 1024;
+const ACCEPTED_MIME_HINT = 'image/*';
+
+function validate({ order_id, description }, photos) {
   const errors = {};
   if (!order_id.trim()) {
     errors.order_id = 'La orden es obligatoria.';
   }
   if (description.trim().length < MIN_DESCRIPTION) {
     errors.description = `La descripción debe tener al menos ${MIN_DESCRIPTION} caracteres.`;
+  }
+  if (photos.length > MAX_PHOTOS) {
+    errors.photos = `Puedes adjuntar hasta ${MAX_PHOTOS} fotos.`;
+  } else {
+    const oversized = photos.find((f) => f.size > MAX_PHOTO_BYTES);
+    if (oversized) {
+      errors.photos = `La foto "${oversized.name}" supera 5 MB.`;
+    }
   }
   return errors;
 }
@@ -47,6 +62,7 @@ export default function ReturnCreatePage() {
     ...INITIAL,
     order_id: searchParams.get('order') ?? '',
   }));
+  const [photos, setPhotos] = useState([]);
   const [errors, setErrors] = useState({});
 
   const handleChange = (event) => {
@@ -55,9 +71,15 @@ export default function ReturnCreatePage() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  const handlePhotosChange = (event) => {
+    const files = Array.from(event.target.files ?? []);
+    setPhotos(files);
+    if (errors.photos) setErrors((prev) => ({ ...prev, photos: '' }));
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const errs = validate(fields);
+    const errs = validate(fields, photos);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
@@ -66,11 +88,13 @@ export default function ReturnCreatePage() {
       order_id:    fields.order_id.trim(),
       reason:      fields.reason,
       description: fields.description.trim(),
+      photos,
     }));
   };
 
   const handleReset = () => {
     setFields(INITIAL);
+    setPhotos([]);
     setErrors({});
     dispatch(clearReturnsActionState());
   };
@@ -160,6 +184,28 @@ export default function ReturnCreatePage() {
           />
           {errors.description && (
             <span className={styles.error}>{errors.description}</span>
+          )}
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="return-photos">
+            Fotos del producto (opcional)
+          </label>
+          <input
+            id="return-photos"
+            name="photos"
+            type="file"
+            accept={ACCEPTED_MIME_HINT}
+            multiple
+            onChange={handlePhotosChange}
+            aria-invalid={Boolean(errors.photos)}
+          />
+          <small className={styles.hint}>
+            Hasta {MAX_PHOTOS} imágenes (máx. 5 MB cada una). Útiles si
+            el motivo es "Producto dañado" o "No coincide con la descripción".
+          </small>
+          {errors.photos && (
+            <span className={styles.error}>{errors.photos}</span>
           )}
         </div>
 
