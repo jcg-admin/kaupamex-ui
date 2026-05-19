@@ -1,6 +1,7 @@
 /**
  * Tests — AdminProductDiscountsPage
  * UC-DASH-04: Ver descuentos activos del catalogo
+ * UC-DASH-03: Desactivar descuento (acceso desde la lista)
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }        from 'react-redux';
@@ -121,5 +122,79 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
     expect(
       await screen.findByText(/No se pudieron cargar los descuentos/i),
     ).toBeInTheDocument();
+  });
+});
+
+describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
+  it('muestra un boton de desactivar por cada descuento', async () => {
+    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    render(wrap(<AdminProductDiscountsPage />, makeStore()));
+    await screen.findByText('Camiseta Yoruba');
+    expect(screen.getByRole('button', {
+      name: /Desactivar descuento Camiseta Yoruba/i,
+    })).toBeInTheDocument();
+  });
+
+  it('llama al endpoint de desactivar al confirmar', async () => {
+    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    apiService.post.mockResolvedValue({
+      data: { ...DISCOUNTS[0], is_active: false },
+    });
+
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+
+    render(wrap(<AdminProductDiscountsPage />, makeStore()));
+    await screen.findByText('Camiseta Yoruba');
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /Desactivar descuento Camiseta Yoruba/i,
+    }));
+
+    await waitFor(() => {
+      expect(apiService.post).toHaveBeenCalledWith(
+        expect.stringContaining('/admin/product-discounts/1/deactivate/'),
+      );
+    });
+
+    confirmSpy.mockRestore();
+  });
+
+  it('no llama al endpoint si el admin cancela la confirmacion', async () => {
+    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+
+    render(wrap(<AdminProductDiscountsPage />, makeStore()));
+    await screen.findByText('Camiseta Yoruba');
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /Desactivar descuento Camiseta Yoruba/i,
+    }));
+    expect(apiService.post).not.toHaveBeenCalled();
+
+    confirmSpy.mockRestore();
+  });
+
+  it('muestra mensaje de error cuando la desactivacion falla', async () => {
+    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    apiService.post.mockRejectedValue(
+      Object.assign(new Error('Conflict'), {
+        code: 'DESCUENTO_YA_INACTIVO',
+        status: 409,
+      }),
+    );
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+
+    render(wrap(<AdminProductDiscountsPage />, makeStore()));
+    await screen.findByText('Camiseta Yoruba');
+
+    fireEvent.click(screen.getByRole('button', {
+      name: /Desactivar descuento Camiseta Yoruba/i,
+    }));
+
+    expect(
+      await screen.findByText(/no se pudo desactivar/i),
+    ).toBeInTheDocument();
+
+    confirmSpy.mockRestore();
   });
 });

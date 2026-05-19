@@ -9,8 +9,17 @@
  * Punto de entrada operacional para UC-DASH-01 (crear),
  * UC-DASH-02 (editar) y UC-DASH-03 (desactivar).
  */
-import { useState } from 'react';
-import { useProductDiscounts } from '@hooks/domain/useProductDiscounts';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  useProductDiscounts,
+  PRODUCT_DISCOUNTS_QUERY_KEY,
+} from '@hooks/domain/useProductDiscounts';
+import {
+  deactivateProductDiscount,
+  clearProductDiscountsActionState,
+} from '@redux/slices/productDiscountsSlice';
 import styles from './AdminProductDiscountsPage.module.scss';
 
 const STATUS_OPTIONS = [
@@ -51,10 +60,31 @@ function formatValidity(from, until) {
 }
 
 export default function AdminProductDiscountsPage() {
+  const dispatch    = useDispatch();
+  const queryClient = useQueryClient();
+  const { isActioning, actionError, lastAction } =
+    useSelector((s) => s.productDiscounts);
+
   const [filters, setFilters] = useState({ status: '' });
   const params = filters.status ? { status: filters.status } : {};
   const { data, isLoading, isError } = useProductDiscounts(params);
   const items = Array.isArray(data) ? data : [];
+
+  useEffect(() => {
+    if (lastAction === 'deactivated') {
+      queryClient.invalidateQueries({ queryKey: PRODUCT_DISCOUNTS_QUERY_KEY });
+      dispatch(clearProductDiscountsActionState());
+    }
+  }, [lastAction, dispatch, queryClient]);
+
+  const handleDeactivate = (discount) => {
+    const ok = window.confirm(
+      `Vas a desactivar el descuento de ${discount.product_name}. ` +
+      `El precio del producto volvera a $${Number(discount.original_price).toFixed(2)}. Continuar?`,
+    );
+    if (!ok) return;
+    dispatch(deactivateProductDiscount(discount.id));
+  };
 
   return (
     <section className={styles.page} aria-labelledby="discounts-title">
@@ -91,6 +121,12 @@ export default function AdminProductDiscountsPage() {
         </p>
       )}
 
+      {actionError && (
+        <p role="alert" className={styles.error}>
+          No se pudo desactivar el descuento. {actionError.message || ''}
+        </p>
+      )}
+
       {!isLoading && !isError && items.length === 0 && (
         <p className={styles.empty}>No hay descuentos activos.</p>
       )}
@@ -124,7 +160,17 @@ export default function AdminProductDiscountsPage() {
                   </span>
                   <span>{formatPrice(d.discounted_price)}</span>
                 </td>
-                <td>{/* Acciones pendientes — UC-DASH-02 / UC-DASH-03 */}</td>
+                <td>
+                  <button
+                    type="button"
+                    className={styles.dangerBtn}
+                    aria-label={`Desactivar descuento ${d.product_name}`}
+                    onClick={() => handleDeactivate(d)}
+                    disabled={isActioning}
+                  >
+                    Desactivar
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
