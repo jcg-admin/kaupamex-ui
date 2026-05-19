@@ -40,6 +40,7 @@ const OrdersPage      = lazy(() => import('@pages/account/OrdersPage'));
 const OrderDetailPage = lazy(() => import('@pages/account/OrderDetailPage'));
 const WishlistPage    = lazy(() => import('@pages/account/WishlistPage'));
 const ProfilePage     = lazy(() => import('@pages/account/ProfilePage'));
+const ChangePasswordPage = lazy(() => import('@pages/account/ChangePasswordPage'));
 
 // Lazy pages — Soporte (tickets del comprador)
 const SupportTicketsPage       = lazy(() => import('@pages/account/SupportTicketsPage'));
@@ -55,6 +56,7 @@ const ReturnDetailPage        = lazy(() => import('@pages/account/ReturnDetailPa
 const NotificationPreferencesPage = lazy(() => import('@pages/account/NotificationPreferencesPage'));
 const PaymentStatusPage    = lazy(() => import('@pages/account/PaymentStatusPage'));
 const PaymentHistoryPage   = lazy(() => import('@pages/account/PaymentHistoryPage'));
+const PaymentRetryPage     = lazy(() => import('@pages/account/PaymentRetryPage'));
 
 // Lazy pages — Admin
 const AdminDashboardPage  = lazy(() => import('@pages/admin/AdminDashboardPage'));
@@ -137,6 +139,8 @@ export default function AppRouter() {
               <Route path="account/orders/:id"  element={<OrderDetailPage />} />
               <Route path="account/wishlist"    element={<WishlistPage />} />
               <Route path="account/profile"     element={<ProfilePage />} />
+              {/* UC-AUTH-08 — Cambiar contrasena */}
+              <Route path="account/change-password" element={<ChangePasswordPage />} />
               <Route path="account/returns"     element={<ReturnsPage />} />
               <Route path="account/returns/new" element={<ReturnCreatePage />} />
               <Route path="account/returns/:id" element={<ReturnDetailPage />} />
@@ -145,6 +149,8 @@ export default function AppRouter() {
               <Route path="account/orders/:orderId/payment" element={<PaymentStatusPage />} />
               {/* UC-PAY-06 — Historial de pagos de una orden propia */}
               <Route path="account/orders/:orderId/payments" element={<PaymentHistoryPage />} />
+              {/* UC-PAY-08 — Reintentar pago fallido */}
+              <Route path="account/orders/:orderId/payment/retry" element={<PaymentRetryPage />} />
             </Route>
           </Route>
 
