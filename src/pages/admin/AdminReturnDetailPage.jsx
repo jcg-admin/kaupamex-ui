@@ -23,6 +23,7 @@ import {
 } from '@pages/account/returnStatus';
 import AdminReturnReviewPanel    from '@components/returns/AdminReturnReviewPanel';
 import AdminReturnReceptionPanel from '@components/returns/AdminReturnReceptionPanel';
+import AdminReturnRefundPanel    from '@components/returns/AdminReturnRefundPanel';
 import styles from './AdminReturnDetailPage.module.scss';
 
 function formatDateTime(iso) {
@@ -127,6 +128,7 @@ export default function AdminReturnDetailPage() {
 
       <AdminReturnReviewPanel    returnRequest={current} />
       <AdminReturnReceptionPanel returnRequest={current} />
+      <AdminReturnRefundPanel    returnRequest={current} />
     </section>
   );
 }
