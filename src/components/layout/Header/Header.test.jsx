@@ -74,7 +74,7 @@ describe('Header — badge de notificaciones (D-012)', () => {
     renderHeader({ isAuthenticated: true });
     const link = await screen.findByLabelText(/notificaciones/i);
     expect(link).toBeInTheDocument();
-    expect(link.getAttribute('href')).toBe('/account/notifications');
+    expect(link.getAttribute('href')).toBe('/account/notifications/preferences');
   });
 
   it('autenticado: muestra el numero de notificaciones sin leer en el badge', async () => {
