@@ -41,6 +41,7 @@ import adminUsersReducer        from './slices/adminUsersSlice';
 import permissionsReducer       from './slices/permissionsSlice';
 import settingsReducer          from './slices/settingsSlice';
 import backupsReducer           from './slices/backupsSlice';
+import logisticsReducer         from './slices/logisticsSlice';
 
 import {
   errorHandlingMiddleware,
@@ -75,6 +76,7 @@ const store = configureStore({
     permissions:      permissionsReducer,
     settings:         settingsReducer,
     backups:          backupsReducer,
+    logistics:        logisticsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
