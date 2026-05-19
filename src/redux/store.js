@@ -28,6 +28,7 @@ import vouchersReducer from './slices/vouchersSlice';
 import supportTicketsReducer from './slices/supportTicketsSlice';
 import returnsReducer        from './slices/returnsSlice';
 import inventoryReducer      from './slices/inventorySlice';
+import yorubaVariantsReducer from './slices/yorubaVariantsSlice';
 
 import {
   errorHandlingMiddleware,
@@ -49,6 +50,7 @@ const store = configureStore({
     supportTickets: supportTicketsReducer,
     returns:        returnsReducer,
     inventory:      inventoryReducer,
+    yorubaVariants: yorubaVariantsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

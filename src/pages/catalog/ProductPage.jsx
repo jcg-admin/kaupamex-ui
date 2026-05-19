@@ -9,6 +9,8 @@ import {
   fetchProduct,
   clearCurrentProduct,
 } from '@redux/slices/catalogSlice';
+import { clearSelectedVariant } from '@redux/slices/yorubaVariantsSlice';
+import VariantSelector from '@components/catalog/VariantSelector';
 import styles from './ProductPage.module.scss';
 
 export default function ProductPage() {
@@ -17,10 +19,16 @@ export default function ProductPage() {
   const navigate   = useNavigate();
 
   const { currentProduct: product, isLoading, error } = useSelector((s) => s.catalog);
+  const selectedVariantId = useSelector(
+    (s) => s.yorubaVariants?.selectedVariantId ?? null,
+  );
 
   useEffect(() => {
     dispatch(fetchProduct(slug));
-    return () => { dispatch(clearCurrentProduct()); };
+    return () => {
+      dispatch(clearCurrentProduct());
+      dispatch(clearSelectedVariant());
+    };
   }, [dispatch, slug]);
 
   if (isLoading) {
@@ -52,9 +60,20 @@ export default function ProductPage() {
     availability, stock,
     category, images, discount,
     is_featured,
+    variants,
   } = product;
 
-  const isAvailable = availability === 'IN_STOCK';
+  const hasVariants = Array.isArray(variants) && variants.length > 0;
+  const selectedVariant = hasVariants
+    ? variants.find((v) => v.id === selectedVariantId) ?? null
+    : null;
+
+  // UC-CHT-01: el precio mostrado refleja la variante seleccionada (sin IVA
+  // base, el formato sigue siendo el del producto principal).
+  const displayPrice = selectedVariant?.price ?? price_with_tax;
+  const isAvailable = hasVariants
+    ? variants.some((v) => v.stock > 0)
+    : availability === 'IN_STOCK';
 
   return (
     <main className={styles.page}>
@@ -126,7 +145,7 @@ export default function ProductPage() {
               </>
             ) : (
               <span className={styles.price}>
-                ${Number(price_with_tax).toLocaleString('es-MX', {
+                ${Number(displayPrice).toLocaleString('es-MX', {
                   minimumFractionDigits: 2,
                 })}
               </span>
@@ -145,14 +164,21 @@ export default function ProductPage() {
             )}
           </div>
 
+          {/* UC-CHT-01: selector de variantes Yoruba (Tamano, Presentacion, Material) */}
+          {hasVariants && <VariantSelector variants={variants} />}
+
           {/* CTA */}
           <button
             type="button"
             className={styles.addToCart}
-            disabled={!isAvailable}
-            aria-disabled={!isAvailable}
+            disabled={!isAvailable || (hasVariants && !selectedVariant)}
+            aria-disabled={!isAvailable || (hasVariants && !selectedVariant)}
           >
-            {isAvailable ? 'Agregar al carrito' : 'Sin disponibilidad'}
+            {isAvailable
+              ? hasVariants && !selectedVariant
+                ? 'Selecciona una variante'
+                : 'Agregar al carrito'
+              : 'Sin disponibilidad'}
           </button>
 
           {/* Descripción completa */}

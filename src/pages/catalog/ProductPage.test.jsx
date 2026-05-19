@@ -13,10 +13,16 @@ jest.mock('@services/apiService', () => ({
 
 import apiService from '@services/apiService';
 import catalogReducer from '@redux/slices/catalogSlice';
+import yorubaVariantsReducer from '@redux/slices/yorubaVariantsSlice';
 import ProductPage from './ProductPage';
 
 const makeStore = () =>
-  configureStore({ reducer: { catalog: catalogReducer } });
+  configureStore({
+    reducer: {
+      catalog: catalogReducer,
+      yorubaVariants: yorubaVariantsReducer,
+    },
+  });
 
 const wrap = (slug, store) => (
   <Provider store={store}>
@@ -145,5 +151,40 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     render(wrap('collar-oshun-dorado', makeStore()));
     await screen.findByRole('heading', { name: /Collar Oshun dorado/i });
     expect(screen.queryByText('Destacado')).not.toBeInTheDocument();
+  });
+
+  // ── UC-CHT-01: integración del selector de variantes en la ficha ──────
+  it('UC-CHT-01: renderiza el selector de variantes cuando el producto las trae', async () => {
+    apiService.get.mockResolvedValue({
+      data: {
+        ...PRODUCT,
+        variants: [
+          { id: 1, name: 'Chico',   price: 1200, stock: 5, is_active: true },
+          { id: 2, name: 'Mediano', price: 1500, stock: 3, is_active: true },
+        ],
+      },
+    });
+    render(wrap('collar-oshun-dorado', makeStore()));
+    expect(
+      await screen.findByRole('group', { name: /variantes/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Chico/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Mediano/ })).toBeInTheDocument();
+  });
+
+  it('UC-CHT-01: el CTA pide seleccionar variante si hay variantes pero ninguna seleccionada', async () => {
+    apiService.get.mockResolvedValue({
+      data: {
+        ...PRODUCT,
+        variants: [
+          { id: 1, name: 'Chico',   price: 1200, stock: 4, is_active: true },
+          { id: 2, name: 'Mediano', price: 1500, stock: 3, is_active: true },
+        ],
+      },
+    });
+    render(wrap('collar-oshun-dorado', makeStore()));
+    expect(
+      await screen.findByRole('button', { name: /Selecciona una variante/i }),
+    ).toBeDisabled();
   });
 });
