@@ -39,7 +39,9 @@ const SupportTicketCreatePage  = lazy(() => import('@pages/account/SupportTicket
 const SupportTicketDetailPage  = lazy(() => import('@pages/account/SupportTicketDetailPage'));
 
 // Lazy pages — Devoluciones (comprador)
+const ReturnsPage             = lazy(() => import('@pages/account/ReturnsPage'));
 const ReturnCreatePage        = lazy(() => import('@pages/account/ReturnCreatePage'));
+const ReturnDetailPage        = lazy(() => import('@pages/account/ReturnDetailPage'));
 
 // Lazy pages — Admin
 const AdminDashboardPage  = lazy(() => import('@pages/admin/AdminDashboardPage'));
@@ -88,7 +90,9 @@ export default function AppRouter() {
               <Route path="account/orders/:id"  element={<OrderDetailPage />} />
               <Route path="account/wishlist"    element={<WishlistPage />} />
               <Route path="account/profile"     element={<ProfilePage />} />
+              <Route path="account/returns"     element={<ReturnsPage />} />
               <Route path="account/returns/new" element={<ReturnCreatePage />} />
+              <Route path="account/returns/:id" element={<ReturnDetailPage />} />
             </Route>
           </Route>
 

@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { to: '/account',          label: 'Resumen',     end: true },
   { to: '/account/orders',   label: 'Mis pedidos'  },
   { to: '/account/wishlist', label: 'Mis favoritos'},
+  { to: '/account/returns',  label: 'Mis devoluciones' },
   { to: '/account/profile',  label: 'Mi perfil'    },
 ];
 
