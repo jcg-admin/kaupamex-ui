@@ -11,6 +11,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 // ─── Thunks — Sprint 1 ────────────────────────────────────────────────
 
@@ -85,12 +86,16 @@ export const updateProfile = createAsyncThunk(
 /** Cambia la contrasena del comprador autenticado (UC-AUTH-08). */
 export const changePassword = createAsyncThunk(
   'auth/changePassword',
-  async (data, { rejectWithValue }) => {
+  async ({ currentPassword, newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
-      const response = await apiService.post('/api/v1/auth/change-password/', data);
+      const response = await apiService.post('/api/v1/auth/change-password/', {
+        current_password: currentPassword,
+        new_password:     newPassword,
+        confirm_password: confirmPassword,
+      });
       return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
