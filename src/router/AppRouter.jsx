@@ -18,6 +18,8 @@ const CatalogPage     = lazy(() => import('@pages/catalog/CatalogPage'));
 const ProductPage     = lazy(() => import('@pages/catalog/ProductPage'));
 // UC-CAT-08 — Arbol publico de categorias
 const CategoryListPage = lazy(() => import('@pages/catalog/CategoryListPage'));
+// UC-CAT-03 + UC-CAT-03-EXT — Pagina dedicada de resultados de busqueda
+const SearchResultsPage = lazy(() => import('@pages/catalog/SearchResultsPage'));
 const CartPage        = lazy(() => import('@pages/cart/CartPage'));
 const CheckoutPage    = lazy(() => import('@pages/checkout/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
@@ -125,6 +127,8 @@ export default function AppRouter() {
             <Route path="catalog" element={<CatalogPage />} />
             {/* UC-CAT-08 — Arbol publico de categorias */}
             <Route path="categories" element={<CategoryListPage />} />
+            {/* UC-CAT-03 + UC-CAT-03-EXT — Resultados de busqueda */}
+            <Route path="search" element={<SearchResultsPage />} />
             <Route path="catalog/:slug" element={<ProductPage />} />
             <Route path="cart" element={<CartPage />} />
             {/* UC-COM-01 — Formulario publico de contacto */}
