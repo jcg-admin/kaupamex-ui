@@ -4,11 +4,18 @@
  * UC-INV-03: Movimientos tipo CANCELLATION (restauración por cancelación).
  * Tambien expone movimientos MANUAL (UC-INV-04) para auditoria completa.
  */
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchStockMovements } from '@redux/slices/inventorySlice';
 import styles from './AdminInventoryMovementsPage.module.scss';
+
+const TYPE_FILTER_OPTIONS = [
+  { value: '',             label: 'Todos los tipos' },
+  { value: 'SALE',         label: 'Venta' },
+  { value: 'CANCELLATION', label: 'Cancelación' },
+  { value: 'MANUAL',       label: 'Ajuste manual' },
+];
 
 const TYPE_LABEL = {
   SALE:         'Venta',
@@ -38,10 +45,15 @@ export default function AdminInventoryMovementsPage() {
   const { variantId } = useParams();
   const dispatch = useDispatch();
   const { movements, isLoading, error } = useSelector((s) => s.inventory);
+  const [typeFilter, setTypeFilter] = useState('');
 
   useEffect(() => {
     if (variantId) dispatch(fetchStockMovements(variantId));
   }, [variantId, dispatch]);
+
+  const visibleMovements = useMemo(() => (
+    typeFilter ? movements.filter((mv) => mv.type === typeFilter) : movements
+  ), [movements, typeFilter]);
 
   return (
     <section className={styles.page} aria-labelledby="inv-movements-title">
@@ -53,6 +65,18 @@ export default function AdminInventoryMovementsPage() {
         Movimientos de inventario
       </h1>
       <p className={styles.meta}>Variante #{variantId}</p>
+
+      <div className={styles.filters}>
+        <label className={styles.filter}>
+          <span>Filtrar por tipo</span>
+          <select value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}>
+            {TYPE_FILTER_OPTIONS.map((opt) => (
+              <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
 
       {isLoading && <p>Cargando movimientos…</p>}
 
@@ -66,7 +90,7 @@ export default function AdminInventoryMovementsPage() {
         <p className={styles.empty}>Sin movimientos registrados.</p>
       )}
 
-      {movements.length > 0 && (
+      {visibleMovements.length > 0 && (
         <table className={styles.table}>
           <thead>
             <tr>
@@ -79,7 +103,7 @@ export default function AdminInventoryMovementsPage() {
             </tr>
           </thead>
           <tbody>
-            {movements.map((mv) => (
+            {visibleMovements.map((mv) => (
               <tr key={mv.id}>
                 <td>{formatDateTime(mv.created_at)}</td>
                 <td>

@@ -3,7 +3,7 @@
  * UC-INV-02: Decremento de stock (movimientos tipo SALE)
  * UC-INV-03: Restauración de stock (movimientos tipo CANCELLATION)
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
@@ -89,5 +89,20 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
     render(wrap(makeStore()));
     expect(await screen.findAllByText('ORD-100')).toHaveLength(2);
     expect(screen.getByText('ADMIN:5')).toBeInTheDocument();
+  });
+
+  // UC-INV-03 — filtro por tipo para ver solo cancelaciones
+  it('UC-INV-03: filtra los movimientos por tipo (solo cancelaciones)', async () => {
+    apiService.get.mockResolvedValue({ data: { results: MOVEMENTS } });
+    render(wrap(makeStore()));
+    await screen.findByText('Venta');
+
+    fireEvent.change(screen.getByLabelText(/Filtrar por tipo/i),
+      { target: { value: 'CANCELLATION' } });
+
+    // La venta desaparece de la tabla; "Cancelación" sigue ahí
+    const table = screen.getByRole('table');
+    expect(table).not.toHaveTextContent('Venta');
+    expect(table).toHaveTextContent('Cancelación');
   });
 });
