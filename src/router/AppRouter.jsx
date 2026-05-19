@@ -94,6 +94,7 @@ const AdminNewsletterSubscribersPage = lazy(() => import('@pages/admin/AdminNews
 const AdminNewsletterComposePage     = lazy(() => import('@pages/admin/AdminNewsletterComposePage'));
 const AdminQuestionsAnswerPage       = lazy(() => import('@pages/admin/AdminQuestionsAnswerPage'));
 const AdminQuestionsModerationPage   = lazy(() => import('@pages/admin/AdminQuestionsModerationPage'));
+const AdminReviewsModerationPage     = lazy(() => import('@pages/admin/AdminReviewsModerationPage'));
 const AdminPaymentRefundPage         = lazy(() => import('@pages/admin/AdminPaymentRefundPage'));
 const AdminPaymentsPage              = lazy(() => import('@pages/admin/AdminPaymentsPage'));
 // UC-CAT-06 / UC-CAT-09 / UC-CAT-10 — Categorias y CRUD de productos
@@ -263,6 +264,8 @@ export default function AppRouter() {
               <Route path="admin/questions/answer"                element={<AdminQuestionsAnswerPage />} />
               {/* UC-QST-04 — Cola de moderacion */}
               <Route path="admin/questions/moderation"            element={<AdminQuestionsModerationPage />} />
+              {/* UC-REV-03 — Cola de moderacion de resenas */}
+              <Route path="admin/reviews/moderation"              element={<AdminReviewsModerationPage />} />
               {/* UC-PAY-11 — Reporte de transacciones de pago */}
               <Route path="admin/payments"                        element={<AdminPaymentsPage />} />
               {/* UC-PAY-09 — Procesar reembolso manual */}
