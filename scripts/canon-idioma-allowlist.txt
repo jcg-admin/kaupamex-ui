@@ -44,8 +44,10 @@
 # src/pages/admin/AdminReturnDetailPage.test.jsx
 # src/hooks/domain/useReturns.test.jsx
 
-# T-201..T-208 (modulo 2: cart)
-src/pages/cart/CartPage.test.jsx
+# T-201..T-208 modulo 2: cart — MIGRADO. Entry retirada.
+# Conservada como comentario historico:
+#
+# src/pages/cart/CartPage.test.jsx
 
 # T-301..T-308 (modulo 3: payments)
 src/pages/account/PaymentRetryPage.test.jsx

@@ -189,7 +189,12 @@ function findViolations(src, filePath) {
     if (!isEs) return;
     const lineno = node.loc?.start?.line;
     if (!lineno) return;
-    // Allowlist inline: la linea anterior contiene "canon-idioma:".
+    // Allowlist:
+    //   - Same-line: la propia linea contiene "canon-idioma:" (inline,
+    //     util para dict/array literals con multiples values legacy).
+    //   - Prev-line: la linea anterior contiene "canon-idioma:" (block).
+    const sameLine = lines[lineno - 1] || '';
+    if (sameLine.includes('canon-idioma:')) return;
     const prev = lines[lineno - 2] || '';
     if (prev.includes('canon-idioma:')) return;
     violations.push({ lineno, value: node.value, razon });

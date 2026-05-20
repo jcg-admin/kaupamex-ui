@@ -85,7 +85,20 @@ test('VIOLATION: literal ES dispara exit 1', () => {
   assert.match(r.stdout, /VARIANTE_REQUERIDA/);
 });
 
-test('ALLOWLIST inline: comentario canon-idioma exime el match', () => {
+test('ALLOWLIST same-line: comentario inline exime el match', () => {
+  const file = join('src', 'demo', 'allowed-same-line.js');
+  writeFileSync(join(tmpRoot, file), `
+    const messages = {
+      'VOUCHER_NO_VIGENTE': 'Cupon no vigente',  // canon-idioma: voucher legacy
+      'VOUCHER_EXPIRADO': 'Cupon expirado',  // canon-idioma: voucher legacy
+    };
+  `, 'utf-8');
+  const r = runScript(file);
+  assert.equal(r.status, 0, `stdout=${r.stdout}\nstderr=${r.stderr}`);
+  assert.match(r.stdout, /OK/);
+});
+
+test('ALLOWLIST prev-line: comentario en linea previa exime el match', () => {
   const file = join('src', 'demo', 'allowed-inline.js');
   writeFileSync(join(tmpRoot, file), `
     // canon-idioma: legacy data en BD, migracion T-709
