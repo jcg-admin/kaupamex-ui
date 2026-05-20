@@ -1,0 +1,55 @@
+#!/bin/bash
+# =============================================================================
+# ui/.githooks/pre-commit — gates de calidad de codigo para ui
+# =============================================================================
+# Cargado via 'git config core.hooksPath .githooks' dentro del repo ui/.
+#
+# Activacion:
+#   cd /home/user/e-comerce/ui
+#   bash scripts/install-hooks.sh
+#
+# Gates activos:
+#
+#   1. Zero lazy imports en src/** (PEP 8 equivalent — .claude/rules/
+#      no-lazy-imports.md). Excepcion: React.lazy(() => import(...))
+#      a top-level es code splitting intencional.
+#      Iniciativa: docs/source/gestion/pm/ui/iniciativas/
+#                  eliminar-lazy-imports-ui/
+#      Script:     scripts/check-no-lazy-imports.mjs
+#
+# Skip manual: 'git commit --no-verify' (solo emergencias documentadas).
+# =============================================================================
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+EXIT_CODE=0
+
+# ─── Gate 1: lazy imports en src/** ──────────────────────────────────────────
+STAGED_JS=()
+while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    STAGED_JS+=("$line")
+done < <(
+    git diff --cached --name-only --diff-filter=ACM \
+        -- 'src/***.js' 'src/***.jsx' 'src/***.ts' 'src/***.tsx' \
+           'src/***.mjs' 2>/dev/null \
+    | grep -vE 'node_modules/|dist/|build/' || true
+)
+
+if [[ "${#STAGED_JS[@]}" -gt 0 ]]; then
+    CHECKER="$REPO_ROOT/scripts/check-no-lazy-imports.mjs"
+    if [[ ! -f "$CHECKER" ]]; then
+        echo "pre-commit: $CHECKER no encontrado — skip lazy import gate" >&2
+    else
+        node "$CHECKER" "${STAGED_JS[@]}" || EXIT_CODE=1
+    fi
+fi
+
+if [[ "$EXIT_CODE" -ne 0 ]]; then
+    echo "" >&2
+    echo "pre-commit: gates fallaron. Corrige los problemas o usa" >&2
+    echo "  git commit --no-verify" >&2
+    echo "(solo emergencias documentadas)." >&2
+fi
+
+exit "$EXIT_CODE"

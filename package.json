@@ -1,7 +1,7 @@
 {
   "name": "practicayoruba-ui",
   "version": "1.0.0",
-  "description": "PracticaYoruba — E-commerce de productos Yoruba. Frontend React 19.",
+  "description": "PracticaYoruba \u2014 E-commerce de productos Yoruba. Frontend React 19.",
   "main": "src/index.jsx",
   "sideEffects": [
     "**/*.css",
@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@babel/parser": "^7.29.0",
     "@babel/preset-env": "^7.29.5",
     "@babel/preset-react": "^7.28.5",
     "@babel/preset-typescript": "^7.28.5",
