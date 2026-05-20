@@ -19,7 +19,7 @@
   grid-template-columns: 1fr 340px;
   gap: $spacing-6;
 
-  @media (max-width: 768px) {
+  @include media-down-md {
     grid-template-columns: 1fr;
   }
 }

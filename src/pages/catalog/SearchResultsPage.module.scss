@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
 .header { margin-bottom: 16px; }
 .title  { font-size: 1.5rem; margin: 0 0 4px; }
@@ -11,7 +13,7 @@
   display: grid; gap: 24px;
   grid-template-columns: 240px 1fr;
 }
-@media (max-width: 768px) {
+@include media-down-md {
   .layout { grid-template-columns: 1fr; }
 }
 .results { min-width: 0; }

@@ -106,7 +106,7 @@
   grid-template-columns: 240px 1fr;
   gap: 24px;
 }
-@media (max-width: 768px) {
+@include media-down-md {
   .layoutWithFilters {
     grid-template-columns: 1fr;
   }
