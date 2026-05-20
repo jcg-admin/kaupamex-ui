@@ -88,7 +88,7 @@ describe('ContactPage (UC-COM-01)', () => {
   it('muestra error si el backend rechaza', async () => {
     apiService.post.mockRejectedValue({
       message: 'Limite de mensajes alcanzado',
-      code:    'LIMITE_ALCANZADO',
+      code:    'LIMIT_REACHED',
       status:  429,
     });
     render(wrap(<ContactPage />, makeStore()));

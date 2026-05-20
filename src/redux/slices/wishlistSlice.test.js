@@ -144,12 +144,12 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
 
   it('moveWishlistItemToCart.rejected preserva code (UC-WISH-03)', async () => {
     apiService.post.mockRejectedValue(new APIError({
-      message: 'sin stock', code: 'PRODUCTO_SIN_STOCK', statusCode: 409,
+      message: 'sin stock', code: 'PRODUCT_OUT_OF_STOCK', statusCode: 409,
     }));
     const store = makeStore();
     await store.dispatch(moveWishlistItemToCart({ itemId: 5 }));
     expect(store.getState().wishlist.actionError).toMatchObject({
-      code: 'PRODUCTO_SIN_STOCK', statusCode: 409,
+      code: 'PRODUCT_OUT_OF_STOCK', statusCode: 409,
     });
   });
 

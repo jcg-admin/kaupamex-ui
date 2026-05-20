@@ -65,7 +65,7 @@ describe('PaymentRetryPage (UC-PAY-08)', () => {
 
   it('muestra mensaje de error si la orden expiro', async () => {
     apiService.post.mockRejectedValue({
-      message: 'ORDEN_EXPIRADA', code: 'ORDEN_EXPIRADA', status: 409,
+      message: 'ORDER_EXPIRED', code: 'ORDER_EXPIRED', status: 409,
     });
     render(wrap(<PaymentRetryPage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/i }));

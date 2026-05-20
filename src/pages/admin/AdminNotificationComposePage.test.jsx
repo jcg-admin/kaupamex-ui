@@ -126,7 +126,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
   it('muestra error si el backend rechaza con DESTINATARIO_INVALIDO', async () => {
     apiService.post.mockRejectedValue({
       message: 'El destinatario no puede recibir notificaciones',
-      code:    'DESTINATARIO_INVALIDO',
+      code:    'RECIPIENT_INVALID',
       status:  422,
     });
     render(wrap(<AdminNotificationComposePage />, makeStore()));

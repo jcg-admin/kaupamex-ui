@@ -94,7 +94,7 @@ export default function WishlistPage() {
 
       {actionError && (
         <p className={styles.error} role="alert">
-          {actionError.code === 'PRODUCTO_SIN_STOCK'
+          {actionError.code === 'PRODUCT_OUT_OF_STOCK'
             ? 'Este producto ya no tiene stock disponible.'
             : actionError.message || 'No se pudo completar la accion.'}
         </p>

@@ -109,14 +109,14 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
 
   it('rejected — guarda actionError', async () => {
     apiService.post.mockRejectedValue({
-      body: { detail: 'STOCK_NEGATIVO_NO_PERMITIDO' }, message: '422',
+      body: { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' }, message: '422',
     });
     const store = makeStore();
     await store.dispatch(adjustStockManually({
       variantId: 10, newQuantity: -1, reason: 'MERMA',
     }));
     expect(store.getState().inventory.actionError).toMatchObject({
-      message: 'STOCK_NEGATIVO_NO_PERMITIDO',
+      message: 'NEGATIVE_STOCK_NOT_ALLOWED',
     });
   });
 
@@ -149,13 +149,13 @@ describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
 
   it('rejected — guarda actionError', async () => {
     apiService.post.mockRejectedValue({
-      body: { detail: 'ENCABEZADO_CSV_INVALIDO' }, message: '422',
+      body: { detail: 'CSV_HEADER_INVALID' }, message: '422',
     });
     const store = makeStore();
     const file = new File([''], 'bad.csv', { type: 'text/csv' });
     await store.dispatch(importProductsCsv({ file }));
     expect(store.getState().inventory.actionError).toMatchObject({
-      message: 'ENCABEZADO_CSV_INVALIDO',
+      message: 'CSV_HEADER_INVALID',
     });
   });
 

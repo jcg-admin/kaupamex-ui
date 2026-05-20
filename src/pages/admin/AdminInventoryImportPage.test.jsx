@@ -90,7 +90,7 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
 
   it('muestra error si el backend rechaza con ENCABEZADO_CSV_INVALIDO', async () => {
     apiService.post.mockRejectedValue({
-      body: { detail: 'ENCABEZADO_CSV_INVALIDO' }, message: '422',
+      body: { detail: 'CSV_HEADER_INVALID' }, message: '422',
     });
     render(wrap(<AdminInventoryImportPage />, makeStore()));
     const file = new File(['x'], 'bad.csv', { type: 'text/csv' });

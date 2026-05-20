@@ -105,7 +105,7 @@ export function interceptInventory(url, options = {}) {
       return error(400, 'new_quantity numérico es obligatorio.');
     }
     if (newQty < 0) {
-      return error(409, 'STOCK_NEGATIVO_NO_PERMITIDO');
+      return error(409, 'NEGATIVE_STOCK_NOT_ALLOWED');
     }
     if (!body?.reason) {
       return error(400, 'reason es obligatorio.');

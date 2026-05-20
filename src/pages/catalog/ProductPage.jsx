@@ -42,9 +42,9 @@ export default function ProductPage() {
     const outcome = await addProduct(product, 1);
     if (outcome.ok) {
       setCartFeedback({ type: 'success', message: 'Producto agregado al carrito.' });
-    } else if (outcome.error === 'VARIANTE_REQUERIDA') {
+    } else if (outcome.error === 'VARIANT_REQUIRED') {
       setCartFeedback({ type: 'error', message: 'Selecciona una variante antes de agregar al carrito.' });
-    } else if (outcome.error === 'VARIANTE_SIN_STOCK') {
+    } else if (outcome.error === 'VARIANT_OUT_OF_STOCK') {
       setCartFeedback({ type: 'error', message: 'La variante seleccionada no tiene stock disponible.' });
     } else {
       setCartFeedback({ type: 'error', message: 'No se pudo agregar al carrito.' });

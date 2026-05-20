@@ -63,7 +63,7 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
   it('createVariant.rejected preserva validationErrors del backend', async () => {
     apiService.post.mockRejectedValue(new APIError({
       message: 'campos invalidos',
-      code: 'VARIANTE_DUPLICADA',
+      code: 'VARIANT_DUPLICATE',
       statusCode: 409,
       validationErrors: { option_name: ['ya existe'] },
     }));
@@ -73,7 +73,7 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
     }));
     const { actionError } = store.getState().yorubaVariants;
     expect(actionError).toMatchObject({
-      code: 'VARIANTE_DUPLICADA',
+      code: 'VARIANT_DUPLICATE',
       statusCode: 409,
       validationErrors: { option_name: ['ya existe'] },
     });
@@ -93,13 +93,13 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
 
   it('setVariantPrice.rejected almacena objeto serializado', async () => {
     apiService.put.mockRejectedValue(new APIError({
-      message: 'precio invalido', code: 'PRECIO_INVALIDO', statusCode: 400,
+      message: 'precio invalido', code: 'PRICE_INVALID', statusCode: 400,
     }));
     const store = makeStore();
     await store.dispatch(setVariantPrice({ variantId: 1, price: -10 }));
     const { actionError } = store.getState().yorubaVariants;
     expect(actionError).toMatchObject({
-      statusCode: 400, code: 'PRECIO_INVALIDO',
+      statusCode: 400, code: 'PRICE_INVALID',
     });
   });
 

@@ -49,8 +49,9 @@
 #
 # src/pages/cart/CartPage.test.jsx
 
-# T-301..T-308 (modulo 3: payments)
-src/pages/account/PaymentRetryPage.test.jsx
+# T-301..T-308 modulo 3: payments — MIGRADO. Entry retirada.
+#
+# src/pages/account/PaymentRetryPage.test.jsx
 
 # T-401..T-408 (modulo 4: auth)
 # (sin violaciones residuales detectadas en UI hoy — heredan
@@ -60,12 +61,19 @@ src/pages/account/PaymentRetryPage.test.jsx
 # T-501..T-508 (modulo 5: orders)
 # (sin violaciones residuales en UI; mismo argumento.)
 
-# T-601..T-608 (modulo 6: catalogue + admin products)
-src/components/admin/ProductDiscountCreateForm.test.jsx
-src/pages/admin/AdminProductDiscountsPage.test.jsx
-src/pages/catalog/ProductPage.jsx
+# T-601..T-608 modulo 6: catalogue + admin products — MIGRADO.
+# Entries retiradas.
+#
+# src/components/admin/ProductDiscountCreateForm.test.jsx
+# src/pages/admin/AdminProductDiscountsPage.test.jsx
+# src/pages/catalog/ProductPage.jsx
 
-# T-701..T-709 (modulo 7: inventory — incluye data migration)
+# T-701..T-708 modulo 7: inventory views MIGRADO (4 codes EN).
+# T-709 PENDIENTE: data migration de StockMovement.
+# adjustment_reason (CONTEO_FISICO, MERMA, ROBO, DEVOLUCION,
+# DESCONTINUADO, OTRO -> EN). UI mantiene ES en estos files
+# para coincidir con backend pendiente migracion. Cuando T-709
+# se aplique, este bloque entero se retira.
 src/mocks/interceptors/inventory.js
 src/mocks/interceptors/inventory.test.js
 src/pages/admin/AdminInventoryAdjustPage.jsx
@@ -74,17 +82,21 @@ src/pages/admin/AdminInventoryImportPage.test.jsx
 src/pages/admin/AdminInventoryMovementsPage.test.jsx
 src/redux/slices/inventorySlice.test.js
 
-# T-801..T-808 (modulo 8: reviews + wishlist + variantes Yoruba)
-src/pages/admin/AdminReviewsModerationPage.jsx
-src/pages/account/WishlistPage.jsx
-src/redux/slices/wishlistSlice.test.js
-src/redux/slices/yorubaVariantsSlice.test.js
-src/hooks/useAddProductWithVariant.js
-src/hooks/useAddProductWithVariant.test.jsx
+# T-801..T-808 modulo 8: reviews + wishlist + variantes Yoruba
+# — MIGRADO. Entries retiradas.
+#
+# src/pages/admin/AdminReviewsModerationPage.jsx
+# src/pages/account/WishlistPage.jsx
+# src/redux/slices/wishlistSlice.test.js
+# src/redux/slices/yorubaVariantsSlice.test.js
+# src/hooks/useAddProductWithVariant.js
+# src/hooks/useAddProductWithVariant.test.jsx
 
-# FU descubiertos durante T-004 (no en audit FASE 2)
-# (Mismos modulos que el allowlist Python; UI heredan al fix
-#  del backend pero algunos tienen UI propia.)
-src/pages/ContactPage.test.jsx
-src/pages/admin/AdminNotificationComposePage.test.jsx
-src/pages/admin/AdminQuestionsModerationPage.jsx
+# FU descubiertos durante T-004 (no en audit FASE 2) — MIGRADO UI
+# parcialmente. Codigos backend de los modulos FU (voucher,
+# chartsize, logistics, reports, search_history, static_content)
+# pendientes de iniciativa-hermana canon-idioma-modulos-no-auditados.
+#
+# src/pages/ContactPage.test.jsx
+# src/pages/admin/AdminNotificationComposePage.test.jsx
+# src/pages/admin/AdminQuestionsModerationPage.jsx
