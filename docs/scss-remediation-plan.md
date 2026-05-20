@@ -402,10 +402,10 @@ commit hash.
 | TASK-3.2 | `#b8860b` → `$primary-color`           | done      | fcf23ab |
 | TASK-3.3 | `#e8e0d5` → `$border-color`            | done      | 8f335d2 |
 | TASK-3.4 | Otros matches exactos                  | done      | 54189f4 |
-| TASK-4.1 | Familia danger                         | pendiente |        |
-| TASK-4.2 | Familia success                        | pendiente |        |
-| TASK-4.3 | Familia texto y neutros                | pendiente |        |
-| TASK-4.4 | Info azul y residuales                 | pendiente |        |
+| TASK-4.1 | Familia danger                         | done      | e72d85a |
+| TASK-4.2 | Familia success                        | done      | d9866b5 |
+| TASK-4.3 | Familia texto y neutros                | done      | 401931a |
+| TASK-4.4 | Info azul y residuales                 | done      | 78a0815 |
 | TASK-5.1 | Magic numbers de `box-shadow`          | pendiente |        |
 | TASK-5.2 | Resolver `.gallery {}`                 | pendiente |        |
 | TASK-5.3 | Extraer `.iconBtn`                     | pendiente |        |
