@@ -47,6 +47,7 @@ const OrderDetailPage = lazy(() => import('@pages/account/OrderDetailPage'));
 const WishlistPage    = lazy(() => import('@pages/account/WishlistPage'));
 const ProfilePage     = lazy(() => import('@pages/account/ProfilePage'));
 const ChangePasswordPage = lazy(() => import('@pages/account/ChangePasswordPage'));
+const DeactivateAccountPage = lazy(() => import('@pages/account/DeactivateAccountPage'));
 const AddressesPage      = lazy(() => import('@pages/account/AddressesPage'));
 // UC-SRCH-03 — Historial personal de busquedas
 const SearchHistoryPage  = lazy(() => import('@pages/account/SearchHistoryPage'));
@@ -183,6 +184,8 @@ export default function AppRouter() {
               <Route path="account/profile"     element={<ProfilePage />} />
               {/* UC-AUTH-08 — Cambiar contrasena */}
               <Route path="account/change-password" element={<ChangePasswordPage />} />
+              {/* UC-AUTH-16 — Dar de baja la propia cuenta */}
+              <Route path="account/deactivate" element={<DeactivateAccountPage />} />
               {/* UC-AUTH-07 — Libreta de direcciones */}
               <Route path="account/addresses"   element={<AddressesPage />} />
               {/* UC-SRCH-03 — Historial personal de busquedas */}

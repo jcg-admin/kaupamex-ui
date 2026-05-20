@@ -131,6 +131,25 @@ export const resendVerificationEmail = createAsyncThunk(
   }
 );
 
+/** UC-AUTH-16 — Dar de baja la propia cuenta. Requiere password actual.
+ *  Postcondicion API: is_active=False, deactivated_reason='self_deleted',
+ *  refresh tokens invalidados.
+ *  Postcondicion UI (reducer): user=null, isAuthenticated=false. La cuenta
+ *  puede reactivarse despues via UC-AUTH-01 Alt-A.2 (re-registro). */
+export const deactivateAccount = createAsyncThunk(
+  'auth/deactivateAccount',
+  async ({ password }, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(
+        '/api/v1/auth/me/deactivate/', { password },
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
 // ─── Slice ────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
@@ -237,6 +256,26 @@ const authSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(changePassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // deactivateAccount (UC-AUTH-16)
+    builder
+      .addCase(deactivateAccount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deactivateAccount.fulfilled, (state) => {
+        // Backend confirma is_active=False + invalidacion de tokens.
+        // Limpiamos el estado de sesion local — el navegador queda
+        // como anonimo.
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.error = null;
+      })
+      .addCase(deactivateAccount.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });
