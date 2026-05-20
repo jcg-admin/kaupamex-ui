@@ -63,7 +63,7 @@
 }
 
 .detailLink {
-  color: #1f7a4d;
+  color: $success-strong;
   text-decoration: none;
 }
 
@@ -73,5 +73,5 @@
 }
 
 .error {
-  color: #b00020;
+  color: $danger-strong;
 }

@@ -1,4 +1,4 @@
-@use '../../../styles/abstracts' as *;
+@use '@styles/abstracts' as *;
 
 .header {
   position: sticky;
@@ -71,7 +71,7 @@
   flex-shrink: 0;
 }
 
-.iconBtn {
+%icon-btn {
   @include flex-center;
   width: 40px;
   height: 40px;
@@ -89,13 +89,15 @@
   }
 }
 
+.iconBtn { @extend %icon-btn; }
+
 .cartBtn {
-  @extend .iconBtn;
+  @extend %icon-btn;
   position: relative;
 }
 
 .notificationBtn {
-  @extend .iconBtn;
+  @extend %icon-btn;
   position: relative;
 }
 

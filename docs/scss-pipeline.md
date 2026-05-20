@@ -4,6 +4,12 @@ Este documento describe cómo se compilan los estilos, por qué Jest no
 detecta SCSS roto, y qué capas de protección están en su sitio para
 que esa deuda no vuelva a entrar silenciosamente.
 
+Documentos relacionados:
+- [`scss-audit.md`](scss-audit.md) — auditoría del estado
+  pre-remediación (histórico).
+- [`scss-remediation-plan.md`](scss-remediation-plan.md) — plan
+  ejecutado para bajar de 525 hex literales a 17.
+
 ## Contexto
 
 El proyecto usa SCSS Modules (`*.module.scss`) más una capa global
@@ -94,20 +100,44 @@ manualmente o vía hook (ver siguiente sección).
 Stylelint con `stylelint-config-standard-scss`, ajustado a las
 convenciones del equipo. La config vive en `.stylelintrc.json`. Se
 desactivaron reglas estilísticas que peleaban con el código existente
-(colons alineados, `@use ... as *`, clases vacías semánticas) y se
-mantuvieron las que atrapan deuda real (duplicate properties, naming
-patterns, global function names, etc).
+(colons alineados, `@use ... as *`) y se mantuvieron las que atrapan
+deuda real (duplicate properties, naming patterns, global function
+names, etc.).
+
+Reglas estrictas activas a partir de Fase 6:
+
+- **`block-no-empty`** — reglas vacías como `.gallery {}` fallan.
+  Si una clase es solo semántica para JSX, no la declares en SCSS;
+  usa el elemento HTML semántico (`<section aria-label>`) en su
+  lugar.
+- **`color-no-hex`** (scoped a `src/**/*.module.scss`) — cualquier
+  hex literal nuevo en un módulo falla. Los 17 hex que sobrevivieron
+  a la migración tienen un `/* stylelint-disable-next-line
+  color-no-hex */` justificado encima.
 
 Autofix disponible: `npm run lint:style:fix`.
 
 ### `npm run lint:scss-compile`
 
-Script propio en `scripts/check-scss.mjs`. Compila todos los entries
-SCSS (no parciales) con dart-sass usando un importer custom que
-replica el alias `@styles` de webpack. Es el check que habría
-atrapado el bug original — detecta `Undefined mixin/variable`,
-`There is no module with namespace ...`, y cualquier error de
-compilación sin necesidad de levantar webpack.
+Script propio en `scripts/check-scss.mjs`. Hace dos pasadas:
+
+1. **Compilación** — todos los entries SCSS (no parciales) con
+   dart-sass usando un importer custom que replica el alias
+   `@styles` de webpack. Detecta `Undefined mixin/variable`,
+   `There is no module with namespace ...`, y cualquier error de
+   compilación sin necesidad de levantar webpack.
+2. **Estilo de import** (añadido en Fase 6) — escanea cada
+   `*.module.scss` bajo `src/pages`, `src/components` y
+   `src/layouts` y rechaza imports de abstracts que no usen la
+   forma canónica. Patrones inválidos:
+
+   ```scss
+   @use '../../styles/abstracts' as *;       // path relativo
+   @use '@styles/abstracts/variables' as *;  // barrel partido
+   @use '@styles/abstracts/mixins' as *;     // barrel partido
+   ```
+
+   Solo `@use '@styles/abstracts' as *;` pasa.
 
 ### `npm run build`
 
@@ -143,14 +173,27 @@ Checklist mínima:
 
 1. Importar abstracts con el alias canónico:
    `@use '@styles/abstracts' as *;`
+   Imports relativos (`../../styles/abstracts`) o partidos
+   (`@styles/abstracts/variables` + `@styles/abstracts/mixins`)
+   son rechazados por `lint:scss-compile`.
 2. Si vas a usar `color.adjust` u otra función del módulo
    `sass:color`, añadir `@use 'sass:color';` arriba.
-3. Usar nombres ya definidos en `_variables.scss`. Si necesitas
-   un alias nuevo, regístralo en la sección "ALIASES" del mismo
-   archivo en vez de improvisar en el módulo.
-4. Antes de pushear, corre `npm run lint:scss-compile` para
-   verificar — el hook lo hará por ti, pero descubrirlo localmente
-   es más rápido.
+3. **Cero hex literales nuevos.** Usa tokens de `_variables.scss`.
+   Si la paleta no cubre el color que necesitas, añade el token
+   primero (sección correspondiente: estado, neutros, escala
+   gray/amber/indigo) en lugar de inline. Si es genuinamente un
+   one-off justificable, añade
+   `/* stylelint-disable-next-line color-no-hex */` con razón
+   en el commit.
+4. Usar nombres ya definidos. Si necesitas un alias nuevo,
+   regístralo en la sección "ALIASES" de `_variables.scss` en vez
+   de improvisar en el módulo.
+5. No declares reglas vacías (`.foo {}`). Si la clase es solo
+   semántica para JSX, omite el `className` y usa marcado HTML
+   semántico (`<section aria-label="...">`).
+6. Antes de pushear, corre `npm run lint:scss-compile` y
+   `npm run lint:style` para verificar — el hook lo hará por ti,
+   pero descubrirlo localmente es más rápido.
 
 ## Troubleshooting
 
@@ -171,6 +214,17 @@ font-size: 11px;
 **`lint:scss-compile` falla con `Can't find stylesheet`.** El alias
 `@styles` se resuelve en `scripts/check-scss.mjs:14`. Si añades un
 alias nuevo en `webpack.config.js`, replícalo allí también.
+
+**`lint:scss-compile` falla con `relative path; use @use ...`** o
+**`split import`.** Tu nuevo módulo está usando una de las formas
+rechazadas. Cámbialo a `@use '@styles/abstracts' as *;`. El barrel
+re-exporta variables y mixins, no necesitas dos imports separados.
+
+**`lint:style` falla con `Disallowed hex color`.** Sustituye el hex
+por el token equivalente en `_variables.scss` (preferido). Si el
+color es realmente nuevo, añade el token primero. Solo en último
+recurso usa `/* stylelint-disable-next-line color-no-hex */`
+y explica por qué en el commit.
 
 **Quiero añadir eslint o tests al pre-push.** Edita `.husky/pre-push`
 añadiendo las líneas correspondientes. Considera el impacto en el

@@ -1,4 +1,4 @@
-@use '../../styles/abstracts' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   width: 100%;
@@ -31,8 +31,8 @@
 }
 
 .error {
-  background: #ffeaea;
-  color: #a40000;
+  background: $danger-bg;
+  color: $danger-deep;
   padding: $spacing-3 $spacing-4;
   border-radius: $border-radius-md;
 }
@@ -47,8 +47,8 @@
 }
 
 .kpiCard {
-  background: #fff;
-  border: 1px solid #ece4d8;
+  background: $bg-surface;
+  border: 1px solid $border-color;
   border-radius: $border-radius-md;
 }
 

@@ -63,7 +63,7 @@
 
 .primaryBtn {
   background: $color-primary;
-  color: #fff;
+  color: $bg-surface;
   border: 0;
   padding: 0.55rem 1.1rem;
   border-radius: 0.25rem;
@@ -86,7 +86,7 @@
 .successMessage {
   padding: 1rem 1.25rem;
   background: rgba(46, 160, 67, 0.08);
-  border-left: 3px solid #2ea043;
+  border-left: 3px solid $success-color;
   border-radius: 0.25rem;
 }
 

@@ -1,5 +1,4 @@
-@use '@styles/abstracts/variables' as *;
-@use '@styles/abstracts/mixins' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   @include flex-column;
@@ -40,11 +39,7 @@
 }
 
 .loading {
-  @include flex-column-center;
-  gap:     16px;
-  padding: 64px 0;
-  color:   $text-muted;
-  font-size: $font-size-base;
+  @include loading-state;
 }
 
 .spinner {
@@ -61,21 +56,11 @@
 }
 
 .error {
-  background:    $error-bg;
-  border:        1px solid $error-color;
-  border-radius: $radius-md;
-  padding:       16px 20px;
-  color:         $error-color;
-  font-size:     $font-size-base;
+  @include error-banner;
 }
 
 .empty {
-  @include flex-column-center;
-  padding:   64px 0;
-  text-align: center;
-  color:     $text-secondary;
-  gap:       8px;
-  font-size: $font-size-base;
+  @include empty-state;
 }
 
 .emptySub {
@@ -107,7 +92,7 @@
   grid-template-columns: 240px 1fr;
   gap: 24px;
 }
-@media (max-width: 768px) {
+@include media-down-md {
   .layoutWithFilters {
     grid-template-columns: 1fr;
   }

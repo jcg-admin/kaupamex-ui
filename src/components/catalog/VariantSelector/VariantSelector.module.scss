@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 /**
  * VariantSelector — UC-CHT-01 estilos.
  */
@@ -15,19 +17,20 @@
   gap: 0.25rem;
   padding: 0.75rem 1rem;
   min-width: 6.5rem;
-  background: #fff;
-  border: 2px solid #d8d8d8;
+  background: $bg-surface;
+  border: 2px solid $gray-400;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
 
   &:hover:not(:disabled) {
+    /* stylelint-disable-next-line color-no-hex */
     border-color: #b08a3c;
   }
 
   &.selected {
-    border-color: #8b6914;
-    box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.15);
+    border-color: $primary-dark;
+    box-shadow: 0 0 0 2px rgba($primary-dark, 0.15);
   }
 
   &.outOfStock {
@@ -43,11 +46,11 @@
 
 .price {
   font-size: 0.85rem;
-  color: #555;
+  color: $gray-700;
 }
 
 .stockTag {
   font-size: 0.7rem;
-  color: #b00020;
+  color: $danger-strong;
   text-transform: uppercase;
 }

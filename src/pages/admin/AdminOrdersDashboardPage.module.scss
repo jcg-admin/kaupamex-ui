@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   padding: 1.5rem;
 }
@@ -33,9 +35,9 @@
     flex-direction: column;
     gap: 0.25rem;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid $gray-200;
     border-radius: 6px;
-    background: #fafafa;
+    background: $gray-50;
 
     strong {
       font-size: 1.5rem;
@@ -53,7 +55,7 @@
     grid-template-columns: auto 1fr auto;
     gap: 1rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid $gray-200;
   }
 }
 
@@ -73,14 +75,14 @@
 
   th, td {
     padding: 0.5rem 0.75rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid $gray-200;
     text-align: left;
   }
 }
 
 .error {
-  color: #b91c1c;
-  background: #fee2e2;
+  color: $danger-strong;
+  background: $danger-bg;
   padding: 0.75rem;
   border-radius: 4px;
 }

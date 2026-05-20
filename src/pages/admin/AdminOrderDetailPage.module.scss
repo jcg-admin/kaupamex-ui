@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   padding: 1.5rem;
 }
@@ -14,7 +16,7 @@
 .meta {
   display: flex;
   gap: 1rem;
-  color: #555;
+  color: $gray-700;
   margin: 0;
 }
 
@@ -37,7 +39,7 @@
     grid-template-columns: 1fr auto auto;
     gap: 1rem;
     padding: 0.5rem 0;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid $gray-200;
   }
 }
 
@@ -67,7 +69,7 @@
 
   input, select, textarea {
     padding: 0.5rem;
-    border: 1px solid #ccc;
+    border: 1px solid $gray-400;
     border-radius: 4px;
   }
 }
@@ -84,13 +86,13 @@
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
-.primaryBtn { background: #2563eb; color: #fff; }
-.secondaryBtn { background: #eee; color: #111; }
-.dangerBtn { background: #dc2626; color: #fff; }
+.primaryBtn { background: $indigo-600; color: $bg-surface; }
+.secondaryBtn { background: $gray-200; color: $gray-950; }
+.dangerBtn { background: $danger-strong; color: $bg-surface; }
 
 .error {
-  color: #b91c1c;
-  background: #fee2e2;
+  color: $danger-strong;
+  background: $danger-bg;
   padding: 0.75rem;
   border-radius: 4px;
 }

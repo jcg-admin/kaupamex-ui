@@ -6,7 +6,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #1f3a8a;
+  color: $info-strong;
   text-decoration: none;
   &:hover { text-decoration: underline; }
 }
@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: #fff;
+  background: $bg-surface;
   padding: 1.25rem;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0.4rem;
@@ -43,8 +43,8 @@
 
 .primaryBtn {
   align-self: flex-start;
-  background: #1f3a8a;
-  color: #fff;
+  background: $info-strong;
+  color: $bg-surface;
   padding: 0.55rem 1rem;
   border-radius: 0.3rem;
   border: 0;
@@ -52,8 +52,8 @@
   cursor: pointer;
 
   &:disabled { opacity: 0.6; cursor: not-allowed; }
-  &:not(:disabled):hover { background: #14296b; }
+  &:not(:disabled):hover { background: $indigo-900; }
 }
 
-.error   { color: #b00020; }
-.success { color: #0a6b0a; }
+.error   { color: $danger-strong; }
+.success { color: $success-strong; }

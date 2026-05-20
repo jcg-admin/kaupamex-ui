@@ -35,7 +35,7 @@
   padding: 0.75rem 1rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
-  background: #fff;
+  background: $bg-surface;
 }
 
 .itemLabel {
@@ -55,8 +55,8 @@
 }
 
 .primaryBtn {
-  background: #1f7a4d;
-  color: #fff;
+  background: $success-strong;
+  color: $bg-surface;
   border: 0;
   border-radius: 0.4rem;
   padding: 0.6rem 1.2rem;
@@ -65,19 +65,19 @@
 
 .secondaryBtn {
   background: transparent;
-  color: #1f7a4d;
-  border: 1px solid #1f7a4d;
+  color: $success-strong;
+  border: 1px solid $success-strong;
   border-radius: 0.4rem;
   padding: 0.6rem 1.2rem;
   cursor: pointer;
 }
 
 .success {
-  color: #1f7a4d;
+  color: $success-strong;
   margin-top: 1rem;
 }
 
 .error {
-  color: #b00020;
+  color: $danger-strong;
   margin-top: 1rem;
 }

@@ -43,28 +43,46 @@ La 6 es el último paso, tras tener inventario controlado.
 Cambios mecánicos sin decisión de diseño. Cada uno reduce deuda
 con riesgo casi nulo.
 
-### TASK-1.1 — Borrar `@keyframes spin` duplicado
+### TASK-1.1 — Borrar `@keyframes spin` duplicado · **BLOQUEADA**
 
 - **Tipo:** cleanup
-- **Esfuerzo:** XS
-- **Acción:** eliminar el bloque `@keyframes spin { to { transform: rotate(360deg); } }`
-  de los 8 módulos que lo redefinen. El canónico vive en
-  `src/styles/base/_animations.scss:49` y se carga vía
-  `src/styles/main.scss`.
-- **Archivos afectados:**
-  - `src/components/shared/LazyLoad/PageLoader.module.scss`
-  - `src/pages/catalog/CatalogPage.module.scss`
-  - `src/pages/catalog/ProductPage.module.scss`
-  - `src/pages/catalog/CategoryListPage.module.scss`
-  - `src/pages/catalog/SearchResultsPage.module.scss`
-  - `src/pages/admin/AdminUserDetailPage.module.scss`
-  - `src/pages/admin/AdminUsersPage.module.scss`
-  - `src/pages/account/WishlistPage.module.scss`
-- **Aceptación:**
-  `grep -rln "@keyframes spin" src/ | grep -v base/_animations.scss`
-  no devuelve resultados. `npm run build` y los spinners siguen
-  girando en dev.
-- **Depende de:** —
+- **Esfuerzo:** XS originalmente; en realidad requiere cambio de
+  toolchain.
+- **Estado:** investigada y revertida. Las 9 definiciones locales
+  se mantienen.
+- **Por qué no se puede borrar directamente:** `css-loader` con
+  CSS Modules localiza por defecto los identificadores en
+  `animation-name`, incluido el shorthand `animation: spin ...`.
+  Cuando eliminamos el `@keyframes spin` local, la referencia
+  sigue renombrándose a un hash (ej. `KATGDmHQfZgTK204bHDx`) que
+  ya no apunta a nada — los spinners aparecen estáticos en build.
+  El `@keyframes spin` global de `_animations.scss:49` existe en
+  `main.css`, pero `css-loader` no enlaza referencias locales con
+  keyframes globales.
+- **Sintaxis intentadas que no funcionan:**
+  - `animation: :global(spin) 0.8s ...` → SASS rechaza
+    `Expected expression` ante el `:`.
+  - `animation-name: :global(spin);` (shorthand partido) → SASS
+    rechaza igual.
+  - `animation: #{':global(spin)'} ...` (interpolación SCSS) →
+    SASS compila, pero postcss-loader falla con `Double colon`.
+- **Caminos posibles para retomar:**
+  1. **Configurar `css-loader`** con `modules.mode` por archivo
+     o `modules.exportLocalsConvention` para no localizar
+     `animation-name`. Impacto global, requiere validación
+     exhaustiva.
+  2. **Mover los `.spinner`** de cada módulo a una clase global
+     compartida en `src/styles/components/_spinner.scss`. Los
+     módulos referencian la clase por nombre o por `composes`.
+  3. **Renombrar el `@keyframes` global** a algo único
+     (`y-spin`) y aceptar que cada módulo siga teniendo su copia
+     local hasta resolver (1) o (2). Equivale a aceptar el
+     status quo.
+- **Recomendación:** mover esta tarea a una fase aparte de
+  refactor de spinners (camino 2) o tratarla como deuda aceptada
+  (~50 bytes gzip por chunk) y reorientar el esfuerzo a las
+  tareas con mejor retorno.
+- **Depende de:** decisión arquitectónica.
 
 ### TASK-1.2 — Unificar imports a `@styles/abstracts`
 
@@ -373,26 +391,27 @@ commit hash.
 
 | ID       | Tarea                                  | Estado    | Commit |
 |----------|----------------------------------------|-----------|--------|
-| TASK-1.1 | Borrar `@keyframes spin` duplicado     | pendiente |        |
-| TASK-1.2 | Unificar imports a `@styles/abstracts` | pendiente |        |
-| TASK-1.3 | Media queries crudas → mixin           | pendiente |        |
-| TASK-2.1 | Mixins semánticos huérfanos            | pendiente |        |
-| TASK-2.2 | Aprobar nuevos tokens de color         | pendiente |        |
-| TASK-2.3 | `%btn`/`%badge` → mixins               | pendiente |        |
-| TASK-3.1 | `#fff` → `$bg-surface`                 | pendiente |        |
-| TASK-3.2 | `#b8860b` → `$primary-color`           | pendiente |        |
-| TASK-3.3 | `#e8e0d5` → `$border-color`            | pendiente |        |
-| TASK-3.4 | Otros matches exactos                  | pendiente |        |
-| TASK-4.1 | Familia danger                         | pendiente |        |
-| TASK-4.2 | Familia success                        | pendiente |        |
-| TASK-4.3 | Familia texto y neutros                | pendiente |        |
-| TASK-4.4 | Info azul y residuales                 | pendiente |        |
-| TASK-5.1 | Magic numbers de `box-shadow`          | pendiente |        |
-| TASK-5.2 | Resolver `.gallery {}`                 | pendiente |        |
-| TASK-5.3 | Extraer `.iconBtn`                     | pendiente |        |
-| TASK-6.1 | `color-no-hex` en módulos              | pendiente |        |
-| TASK-6.2 | Restringir estilos de import           | pendiente |        |
-| TASK-6.3 | Actualizar `scss-pipeline.md`          | pendiente |        |
+| TASK-1.1 | Borrar `@keyframes spin` duplicado     | bloqueada |        |
+| TASK-1.2 | Unificar imports a `@styles/abstracts` | done      | f3d66d8 |
+| TASK-1.3 | Media queries crudas → mixin           | done      | cedc97a |
+| TASK-2.1 | Mixins semánticos huérfanos            | done      | a498afe |
+| TASK-2.2 | Aprobar nuevos tokens de color         | done      | f09ca5e |
+| TASK-2.3 | `%btn`/`%badge` → mixins               | done      | 750dd3b |
+| TASK-2.4 | Escalas gray/amber/indigo (expansión)  | done      | 4c3ac58 |
+| TASK-3.1 | `#fff` → `$bg-surface`                 | done      | 12303a7 |
+| TASK-3.2 | `#b8860b` → `$primary-color`           | done      | fcf23ab |
+| TASK-3.3 | `#e8e0d5` → `$border-color`            | done      | 8f335d2 |
+| TASK-3.4 | Otros matches exactos                  | done      | 54189f4 |
+| TASK-4.1 | Familia danger                         | done      | e72d85a |
+| TASK-4.2 | Familia success                        | done      | d9866b5 |
+| TASK-4.3 | Familia texto y neutros                | done      | 401931a |
+| TASK-4.4 | Info azul y residuales                 | done      | 78a0815 |
+| TASK-5.1 | Magic numbers de `box-shadow`          | done      | 4f8a6db |
+| TASK-5.2 | Resolver `.gallery {}`                 | done      | 5db21c4 |
+| TASK-5.3 | Extraer `.iconBtn`                     | done      | 33881e7 |
+| TASK-6.1 | `color-no-hex` en módulos              | done      | 96e7bee |
+| TASK-6.2 | Restringir estilos de import           | done      | e8aae95 |
+| TASK-6.3 | Actualizar `scss-pipeline.md`          | done      | 0792210 |
 
 ## Estimación total
 

@@ -1,5 +1,4 @@
-@use '@styles/abstracts/variables' as *;
-@use '@styles/abstracts/mixins' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   @include flex-column;
@@ -9,10 +8,7 @@
 }
 
 .loading {
-  @include flex-column-center;
-  gap:     16px;
-  padding: 80px 0;
-  color:   $text-muted;
+  @include loading-state;
 }
 
 .spinner {
@@ -73,7 +69,7 @@
 }
 
 .actionError {
-  background:    #FEF2F2;
+  background:    $danger-bg;
   border:        1px solid $error-color;
   border-radius: $border-radius-md;
   padding:       12px 16px;

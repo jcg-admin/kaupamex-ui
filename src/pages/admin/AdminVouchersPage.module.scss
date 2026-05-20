@@ -20,7 +20,7 @@
 
 .primaryBtn {
   background: $color-primary;
-  color: #fff;
+  color: $bg-surface;
   border: 0;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -55,7 +55,7 @@
 
 .badgeActive {
   background: rgba(46, 160, 67, 0.15);
-  color: #2ea043;
+  color: $success-color;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -70,9 +70,7 @@
 }
 
 .empty {
-  padding: 2rem;
-  text-align: center;
-  color: rgba(0, 0, 0, 0.6);
+  @include empty-state;
 }
 
 .error {

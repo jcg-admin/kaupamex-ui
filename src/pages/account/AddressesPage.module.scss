@@ -1,4 +1,4 @@
-@use '../../styles/abstracts' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   width: 100%;
@@ -43,8 +43,8 @@
   display: flex;
   gap: $spacing-4;
   padding: $spacing-4;
-  background: #fff;
-  border: 1px solid #e9e5e0;
+  background: $bg-surface;
+  border: 1px solid $border-color;
   border-radius: 8px;
   align-items: flex-start;
 }
@@ -62,8 +62,8 @@
   margin-left: $spacing-2;
   display: inline-block;
   padding: 2px 8px;
-  background: #B8860B;
-  color: #fff;
+  background: $primary-color;
+  color: $bg-surface;
   border-radius: 12px;
   font-size: $font-size-xs;
 }
@@ -81,8 +81,8 @@
 }
 
 .form {
-  background: #fff;
-  border: 1px solid #e9e5e0;
+  background: $bg-surface;
+  border: 1px solid $border-color;
   border-radius: 8px;
   padding: $spacing-4;
   display: grid;
@@ -106,19 +106,20 @@
 
   input {
     padding: $spacing-2 $spacing-3;
+    /* stylelint-disable-next-line color-no-hex */
     border: 1px solid #d4c4a8;
     border-radius: 4px;
   }
 }
 
 .fieldError {
-  color: #c0392b;
+  color: $error-color;
   font-size: $font-size-xs;
 }
 
 .zoneError {
-  background: #fae3e1;
-  color: #8a3a30;
+  background: $danger-bg;
+  color: $accent-dark;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
 }
@@ -136,14 +137,15 @@
 }
 
 .btnPrimary {
-  background: #B8860B;
-  color: #fff;
+  background: $primary-color;
+  color: $bg-surface;
   border: none;
   padding: $spacing-2 $spacing-4;
   border-radius: 4px;
   cursor: pointer;
 
   &:disabled {
+    /* stylelint-disable-next-line color-no-hex */
     background: #c8b88a;
     cursor: not-allowed;
   }
@@ -152,20 +154,21 @@
 .btnSecondary {
   background: transparent;
   color: $text-secondary;
+  /* stylelint-disable-next-line color-no-hex */
   border: 1px solid #d4c4a8;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   cursor: pointer;
 
   &:hover {
-    background: #faf5e8;
+    background: $amber-bg;
   }
 }
 
 .btnDanger {
   background: transparent;
-  color: #c0392b;
-  border: 1px solid #e0bdb8;
+  color: $error-color;
+  border: 1px solid $error-border;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   cursor: pointer;
@@ -177,16 +180,16 @@
 }
 
 .success {
-  background: #e5f1e5;
-  color: #2d5a2d;
+  background: $success-bg;
+  color: $success-strong;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   margin-bottom: $spacing-3;
 }
 
 .error {
-  background: #fae3e1;
-  color: #8a3a30;
+  background: $danger-bg;
+  color: $accent-dark;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   margin-bottom: $spacing-3;

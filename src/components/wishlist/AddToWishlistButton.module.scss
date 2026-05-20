@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .wrapper {
   margin-top: 12px;
 }
@@ -7,17 +9,17 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  border: 1px solid #B8860B;
+  border: 1px solid $primary-color;
   background: transparent;
-  color: #B8860B;
+  color: $primary-color;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   transition: background 0.2s, color 0.2s;
 
   &:hover:not(:disabled) {
-    background: #B8860B;
-    color: #fff;
+    background: $primary-color;
+    color: $bg-surface;
   }
 
   &:disabled {
@@ -26,8 +28,8 @@
   }
 
   &.added {
-    background: #B8860B;
-    color: #fff;
+    background: $primary-color;
+    color: $bg-surface;
   }
 }
 
@@ -42,12 +44,12 @@
 
 .warn {
   margin: 6px 0 0;
-  color: #8a6d3b;
+  color: $amber-900;
   font-size: 13px;
 }
 
 .error {
   margin: 6px 0 0;
-  color: #c0392b;
+  color: $error-color;
   font-size: 13px;
 }
