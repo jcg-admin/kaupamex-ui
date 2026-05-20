@@ -2,10 +2,14 @@
  * Secure Storage
  * Almacenamiento encriptado para datos sensibles en localStorage
  * Usar SOLO para datos no criticos (logs, preferencias)
- * 
- * IMPORTANTE: Tokens y datos de usuario NO deben ir aqui
- * Los tokens van en httpOnly cookies (backend)
- * Los datos de usuario van en Redux
+ *
+ * IMPORTANTE: Tokens NO deben ir aqui
+ *   - Tokens JWT (access + refresh) viven en memory del modulo
+ *     apiService — ver DEC-AUTH-2 de fix-ui-auth-logout-y-
+ *     refresh-wiring. localStorage (encriptado o no) es XSS-
+ *     vulnerable porque la clave de encriptacion vive en el
+ *     bundle JS leible.
+ *   - Datos de usuario van en Redux state.
  */
 
 import CryptoJS from 'crypto-js';
