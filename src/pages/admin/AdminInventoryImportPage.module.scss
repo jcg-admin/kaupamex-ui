@@ -67,7 +67,7 @@
 }
 
 .reportTitle { font-size: 1.15rem; margin: 0 0 0.75rem; }
-.created { color: #0a6b0a; font-weight: 600; margin: 0.25rem 0; }
+.created { color: $success-strong; font-weight: 600; margin: 0.25rem 0; }
 .failed  { color: $danger-strong; font-weight: 600; margin: 0.25rem 0; }
 
 .errors {

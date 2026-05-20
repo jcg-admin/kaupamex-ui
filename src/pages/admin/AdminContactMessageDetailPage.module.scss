@@ -12,7 +12,7 @@
 }
 
 .backLink {
-  color: #1f7a4d;
+  color: $success-strong;
   text-decoration: none;
   display: inline-block;
   margin-bottom: 0.5rem;
@@ -81,7 +81,7 @@
 }
 
 .primaryBtn {
-  background: #1f7a4d;
+  background: $success-strong;
   color: $bg-surface;
   border: 0;
   border-radius: 0.4rem;
@@ -90,7 +90,7 @@
 }
 
 .success {
-  color: #1f7a4d;
+  color: $success-strong;
 }
 
 .error {

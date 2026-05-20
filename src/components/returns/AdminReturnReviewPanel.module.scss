@@ -35,9 +35,9 @@
   gap: 0.5rem;
 }
 
-.approve { @include btn-base; @include btn-variant(#1f7a3a); }
+.approve { @include btn-base; @include btn-variant($success-strong); }
 .reject  { @include btn-base; @include btn-variant($danger-strong); }
 .info    { @include btn-base; @include btn-outline($color-primary); }
 
 .error   { color: $color-danger; font-size: 0.9rem; }
-.success { color: #1f7a3a; font-weight: 600; margin-top: 0.5rem; }
+.success { color: $success-strong; font-weight: 600; margin-top: 0.5rem; }

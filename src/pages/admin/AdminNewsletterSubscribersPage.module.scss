@@ -43,8 +43,8 @@
 
 .secondaryBtn {
   background: transparent;
-  color: #1f7a4d;
-  border: 1px solid #1f7a4d;
+  color: $success-strong;
+  border: 1px solid $success-strong;
   border-radius: 0.4rem;
   padding: 0.35rem 0.85rem;
   cursor: pointer;
@@ -52,5 +52,5 @@
 }
 
 .empty { color: rgba(0, 0, 0, 0.6); font-style: italic; }
-.success { color: #1f7a4d; }
+.success { color: $success-strong; }
 .error { color: $danger-strong; }

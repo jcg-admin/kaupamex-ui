@@ -92,7 +92,7 @@
   font-weight: 600;
 }
 
-.badgeNormal { background: rgba(0, 128, 0, 0.12); color: #0a6b0a; }
+.badgeNormal { background: rgba(0, 128, 0, 0.12); color: $success-strong; }
 .badgeWarn   { background: rgba(255, 165, 0, 0.16); color: #8a5b00; }
 .badgeDanger { background: rgba(200, 0, 0, 0.12);  color: $danger-strong; }
 

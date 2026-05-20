@@ -68,7 +68,7 @@
 }
 
 .primaryBtn {
-  background:    #176f3a;
+  background:    $success-strong;
   color:         $bg-surface;
   border:        none;
   padding:       0.5rem 1.1rem;
@@ -100,6 +100,6 @@
 }
 
 .success {
-  color:        #075e2a;
+  color:        $success-strong;
   font-weight:  500;
 }

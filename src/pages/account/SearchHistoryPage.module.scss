@@ -41,7 +41,7 @@
   padding: 10px; border-radius: 4px; color: $danger-strong;
 }
 .success {
-  background: #f4faf4; border: 1px solid #c8e6c8;
-  padding: 10px; border-radius: 4px; color: #2e7d32;
+  background: $success-bg; border: 1px solid $success-bg;
+  padding: 10px; border-radius: 4px; color: $success-strong;
 }
 .actions { display: flex; justify-content: flex-end; }

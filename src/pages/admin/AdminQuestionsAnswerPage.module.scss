@@ -29,7 +29,7 @@
 }
 
 .primaryBtn {
-  background: #1f7a4d;
+  background: $success-strong;
   color: $bg-surface;
   border: 0;
   border-radius: 0.4rem;
@@ -39,5 +39,5 @@
 }
 
 .empty { color: rgba(0, 0, 0, 0.6); font-style: italic; }
-.success { color: #1f7a4d; }
+.success { color: $success-strong; }
 .error { color: $danger-strong; }

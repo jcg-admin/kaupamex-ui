@@ -60,10 +60,10 @@
 }
 
 .badgeSale   { background: rgba(200, 0, 0, 0.12);    color: $danger-strong; }
-.badgeCancel { background: rgba(0, 128, 0, 0.12);    color: #0a6b0a; }
+.badgeCancel { background: rgba(0, 128, 0, 0.12);    color: $success-strong; }
 .badgeManual { background: rgba(31, 58, 138, 0.12);  color: #1f3a8a; }
 
-.positive { color: #0a6b0a; font-weight: 600; }
+.positive { color: $success-strong; font-weight: 600; }
 .negative { color: $danger-strong; font-weight: 600; }
 
 .error { color: $danger-strong; }

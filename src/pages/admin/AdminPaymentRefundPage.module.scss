@@ -32,7 +32,7 @@
 }
 .validationError { color: $danger-deep; margin: -.3rem 0 .8rem; font-size: .9rem; }
 .error { background: $danger-bg; color: $danger-deep; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
-.success { background: #e8f5ed; color: #1f7a3b; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
+.success { background: $success-bg; color: $success-strong; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
 .primaryBtn {
   background: $primary-color; color: $bg-surface; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;

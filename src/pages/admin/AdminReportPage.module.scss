@@ -49,7 +49,7 @@
 .metricLabel { color: rgba(0, 0, 0, 0.6); font-size: 0.85rem; }
 .metricValue { font-size: 1.5rem; font-weight: 700; }
 .metricDelta { font-size: 0.85rem; margin-top: 0.15rem; }
-.metricDeltaUp   { color: #0a6b0a; }
+.metricDeltaUp   { color: $success-strong; }
 .metricDeltaDown { color: $danger-strong; }
 
 .filters {

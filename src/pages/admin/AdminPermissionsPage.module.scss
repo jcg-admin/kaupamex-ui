@@ -10,8 +10,8 @@
   border-radius: 4px; border: 1px solid #f5c2c0;
 }
 .success {
-  background: #e8f5e9; color: #2e7d32; padding: 0.5rem;
-  border-radius: 4px; border: 1px solid #a5d6a7;
+  background: $success-bg; color: $success-strong; padding: 0.5rem;
+  border-radius: 4px; border: 1px solid $success-color;
 }
 .matrix {
   width: 100%;
