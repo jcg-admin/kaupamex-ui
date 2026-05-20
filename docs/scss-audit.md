@@ -1,5 +1,11 @@
 # Auditoría de uso de SCSS
 
+> **Histórico.** Este documento capturó el estado del codebase
+> SCSS antes del plan de remediación. La mayoría de los hallazgos
+> ya se ejecutaron; ver [`scss-remediation-plan.md`](scss-remediation-plan.md)
+> para el plan y su progreso, y [`scss-pipeline.md`](scss-pipeline.md)
+> para las guardas actuales.
+
 Análisis del estado real de los estilos del proyecto, complementario
 a [scss-pipeline.md](scss-pipeline.md). Aquel describe **cómo no
 romper el build**; este describe **qué tan bien se está usando el
