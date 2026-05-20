@@ -6,7 +6,7 @@
 .subtitle { color: #6b5f50; margin: 0; }
 .list { list-style: none; padding: 0; margin: 0; }
 .item {
-  border: 1px solid #e8e0d5;
+  border: 1px solid $border-color;
   border-radius: .4rem;
   padding: .8rem 1rem;
   margin-bottom: .6rem;

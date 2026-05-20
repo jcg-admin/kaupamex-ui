@@ -5,7 +5,7 @@
 .title { font-size: 1.75rem; margin: 0 0 .25rem; color: #2c2418; }
 .subtitle { color: #6b5f50; margin: 0; }
 .filters {
-  border: 1px solid #e8e0d5;
+  border: 1px solid $border-color;
   border-radius: .5rem;
   padding: 1rem;
   display: grid;
@@ -23,14 +23,14 @@
   padding: .8rem 1rem;
   margin: 0 0 1rem;
   background: #fffdf9;
-  border: 1px solid #e8e0d5;
+  border: 1px solid $border-color;
   border-radius: .5rem;
 }
 .table {
   width: 100%;
   border-collapse: collapse;
   background: #fffdf9;
-  border: 1px solid #e8e0d5;
+  border: 1px solid $border-color;
   th, td { padding: .55rem .7rem; text-align: left; border-bottom: 1px solid #f2ebde; font-size: .9rem; }
   th { background: #f7f1e6; }
 }
