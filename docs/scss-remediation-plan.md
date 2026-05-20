@@ -406,9 +406,9 @@ commit hash.
 | TASK-4.2 | Familia success                        | done      | d9866b5 |
 | TASK-4.3 | Familia texto y neutros                | done      | 401931a |
 | TASK-4.4 | Info azul y residuales                 | done      | 78a0815 |
-| TASK-5.1 | Magic numbers de `box-shadow`          | pendiente |        |
-| TASK-5.2 | Resolver `.gallery {}`                 | pendiente |        |
-| TASK-5.3 | Extraer `.iconBtn`                     | pendiente |        |
+| TASK-5.1 | Magic numbers de `box-shadow`          | done      | 4f8a6db |
+| TASK-5.2 | Resolver `.gallery {}`                 | done      | 5db21c4 |
+| TASK-5.3 | Extraer `.iconBtn`                     | done      | 33881e7 |
 | TASK-6.1 | `color-no-hex` en módulos              | pendiente |        |
 | TASK-6.2 | Restringir estilos de import           | pendiente |        |
 | TASK-6.3 | Actualizar `scss-pipeline.md`          | pendiente |        |
