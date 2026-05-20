@@ -132,7 +132,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     apiService.post.mockRejectedValue({
       message: 'El cupon no es valido o ya expiro.',
-      code: 'CUPON_INVALIDO',  // canon-idioma: voucher legacy (FU allowlist)
+      code: 'VOUCHER_INVALID',
       status: 400,
     });
     render(wrap(<CartPage />, makeStore()));

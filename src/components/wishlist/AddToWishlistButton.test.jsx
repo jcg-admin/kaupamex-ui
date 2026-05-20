@@ -97,13 +97,13 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
   it('muestra aviso cuando el producto ya esta en la lista (409)', async () => {
     const err = Object.assign(new Error('ya'), {
       name: 'APIError',
-      code: 'PRODUCTO_YA_EN_WISHLIST',
+      code: 'PRODUCT_ALREADY_IN_WISHLIST',
       statusCode: 409,
     });
     // Hacer que serializeApiError no lo reconozca como APIError:
     // ajustamos solo body/code para fluir por la ruta de plano.
     apiService.post.mockRejectedValue({
-      code: 'PRODUCTO_YA_EN_WISHLIST',
+      code: 'PRODUCT_ALREADY_IN_WISHLIST',
       status: 409,
       message: 'ya esta en la lista',
     });
