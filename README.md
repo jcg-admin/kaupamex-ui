@@ -83,6 +83,12 @@ PY_CATALOG_SOURCE=real   # llama al backend
 | `$accent-color` | `#CC4A1B` | Badges, urgencia, descuentos |
 | `$bg-page` | `#FAFAF7` | Fondo de página |
 
+## Documentación
+
+| Documento | Tema |
+|-----------|------|
+| [docs/scss-pipeline.md](docs/scss-pipeline.md) | Arquitectura de estilos, stylelint, sass-check y pre-push hook |
+
 ## Relación con el backend
 
 Este proyecto consume la API REST de `PracticaYoruba-api` (Django 5 + DRF).
