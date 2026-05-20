@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page { padding: 1.5rem; }
 .header {
   .title    { font-size: 1.5rem; margin: 0; }
@@ -35,5 +37,5 @@
   font-size: 0.85rem;
 }
 .apiError { background: #fdecea; color: #b00020; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; }
-.success  { background: #e8f5e9; color: #2e7d32; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; }
+.success  { @include success-banner; }
 .empty    { color: #555; font-style: italic; padding: 1rem 0; }

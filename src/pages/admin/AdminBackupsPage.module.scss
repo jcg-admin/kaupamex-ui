@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page { padding: 1.5rem; }
 .header {
   .title { font-size: 1.5rem; margin: 0; }
@@ -13,8 +15,8 @@
   cursor: pointer;
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
-.apiError { background: #fdecea; color: #b00020; padding: 0.5rem; border-radius: 4px; }
-.success  { background: #e8f5e9; color: #2e7d32; padding: 0.5rem; border-radius: 4px; }
+.apiError { @include error-banner; }
+.success  { @include success-banner; }
 .table {
   width: 100%;
   border-collapse: collapse;

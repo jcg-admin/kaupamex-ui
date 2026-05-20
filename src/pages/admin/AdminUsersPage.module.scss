@@ -44,10 +44,7 @@
 }
 
 .loading {
-  @include flex-column-center;
-  gap:     16px;
-  padding: 64px 0;
-  color:   $text-muted;
+  @include loading-state;
 }
 
 .spinner {
@@ -71,10 +68,7 @@
 }
 
 .empty {
-  color:     $text-muted;
-  font-size: $font-size-base;
-  padding:   32px 0;
-  text-align: center;
+  @include empty-state;
 }
 
 .tableWrapper {

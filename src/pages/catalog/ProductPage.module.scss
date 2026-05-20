@@ -9,10 +9,7 @@
 }
 
 .loading {
-  @include flex-column-center;
-  gap:     16px;
-  padding: 80px 0;
-  color:   $text-muted;
+  @include loading-state;
 }
 
 .spinner {
