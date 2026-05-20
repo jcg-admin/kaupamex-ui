@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   max-width: 720px;
   margin: 2rem auto;
@@ -59,7 +61,7 @@
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
 
-.primaryBtn  { background: #b8860b; color: #fff; }
+.primaryBtn  { background: $primary-color; color: #fff; }
 .secondaryBtn { background: #003087; color: #fff; }
 
 .legal {

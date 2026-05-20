@@ -36,10 +36,10 @@
 }
 .status_APPROVED  { color: #1f7a3b; font-weight: 600; }
 .status_REJECTED  { color: #a32018; font-weight: 600; }
-.status_PENDING   { color: #b8860b; font-weight: 600; }
+.status_PENDING   { color: $primary-color; font-weight: 600; }
 .status_REFUNDED  { color: #4a5fc1; font-weight: 600; }
 .status_CANCELLED { color: #6b5f50; font-weight: 600; }
 .statusDefault    { color: #2c2418; font-weight: 600; }
-.refundLink { color: #b8860b; text-decoration: underline; font-weight: 600; }
+.refundLink { color: $primary-color; text-decoration: underline; font-weight: 600; }
 .error { @include error-banner; }
 .empty { color: #6b5f50; }

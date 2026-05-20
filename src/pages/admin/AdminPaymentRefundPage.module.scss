@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page { max-width: 720px; margin: 2rem auto; padding: 1.5rem; }
 .backLink { color: #4a5fc1; text-decoration: none; font-size: .9rem; }
 .header { margin: 1rem 0 1.5rem; }
@@ -32,7 +34,7 @@
 .error { background: #fdecea; color: #a32018; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
 .success { background: #e8f5ed; color: #1f7a3b; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
 .primaryBtn {
-  background: #b8860b; color: #fff; border: 0;
+  background: $primary-color; color: #fff; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: .55; cursor: not-allowed; }
 }

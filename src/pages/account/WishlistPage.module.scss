@@ -40,8 +40,8 @@
 }
 
 .filterActive {
-  background: #B8860B;
-  border-color: #B8860B;
+  background: $primary-color;
+  border-color: $primary-color;
   color: #fff;
 }
 
@@ -56,7 +56,7 @@
   width: 18px;
   height: 18px;
   border: 2px solid #e9e5e0;
-  border-top-color: #B8860B;
+  border-top-color: $primary-color;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -111,7 +111,7 @@
 }
 
 .price {
-  color: #B8860B;
+  color: $primary-color;
   font-size: $font-size-lg;
 }
 
@@ -140,7 +140,7 @@
 }
 
 .moveBtn {
-  background: #B8860B;
+  background: $primary-color;
   color: #fff;
   border: none;
   padding: $spacing-2 $spacing-3;
