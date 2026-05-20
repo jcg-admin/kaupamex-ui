@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   max-width: 720px;
   margin: 2rem auto;
@@ -11,26 +13,26 @@
 .title {
   font-size: 1.75rem;
   margin: 0 0 .25rem;
-  color: #2c2418;
+  color: $text-strong;
 }
 
 .subtitle {
-  color: #6b5f50;
+  color: $text-soft;
   margin: 0;
 }
 
 .gateway {
-  border: 1px solid #e8e0d5;
+  border: 1px solid $border-color;
   border-radius: .5rem;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background: #fffdf9;
+  background: $bg-page;
 }
 
 .gatewayTitle {
   font-size: 1.15rem;
   margin: 0 0 .75rem;
-  color: #2c2418;
+  color: $text-strong;
 }
 
 .installments {
@@ -39,11 +41,12 @@
   gap: .25rem;
   margin-bottom: .75rem;
   font-size: .9rem;
-  color: #4a3f33;
+  color: $text-secondary;
 
   select {
     padding: .4rem .5rem;
     border-radius: .25rem;
+    /* stylelint-disable-next-line color-no-hex */
     border: 1px solid #cfc4b3;
   }
 }
@@ -59,18 +62,18 @@
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
 
-.primaryBtn  { background: #b8860b; color: #fff; }
-.secondaryBtn { background: #003087; color: #fff; }
+.primaryBtn  { background: $primary-color; color: $bg-surface; }
+.secondaryBtn { background: $indigo-900; color: $bg-surface; }
 
 .legal {
   font-size: .85rem;
-  color: #6b5f50;
+  color: $text-soft;
   margin-top: 1rem;
 }
 
 .error {
-  background: #fdecea;
-  color: #a32018;
+  background: $danger-bg;
+  color: $danger-deep;
   padding: .6rem .8rem;
   border-radius: .35rem;
   margin-bottom: 1rem;

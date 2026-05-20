@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 /**
  * AdminVariantsPage — UC-CHT-03 estilos.
  */
@@ -10,7 +12,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #5a4318;
+  color: $amber-900;
   text-decoration: none;
   font-size: 0.95rem;
 
@@ -28,13 +30,13 @@
 }
 
 .meta {
-  color: #777;
+  color: $gray-600;
   margin: 0 0 1.5rem 0;
 }
 
 .createForm {
-  background: #faf7f0;
-  border: 1px solid #e6dcc1;
+  background: $bg-page;
+  border: 1px solid $border-color;
   padding: 1.25rem;
   border-radius: 0.5rem;
   margin-bottom: 2rem;
@@ -59,14 +61,14 @@
 
   input, select {
     padding: 0.5rem;
-    border: 1px solid #ccc;
+    border: 1px solid $gray-400;
     border-radius: 0.25rem;
   }
 }
 
 .primaryBtn {
-  background: #8b6914;
-  color: #fff;
+  background: $primary-dark;
+  color: $bg-surface;
   border: none;
   padding: 0.6rem 1.25rem;
   border-radius: 0.25rem;
@@ -79,7 +81,7 @@
 .loading, .empty {
   padding: 1.5rem;
   text-align: center;
-  color: #777;
+  color: $gray-600;
 }
 
 .table {
@@ -89,27 +91,27 @@
   th, td {
     text-align: left;
     padding: 0.75rem;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid $gray-200;
   }
 
   th {
-    background: #f7f3e8;
+    background: $bg-sunken;
     font-size: 0.85rem;
     text-transform: uppercase;
   }
 }
 
 .activeBadge {
-  background: #e6f4ea;
-  color: #1b5e20;
+  background: $success-bg;
+  color: $success-strong;
   padding: 0.15rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.8rem;
 }
 
 .inactiveBadge {
-  background: #fbe9e7;
-  color: #b00020;
+  background: $danger-bg;
+  color: $danger-strong;
   padding: 0.15rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.8rem;
@@ -123,18 +125,18 @@
 
 .toggleBtn {
   background: transparent;
-  border: 1px solid #8b6914;
-  color: #8b6914;
+  border: 1px solid $primary-dark;
+  color: $primary-dark;
   padding: 0.3rem 0.6rem;
   border-radius: 0.25rem;
   cursor: pointer;
   font-size: 0.85rem;
 
-  &:hover { background: #faf2dc; }
+  &:hover { background: $amber-bg; }
 }
 
 .priceLink {
-  color: #1565c0;
+  color: $indigo-600;
   text-decoration: none;
   font-size: 0.85rem;
 
@@ -142,6 +144,6 @@
 }
 
 .error {
-  color: #b00020;
+  color: $danger-strong;
   margin: 0 0 0.75rem 0;
 }

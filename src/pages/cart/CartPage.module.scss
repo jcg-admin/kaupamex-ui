@@ -1,4 +1,4 @@
-@use '../../styles/abstracts' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   width: 100%;
@@ -19,7 +19,7 @@
   grid-template-columns: 1fr 340px;
   gap: $spacing-6;
 
-  @media (max-width: 768px) {
+  @include media-down-md {
     grid-template-columns: 1fr;
   }
 }
@@ -150,7 +150,7 @@
   font-size: $font-size-sm;
 }
 
-.primaryBtn {
+%primary-btn {
   display: inline-block;
   padding: $spacing-3 $spacing-4;
   background: $color-primary;
@@ -164,6 +164,8 @@
 
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
+
+.primaryBtn { @extend %primary-btn; }
 
 .secondaryBtn {
   display: inline-block;
@@ -180,7 +182,7 @@
 }
 
 .checkoutBtn {
-  @extend .primaryBtn;
+  @extend %primary-btn;
   display: block;
   width: 100%;
   margin-top: $spacing-4;

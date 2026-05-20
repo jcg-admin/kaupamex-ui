@@ -37,11 +37,26 @@ $bg-overlay:        rgba(61, 31, 13, 0.5);  // Overlay de modals
 
 // Texto
 $text-primary:      #1C1008;    // Casi negro — texto principal
+$text-strong:       #2C2418;    // Variante carbón — títulos, énfasis fuerte
 $text-secondary:    #5C4A3A;    // Caoba gris — texto secundario
+$text-soft:         #6B5F50;    // Variante grafito — caption, subtítulos
 $text-muted:        #9C8A7A;    // Gris cálido — placeholder, disabled
 $text-inverse:      #FAFAF7;    // Crema — texto sobre fondos oscuros
 $text-link:         $primary-color;
 $text-link-hover:   $primary-dark;
+
+// Escala de grises neutrales — paralela a la paleta cálida Yoruba
+// para los componentes que necesitan un gris frío (admin, tablas,
+// indicadores de estado). Frecuencia y uso documentados en
+// docs/scss-audit.md.
+$gray-50:           #FAFAFA;    // Fondos sutiles
+$gray-200:          #EEEEEE;    // Separadores claros, hover state
+$gray-400:          #CCCCCC;    // Bordes neutros
+$gray-500:          #999999;    // Iconos secundarios
+$gray-600:          #666666;    // Texto secundario neutro
+$gray-700:          #555555;    // Texto principal neutro
+$gray-800:          #333333;    // Headers en fondo claro
+$gray-950:          #1A1A1A;    // Casi negro neutro
 
 // Bordes
 $border-color:      #E8E0D5;    // Beige — bordes generales
@@ -53,10 +68,14 @@ $border-error:      #C0392B;
 // ─────────────────────────────────────────────────────────────────────
 
 $success-color:     #27AE60;    // Verde — orden confirmada, pago exitoso
+$success-strong:    #1F7A4D;    // Verde emerald — confirmaciones críticas
 $success-bg:        #EAFAF1;
 $success-border:    #A9DFBF;
 
 $error-color:       #C0392B;    // Rojo — errores, validación
+$danger-strong:     #B00020;    // Rojo material — errores prominentes
+$danger-deep:       #A32018;    // Rojo profundo — pressed states
+$danger-bg:         #FDECEA;    // Fondo del rojo material
 $error-bg:          #FDEDEC;
 $error-border:      #F1948A;
 
@@ -64,9 +83,23 @@ $warning-color:     #E67E22;    // Naranja — advertencias, stock bajo
 $warning-bg:        #FEF9E7;
 $warning-border:    #FAD7A0;
 
+// Familia ámbar — para estados pending y avisos ámbar Material-style
+$amber-500:         #D97706;    // Ámbar saturado — íconos pending
+$amber-700:         #C47A00;    // Ámbar oscuro — color de texto status_PENDING
+$amber-900:         #5A4318;    // Ámbar profundo — texto sobre fondo claro
+$amber-bg:          #FEF3C7;    // Fondo ámbar suave
+
 $info-color:        #2980B9;    // Azul — información, tooltips
+$info-strong:       #1F3A8A;    // Azul navy — links destacados
 $info-bg:           #EBF5FB;
 $info-border:       #AED6F1;
+
+// Familia indigo — azules fríos Material/Tailwind para admin
+// y pantallas con identidad "cool" (refunds, payments).
+$indigo-500:        #4A5FC1;    // Indigo principal
+$indigo-600:        #1C5BD8;    // Indigo saturado
+$indigo-700:        #1A4F8B;    // Indigo oscuro / navy claro
+$indigo-900:        #14296B;    // Indigo profundo
 
 // Stock / disponibilidad
 $in-stock-color:    $success-color;
@@ -315,3 +348,23 @@ $warning:        $warning-color;    // _progress-bar.scss
 $error:          $error-color;      // _progress-bar.scss
 $border:         $border-color;    // _modal.scss, _table.scss, _tabs.scss, _progress-bar.scss, _animations.scss
 $primary:        $primary-color;    // _tabs.scss, _animations.scss, AnimatedLoadingSpinner
+
+// Colores (estilo Bootstrap) — usados en pages/* y components/*
+$color-primary:  $primary-color;
+$color-danger:   $error-color;
+$color-error:    $error-color;
+$color-text:     $text-primary;
+$white:          #FFFFFF;
+
+// Superficies / fondos
+$surface:        $bg-surface;
+$bg-subtle:      $bg-sunken;
+$bg-muted:       $bg-sunken;
+
+// Radios (alias cortos)
+$radius-sm:      $border-radius-sm;
+$radius-md:      $border-radius-md;
+$radius-lg:      $border-radius-lg;
+
+// Tipografía display
+$font-size-display: $font-size-4xl;

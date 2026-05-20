@@ -47,7 +47,7 @@
 }
 
 .fieldError {
-  color: #b00020;
+  color: $danger-strong;
   font-size: 0.85rem;
 }
 
@@ -57,8 +57,8 @@
 }
 
 .primaryBtn {
-  background: #1f7a4d;
-  color: #fff;
+  background: $success-strong;
+  color: $bg-surface;
   border: 0;
   border-radius: 0.4rem;
   padding: 0.65rem 1.3rem;
@@ -66,9 +66,9 @@
 }
 
 .success {
-  color: #1f7a4d;
+  color: $success-strong;
 }
 
 .error {
-  color: #b00020;
+  color: $danger-strong;
 }

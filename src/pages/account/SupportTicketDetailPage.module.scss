@@ -31,23 +31,16 @@
   font-size: 0.9rem;
 }
 
-%badge {
-  padding: 0.2rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.badgeOpen    { @extend %badge; background: rgba(244, 162, 0, 0.18);  color: #c47a00; }
-.badgeReplied { @extend %badge; background: rgba(64, 132, 245, 0.18); color: #1c5bd8; }
-.badgeClosed  { @extend %badge; background: rgba(0, 0, 0, 0.08);     color: rgba(0, 0, 0, 0.55); }
+.badgeOpen    { @include badge-base; background: rgba(244, 162, 0, 0.18);  color: $amber-700; }
+.badgeReplied { @include badge-base; background: rgba(64, 132, 245, 0.18); color: $indigo-600; }
+.badgeClosed  { @include badge-base; background: rgba(0, 0, 0, 0.08);     color: rgba(0, 0, 0, 0.55); }
 
 .original, .reply {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0.4rem;
   padding: 0.85rem 1rem;
   margin-bottom: 0.65rem;
-  background: #fff;
+  background: $bg-surface;
 }
 
 .original { background: rgba(0, 0, 0, 0.02); }

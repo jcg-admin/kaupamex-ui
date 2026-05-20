@@ -30,8 +30,6 @@ module.exports = {
     '^@context/(.*)$':   '<rootDir>/src/context/$1',
     '^@lib/(.*)$':       '<rootDir>/src/lib/$1',
     '^@facades/(.*)$':   '<rootDir>/src/facades/$1',
-    '^@decorators/(.*)$':'<rootDir>/src/decorators/$1',
-    '^@types/(.*)$':     '<rootDir>/src/types/$1',
     '^@constants/(.*)$': '<rootDir>/src/constants/$1',
   },
 

@@ -1,4 +1,4 @@
-@use '../../styles/abstracts' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   width: 100%;
@@ -32,17 +32,18 @@
 
 .filterBtn {
   padding: $spacing-1 $spacing-3;
+  /* stylelint-disable-next-line color-no-hex */
   border: 1px solid #d4c4a8;
-  background: #fff;
+  background: $bg-surface;
   border-radius: 4px;
   cursor: pointer;
   font-size: $font-size-sm;
 }
 
 .filterActive {
-  background: #B8860B;
-  border-color: #B8860B;
-  color: #fff;
+  background: $primary-color;
+  border-color: $primary-color;
+  color: $bg-surface;
 }
 
 .loading {
@@ -55,8 +56,8 @@
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid #e9e5e0;
-  border-top-color: #B8860B;
+  border: 2px solid $border-color;
+  border-top-color: $primary-color;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -83,8 +84,8 @@
   display: flex;
   gap: $spacing-4;
   padding: $spacing-4;
-  background: #fff;
-  border: 1px solid #e9e5e0;
+  background: $bg-surface;
+  border: 1px solid $border-color;
   border-radius: 8px;
 }
 
@@ -111,25 +112,25 @@
 }
 
 .price {
-  color: #B8860B;
+  color: $primary-color;
   font-size: $font-size-lg;
 }
 
 .priceDrop {
-  background: #5a9e5a;
-  color: #fff;
+  background: $success-color;
+  color: $bg-surface;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: $font-size-xs;
 }
 
 .inStock {
-  color: #5a9e5a;
+  color: $success-color;
   font-size: $font-size-sm;
 }
 
 .outOfStock {
-  color: #c0392b;
+  color: $error-color;
   font-size: $font-size-sm;
 }
 
@@ -140,14 +141,15 @@
 }
 
 .moveBtn {
-  background: #B8860B;
-  color: #fff;
+  background: $primary-color;
+  color: $bg-surface;
   border: none;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   cursor: pointer;
 
   &:disabled {
+    /* stylelint-disable-next-line color-no-hex */
     background: #c8b88a;
     cursor: not-allowed;
   }
@@ -155,8 +157,8 @@
 
 .removeBtn {
   background: transparent;
-  color: #c0392b;
-  border: 1px solid #e0bdb8;
+  color: $error-color;
+  border: 1px solid $error-border;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   cursor: pointer;
@@ -168,16 +170,16 @@
 }
 
 .error {
-  background: #fae3e1;
-  color: #8a3a30;
+  background: $danger-bg;
+  color: $accent-dark;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   margin-bottom: $spacing-3;
 }
 
 .success {
-  background: #e5f1e5;
-  color: #2d5a2d;
+  background: $success-bg;
+  color: $success-strong;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   margin-bottom: $spacing-3;

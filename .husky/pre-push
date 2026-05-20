@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# Guard the SCSS pipeline that Jest can't see (CSS Modules are mocked).
+# Keep this fast; heavier checks belong in CI.
+set -e
+
+echo "→ stylelint"
+npm run --silent lint:style
+
+echo "→ sass compile check"
+npm run --silent lint:scss-compile

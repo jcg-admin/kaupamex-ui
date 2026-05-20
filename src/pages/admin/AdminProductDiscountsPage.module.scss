@@ -1,4 +1,5 @@
 /* AdminProductDiscountsPage — PracticaYoruba */
+@use 'sass:color';
 @use '@styles/abstracts' as *;
 
 .page {
@@ -19,7 +20,7 @@
 
 .primaryBtn {
   background: $color-primary;
-  color: #fff;
+  color: $bg-surface;
   border: 0;
   padding: 0.5rem 1rem;
   border-radius: 0.25rem;
@@ -82,7 +83,7 @@
 
 .badgeCurrent {
   background: rgba(46, 160, 67, 0.15);
-  color: #2ea043;
+  color: $success-color;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -90,7 +91,7 @@
 
 .badgeFuture {
   background: rgba(56, 139, 253, 0.15);
-  color: #1f6feb;
+  color: $indigo-600;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   font-size: 0.85rem;
@@ -98,7 +99,7 @@
 
 .badgeExpired {
   background: rgba(248, 81, 73, 0.15);
-  color: #d1242f;
+  color: $danger-strong;
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
   font-size: 0.85rem;

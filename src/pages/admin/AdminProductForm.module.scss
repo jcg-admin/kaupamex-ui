@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .form {
   display: flex;
   flex-direction: column;
@@ -17,7 +19,7 @@
 }
 
 .input, .select, .textarea {
-  border: 1px solid #ccc;
+  border: 1px solid $gray-400;
   border-radius: 4px;
   padding: 0.5rem;
   font-size: 0.95rem;
@@ -34,15 +36,15 @@
 }
 
 .fieldError {
-  color: #b00020;
+  color: $danger-strong;
   font-size: 0.85rem;
   margin: 0;
 }
 
 .apiError {
-  background: #fdecea;
-  color: #b00020;
-  border: 1px solid #f5c2c0;
+  background: $danger-bg;
+  color: $danger-strong;
+  border: 1px solid $error-border;
   border-radius: 4px;
   padding: 0.5rem;
 }
@@ -53,7 +55,7 @@
 }
 
 .btnPrimary {
-  background: #1a1a1a;
+  background: $gray-950;
   color: white;
   border: 0;
   border-radius: 4px;

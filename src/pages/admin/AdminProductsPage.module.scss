@@ -1,5 +1,4 @@
-@use '@styles/abstracts/variables' as *;
-@use '@styles/abstracts/mixins' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   @include flex-column;
@@ -69,7 +68,7 @@
   display:       inline-block;
   padding:       4px 10px;
   border-radius: 9999px;
-  background:    #E7F8EE;
+  background:    $success-bg;
   color:         $success-color;
   font-size:     $font-size-sm;
   font-weight:   600;
@@ -79,7 +78,7 @@
   display:       inline-block;
   padding:       4px 10px;
   border-radius: 9999px;
-  background:    #FEF2F2;
+  background:    $danger-bg;
   color:         $error-color;
   font-size:     $font-size-sm;
   font-weight:   600;
@@ -129,7 +128,7 @@
 }
 
 .error {
-  background:    #FEF2F2;
+  background:    $danger-bg;
   border:        1px solid $error-color;
   border-radius: $border-radius-md;
   padding:       14px 18px;

@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   max-width: 900px;
   margin:    0 auto;
@@ -5,11 +7,7 @@
 }
 
 .header {
-  display:        flex;
-  align-items:    center;
-  justify-content: space-between;
-  gap:            1rem;
-  margin-bottom:  1rem;
+  @include page-header;
 }
 
 .title {
@@ -19,8 +17,8 @@
 }
 
 .summary {
-  background:    #f6f8fa;
-  border:        1px solid #e1e4e8;
+  background:    $gray-50;
+  border:        1px solid $gray-200;
   border-radius: 8px;
   padding:       1rem 1.25rem;
   margin-bottom: 1rem;
@@ -33,11 +31,11 @@
 .average {
   font-size:   2rem;
   font-weight: 700;
-  color:       #1f6feb;
+  color:       $indigo-600;
 }
 
 .total {
-  color:     #555;
+  color:     $gray-700;
   font-size: 0.95rem;
 }
 
@@ -51,14 +49,14 @@
 }
 
 .item {
-  background:    #fff;
-  border:        1px solid #e1e4e8;
+  background:    $bg-surface;
+  border:        1px solid $gray-200;
   border-radius: 8px;
   padding:       0.85rem 1rem;
 }
 
 .rating {
-  color:       #d97706;
+  color:       $amber-500;
   font-weight: 600;
   margin:      0 0 0.25rem;
 }
@@ -69,16 +67,16 @@
 }
 
 .itemBody {
-  color:    #444;
+  color:    $gray-700;
   margin:   0;
 }
 
 .empty {
-  color:     #666;
+  color:     $gray-600;
   font-style: italic;
 }
 
 .error {
-  color:        #b00020;
+  color:        $danger-strong;
   font-weight:  500;
 }

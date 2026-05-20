@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 /**
  * AdminVariantPricePage — UC-CHT-04 estilos.
  */
@@ -10,7 +12,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #5a4318;
+  color: $amber-900;
   text-decoration: none;
   font-size: 0.95rem;
 
@@ -23,13 +25,13 @@
 }
 
 .meta {
-  color: #777;
+  color: $gray-600;
   margin: 0 0 1.5rem 0;
 }
 
 .form {
-  background: #faf7f0;
-  border: 1px solid #e6dcc1;
+  background: $bg-page;
+  border: 1px solid $border-color;
   padding: 1.5rem;
   border-radius: 0.5rem;
 }
@@ -47,19 +49,19 @@
 
   input {
     padding: 0.5rem;
-    border: 1px solid #ccc;
+    border: 1px solid $gray-400;
     border-radius: 0.25rem;
     font-size: 1rem;
   }
 }
 
 .error {
-  color: #b00020;
+  color: $danger-strong;
   margin: 0 0 0.75rem 0;
 }
 
 .success {
-  color: #1b5e20;
+  color: $success-strong;
   margin: 0 0 0.75rem 0;
 }
 
@@ -70,8 +72,8 @@
 }
 
 .primaryBtn {
-  background: #8b6914;
-  color: #fff;
+  background: $primary-dark;
+  color: $bg-surface;
   border: none;
   padding: 0.6rem 1.25rem;
   border-radius: 0.25rem;
@@ -82,9 +84,9 @@
 }
 
 .secondaryBtn {
-  background: #fff;
-  color: #8b6914;
-  border: 1px solid #8b6914;
+  background: $bg-surface;
+  color: $primary-dark;
+  border: 1px solid $primary-dark;
   padding: 0.6rem 1.25rem;
   border-radius: 0.25rem;
   cursor: pointer;

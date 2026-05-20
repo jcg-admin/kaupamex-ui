@@ -6,7 +6,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #1f3a8a;
+  color: $info-strong;
   text-decoration: none;
   &:hover { text-decoration: underline; }
 }
@@ -28,7 +28,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  background: #fff;
+  background: $bg-surface;
   padding: 1.25rem;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0.4rem;
@@ -45,8 +45,8 @@
 
 .primaryBtn {
   align-self: flex-start;
-  background: #1f3a8a;
-  color: #fff;
+  background: $info-strong;
+  color: $bg-surface;
   padding: 0.55rem 1rem;
   border-radius: 0.3rem;
   border: 0;
@@ -54,21 +54,21 @@
   cursor: pointer;
 
   &:disabled { opacity: 0.6; cursor: not-allowed; }
-  &:not(:disabled):hover { background: #14296b; }
+  &:not(:disabled):hover { background: $indigo-900; }
 }
 
-.error { color: #b00020; }
+.error { color: $danger-strong; }
 
 .report {
-  background: #fff;
+  background: $bg-surface;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0.4rem;
   padding: 1.25rem;
 }
 
 .reportTitle { font-size: 1.15rem; margin: 0 0 0.75rem; }
-.created { color: #0a6b0a; font-weight: 600; margin: 0.25rem 0; }
-.failed  { color: #b00020; font-weight: 600; margin: 0.25rem 0; }
+.created { color: $success-strong; font-weight: 600; margin: 0.25rem 0; }
+.failed  { color: $danger-strong; font-weight: 600; margin: 0.25rem 0; }
 
 .errors {
   width: 100%;

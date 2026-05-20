@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   max-width: 1024px;
   margin:    0 auto;
@@ -24,14 +26,14 @@
 }
 
 .item {
-  background:    #fff;
-  border:        1px solid #e1e4e8;
+  background:    $bg-surface;
+  border:        1px solid $gray-200;
   border-radius: 8px;
   padding:       1rem 1.25rem;
 }
 
 .meta {
-  color:     #555;
+  color:     $gray-700;
   font-size: 0.9rem;
   margin:    0 0 0.5rem 0;
 }
@@ -42,7 +44,7 @@
 }
 
 .itemBody {
-  color:    #333;
+  color:    $gray-800;
   margin:   0 0 0.75rem;
 }
 
@@ -61,13 +63,13 @@
   select {
     padding:       0.4rem 0.6rem;
     border-radius: 6px;
-    border:        1px solid #cfd6dc;
+    border:        1px solid $gray-400;
   }
 }
 
 .primaryBtn {
-  background:    #176f3a;
-  color:         #fff;
+  background:    $success-strong;
+  color:         $bg-surface;
   border:        none;
   padding:       0.5rem 1.1rem;
   border-radius: 6px;
@@ -77,8 +79,8 @@
 }
 
 .dangerBtn {
-  background:    #b00020;
-  color:         #fff;
+  background:    $danger-strong;
+  color:         $bg-surface;
   border:        none;
   padding:       0.5rem 1.1rem;
   border-radius: 6px;
@@ -88,16 +90,16 @@
 }
 
 .empty {
-  color:     #666;
+  color:     $gray-600;
   font-style: italic;
 }
 
 .error {
-  color:        #b00020;
+  color:        $danger-strong;
   font-weight:  500;
 }
 
 .success {
-  color:        #075e2a;
+  color:        $success-strong;
   font-weight:  500;
 }

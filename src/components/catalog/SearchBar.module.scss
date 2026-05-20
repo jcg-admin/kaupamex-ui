@@ -1,5 +1,4 @@
-@use '@styles/abstracts/variables' as *;
-@use '@styles/abstracts/mixins' as *;
+@use '@styles/abstracts' as *;
 
 .form {
   @include flex-column;
@@ -17,7 +16,7 @@
 
   &:focus-within {
     border-color: $primary-color;
-    box-shadow:   0 0 0 3px rgba($primary-color, 0.1);
+    box-shadow:   $input-focus-shadow;
   }
 }
 

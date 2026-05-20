@@ -1,5 +1,4 @@
-@use '@styles/abstracts/variables' as *;
-@use '@styles/abstracts/mixins' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   @include flex-column;
@@ -10,10 +9,7 @@
 }
 
 .loading {
-  @include flex-column-center;
-  gap:     16px;
-  padding: 80px 0;
-  color:   $text-muted;
+  @include loading-state;
 }
 
 .spinner {
@@ -61,12 +57,10 @@
   gap:     48px;
   align-items: start;
 
-  @media (max-width: 768px) {
+  @include media-down-md {
     grid-template-columns: 1fr;
   }
 }
-
-.gallery {}
 
 .mainImage {
   aspect-ratio:  1 / 1;
@@ -227,12 +221,12 @@
 
 .cartError {
   margin-top: 12px;
-  color: #b00020;
+  color: $danger-strong;
   font-weight: 500;
 }
 
 .cartSuccess {
   margin-top: 12px;
-  color: #1b5e20;
+  color: $success-strong;
   font-weight: 500;
 }

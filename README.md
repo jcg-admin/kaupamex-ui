@@ -83,6 +83,14 @@ PY_CATALOG_SOURCE=real   # llama al backend
 | `$accent-color` | `#CC4A1B` | Badges, urgencia, descuentos |
 | `$bg-page` | `#FAFAF7` | Fondo de página |
 
+## Documentación
+
+| Documento | Tema |
+|-----------|------|
+| [docs/scss-pipeline.md](docs/scss-pipeline.md) | Arquitectura de estilos, stylelint, sass-check y pre-push hook |
+| [docs/scss-audit.md](docs/scss-audit.md) | Auditoría de uso real de SCSS: tokens, duplicación, imports |
+| [docs/scss-remediation-plan.md](docs/scss-remediation-plan.md) | Plan de remediación SCSS por fases y tareas atómicas |
+
 ## Relación con el backend
 
 Este proyecto consume la API REST de `PracticaYoruba-api` (Django 5 + DRF).

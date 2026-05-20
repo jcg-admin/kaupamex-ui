@@ -1,5 +1,4 @@
-@use '@styles/abstracts/variables' as *;
-@use '@styles/abstracts/mixins' as *;
+@use '@styles/abstracts' as *;
 
 .page {
   @include flex-column;
@@ -45,10 +44,7 @@
 }
 
 .loading {
-  @include flex-column-center;
-  gap:     16px;
-  padding: 64px 0;
-  color:   $text-muted;
+  @include loading-state;
 }
 
 .spinner {
@@ -63,7 +59,7 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .error {
-  background:    #FEF2F2;
+  background:    $danger-bg;
   border:        1px solid $error-color;
   border-radius: $border-radius-md;
   padding:       14px 18px;
@@ -72,10 +68,7 @@
 }
 
 .empty {
-  color:     $text-muted;
-  font-size: $font-size-base;
-  padding:   32px 0;
-  text-align: center;
+  @include empty-state;
 }
 
 .tableWrapper {
@@ -199,7 +192,7 @@
   outline:       none;
   transition:    border-color 0.15s;
 
-  &:focus { border-color: $primary-color; box-shadow: 0 0 0 3px rgba($primary-color, 0.1); }
+  &:focus { border-color: $primary-color; box-shadow: $input-focus-shadow; }
 }
 
 .fieldError { font-size: $font-size-xs; color: $error-color; margin: 0; }

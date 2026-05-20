@@ -97,7 +97,6 @@ module.exports = (env, argv) => {
         '@mocks':      path.resolve(__dirname, 'src/mocks'),
         '@styles':     path.resolve(__dirname, 'src/styles'),
         '@utils':      path.resolve(__dirname, 'src/utils'),
-        '@types':      path.resolve(__dirname, 'src/types'),
         '@constants':  path.resolve(__dirname, 'src/constants'),
         '@pages':      path.resolve(__dirname, 'src/pages'),
         '@router':     path.resolve(__dirname, 'src/router'),
@@ -106,7 +105,6 @@ module.exports = (env, argv) => {
         '@context':    path.resolve(__dirname, 'src/context'),
         '@lib':        path.resolve(__dirname, 'src/lib'),
         '@facades':    path.resolve(__dirname, 'src/facades'),
-        '@decorators': path.resolve(__dirname, 'src/decorators'),
       },
     },
 

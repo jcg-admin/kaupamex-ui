@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   max-width: 720px;
   margin:    0 auto;
@@ -15,7 +17,7 @@
 }
 
 .description {
-  color:     #555;
+  color:     $gray-700;
   font-size: 0.95rem;
   margin:    0;
 }
@@ -39,19 +41,19 @@
   select,
   textarea {
     padding:       0.55rem 0.7rem;
-    border:        1px solid #cfd6dc;
+    border:        1px solid $gray-400;
     border-radius: 6px;
     font-size:     0.95rem;
   }
 }
 
 .fieldError {
-  color:     #b00020;
+  color:     $danger-strong;
   font-size: 0.85rem;
 }
 
 .error {
-  color:        #b00020;
+  color:        $danger-strong;
   font-weight:  500;
   margin:       0.25rem 0 0;
 }
@@ -63,8 +65,8 @@
 }
 
 .primaryBtn {
-  background:    #1f6feb;
-  color:         #fff;
+  background:    $indigo-600;
+  color:         $bg-surface;
   border:        none;
   padding:       0.6rem 1.2rem;
   border-radius: 6px;
@@ -77,7 +79,7 @@
 }
 
 .successMessage {
-  color:     #075e2a;
+  color:     $success-strong;
   font-size: 1rem;
   margin:    1rem 0;
 }
