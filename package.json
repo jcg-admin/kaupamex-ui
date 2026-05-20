@@ -24,6 +24,8 @@
     "type-check": "tsc --noEmit",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx,scss}",
     "check:lazy": "node scripts/check-no-lazy-imports.mjs",
+    "check:canon": "node scripts/check-canon-idioma.mjs",
+    "check:canon:soft": "node scripts/check-canon-idioma.mjs --soft",
     "prepare": "husky"
   },
   "dependencies": {
