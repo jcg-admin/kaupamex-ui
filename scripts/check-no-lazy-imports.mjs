@@ -46,8 +46,9 @@ try {
   exit(2);
 }
 
-const EXTS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs']);
-const SCAN_ROOT = 'src';
+const EXTS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']);
+const SCAN_ROOTS = ['src', '__mocks__'];
+const SCAN_FILES = ['jest.setup.js', 'jest.config.cjs'];
 
 /** Recolecta archivos a auditar. */
 async function collectFiles(args) {
@@ -72,7 +73,18 @@ async function collectFiles(args) {
       }
     }
   }
-  await walk(SCAN_ROOT);
+  for (const root of SCAN_ROOTS) {
+    await walk(root);
+  }
+  // Top-level config files que pueden tener requires.
+  for (const f of SCAN_FILES) {
+    try {
+      statSync(f);
+      out.push(f);
+    } catch {
+      // missing — skip silently.
+    }
+  }
   return out;
 }
 
