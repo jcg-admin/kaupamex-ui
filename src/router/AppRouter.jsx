@@ -5,6 +5,7 @@
 
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import UnauthorizedListener from '@app/UnauthorizedListener';
 import StorefrontLayout from '@layouts/StorefrontLayout';
 import AccountLayout    from '@layouts/AccountLayout';
 import AdminLayout      from '@layouts/AdminLayout';
@@ -124,6 +125,10 @@ const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      {/* UC-AUTH-13/16 followup: 401 globales -> logout + redirect.
+          Monta una sola vez al inicio del router; el listener
+          window-level captura cualquier 401 desde cualquier tab. */}
+      <UnauthorizedListener />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* ─── Tienda pública ─── */}
