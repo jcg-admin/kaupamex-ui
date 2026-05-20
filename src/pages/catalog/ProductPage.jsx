@@ -118,7 +118,7 @@ export default function ProductPage() {
 
       <div className={styles.layout}>
         {/* Galería */}
-        <section className={styles.gallery} aria-label="Imágenes del producto">
+        <section aria-label="Imágenes del producto">
           <div className={styles.mainImage}>
             {images && images.length > 0 ? (
               <img src={images[0].url} alt={images[0].alt || name} />
