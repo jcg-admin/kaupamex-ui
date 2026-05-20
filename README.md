@@ -88,6 +88,7 @@ PY_CATALOG_SOURCE=real   # llama al backend
 | Documento | Tema |
 |-----------|------|
 | [docs/scss-pipeline.md](docs/scss-pipeline.md) | Arquitectura de estilos, stylelint, sass-check y pre-push hook |
+| [docs/scss-audit.md](docs/scss-audit.md) | Auditoría de uso real de SCSS: tokens, duplicación, imports |
 
 ## Relación con el backend
 
