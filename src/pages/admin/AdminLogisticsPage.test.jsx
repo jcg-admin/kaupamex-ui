@@ -48,7 +48,7 @@ const PANEL = {
       order_number:    'ORD-0491',
       courier_name:    'DHL',
       tracking_number: null,
-      last_status:     'GUIA_CREADA',
+      last_status:     'CREATED',
       last_event_at:   '2026-05-18T20:00:00Z',
     },
   ],
