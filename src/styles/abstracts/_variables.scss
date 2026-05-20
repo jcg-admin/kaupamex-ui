@@ -315,3 +315,23 @@ $warning:        $warning-color;    // _progress-bar.scss
 $error:          $error-color;      // _progress-bar.scss
 $border:         $border-color;    // _modal.scss, _table.scss, _tabs.scss, _progress-bar.scss, _animations.scss
 $primary:        $primary-color;    // _tabs.scss, _animations.scss, AnimatedLoadingSpinner
+
+// Colores (estilo Bootstrap) — usados en pages/* y components/*
+$color-primary:  $primary-color;
+$color-danger:   $error-color;
+$color-error:    $error-color;
+$color-text:     $text-primary;
+$white:          #FFFFFF;
+
+// Superficies / fondos
+$surface:        $bg-surface;
+$bg-subtle:      $bg-sunken;
+$bg-muted:       $bg-sunken;
+
+// Radios (alias cortos)
+$radius-sm:      $border-radius-sm;
+$radius-md:      $border-radius-md;
+$radius-lg:      $border-radius-lg;
+
+// Tipografía display
+$font-size-display: $font-size-4xl;

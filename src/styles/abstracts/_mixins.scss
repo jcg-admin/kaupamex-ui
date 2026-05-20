@@ -186,6 +186,19 @@
   font-size: $btn-font-size-lg;
 }
 
+// Composiciones semánticas — espejan las variantes de _buttons.scss
+// para que los CSS Modules puedan reutilizarlas con un solo @include.
+@mixin btn-primary {
+  @include btn-base;
+  @include btn-variant($primary-color);
+}
+
+@mixin btn-ghost {
+  @include btn-base;
+  @include btn-outline($text-secondary);
+  border-color: transparent;
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // 5. CARDS
 // ─────────────────────────────────────────────────────────────────────
