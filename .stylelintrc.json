@@ -46,6 +46,14 @@
     "property-no-vendor-prefix": null,
     "property-no-deprecated": null
   },
+  "overrides": [
+    {
+      "files": ["src/**/*.module.scss"],
+      "rules": {
+        "color-no-hex": true
+      }
+    }
+  ],
   "ignoreFiles": [
     "node_modules/**",
     "dist/**",

@@ -24,6 +24,7 @@
   transition: border-color 0.15s, box-shadow 0.15s;
 
   &:hover:not(:disabled) {
+    /* stylelint-disable-next-line color-no-hex */
     border-color: #b08a3c;
   }
 

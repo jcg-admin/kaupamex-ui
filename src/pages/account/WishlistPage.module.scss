@@ -32,6 +32,7 @@
 
 .filterBtn {
   padding: $spacing-1 $spacing-3;
+  /* stylelint-disable-next-line color-no-hex */
   border: 1px solid #d4c4a8;
   background: $bg-surface;
   border-radius: 4px;
@@ -148,6 +149,7 @@
   cursor: pointer;
 
   &:disabled {
+    /* stylelint-disable-next-line color-no-hex */
     background: #c8b88a;
     cursor: not-allowed;
   }
