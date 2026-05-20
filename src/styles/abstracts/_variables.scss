@@ -45,6 +45,19 @@ $text-inverse:      #FAFAF7;    // Crema — texto sobre fondos oscuros
 $text-link:         $primary-color;
 $text-link-hover:   $primary-dark;
 
+// Escala de grises neutrales — paralela a la paleta cálida Yoruba
+// para los componentes que necesitan un gris frío (admin, tablas,
+// indicadores de estado). Frecuencia y uso documentados en
+// docs/scss-audit.md.
+$gray-50:           #FAFAFA;    // Fondos sutiles
+$gray-200:          #EEEEEE;    // Separadores claros, hover state
+$gray-400:          #CCCCCC;    // Bordes neutros
+$gray-500:          #999999;    // Iconos secundarios
+$gray-600:          #666666;    // Texto secundario neutro
+$gray-700:          #555555;    // Texto principal neutro
+$gray-800:          #333333;    // Headers en fondo claro
+$gray-950:          #1A1A1A;    // Casi negro neutro
+
 // Bordes
 $border-color:      #E8E0D5;    // Beige — bordes generales
 $border-focus:      $primary-color;
@@ -70,10 +83,23 @@ $warning-color:     #E67E22;    // Naranja — advertencias, stock bajo
 $warning-bg:        #FEF9E7;
 $warning-border:    #FAD7A0;
 
+// Familia ámbar — para estados pending y avisos ámbar Material-style
+$amber-500:         #D97706;    // Ámbar saturado — íconos pending
+$amber-700:         #C47A00;    // Ámbar oscuro — color de texto status_PENDING
+$amber-900:         #5A4318;    // Ámbar profundo — texto sobre fondo claro
+$amber-bg:          #FEF3C7;    // Fondo ámbar suave
+
 $info-color:        #2980B9;    // Azul — información, tooltips
 $info-strong:       #1F3A8A;    // Azul navy — links destacados
 $info-bg:           #EBF5FB;
 $info-border:       #AED6F1;
+
+// Familia indigo — azules fríos Material/Tailwind para admin
+// y pantallas con identidad "cool" (refunds, payments).
+$indigo-500:        #4A5FC1;    // Indigo principal
+$indigo-600:        #1C5BD8;    // Indigo saturado
+$indigo-700:        #1A4F8B;    // Indigo oscuro / navy claro
+$indigo-900:        #14296B;    // Indigo profundo
 
 // Stock / disponibilidad
 $in-stock-color:    $success-color;
