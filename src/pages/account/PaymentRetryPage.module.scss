@@ -12,4 +12,4 @@
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
-.error { background: #fdecea; color: #a32018; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
+.error { background: $danger-bg; color: $danger-deep; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }

@@ -55,5 +55,5 @@
   &:not(:disabled):hover { background: #14296b; }
 }
 
-.error   { color: #b00020; }
+.error   { color: $danger-strong; }
 .success { color: #0a6b0a; }

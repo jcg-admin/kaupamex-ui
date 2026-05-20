@@ -50,7 +50,7 @@
 .metricValue { font-size: 1.5rem; font-weight: 700; }
 .metricDelta { font-size: 0.85rem; margin-top: 0.15rem; }
 .metricDeltaUp   { color: #0a6b0a; }
-.metricDeltaDown { color: #b00020; }
+.metricDeltaDown { color: $danger-strong; }
 
 .filters {
   display: flex;
@@ -98,7 +98,7 @@
   margin: 1rem 0 0.5rem;
 }
 
-.error { color: #b00020; }
+.error { color: $danger-strong; }
 .empty { padding: 1rem 0; color: rgba(0, 0, 0, 0.6); }
 
 .cardGrid {

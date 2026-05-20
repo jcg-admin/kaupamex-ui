@@ -110,8 +110,8 @@
 }
 
 .inactiveBadge {
-  background: #fbe9e7;
-  color: #b00020;
+  background: $danger-bg;
+  color: $danger-strong;
   padding: 0.15rem 0.5rem;
   border-radius: 0.25rem;
   font-size: 0.8rem;
@@ -144,6 +144,6 @@
 }
 
 .error {
-  color: #b00020;
+  color: $danger-strong;
   margin: 0 0 0.75rem 0;
 }

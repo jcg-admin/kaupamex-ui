@@ -26,19 +26,19 @@
   padding: 4px 10px; border-radius: 4px; cursor: pointer;
   font-size: 0.85rem;
 }
-.removeBtn:hover:not([disabled]) { background: #fff4f4; border-color: #b00020; color: #b00020; }
+.removeBtn:hover:not([disabled]) { background: $danger-bg; border-color: $danger-strong; color: $danger-strong; }
 .removeBtn[disabled] { opacity: 0.5; cursor: not-allowed; }
 .clearAllBtn {
   background: $bg-surface;
-  border: 1px solid #b00020; color: #b00020;
+  border: 1px solid $danger-strong; color: $danger-strong;
   padding: 8px 16px; border-radius: 4px; cursor: pointer;
   font-weight: 600;
 }
-.clearAllBtn:hover:not([disabled]) { background: #b00020; color: $bg-surface; }
+.clearAllBtn:hover:not([disabled]) { background: $danger-strong; color: $bg-surface; }
 .empty, .loading { padding: 24px; text-align: center; color: #555; }
 .error {
-  background: #fff4f4; border: 1px solid #f3c2c2;
-  padding: 10px; border-radius: 4px; color: #b00020;
+  background: $danger-bg; border: 1px solid #f3c2c2;
+  padding: 10px; border-radius: 4px; color: $danger-strong;
 }
 .success {
   background: #f4faf4; border: 1px solid #c8e6c8;

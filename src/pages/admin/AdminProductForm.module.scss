@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .form {
   display: flex;
   flex-direction: column;
@@ -34,14 +36,14 @@
 }
 
 .fieldError {
-  color: #b00020;
+  color: $danger-strong;
   font-size: 0.85rem;
   margin: 0;
 }
 
 .apiError {
-  background: #fdecea;
-  color: #b00020;
+  background: $danger-bg;
+  color: $danger-strong;
   border: 1px solid #f5c2c0;
   border-radius: 4px;
   padding: 0.5rem;

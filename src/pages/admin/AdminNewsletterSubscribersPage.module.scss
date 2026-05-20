@@ -53,4 +53,4 @@
 
 .empty { color: rgba(0, 0, 0, 0.6); font-style: italic; }
 .success { color: #1f7a4d; }
-.error { color: #b00020; }
+.error { color: $danger-strong; }

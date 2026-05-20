@@ -74,7 +74,7 @@
 .badgePending   { @include badge-base; background: rgba(244, 162, 0, 0.18);   color: #c47a00; }
 .badgeInfo      { @include badge-base; background: rgba(125, 90, 240, 0.18);  color: #5a36d0; }
 .badgeApproved  { @include badge-base; background: rgba(64, 132, 245, 0.18);  color: #1c5bd8; }
-.badgeRejected  { @include badge-base; background: rgba(220, 53, 69, 0.18);   color: #b1192c; }
+.badgeRejected  { @include badge-base; background: rgba(220, 53, 69, 0.18);   color: $danger-strong; }
 .badgeCompleted { @include badge-base; background: rgba(40, 167, 69, 0.18);   color: #1f7a3a; }
 
 .empty {

@@ -88,11 +88,11 @@
 
 .primaryBtn { background: #2563eb; color: $bg-surface; }
 .secondaryBtn { background: #eee; color: #111; }
-.dangerBtn { background: #dc2626; color: $bg-surface; }
+.dangerBtn { background: $danger-strong; color: $bg-surface; }
 
 .error {
-  color: #b91c1c;
-  background: #fee2e2;
+  color: $danger-strong;
+  background: $danger-bg;
   padding: 0.75rem;
   border-radius: 4px;
 }

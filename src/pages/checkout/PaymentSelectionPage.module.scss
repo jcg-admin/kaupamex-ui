@@ -71,8 +71,8 @@
 }
 
 .error {
-  background: #fdecea;
-  color: #a32018;
+  background: $danger-bg;
+  color: $danger-deep;
   padding: .6rem .8rem;
   border-radius: .35rem;
   margin-bottom: 1rem;

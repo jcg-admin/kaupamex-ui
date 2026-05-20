@@ -47,7 +47,7 @@
 }
 
 .fieldError {
-  color: #b00020;
+  color: $danger-strong;
   font-size: 0.85rem;
 }
 
@@ -70,5 +70,5 @@
 }
 
 .error {
-  color: #b00020;
+  color: $danger-strong;
 }

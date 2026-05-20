@@ -78,7 +78,7 @@
   display:       inline-block;
   padding:       4px 10px;
   border-radius: 9999px;
-  background:    #FEF2F2;
+  background:    $danger-bg;
   color:         $error-color;
   font-size:     $font-size-sm;
   font-weight:   600;
@@ -128,7 +128,7 @@
 }
 
 .error {
-  background:    #FEF2F2;
+  background:    $danger-bg;
   border:        1px solid $error-color;
   border-radius: $border-radius-md;
   padding:       14px 18px;

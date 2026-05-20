@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   padding: 1.5rem;
 }
@@ -79,8 +81,8 @@
 }
 
 .error {
-  color: #b91c1c;
-  background: #fee2e2;
+  color: $danger-strong;
+  background: $danger-bg;
   padding: 0.75rem;
   border-radius: 4px;
 }

@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   padding: 1.5rem;
   display: flex;
@@ -34,9 +36,9 @@
   }
 }
 
-.fieldError { color: #b00020; font-size: 0.85rem; margin: 0; }
+.fieldError { color: $danger-strong; font-size: 0.85rem; margin: 0; }
 .apiError {
-  background: #fdecea; color: #b00020; padding: 0.5rem;
+  background: $danger-bg; color: $danger-strong; padding: 0.5rem;
   border-radius: 4px; border: 1px solid #f5c2c0;
 }
 .actions { display: flex; gap: 0.5rem; }

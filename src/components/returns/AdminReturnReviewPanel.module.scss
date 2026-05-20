@@ -36,7 +36,7 @@
 }
 
 .approve { @include btn-base; @include btn-variant(#1f7a3a); }
-.reject  { @include btn-base; @include btn-variant(#b1192c); }
+.reject  { @include btn-base; @include btn-variant($danger-strong); }
 .info    { @include btn-base; @include btn-outline($color-primary); }
 
 .error   { color: $color-danger; font-size: 0.9rem; }

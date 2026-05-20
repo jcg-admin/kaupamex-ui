@@ -31,4 +31,4 @@
 .answer   { margin: 0; color: rgba(0, 0, 0, 0.75); }
 
 .empty { color: rgba(0, 0, 0, 0.6); font-style: italic; }
-.error { color: #b00020; }
+.error { color: $danger-strong; }

@@ -19,12 +19,12 @@
   dd { margin: .15rem 0 0; font-size: 1rem; color: #2c2418; }
 }
 .status_APPROVED  { color: #1f7a3b; font-weight: 600; }
-.status_REJECTED  { color: #a32018; font-weight: 600; }
+.status_REJECTED  { color: $danger-deep; font-weight: 600; }
 .status_PENDING   { color: $primary-color; font-weight: 600; }
 .status_REFUNDED  { color: #4a5fc1; font-weight: 600; }
 .status_CANCELLED { color: #6b5f50; font-weight: 600; }
 .statusDefault    { color: #2c2418; font-weight: 600; }
-.errorCode { font-family: monospace; color: #a32018; }
+.errorCode { font-family: monospace; color: $danger-deep; }
 .primaryBtn {
   display: inline-block;
   margin-right: 1rem;
@@ -37,8 +37,8 @@
 }
 .secondaryLink { color: #4a5fc1; text-decoration: underline; }
 .error {
-  background: #fdecea;
-  color: #a32018;
+  background: $danger-bg;
+  color: $danger-deep;
   padding: .6rem .8rem;
   border-radius: .35rem;
 }

@@ -48,12 +48,12 @@
 }
 
 .fieldError {
-  color:     #b00020;
+  color:     $danger-strong;
   font-size: 0.85rem;
 }
 
 .error {
-  color:        #b00020;
+  color:        $danger-strong;
   font-weight:  500;
   margin:       0.25rem 0 0;
 }

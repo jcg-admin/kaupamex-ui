@@ -79,7 +79,7 @@
 }
 
 .dangerBtn {
-  background:    #b00020;
+  background:    $danger-strong;
   color:         $bg-surface;
   border:        none;
   padding:       0.5rem 1.1rem;
@@ -95,7 +95,7 @@
 }
 
 .error {
-  color:        #b00020;
+  color:        $danger-strong;
   font-weight:  500;
 }
 

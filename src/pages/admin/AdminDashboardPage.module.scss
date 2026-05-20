@@ -31,8 +31,8 @@
 }
 
 .error {
-  background: #ffeaea;
-  color: #a40000;
+  background: $danger-bg;
+  color: $danger-deep;
   padding: $spacing-3 $spacing-4;
   border-radius: $border-radius-md;
 }

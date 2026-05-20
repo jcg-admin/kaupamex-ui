@@ -36,6 +36,6 @@
   text-decoration: none;
   font-size: 0.85rem;
 }
-.apiError { background: #fdecea; color: #b00020; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; }
+.apiError { background: $danger-bg; color: $danger-strong; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; }
 .success  { @include success-banner; }
 .empty    { color: #555; font-style: italic; padding: 1rem 0; }

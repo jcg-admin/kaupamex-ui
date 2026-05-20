@@ -94,7 +94,7 @@
 
 .badgeNormal { background: rgba(0, 128, 0, 0.12); color: #0a6b0a; }
 .badgeWarn   { background: rgba(255, 165, 0, 0.16); color: #8a5b00; }
-.badgeDanger { background: rgba(200, 0, 0, 0.12);  color: #b00020; }
+.badgeDanger { background: rgba(200, 0, 0, 0.12);  color: $danger-strong; }
 
 .actionLink {
   color: #1f3a8a;
@@ -102,5 +102,5 @@
   &:hover { text-decoration: underline; }
 }
 
-.error { color: #b00020; }
+.error { color: $danger-strong; }
 .empty { padding: 1rem 0; color: rgba(0, 0, 0, 0.6); }

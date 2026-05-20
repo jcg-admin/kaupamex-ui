@@ -29,7 +29,7 @@
   border: 3px solid #eee; border-top-color: #444;
   border-radius: 50%; animation: spin 0.8s linear infinite;
 }
-.error { color: #b00020; background: #fff4f4; border-radius: 6px; }
+.error { color: $danger-strong; background: $danger-bg; border-radius: 6px; }
 .suggestions { text-align: left; max-width: 420px; margin: 16px auto; }
 .suggestions li { margin: 6px 0; }
 @keyframes spin { to { transform: rotate(360deg); } }

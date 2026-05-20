@@ -59,12 +59,12 @@
   font-weight: 600;
 }
 
-.badgeSale   { background: rgba(200, 0, 0, 0.12);    color: #b00020; }
+.badgeSale   { background: rgba(200, 0, 0, 0.12);    color: $danger-strong; }
 .badgeCancel { background: rgba(0, 128, 0, 0.12);    color: #0a6b0a; }
 .badgeManual { background: rgba(31, 58, 138, 0.12);  color: #1f3a8a; }
 
 .positive { color: #0a6b0a; font-weight: 600; }
-.negative { color: #b00020; font-weight: 600; }
+.negative { color: $danger-strong; font-weight: 600; }
 
-.error { color: #b00020; }
+.error { color: $danger-strong; }
 .empty { padding: 1rem 0; color: rgba(0, 0, 0, 0.6); }
