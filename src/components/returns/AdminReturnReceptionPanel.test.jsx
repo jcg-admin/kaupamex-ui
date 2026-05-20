@@ -24,11 +24,11 @@ const wrap = (ui, store) => (
 
 const APPROVED = {
   id: 300,
-  status: 'APROBADA',
+  status: 'APPROVED',
   received_at: null,
 };
 
-const COMPLETED = { id: 300, status: 'COMPLETADA', received_at: '2026-05-11T10:00:00Z' };
+const COMPLETED = { id: 300, status: 'RECEIVED', received_at: '2026-05-11T10:00:00Z' };
 
 afterEach(() => jest.clearAllMocks());
 
@@ -49,13 +49,13 @@ describe('AdminReturnReceptionPanel (UC-RET-03)', () => {
 
   it('registra la recepción con el estado del producto y observaciones', async () => {
     apiService.post.mockResolvedValue({
-      data: { ...APPROVED, status: 'COMPLETADA' },
+      data: { ...APPROVED, status: 'RECEIVED' },
     });
 
     render(wrap(<AdminReturnReceptionPanel returnRequest={APPROVED} />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Estado del producto/i),
-      { target: { value: 'DANADO' } });
+      { target: { value: 'DAMAGED' } });
     fireEvent.change(screen.getByLabelText(/Observaciones/i),
       { target: { value: 'Caja golpeada y producto rayado.' } });
     fireEvent.click(screen.getByRole('button', { name: /Registrar recepci/i }));
@@ -64,7 +64,7 @@ describe('AdminReturnReceptionPanel (UC-RET-03)', () => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/admin/returns/300/reception/'),
         expect.objectContaining({
-          product_condition: 'DANADO',
+          product_condition: 'DAMAGED',
           observations:      'Caja golpeada y producto rayado.',
         }),
       );

@@ -30,11 +30,11 @@ function buildSeedReturn(id, overrides = {}) {
     customer:    { name: 'Demo Yoruba', email: 'comprador@test.mx' },
     reason:      'DAMAGED_ON_ARRIVAL',
     description: 'Llegó dañado en la caja externa.',
-    status:      'PENDIENTE_REVISION',
+    status:      'PENDING_REVIEW',
     items:       [
       { id: 1, product_name: 'Collar Oshun', quantity: 1, price: 1250 },
     ],
-    history:  [{ id: 1, status: 'PENDIENTE_REVISION', created_at: new Date().toISOString() }],
+    history:  [{ id: 1, status: 'PENDING_REVIEW', created_at: new Date().toISOString() }],
     refund:   null,
     created_at: new Date().toISOString(),
     ...overrides,
@@ -44,8 +44,8 @@ function buildSeedReturn(id, overrides = {}) {
 const state = {
   items: [
     buildSeedReturn(1),
-    buildSeedReturn(2, { status: 'APROBADA' }),
-    buildSeedReturn(3, { status: 'PENDIENTE_INFORMACION' }),
+    buildSeedReturn(2, { status: 'APPROVED' }),
+    buildSeedReturn(3, { status: 'INFO_REQUESTED' }),
   ],
   nextId: 4,
 };
@@ -64,9 +64,9 @@ function applyUpdate(id, updater) {
 
 function metrics() {
   return {
-    pendientes:     state.items.filter((r) => r.status === 'PENDIENTE_REVISION').length,
-    aprobadas:      state.items.filter((r) => r.status === 'APROBADA').length,
-    pendiente_info: state.items.filter((r) => r.status === 'PENDIENTE_INFORMACION').length,
+    pendientes:     state.items.filter((r) => r.status === 'PENDING_REVIEW').length,
+    aprobadas:      state.items.filter((r) => r.status === 'APPROVED').length,
+    pendiente_info: state.items.filter((r) => r.status === 'INFO_REQUESTED').length,
   };
 }
 
@@ -112,7 +112,7 @@ export function interceptReturns(url, options = {}) {
         order_id:    body.order_id,
         reason:      body.reason,
         description: body.description ?? '',
-        status:      'PENDIENTE_REVISION',
+        status:      'PENDING_REVIEW',
       });
       state.items.unshift(created_obj);
       return created(created_obj);
@@ -139,34 +139,34 @@ export function interceptReturns(url, options = {}) {
       if (!item) return error(404, 'Devolución no encontrada.');
       switch (act.action) {
         case 'approve':
-          return ok(applyUpdate(act.id, () => ({ status: 'APROBADA' })));
+          return ok(applyUpdate(act.id, () => ({ status: 'APPROVED' })));
         case 'reject':
           if (!body?.justification) {
             return error(400, 'justification es obligatoria.');
           }
           return ok(applyUpdate(act.id, () => ({
-            status:           'RECHAZADA',
+            status:           'REJECTED',
             rejection_reason: body.justification,
           })));
         case 'request-info':
           if (!body?.message) {
             return error(400, 'message es obligatorio.');
           }
-          return ok(applyUpdate(act.id, () => ({ status: 'PENDIENTE_INFORMACION' })));
+          return ok(applyUpdate(act.id, () => ({ status: 'INFO_REQUESTED' })));
         case 'reception':
           if (!body?.product_condition) {
             return error(400, 'product_condition es obligatorio.');
           }
           return ok(applyUpdate(act.id, () => ({
-            status:            'RECIBIDA',
+            status:            'RECEIVED',
             product_condition: body.product_condition,
           })));
         case 'refund':
-          if (item.status !== 'RECIBIDA' && item.status !== 'COMPLETADA') {
+          if (item.status !== 'RECEIVED') {
             return error(409, 'La devolución debe estar recibida antes de reembolsar.');
           }
           return ok(applyUpdate(act.id, () => ({
-            status: 'REEMBOLSADA',
+            status: 'REFUNDED',
             refund: { status: 'COMPLETED', amount: body?.amount ?? 0 },
           })));
         default:
@@ -188,8 +188,8 @@ export const __returnsState = state;
 export const __resetReturnsState = () => {
   state.items  = [
     buildSeedReturn(1),
-    buildSeedReturn(2, { status: 'APROBADA' }),
-    buildSeedReturn(3, { status: 'PENDIENTE_INFORMACION' }),
+    buildSeedReturn(2, { status: 'APPROVED' }),
+    buildSeedReturn(3, { status: 'INFO_REQUESTED' }),
   ];
   state.nextId = 4;
 };

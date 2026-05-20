@@ -27,20 +27,22 @@
 #   # exit 0 esperado mientras la allowlist contenga los
 #   # paths con violaciones.
 
-# T-101..T-108 (modulo 1: returns — el mayor volumen)
-src/components/returns
-src/mocks/interceptors/returns.js
-src/mocks/interceptors/returns.test.js
-src/redux/slices/returnsSlice.js
-src/redux/slices/returnsSlice.test.js
-src/pages/account/ReturnCreatePage.test.jsx
-src/pages/account/ReturnDetailPage.jsx
-src/pages/account/ReturnDetailPage.test.jsx
-src/pages/account/ReturnsPage.test.jsx
-src/pages/admin/AdminReturnsPage.jsx
-src/pages/admin/AdminReturnsPage.test.jsx
-src/pages/admin/AdminReturnDetailPage.test.jsx
-src/hooks/domain/useReturns.test.jsx
+# T-101..T-108 modulo 1: returns — MIGRADO. Entries retiradas
+# tras commit ui@<T-108>. Conservadas como comentario historico.
+#
+# src/components/returns/
+# src/mocks/interceptors/returns.js
+# src/mocks/interceptors/returns.test.js
+# src/redux/slices/returnsSlice.js  (no tenia violaciones)
+# src/redux/slices/returnsSlice.test.js  (no tenia violaciones)
+# src/pages/account/ReturnCreatePage.test.jsx
+# src/pages/account/ReturnDetailPage.jsx
+# src/pages/account/ReturnDetailPage.test.jsx
+# src/pages/account/ReturnsPage.test.jsx
+# src/pages/admin/AdminReturnsPage.jsx
+# src/pages/admin/AdminReturnsPage.test.jsx
+# src/pages/admin/AdminReturnDetailPage.test.jsx
+# src/hooks/domain/useReturns.test.jsx
 
 # T-201..T-208 (modulo 2: cart)
 src/pages/cart/CartPage.test.jsx

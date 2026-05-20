@@ -38,7 +38,7 @@ const wrap = (ui, store, initial = '/admin/returns/300') => (
 const PENDING_RETURN = {
   id: 300,
   order_id: 'ORD-300',
-  status: 'PENDIENTE_REVISION',
+  status: 'PENDING_REVIEW',
   reason: 'PRODUCTO_DANADO',
   description: 'Producto recibido con un golpe en el empaque',
   created_at: '2026-05-10T10:00:00Z',
@@ -73,7 +73,7 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
   it('aprueba la solicitud al confirmar el formulario', async () => {
     apiService.get.mockResolvedValue({ data: PENDING_RETURN });
     apiService.post.mockResolvedValue({
-      data: { ...PENDING_RETURN, status: 'APROBADA' },
+      data: { ...PENDING_RETURN, status: 'APPROVED' },
     });
 
     render(wrap(<AdminReturnDetailPage />, makeStore()));
@@ -94,7 +94,7 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
   it('rechaza la solicitud con justificacion', async () => {
     apiService.get.mockResolvedValue({ data: PENDING_RETURN });
     apiService.post.mockResolvedValue({
-      data: { ...PENDING_RETURN, status: 'RECHAZADA' },
+      data: { ...PENDING_RETURN, status: 'REJECTED' },
     });
 
     render(wrap(<AdminReturnDetailPage />, makeStore()));
@@ -115,7 +115,7 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
   it('solicita información adicional al comprador', async () => {
     apiService.get.mockResolvedValue({ data: PENDING_RETURN });
     apiService.post.mockResolvedValue({
-      data: { ...PENDING_RETURN, status: 'PENDIENTE_INFORMACION' },
+      data: { ...PENDING_RETURN, status: 'INFO_REQUESTED' },
     });
 
     render(wrap(<AdminReturnDetailPage />, makeStore()));

@@ -10,20 +10,20 @@ import { registerReturnReception } from '@redux/slices/returnsSlice';
 import styles from './AdminReturnReceptionPanel.module.scss';
 
 const CONDITIONS = [
-  { value: 'BUENAS_CONDICIONES', label: 'Buenas condiciones' },
-  { value: 'DANADO',             label: 'Dañado' },
-  { value: 'INCOMPLETO',         label: 'Incompleto' },
+  { value: 'GOOD_CONDITION', label: 'Buenas condiciones' },
+  { value: 'DAMAGED',             label: 'Dañado' },
+  { value: 'INCOMPLETE',         label: 'Incompleto' },
 ];
 
 export default function AdminReturnReceptionPanel({ returnRequest }) {
   const dispatch = useDispatch();
   const { isActioning, actionError, lastAction } = useSelector((s) => s.returns);
-  const [condition, setCondition]       = useState('BUENAS_CONDICIONES');
+  const [condition, setCondition]       = useState('GOOD_CONDITION');
   const [observations, setObservations] = useState('');
 
   const eligible =
     returnRequest &&
-    returnRequest.status === 'APROBADA' &&
+    returnRequest.status === 'APPROVED' &&
     !returnRequest.received_at;
 
   if (!eligible) return null;

@@ -38,15 +38,15 @@ const wrap = (ui, store, initial = '/account/returns/77') => (
 const RETURN_OK = {
   id: 77,
   order_id: 'ORD-001',
-  status: 'APROBADA',
+  status: 'APPROVED',
   reason: 'PRODUCTO_DANADO',
   description: 'Producto llegó dañado',
   created_at: '2026-05-10T10:00:00Z',
   history: [
-    { id: 1, status: 'PENDIENTE_REVISION', created_at: '2026-05-10T10:00:00Z' },
-    { id: 2, status: 'APROBADA',           created_at: '2026-05-11T10:00:00Z' },
+    { id: 1, status: 'PENDING_REVIEW', created_at: '2026-05-10T10:00:00Z' },
+    { id: 2, status: 'APPROVED',           created_at: '2026-05-11T10:00:00Z' },
   ],
-  refund: { status: 'PENDIENTE', amount: 1250 },
+  refund: { status: 'PENDING_REVIEW', amount: 1250 },
 };
 
 afterEach(() => jest.clearAllMocks());
@@ -87,7 +87,7 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
     apiService.get.mockResolvedValue({
       data: {
         ...RETURN_OK,
-        status: 'RECHAZADA',
+        status: 'REJECTED',
         rejection_reason: 'El plazo de devolución venció.',
       },
     });

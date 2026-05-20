@@ -22,7 +22,7 @@ export default function AdminReturnRefundPanel({ returnRequest }) {
   const { isActioning, actionError, lastAction } = useSelector((s) => s.returns);
 
   const eligible =
-    returnRequest && returnRequest.status === 'COMPLETADA' && returnRequest.payment;
+    returnRequest && returnRequest.status === 'RECEIVED' && returnRequest.payment;
 
   const [amount, setAmount]       = useState(() => initialAmount(returnRequest));
   const [localError, setLocalError] = useState('');

@@ -64,7 +64,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('envia la solicitud al backend cuando el formulario es valido', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 50, status: 'PENDIENTE_REVISION' },
+      data: { id: 50, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
@@ -87,7 +87,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('muestra confirmacion con el numero de solicitud creada', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 77, status: 'PENDIENTE_REVISION' },
+      data: { id: 77, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
@@ -115,7 +115,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('envia FormData con las fotos cuando el comprador adjunta archivos', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 88, status: 'PENDIENTE_REVISION' },
+      data: { id: 88, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
@@ -174,7 +174,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('si no hay fotos, envia el payload JSON tradicional (compatibilidad)', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 99, status: 'PENDIENTE_REVISION' },
+      data: { id: 99, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
