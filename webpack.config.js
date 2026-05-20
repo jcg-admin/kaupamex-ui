@@ -14,12 +14,6 @@ const defaultFlags = {
   PY_PAYMENTS_SOURCE: 'mock',
 };
 
-// Lee .env.{NODE_ENV} y .env en ese orden
-const envFiles = [
-  `.env.${process.env.NODE_ENV || 'development'}`,
-  '.env',
-];
-
 const parseEnvFile = (filePath) => {
   const content = fs.readFileSync(filePath, 'utf-8');
   return content.split('\n').reduce((acc, line) => {
@@ -32,13 +26,22 @@ const parseEnvFile = (filePath) => {
   }, {});
 };
 
-const resolvedEnv = envFiles.reduce((acc, fileName) => {
-  const filePath = path.resolve(__dirname, fileName);
-  if (fs.existsSync(filePath)) return { ...acc, ...parseEnvFile(filePath) };
-  return acc;
-}, {});
+// H-ENV-1: el flag `--mode production` que pasa `npm run build` NO setea
+// process.env.NODE_ENV durante la carga de este config. Si leyeramos
+// .env.{process.env.NODE_ENV} a top-level cae siempre al fallback
+// 'development', .env.production se ignora y DefinePlugin no inyecta las
+// REACT_APP_*. Resolvemos los .env DENTRO del callback (env, argv) =>
+// donde argv.mode ya refleja el flag real de webpack.
+const resolveEnv = (mode) => {
+  const files = [`.env.${mode}`, '.env'];
+  return files.reduce((acc, fileName) => {
+    const filePath = path.resolve(__dirname, fileName);
+    if (fs.existsSync(filePath)) return { ...acc, ...parseEnvFile(filePath) };
+    return acc;
+  }, {});
+};
 
-const buildDefinedEnv = (mode) => {
+const buildDefinedEnv = (mode, resolvedEnv) => {
   const pyVars = Object.entries({ ...defaultFlags, ...resolvedEnv }).reduce(
     (acc, [k, v]) => { acc[`process.env.${k}`] = JSON.stringify(v); return acc; },
     {}
@@ -46,7 +49,7 @@ const buildDefinedEnv = (mode) => {
   return {
     ...pyVars,
     'process.env.NODE_ENV':   JSON.stringify(mode || 'production'),
-    // Prioridad: variable de shell > .env.{NODE_ENV} > fallback desarrollo.
+    // Prioridad: variable de shell > .env.{mode} > fallback desarrollo.
     // Sin este orden, API_URL en .env.production era ignorado porque
     // process.env.API_URL (vacío en el CI/servidor) caía directo al fallback.
     'process.env.API_URL':    JSON.stringify(
@@ -57,8 +60,10 @@ const buildDefinedEnv = (mode) => {
 };
 
 module.exports = (env, argv) => {
-  const isDev = argv.mode === 'development';
+  const mode = argv.mode || 'production';
+  const isDev = mode === 'development';
   const analyze = process.env.ANALYZE === 'true';
+  const resolvedEnv = resolveEnv(mode);
 
   return {
     mode: argv.mode || 'production',
@@ -210,7 +215,7 @@ module.exports = (env, argv) => {
           removeAttributeQuotes: true,
         },
       }),
-      new webpack.DefinePlugin(buildDefinedEnv(argv.mode)),
+      new webpack.DefinePlugin(buildDefinedEnv(mode, resolvedEnv)),
       !isDev && new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
       analyze && new BundleAnalyzerPlugin({
         analyzerMode: 'static',
