@@ -192,7 +192,7 @@
   outline:       none;
   transition:    border-color 0.15s;
 
-  &:focus { border-color: $primary-color; box-shadow: 0 0 0 3px rgba($primary-color, 0.1); }
+  &:focus { border-color: $primary-color; box-shadow: $input-focus-shadow; }
 }
 
 .fieldError { font-size: $font-size-xs; color: $error-color; margin: 0; }
