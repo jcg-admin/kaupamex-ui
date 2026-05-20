@@ -28,7 +28,7 @@
   }
 
   &.selected {
-    border-color: #8b6914;
+    border-color: $primary-dark;
     box-shadow: 0 0 0 2px rgba(139, 105, 20, 0.15);
   }
 

@@ -129,7 +129,7 @@
 }
 
 .outOfStock {
-  color: #c0392b;
+  color: $error-color;
   font-size: $font-size-sm;
 }
 
@@ -155,7 +155,7 @@
 
 .removeBtn {
   background: transparent;
-  color: #c0392b;
+  color: $error-color;
   border: 1px solid #e0bdb8;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;

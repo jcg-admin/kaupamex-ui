@@ -67,7 +67,7 @@
 }
 
 .primaryBtn {
-  background: #8b6914;
+  background: $primary-dark;
   color: $bg-surface;
   border: none;
   padding: 0.6rem 1.25rem;
@@ -125,8 +125,8 @@
 
 .toggleBtn {
   background: transparent;
-  border: 1px solid #8b6914;
-  color: #8b6914;
+  border: 1px solid $primary-dark;
+  color: $primary-dark;
   padding: 0.3rem 0.6rem;
   border-radius: 0.25rem;
   cursor: pointer;
