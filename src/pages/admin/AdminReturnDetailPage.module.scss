@@ -53,9 +53,9 @@
 
 .itemQty { color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; }
 
-.badgePending   { @include badge-base; background: rgba(244, 162, 0, 0.18);   color: #c47a00; }
+.badgePending   { @include badge-base; background: rgba(244, 162, 0, 0.18);   color: $amber-700; }
 .badgeInfo      { @include badge-base; background: rgba(125, 90, 240, 0.18);  color: #5a36d0; }
-.badgeApproved  { @include badge-base; background: rgba(64, 132, 245, 0.18);  color: #1c5bd8; }
+.badgeApproved  { @include badge-base; background: rgba(64, 132, 245, 0.18);  color: $indigo-600; }
 .badgeRejected  { @include badge-base; background: rgba(220, 53, 69, 0.18);   color: $danger-strong; }
 .badgeCompleted { @include badge-base; background: rgba(40, 167, 69, 0.18);   color: $success-strong; }
 

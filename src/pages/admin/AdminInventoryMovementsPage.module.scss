@@ -6,7 +6,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #1f3a8a;
+  color: $info-strong;
   text-decoration: none;
   &:hover { text-decoration: underline; }
 }
@@ -61,7 +61,7 @@
 
 .badgeSale   { background: rgba(200, 0, 0, 0.12);    color: $danger-strong; }
 .badgeCancel { background: rgba(0, 128, 0, 0.12);    color: $success-strong; }
-.badgeManual { background: rgba(31, 58, 138, 0.12);  color: #1f3a8a; }
+.badgeManual { background: rgba(31, 58, 138, 0.12);  color: $info-strong; }
 
 .positive { color: $success-strong; font-weight: 600; }
 .negative { color: $danger-strong; font-weight: 600; }

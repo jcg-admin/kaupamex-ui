@@ -55,7 +55,7 @@
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid #e9e5e0;
+  border: 2px solid $border-color;
   border-top-color: $primary-color;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -84,7 +84,7 @@
   gap: $spacing-4;
   padding: $spacing-4;
   background: $bg-surface;
-  border: 1px solid #e9e5e0;
+  border: 1px solid $border-color;
   border-radius: 8px;
 }
 
@@ -156,7 +156,7 @@
 .removeBtn {
   background: transparent;
   color: $error-color;
-  border: 1px solid #e0bdb8;
+  border: 1px solid $error-border;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   cursor: pointer;
@@ -169,7 +169,7 @@
 
 .error {
   background: $danger-bg;
-  color: #8a3a30;
+  color: $accent-dark;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   margin-bottom: $spacing-3;

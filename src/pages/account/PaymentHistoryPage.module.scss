@@ -10,7 +10,7 @@
   border-radius: .4rem;
   padding: .8rem 1rem;
   margin-bottom: .6rem;
-  background: #fffdf9;
+  background: $bg-page;
 }
 .itemMain {
   display: flex;
@@ -29,7 +29,7 @@
 .status_APPROVED  { color: $success-strong; }
 .status_REJECTED  { color: $danger-deep; }
 .status_PENDING   { color: $primary-color; }
-.status_REFUNDED  { color: #4a5fc1; }
+.status_REFUNDED  { color: $indigo-500; }
 .status_CANCELLED { color: $text-soft; }
 .statusDefault    { color: $text-strong; }
 .errorCode { font-family: monospace; font-size: .85rem; color: $danger-deep; margin: .35rem 0 0; }

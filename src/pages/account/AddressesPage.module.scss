@@ -44,7 +44,7 @@
   gap: $spacing-4;
   padding: $spacing-4;
   background: $bg-surface;
-  border: 1px solid #e9e5e0;
+  border: 1px solid $border-color;
   border-radius: 8px;
   align-items: flex-start;
 }
@@ -82,7 +82,7 @@
 
 .form {
   background: $bg-surface;
-  border: 1px solid #e9e5e0;
+  border: 1px solid $border-color;
   border-radius: 8px;
   padding: $spacing-4;
   display: grid;
@@ -118,7 +118,7 @@
 
 .zoneError {
   background: $danger-bg;
-  color: #8a3a30;
+  color: $accent-dark;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
 }
@@ -158,14 +158,14 @@
   cursor: pointer;
 
   &:hover {
-    background: #faf5e8;
+    background: $amber-bg;
   }
 }
 
 .btnDanger {
   background: transparent;
   color: $error-color;
-  border: 1px solid #e0bdb8;
+  border: 1px solid $error-border;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   cursor: pointer;
@@ -186,7 +186,7 @@
 
 .error {
   background: $danger-bg;
-  color: #8a3a30;
+  color: $accent-dark;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;
   margin-bottom: $spacing-3;

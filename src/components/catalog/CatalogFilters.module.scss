@@ -1,7 +1,7 @@
 @use '@styles/abstracts' as *;
 
 .filters {
-  background: $bg-surface; border: 1px solid #e5e5e5; border-radius: 6px;
+  background: $bg-surface; border: 1px solid $gray-200; border-radius: 6px;
   padding: 16px; min-width: 220px;
 }
 .title { font-size: 1.1rem; margin: 0 0 12px; }

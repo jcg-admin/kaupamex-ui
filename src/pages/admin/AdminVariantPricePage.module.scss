@@ -12,7 +12,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #5a4318;
+  color: $amber-900;
   text-decoration: none;
   font-size: 0.95rem;
 
@@ -30,8 +30,8 @@
 }
 
 .form {
-  background: #faf7f0;
-  border: 1px solid #e6dcc1;
+  background: $bg-page;
+  border: 1px solid $border-color;
   padding: 1.5rem;
   border-radius: 0.5rem;
 }

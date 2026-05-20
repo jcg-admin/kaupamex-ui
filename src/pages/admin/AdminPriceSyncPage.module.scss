@@ -21,7 +21,7 @@
 }
 
 .form {
-  background: $bg-surface; border: 1px solid #e5e5e5; padding: 16px;
+  background: $bg-surface; border: 1px solid $gray-200; padding: 16px;
   border-radius: 6px; margin-bottom: 16px;
 }
 .field { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
@@ -32,20 +32,20 @@
 .formActions { display: flex; gap: 8px; }
 .primaryBtn, .secondaryBtn {
   padding: 8px 16px; border-radius: 4px; cursor: pointer;
-  font-size: 0.95rem; border: 1px solid #1a4f8b;
+  font-size: 0.95rem; border: 1px solid $indigo-700;
 }
-.primaryBtn { background: #1a4f8b; color: $bg-surface; }
-.primaryBtn:hover:not([disabled]) { background: #163e6c; }
+.primaryBtn { background: $indigo-700; color: $bg-surface; }
+.primaryBtn:hover:not([disabled]) { background: $indigo-700; }
 .primaryBtn[disabled] { opacity: 0.5; cursor: not-allowed; }
-.secondaryBtn { background: $bg-surface; color: #1a4f8b; }
-.secondaryBtn:hover { background: #f4f8fc; }
+.secondaryBtn { background: $bg-surface; color: $indigo-700; }
+.secondaryBtn:hover { background: $gray-50; }
 
 .table {
   width: 100%; border-collapse: collapse;
   margin: 16px 0; background: $bg-surface;
 }
 .table th, .table td {
-  padding: 8px 12px; border: 1px solid #e5e5e5;
+  padding: 8px 12px; border: 1px solid $gray-200;
   text-align: left; font-size: 0.92rem;
 }
 .table th { background: $gray-50; }
@@ -55,7 +55,7 @@
 .summary { color: $gray-700; margin: 12px 0; }
 .confirmActions { margin-top: 12px; }
 .error {
-  background: $danger-bg; border: 1px solid #f3c2c2;
+  background: $danger-bg; border: 1px solid $error-border;
   padding: 10px; border-radius: 4px; color: $danger-strong;
   margin: 12px 0;
 }

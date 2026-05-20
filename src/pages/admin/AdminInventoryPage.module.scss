@@ -13,14 +13,14 @@
 .title { font-size: 1.5rem; margin: 0; }
 
 .importLink {
-  background: #1f3a8a;
+  background: $info-strong;
   color: $bg-surface;
   padding: 0.4rem 0.85rem;
   border-radius: 0.3rem;
   text-decoration: none;
   font-size: 0.9rem;
 
-  &:hover { background: #14296b; }
+  &:hover { background: $indigo-900; }
 }
 
 .summary {
@@ -93,11 +93,11 @@
 }
 
 .badgeNormal { background: rgba(0, 128, 0, 0.12); color: $success-strong; }
-.badgeWarn   { background: rgba(255, 165, 0, 0.16); color: #8a5b00; }
+.badgeWarn   { background: rgba(255, 165, 0, 0.16); color: $amber-700; }
 .badgeDanger { background: rgba(200, 0, 0, 0.12);  color: $danger-strong; }
 
 .actionLink {
-  color: #1f3a8a;
+  color: $info-strong;
   text-decoration: none;
   &:hover { text-decoration: underline; }
 }

@@ -86,7 +86,7 @@
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
-.primaryBtn { background: #2563eb; color: $bg-surface; }
+.primaryBtn { background: $indigo-600; color: $bg-surface; }
 .secondaryBtn { background: $gray-200; color: $gray-950; }
 .dangerBtn { background: $danger-strong; color: $bg-surface; }
 

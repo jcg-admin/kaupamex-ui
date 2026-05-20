@@ -41,7 +41,7 @@
   select,
   textarea {
     padding:       0.55rem 0.7rem;
-    border:        1px solid #cfd6dc;
+    border:        1px solid $gray-400;
     border-radius: 6px;
     font-size:     0.95rem;
   }
@@ -65,7 +65,7 @@
 }
 
 .primaryBtn {
-  background:    #1f6feb;
+  background:    $indigo-600;
   color:         $bg-surface;
   border:        none;
   padding:       0.6rem 1.2rem;

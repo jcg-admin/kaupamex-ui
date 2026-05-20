@@ -6,7 +6,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #1f3a8a;
+  color: $info-strong;
   text-decoration: none;
   &:hover { text-decoration: underline; }
 }
@@ -45,7 +45,7 @@
 
 .primaryBtn {
   align-self: flex-start;
-  background: #1f3a8a;
+  background: $info-strong;
   color: $bg-surface;
   padding: 0.55rem 1rem;
   border-radius: 0.3rem;
@@ -54,7 +54,7 @@
   cursor: pointer;
 
   &:disabled { opacity: 0.6; cursor: not-allowed; }
-  &:not(:disabled):hover { background: #14296b; }
+  &:not(:disabled):hover { background: $indigo-900; }
 }
 
 .error { color: $danger-strong; }

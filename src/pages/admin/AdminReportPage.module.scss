@@ -20,14 +20,14 @@
 }
 
 .exportLink {
-  background: #1f3a8a;
+  background: $info-strong;
   color: $bg-surface;
   padding: 0.4rem 0.85rem;
   border-radius: 0.3rem;
   text-decoration: none;
   font-size: 0.9rem;
 
-  &:hover { background: #14296b; }
+  &:hover { background: $indigo-900; }
 }
 
 .totals {

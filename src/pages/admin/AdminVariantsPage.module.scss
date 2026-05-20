@@ -12,7 +12,7 @@
 .backLink {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #5a4318;
+  color: $amber-900;
   text-decoration: none;
   font-size: 0.95rem;
 
@@ -35,8 +35,8 @@
 }
 
 .createForm {
-  background: #faf7f0;
-  border: 1px solid #e6dcc1;
+  background: $bg-page;
+  border: 1px solid $border-color;
   padding: 1.25rem;
   border-radius: 0.5rem;
   margin-bottom: 2rem;
@@ -91,11 +91,11 @@
   th, td {
     text-align: left;
     padding: 0.75rem;
-    border-bottom: 1px solid #eaeaea;
+    border-bottom: 1px solid $gray-200;
   }
 
   th {
-    background: #f7f3e8;
+    background: $bg-sunken;
     font-size: 0.85rem;
     text-transform: uppercase;
   }
@@ -132,11 +132,11 @@
   cursor: pointer;
   font-size: 0.85rem;
 
-  &:hover { background: #faf2dc; }
+  &:hover { background: $amber-bg; }
 }
 
 .priceLink {
-  color: #1565c0;
+  color: $indigo-600;
   text-decoration: none;
   font-size: 0.85rem;
 

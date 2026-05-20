@@ -70,8 +70,8 @@
 
 .itemDate { color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; }
 
-.badgeOpen    { @include badge-base; background: rgba(244, 162, 0, 0.18);  color: #c47a00; }
-.badgeReplied { @include badge-base; background: rgba(64, 132, 245, 0.18); color: #1c5bd8; }
+.badgeOpen    { @include badge-base; background: rgba(244, 162, 0, 0.18);  color: $amber-700; }
+.badgeReplied { @include badge-base; background: rgba(64, 132, 245, 0.18); color: $indigo-600; }
 .badgeClosed  { @include badge-base; background: rgba(0, 0, 0, 0.08);     color: rgba(0, 0, 0, 0.55); }
 
 .empty {
