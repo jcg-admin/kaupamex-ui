@@ -397,6 +397,7 @@ commit hash.
 | TASK-2.1 | Mixins semánticos huérfanos            | done      | a498afe |
 | TASK-2.2 | Aprobar nuevos tokens de color         | done      | f09ca5e |
 | TASK-2.3 | `%btn`/`%badge` → mixins               | done      | 750dd3b |
+| TASK-2.4 | Escalas gray/amber/indigo (expansión)  | done      | 4c3ac58 |
 | TASK-3.1 | `#fff` → `$bg-surface`                 | done      | 12303a7 |
 | TASK-3.2 | `#b8860b` → `$primary-color`           | done      | fcf23ab |
 | TASK-3.3 | `#e8e0d5` → `$border-color`            | done      | 8f335d2 |
