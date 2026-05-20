@@ -43,7 +43,7 @@
   display: flex;
   gap: $spacing-4;
   padding: $spacing-4;
-  background: #fff;
+  background: $bg-surface;
   border: 1px solid #e9e5e0;
   border-radius: 8px;
   align-items: flex-start;
@@ -63,7 +63,7 @@
   display: inline-block;
   padding: 2px 8px;
   background: $primary-color;
-  color: #fff;
+  color: $bg-surface;
   border-radius: 12px;
   font-size: $font-size-xs;
 }
@@ -81,7 +81,7 @@
 }
 
 .form {
-  background: #fff;
+  background: $bg-surface;
   border: 1px solid #e9e5e0;
   border-radius: 8px;
   padding: $spacing-4;
@@ -137,7 +137,7 @@
 
 .btnPrimary {
   background: $primary-color;
-  color: #fff;
+  color: $bg-surface;
   border: none;
   padding: $spacing-2 $spacing-4;
   border-radius: 4px;

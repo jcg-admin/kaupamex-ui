@@ -8,7 +8,7 @@
 .fieldset { border: 0; padding: 0; margin: 0 0 1rem; legend { font-weight: 600; margin-bottom: .5rem; } }
 .option { display: flex; gap: .5rem; padding: .35rem 0; align-items: center; }
 .primaryBtn {
-  background: $primary-color; color: #fff; border: 0;
+  background: $primary-color; color: $bg-surface; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: .55; cursor: not-allowed; }
 }

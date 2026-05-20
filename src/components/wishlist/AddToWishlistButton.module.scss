@@ -19,7 +19,7 @@
 
   &:hover:not(:disabled) {
     background: $primary-color;
-    color: #fff;
+    color: $bg-surface;
   }
 
   &:disabled {
@@ -29,7 +29,7 @@
 
   &.added {
     background: $primary-color;
-    color: #fff;
+    color: $bg-surface;
   }
 }
 

@@ -61,8 +61,8 @@
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
 
-.primaryBtn  { background: $primary-color; color: #fff; }
-.secondaryBtn { background: #003087; color: #fff; }
+.primaryBtn  { background: $primary-color; color: $bg-surface; }
+.secondaryBtn { background: #003087; color: $bg-surface; }
 
 .legal {
   font-size: .85rem;

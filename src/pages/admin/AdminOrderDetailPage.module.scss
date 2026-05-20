@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   padding: 1.5rem;
 }
@@ -84,9 +86,9 @@
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
-.primaryBtn { background: #2563eb; color: #fff; }
+.primaryBtn { background: #2563eb; color: $bg-surface; }
 .secondaryBtn { background: #eee; color: #111; }
-.dangerBtn { background: #dc2626; color: #fff; }
+.dangerBtn { background: #dc2626; color: $bg-surface; }
 
 .error {
   color: #b91c1c;

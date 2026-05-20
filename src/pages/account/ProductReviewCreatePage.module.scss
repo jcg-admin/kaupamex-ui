@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   max-width: 720px;
   margin:    0 auto;
@@ -64,7 +66,7 @@
 
 .primaryBtn {
   background:    #1f6feb;
-  color:         #fff;
+  color:         $bg-surface;
   border:        none;
   padding:       0.6rem 1.2rem;
   border-radius: 6px;

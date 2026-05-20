@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 /**
  * AdminVariantPricePage — UC-CHT-04 estilos.
  */
@@ -71,7 +73,7 @@
 
 .primaryBtn {
   background: #8b6914;
-  color: #fff;
+  color: $bg-surface;
   border: none;
   padding: 0.6rem 1.25rem;
   border-radius: 0.25rem;
@@ -82,7 +84,7 @@
 }
 
 .secondaryBtn {
-  background: #fff;
+  background: $bg-surface;
   color: #8b6914;
   border: 1px solid #8b6914;
   padding: 0.6rem 1.25rem;

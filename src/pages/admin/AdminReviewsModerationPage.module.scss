@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 .page {
   max-width: 1024px;
   margin:    0 auto;
@@ -24,7 +26,7 @@
 }
 
 .item {
-  background:    #fff;
+  background:    $bg-surface;
   border:        1px solid #e1e4e8;
   border-radius: 8px;
   padding:       1rem 1.25rem;
@@ -67,7 +69,7 @@
 
 .primaryBtn {
   background:    #176f3a;
-  color:         #fff;
+  color:         $bg-surface;
   border:        none;
   padding:       0.5rem 1.1rem;
   border-radius: 6px;
@@ -78,7 +80,7 @@
 
 .dangerBtn {
   background:    #b00020;
-  color:         #fff;
+  color:         $bg-surface;
   border:        none;
   padding:       0.5rem 1.1rem;
   border-radius: 6px;

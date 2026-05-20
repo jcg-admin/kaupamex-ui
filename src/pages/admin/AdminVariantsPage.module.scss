@@ -1,3 +1,5 @@
+@use '@styles/abstracts' as *;
+
 /**
  * AdminVariantsPage — UC-CHT-03 estilos.
  */
@@ -66,7 +68,7 @@
 
 .primaryBtn {
   background: #8b6914;
-  color: #fff;
+  color: $bg-surface;
   border: none;
   padding: 0.6rem 1.25rem;
   border-radius: 0.25rem;

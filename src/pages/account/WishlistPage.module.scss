@@ -33,7 +33,7 @@
 .filterBtn {
   padding: $spacing-1 $spacing-3;
   border: 1px solid #d4c4a8;
-  background: #fff;
+  background: $bg-surface;
   border-radius: 4px;
   cursor: pointer;
   font-size: $font-size-sm;
@@ -42,7 +42,7 @@
 .filterActive {
   background: $primary-color;
   border-color: $primary-color;
-  color: #fff;
+  color: $bg-surface;
 }
 
 .loading {
@@ -83,7 +83,7 @@
   display: flex;
   gap: $spacing-4;
   padding: $spacing-4;
-  background: #fff;
+  background: $bg-surface;
   border: 1px solid #e9e5e0;
   border-radius: 8px;
 }
@@ -117,7 +117,7 @@
 
 .priceDrop {
   background: #5a9e5a;
-  color: #fff;
+  color: $bg-surface;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: $font-size-xs;
@@ -141,7 +141,7 @@
 
 .moveBtn {
   background: $primary-color;
-  color: #fff;
+  color: $bg-surface;
   border: none;
   padding: $spacing-2 $spacing-3;
   border-radius: 4px;

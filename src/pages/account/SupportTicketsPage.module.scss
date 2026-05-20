@@ -19,7 +19,7 @@
 
 .primaryBtn {
   background: $color-primary;
-  color: #fff;
+  color: $bg-surface;
   border: 0;
   padding: 0.55rem 1.1rem;
   border-radius: 0.25rem;
@@ -38,7 +38,7 @@
 .item {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 0.35rem;
-  background: #fff;
+  background: $bg-surface;
 }
 
 .itemLink {
