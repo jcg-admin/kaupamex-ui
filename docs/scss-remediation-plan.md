@@ -394,9 +394,9 @@ commit hash.
 | TASK-1.1 | Borrar `@keyframes spin` duplicado     | bloqueada |        |
 | TASK-1.2 | Unificar imports a `@styles/abstracts` | done      | f3d66d8 |
 | TASK-1.3 | Media queries crudas → mixin           | done      | cedc97a |
-| TASK-2.1 | Mixins semánticos huérfanos            | pendiente |        |
-| TASK-2.2 | Aprobar nuevos tokens de color         | pendiente |        |
-| TASK-2.3 | `%btn`/`%badge` → mixins               | pendiente |        |
+| TASK-2.1 | Mixins semánticos huérfanos            | done      | a498afe |
+| TASK-2.2 | Aprobar nuevos tokens de color         | done      | f09ca5e |
+| TASK-2.3 | `%btn`/`%badge` → mixins               | done      | 750dd3b |
 | TASK-3.1 | `#fff` → `$bg-surface`                 | pendiente |        |
 | TASK-3.2 | `#b8860b` → `$primary-color`           | pendiente |        |
 | TASK-3.3 | `#e8e0d5` → `$border-color`            | pendiente |        |
