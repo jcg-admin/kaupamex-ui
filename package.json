@@ -22,7 +22,8 @@
     "lint:style:fix": "stylelint \"src/**/*.scss\" --fix",
     "lint:scss-compile": "node scripts/check-scss.mjs",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,scss}"
+    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,scss}",
+    "prepare": "husky"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.0.0",
@@ -54,6 +55,7 @@
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "html-webpack-plugin": "^5.6.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^30.3.0",
     "mini-css-extract-plugin": "^2.7.0",
