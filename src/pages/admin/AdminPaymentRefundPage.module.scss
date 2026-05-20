@@ -3,8 +3,8 @@
 .page { max-width: 720px; margin: 2rem auto; padding: 1.5rem; }
 .backLink { color: #4a5fc1; text-decoration: none; font-size: .9rem; }
 .header { margin: 1rem 0 1.5rem; }
-.title { font-size: 1.75rem; margin: 0 0 .25rem; color: #2c2418; }
-.subtitle { color: #6b5f50; margin: 0; }
+.title { font-size: 1.75rem; margin: 0 0 .25rem; color: $text-strong; }
+.subtitle { color: $text-soft; margin: 0; }
 .detail {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -14,8 +14,8 @@
   border-radius: .5rem;
   padding: 1rem;
   margin-bottom: 1rem;
-  dt { font-size: .75rem; color: #6b5f50; text-transform: uppercase; margin: 0; }
-  dd { margin: .15rem 0 0; font-weight: 600; color: #2c2418; }
+  dt { font-size: .75rem; color: $text-soft; text-transform: uppercase; margin: 0; }
+  dd { margin: .15rem 0 0; font-weight: 600; color: $text-strong; }
 }
 .form { background: #fffdf9; border: 1px solid $border-color; border-radius: .5rem; padding: 1.25rem; }
 .field {

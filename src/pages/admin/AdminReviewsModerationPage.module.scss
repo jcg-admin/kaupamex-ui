@@ -33,7 +33,7 @@
 }
 
 .meta {
-  color:     #555;
+  color:     $gray-700;
   font-size: 0.9rem;
   margin:    0 0 0.5rem 0;
 }
@@ -44,7 +44,7 @@
 }
 
 .itemBody {
-  color:    #333;
+  color:    $gray-800;
   margin:   0 0 0.75rem;
 }
 
@@ -90,7 +90,7 @@
 }
 
 .empty {
-  color:     #666;
+  color:     $gray-600;
   font-style: italic;
 }
 

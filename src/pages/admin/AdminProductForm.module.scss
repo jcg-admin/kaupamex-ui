@@ -19,7 +19,7 @@
 }
 
 .input, .select, .textarea {
-  border: 1px solid #ccc;
+  border: 1px solid $gray-400;
   border-radius: 4px;
   padding: 0.5rem;
   font-size: 0.95rem;
@@ -55,7 +55,7 @@
 }
 
 .btnPrimary {
-  background: #1a1a1a;
+  background: $gray-950;
   color: white;
   border: 0;
   border-radius: 4px;

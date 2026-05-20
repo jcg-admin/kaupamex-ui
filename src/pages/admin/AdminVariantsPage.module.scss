@@ -30,7 +30,7 @@
 }
 
 .meta {
-  color: #777;
+  color: $gray-600;
   margin: 0 0 1.5rem 0;
 }
 
@@ -61,7 +61,7 @@
 
   input, select {
     padding: 0.5rem;
-    border: 1px solid #ccc;
+    border: 1px solid $gray-400;
     border-radius: 0.25rem;
   }
 }
@@ -81,7 +81,7 @@
 .loading, .empty {
   padding: 1.5rem;
   text-align: center;
-  color: #777;
+  color: $gray-600;
 }
 
 .table {

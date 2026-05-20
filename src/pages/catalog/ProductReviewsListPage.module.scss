@@ -35,7 +35,7 @@
 }
 
 .total {
-  color:     #555;
+  color:     $gray-700;
   font-size: 0.95rem;
 }
 
@@ -67,12 +67,12 @@
 }
 
 .itemBody {
-  color:    #444;
+  color:    $gray-700;
   margin:   0;
 }
 
 .empty {
-  color:     #666;
+  color:     $gray-600;
   font-style: italic;
 }
 

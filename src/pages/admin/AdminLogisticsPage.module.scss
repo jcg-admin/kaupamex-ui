@@ -3,23 +3,23 @@
 .page { padding: 1.5rem; }
 .header {
   .title    { font-size: 1.5rem; margin: 0; }
-  .subtitle { color: #666; margin: 0.25rem 0 1rem; }
+  .subtitle { color: $gray-600; margin: 0.25rem 0 1rem; }
 }
 .group {
   margin-top: 1.5rem;
   h2 { font-size: 1.15rem; margin: 0 0 0.5rem; }
-  .meta { color: #666; font-size: 0.875rem; margin: 0 0 0.5rem; }
+  .meta { color: $gray-600; font-size: 0.875rem; margin: 0 0 0.5rem; }
 }
 .table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 0.5rem;
-  th, td { padding: 0.4rem; border-bottom: 1px solid #eee; text-align: left; }
-  th     { background: #fafafa; }
+  th, td { padding: 0.4rem; border-bottom: 1px solid $gray-200; text-align: left; }
+  th     { background: $gray-50; }
 }
 .actionBtn {
   padding: 0.35rem 0.75rem;
-  background: #1a1a1a;
+  background: $gray-950;
   color: white;
   border: 0;
   border-radius: 4px;
@@ -38,4 +38,4 @@
 }
 .apiError { background: $danger-bg; color: $danger-strong; padding: 0.5rem; border-radius: 4px; margin-top: 1rem; }
 .success  { @include success-banner; }
-.empty    { color: #555; font-style: italic; padding: 1rem 0; }
+.empty    { color: $gray-700; font-style: italic; padding: 1rem 0; }
