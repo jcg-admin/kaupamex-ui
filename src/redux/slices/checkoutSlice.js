@@ -6,11 +6,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 
+const CREATE_ORDER_URL = '/api/v1/orders/';
+
 export const createOrder = createAsyncThunk(
   'checkout/createOrder',
   async (orderData, { rejectWithValue }) => {
     try {
-      const res = await apiService.post('/api/orders/', orderData);
+      const res = await apiService.post(CREATE_ORDER_URL, orderData);
       return res.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -22,7 +24,7 @@ export const initMercadoPago = createAsyncThunk(
   'checkout/initMercadoPago',
   async (orderId, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`/api/payments/mercadopago/create/`, { order_id: orderId });
+      const res = await apiService.post(`/api/v1/payments/mercadopago/create/`, { order_id: orderId });
       return res.data; // { preference_id, init_point }
     } catch (error) {
       return rejectWithValue(error.message);
@@ -34,7 +36,7 @@ export const initPayPal = createAsyncThunk(
   'checkout/initPayPal',
   async (orderId, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`/api/payments/paypal/create/`, { order_id: orderId });
+      const res = await apiService.post(`/api/v1/payments/paypal/create/`, { order_id: orderId });
       return res.data; // { order_id, approve_url }
     } catch (error) {
       return rejectWithValue(error.message);

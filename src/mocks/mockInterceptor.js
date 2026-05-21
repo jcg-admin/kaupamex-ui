@@ -8,12 +8,12 @@
  * USAR SOLO EN DEVELOPMENT.
  *
  * Endpoints cubiertos:
- *   Auth:      /api/auth/*, /api/token/
- *   Catalog:   /api/products/*, /api/categories/*
- *   Cart:      /api/cart/*
- *   Orders:    /api/orders/*
- *   Checkout:  /api/payments/*
- *   Wishlist:  /api/wishlist/*
+ *   Auth:      /api/auth/*, /api/v1/auth/login/
+ *   Catalog:   /api/v1/products/*, /api/v1/categories/*
+ *   Cart:      /api/v1/cart/*
+ *   Orders:    /api/v1/orders/*
+ *   Checkout:  /api/v1/payments/*
+ *   Wishlist:  /api/v1/wishlist/*
  *   Returns:   /api/v1/returns/*, /api/v1/admin/returns/*   (D-007)
  *   Inventory: /api/v1/admin/inventory/*                    (D-007)
  */
@@ -44,39 +44,39 @@ class MockInterceptor {
     await this._delay(this.delay);
 
     // ─── Auth ───────────────────────────────────────────────────
-    if (url.includes('/api/token/'))         return this._login(body);
-    if (url.includes('/api/auth/logout/'))   return this._logout();
-    if (url.includes('/api/auth/me/'))       return this._me();
-    if (url.includes('/api/auth/register/')) return this._register(body);
+    if (url.includes('/api/v1/auth/login/'))         return this._login(body);
+    if (url.includes('/api/v1/auth/logout/'))   return this._logout();
+    if (url.includes('/api/v1/auth/me/'))       return this._me();
+    if (url.includes('/api/v1/auth/register/')) return this._register(body);
 
     // ─── Catálogo ────────────────────────────────────────────────
-    if (url.includes('/api/products/search/')) return this._searchProducts(url);
+    if (url.includes('/api/v1/products/search/')) return this._searchProducts(url);
     if (url.match(/\/api\/products\/[^/]+\//)) return this._productDetail(url);
-    if (url.includes('/api/products/'))        return this._productList(url);
-    if (url.includes('/api/categories/'))      return this._categories();
+    if (url.includes('/api/v1/products/'))        return this._productList(url);
+    if (url.includes('/api/v1/categories/'))      return this._categories();
 
     // ─── Carrito ─────────────────────────────────────────────────
-    if (url.includes('/api/cart/voucher/') && method === 'POST')   return this._applyVoucher(body);
-    if (url.includes('/api/cart/voucher/') && method === 'DELETE') return this._removeVoucher();
+    if (url.includes('/api/v1/cart/voucher/') && method === 'POST')   return this._applyVoucher(body);
+    if (url.includes('/api/v1/cart/voucher/') && method === 'DELETE') return this._removeVoucher();
     if (url.match(/\/api\/cart\/items\/\d+\//) && method === 'PATCH')  return this._updateItem(url, body);
     if (url.match(/\/api\/cart\/items\/\d+\//) && method === 'DELETE') return this._removeItem(url);
-    if (url.includes('/api/cart/items/') && method === 'POST') return this._addItem(body);
-    if (url.includes('/api/cart/'))            return this._getCart();
+    if (url.includes('/api/v1/cart/items/') && method === 'POST') return this._addItem(body);
+    if (url.includes('/api/v1/cart/'))            return this._getCart();
 
     // ─── Órdenes ─────────────────────────────────────────────────
     if (url.match(/\/api\/orders\/\d+\/cancel\//)) return this._cancelOrder(url);
     if (url.match(/\/api\/orders\/\d+\//))          return this._orderDetail(url);
-    if (url.includes('/api/orders/') && method === 'POST') return this._createOrder(body);
-    if (url.includes('/api/orders/'))               return this._orderList();
+    if (url.includes('/api/v1/orders/') && method === 'POST') return this._createOrder(body);
+    if (url.includes('/api/v1/orders/'))               return this._orderList();
 
     // ─── Pagos ───────────────────────────────────────────────────
-    if (url.includes('/api/payments/mercadopago/create/')) return this._initMP(body);
-    if (url.includes('/api/payments/paypal/create/'))      return this._initPayPal(body);
+    if (url.includes('/api/v1/payments/mercadopago/create/')) return this._initMP(body);
+    if (url.includes('/api/v1/payments/paypal/create/'))      return this._initPayPal(body);
 
     // ─── Wishlist ────────────────────────────────────────────────
     if (url.match(/\/api\/wishlist\/\d+\//) && method === 'DELETE') return this._removeWishlist(url);
-    if (url.includes('/api/wishlist/') && method === 'POST') return this._addWishlist(body);
-    if (url.includes('/api/wishlist/')) return this._getWishlist();
+    if (url.includes('/api/v1/wishlist/') && method === 'POST') return this._addWishlist(body);
+    if (url.includes('/api/v1/wishlist/')) return this._getWishlist();
 
     // ─── Returns (D-007) ─────────────────────────────────────────
     const returnsResp = interceptReturns(url, options);
@@ -124,7 +124,7 @@ class MockInterceptor {
   }
 
   _productDetail(url) {
-    const slug = url.split('/api/products/')[1].replace(/\//g, '');
+    const slug = url.split('/api/v1/products/')[1].replace(/\//g, '');
     return this._ok(this._generateProduct(slug, 1));
   }
 
@@ -198,7 +198,7 @@ class MockInterceptor {
   }
 
   _updateItem(url, body) {
-    const id  = parseInt(url.split('/api/cart/items/')[1]);
+    const id  = parseInt(url.split('/api/v1/cart/items/')[1]);
     const item = this._cartState.items.find(i => i.id === id);
     if (!item) return this._error(404, 'Item no encontrado.');
     item.quantity = body?.quantity ?? item.quantity;
@@ -206,7 +206,7 @@ class MockInterceptor {
   }
 
   _removeItem(url) {
-    const id = parseInt(url.split('/api/cart/items/')[1]);
+    const id = parseInt(url.split('/api/v1/cart/items/')[1]);
     this._cartState.items = this._cartState.items.filter(i => i.id !== id);
     return this._ok(this._buildCart());
   }
@@ -242,7 +242,7 @@ class MockInterceptor {
   }
 
   _orderDetail(url) {
-    const id = parseInt(url.split('/api/orders/')[1]);
+    const id = parseInt(url.split('/api/v1/orders/')[1]);
     return this._ok(this._mockOrder(id || 1001, 'DELIVERED'));
   }
 
@@ -251,7 +251,7 @@ class MockInterceptor {
   }
 
   _cancelOrder(url) {
-    const id = parseInt(url.split('/api/orders/')[1]);
+    const id = parseInt(url.split('/api/v1/orders/')[1]);
     return this._ok(this._mockOrder(id, 'CANCELLED'));
   }
 
@@ -292,7 +292,7 @@ class MockInterceptor {
     return { status: 201, data: item };
   }
   _removeWishlist(url) {
-    const pid = parseInt(url.split('/api/wishlist/')[1]);
+    const pid = parseInt(url.split('/api/v1/wishlist/')[1]);
     this._wishlist = this._wishlist.filter(i => i.product_id !== pid);
     return { status: 204, data: null };
   }
