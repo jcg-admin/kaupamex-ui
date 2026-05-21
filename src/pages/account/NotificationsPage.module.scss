@@ -1,0 +1,117 @@
+/* NotificationsPage — PracticaYoruba */
+@use '@styles/abstracts' as *;
+
+.page {
+  padding: 1.5rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.list {
+  display: grid;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  background: $bg-surface;
+}
+
+.itemUnread {
+  border-left: 3px solid $success-strong;
+}
+
+.itemRead {
+  opacity: 0.75;
+}
+
+.itemBody {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.itemType {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.itemSubject {
+  font-weight: 600;
+  margin: 0;
+}
+
+.itemText {
+  margin: 0;
+  font-size: 0.95rem;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+.itemDate {
+  font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.markReadBtn {
+  flex-shrink: 0;
+  background: transparent;
+  color: $success-strong;
+  border: 1px solid $success-strong;
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.secondaryBtn {
+  background: transparent;
+  color: $success-strong;
+  border: 1px solid $success-strong;
+  border-radius: 0.4rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.empty {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.error {
+  color: $danger-strong;
+}
