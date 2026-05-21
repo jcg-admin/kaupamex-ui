@@ -35,13 +35,15 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
     ).toBeInTheDocument();
   });
 
-  it('ofrece destinatario por email, orden o producto', () => {
+  it('ofrece destinatario USER o PRODUCT_BUYERS (canon API)', () => {
+    // T-116 D-02 (iter 17): backend ManualNotification.RecipientType
+    // expone solo USER + PRODUCT_BUYERS. Test antes asertaba 3 opciones
+    // inventadas {EMAIL, ORDER, PRODUCT} -> soft-on-tests.
     render(wrap(<AdminNotificationComposePage />, makeStore()));
     const select = screen.getByLabelText(/Tipo de destinatario/i);
-    expect(select.querySelectorAll('option')).toHaveLength(3);
-    expect(select).toHaveTextContent(/Email/i);
-    expect(select).toHaveTextContent(/Orden/i);
-    expect(select).toHaveTextContent(/Producto/i);
+    expect(select.querySelectorAll('option')).toHaveLength(2);
+    expect(select).toHaveTextContent(/Usuario especifico/i);
+    expect(select).toHaveTextContent(/Compradores de producto/i);
   });
 
   it('requiere asunto y mensaje antes de enviar', () => {
@@ -58,7 +60,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
     render(wrap(<AdminNotificationComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Tipo de destinatario/i),
-      { target: { value: 'EMAIL' } });
+      { target: { value: 'USER' } });
     fireEvent.change(screen.getByLabelText(/Identificador del destinatario/i),
       { target: { value: 'cliente@example.com' } });
     fireEvent.change(screen.getByLabelText(/Asunto/i),
@@ -71,7 +73,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/admin/notifications/manual/',
         expect.objectContaining({
-          recipient_type:       'EMAIL',
+          recipient_type:       'USER',
           recipient_identifier: 'cliente@example.com',
           subject:              'Su pedido ha sido revisado',
           message:              'Hola, le confirmamos que su caso ya fue atendido.',
@@ -99,12 +101,12 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
     ).toBeInTheDocument();
   });
 
-  it('muestra el conteo de destinatarios cuando se elige PRODUCT', async () => {
+  it('muestra el conteo de destinatarios cuando se elige PRODUCT_BUYERS', async () => {
     apiService.get.mockResolvedValue({ data: { count: 42 } });
     render(wrap(<AdminNotificationComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Tipo de destinatario/i),
-      { target: { value: 'PRODUCT' } });
+      { target: { value: 'PRODUCT_BUYERS' } });
     fireEvent.change(screen.getByLabelText(/Identificador del destinatario/i),
       { target: { value: '7' } });
     fireEvent.click(screen.getByRole('button', { name: /Calcular destinatarios/i }));
@@ -114,7 +116,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
         '/api/v1/admin/notifications/audience-count/',
         expect.objectContaining({
           params: expect.objectContaining({
-            recipient_type: 'PRODUCT',
+            recipient_type: 'PRODUCT_BUYERS',
             product_id:     '7',
           }),
         }),
