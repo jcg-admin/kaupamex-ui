@@ -51,21 +51,21 @@ class MockInterceptor {
 
     // ─── Catálogo ────────────────────────────────────────────────
     if (url.includes('/api/v1/products/search/')) return this._searchProducts(url);
-    if (url.match(/\/api\/products\/[^/]+\//)) return this._productDetail(url);
+    if (url.match(/\/api\/v1\/products\/[^/]+\//)) return this._productDetail(url);
     if (url.includes('/api/v1/products/'))        return this._productList(url);
     if (url.includes('/api/v1/categories/'))      return this._categories();
 
     // ─── Carrito ─────────────────────────────────────────────────
     if (url.includes('/api/v1/cart/voucher/') && method === 'POST')   return this._applyVoucher(body);
     if (url.includes('/api/v1/cart/voucher/') && method === 'DELETE') return this._removeVoucher();
-    if (url.match(/\/api\/cart\/items\/\d+\//) && method === 'PATCH')  return this._updateItem(url, body);
-    if (url.match(/\/api\/cart\/items\/\d+\//) && method === 'DELETE') return this._removeItem(url);
+    if (url.match(/\/api\/v1\/cart\/items\/\d+\//) && method === 'PATCH')  return this._updateItem(url, body);
+    if (url.match(/\/api\/v1\/cart\/items\/\d+\//) && method === 'DELETE') return this._removeItem(url);
     if (url.includes('/api/v1/cart/items/') && method === 'POST') return this._addItem(body);
     if (url.includes('/api/v1/cart/'))            return this._getCart();
 
     // ─── Órdenes ─────────────────────────────────────────────────
-    if (url.match(/\/api\/orders\/\d+\/cancel\//)) return this._cancelOrder(url);
-    if (url.match(/\/api\/orders\/\d+\//))          return this._orderDetail(url);
+    if (url.match(/\/api\/v1\/orders\/\d+\/cancel\//)) return this._cancelOrder(url);
+    if (url.match(/\/api\/v1\/orders\/\d+\//))          return this._orderDetail(url);
     if (url.includes('/api/v1/orders/') && method === 'POST') return this._createOrder(body);
     if (url.includes('/api/v1/orders/'))               return this._orderList();
 
@@ -74,7 +74,7 @@ class MockInterceptor {
     if (url.includes('/api/v1/payments/paypal/create/'))      return this._initPayPal(body);
 
     // ─── Wishlist ────────────────────────────────────────────────
-    if (url.match(/\/api\/wishlist\/\d+\//) && method === 'DELETE') return this._removeWishlist(url);
+    if (url.match(/\/api\/v1\/wishlist\/\d+\//) && method === 'DELETE') return this._removeWishlist(url);
     if (url.includes('/api/v1/wishlist/') && method === 'POST') return this._addWishlist(body);
     if (url.includes('/api/v1/wishlist/')) return this._getWishlist();
 
