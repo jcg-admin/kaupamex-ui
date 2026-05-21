@@ -125,10 +125,13 @@ export const changePassword = createAsyncThunk(
   'auth/changePassword',
   async ({ currentPassword, newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
+      // DEC-AUM-02: API expone new_password_confirm (canon
+      // consistente con PasswordResetConfirmSerializer); UI antes
+      // enviaba confirm_password = mismatch silencioso.
       const response = await apiService.post('/api/v1/auth/change-password/', {
-        current_password: currentPassword,
-        new_password:     newPassword,
-        confirm_password: confirmPassword,
+        current_password:     currentPassword,
+        new_password:         newPassword,
+        new_password_confirm: confirmPassword,
       });
       return response.data;
     } catch (err) {
