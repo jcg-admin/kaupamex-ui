@@ -69,20 +69,35 @@ export const adminUnsubscribeSubscriber = createAsyncThunk(
   },
 );
 
-/** UC-NEW-04: el admin envia (o programa) una campana de newsletter. */
+/** UC-NEW-04: el admin envia una campana de newsletter.
+ *
+ * T-117 D-04 (iter 19): alinear payload a canon API
+ * (apps/newsletter/serializers.py:35-44 CampaignCreateSerializer).
+ *
+ * Backend acepta: {subject, body, audience_filter}. Antes UI enviaba
+ * {html_body, text_body, segment, scheduled_at} = 4 fields inventados;
+ * campaign nunca enviaba (DRF rechazaba con 400 silenciosamente
+ * porque required=body faltaba). El rich content + scheduled_at
+ * son features deferidas a T-116b pipeline epic (~3-4 semanas).
+ */
 export const sendNewsletterBroadcast = createAsyncThunk(
   'newsletter/sendBroadcast',
   async (
-    { subject, htmlBody, textBody, segment, scheduledAt },
+    { subject, htmlBody, textBody, segment },
     { rejectWithValue },
   ) => {
     try {
+      // Concatenar HTML + plain text en `body` (canon API single field).
+      // Si solo viene textBody, se envia ese; UI puede mejorar a un solo
+      // textarea cuando T-116b incluya html_body + text_body separados.
+      const body = htmlBody || textBody || '';
+      // audience_filter espera SubscriberStatus.choices: PENDING o
+      // CONFIRMED. UI antes mandaba 'ALL_ACTIVE' inventado.
+      const audienceFilter = segment === 'PENDING' ? 'PENDING' : 'CONFIRMED';
       const res = await apiService.post(ADMIN_BROADCAST_URL, {
         subject,
-        html_body:    htmlBody,
-        text_body:    textBody,
-        segment:      segment ?? 'ALL_ACTIVE',
-        scheduled_at: scheduledAt || null,
+        body,
+        audience_filter: audienceFilter,
       });
       return res.data;
     } catch (err) {
