@@ -12,17 +12,17 @@ import {
 import styles from './ReturnCreatePage.module.scss';
 
 const REASONS = [
-  { value: 'PRODUCTO_DANADO',         label: 'Producto dañado' },
-  { value: 'NO_COINCIDE_DESCRIPCION', label: 'No coincide con la descripción' },
-  { value: 'CAMBIO_OPINION',          label: 'Cambio de opinión' },
-  { value: 'OTRO',                    label: 'Otro motivo' },
+  { value: 'DAMAGED_PRODUCT',  label: 'Producto dañado' },
+  { value: 'NOT_AS_DESCRIBED', label: 'No coincide con la descripción' },
+  { value: 'CHANGED_MIND',     label: 'Cambio de opinión' },
+  { value: 'OTHER',            label: 'Otro motivo' },
 ];
 
 const MIN_DESCRIPTION = 20;
 
 const INITIAL = {
   order_id:    '',
-  reason:      'PRODUCTO_DANADO',
+  reason:      'DAMAGED_PRODUCT',
   description: '',
 };
 

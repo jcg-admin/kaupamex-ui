@@ -62,7 +62,9 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
     render(wrap(<ReturnsPage />, makeStore()));
     expect(await screen.findByText(/Pendiente de revisión/i)).toBeInTheDocument();
     expect(screen.getByText(/^Aprobada$/i)).toBeInTheDocument();
-    expect(screen.getByText(/Completada/i)).toBeInTheDocument();
+    // RECEIVED -> Recibida (canon EN, DEC-RET-02). Antes el test esperaba
+    // "Completada" — vocabulario cuatripartito UC-RET-03 D-01 resuelto.
+    expect(screen.getByText(/^Recibida$/i)).toBeInTheDocument();
     expect(screen.getByText(/Rechazada/i)).toBeInTheDocument();
   });
 
