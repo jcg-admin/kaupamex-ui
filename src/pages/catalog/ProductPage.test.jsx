@@ -201,7 +201,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     await screen.findByRole('status');
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/cart/items/',
+      '/api/v1/cart/items/',
       expect.objectContaining({
         product_id: PRODUCT.id,
         variant_id: 1,
@@ -326,7 +326,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
       await screen.findByRole('status');
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/cart/items/',
+        '/api/v1/cart/items/',
         expect.objectContaining({
           product_id: PRODUCT.id,
           variant_id: 12,

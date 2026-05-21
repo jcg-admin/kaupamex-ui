@@ -70,7 +70,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     render(wrap(<CartPage />, makeStore()));
 
-    expect(apiService.get).toHaveBeenCalledWith('/api/cart/');
+    expect(apiService.get).toHaveBeenCalledWith('/api/v1/cart/');
     expect(await screen.findByText(/Collar Yemaya/)).toBeInTheDocument();
     expect(screen.getByText(/Vela Ogun/)).toBeInTheDocument();
   });
@@ -92,7 +92,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     fireEvent.click(removeBtns[0]);
 
     await waitFor(() => {
-      expect(apiService.delete).toHaveBeenCalledWith('/api/cart/items/11/');
+      expect(apiService.delete).toHaveBeenCalledWith('/api/v1/cart/items/11/');
     });
   });
 
@@ -122,7 +122,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/cart/voucher/',
+        '/api/v1/cart/voucher/',
         { code: 'YORUBA10' },
       );
     });
@@ -166,7 +166,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     );
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith('/api/cart/save/', {});
+      expect(apiService.post).toHaveBeenCalledWith('/api/v1/cart/save/', {});
     });
     expect(
       await screen.findByText(/Carrito guardado/i),
@@ -189,7 +189,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/cart/items/11/',
+        '/api/v1/cart/items/11/',
         { quantity: 3 },
       );
     });
