@@ -49,17 +49,26 @@ describe('PaymentSelectionPage', () => {
     expect(screen.getByRole('button', { name: /Pagar con PayPal/i })).toBeInTheDocument();
   });
 
-  it('UC-PAY-01: inicia pago MP y redirige al gateway', async () => {
+  it('UC-PAY-01: inicia pago MP y redirige al checkout_url', async () => {
+    // DEC-BC-09: backend devuelve `checkout_url` (unificado) en endpoint
+    // unico `/api/v1/payments/initiate/` con body
+    // `{ order_number, gateway: 'MERCADOPAGO', installments? }`.
     apiService.post.mockResolvedValue({
-      data: { preference_id: 'pref_123', payment_url: 'https://mp.example/pay/123' },
+      data: {
+        payment_id:   123,
+        checkout_url: 'https://mp.example/pay/123',
+        order_number: 'ORD-001',
+        amount:       '500.00',
+        installments: 1,
+      },
     });
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Pagar con Mercado Pago/i }));
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/mercadopago/checkout',
-        { order_id: 'ORD-001' }
+        '/api/v1/payments/initiate/',
+        { order_number: 'ORD-001', gateway: 'MERCADOPAGO' }
       );
     });
     await waitFor(() => {
@@ -69,7 +78,7 @@ describe('PaymentSelectionPage', () => {
 
   it('UC-PAY-01-EXT: incluye installments cuando MSI esta seleccionado', async () => {
     apiService.post.mockResolvedValue({
-      data: { preference_id: 'pref_msi', payment_url: 'https://mp.example/pay/msi' },
+      data: { payment_id: 124, checkout_url: 'https://mp.example/pay/msi', order_number: 'ORD-001', amount: '500.00', installments: 6 },
     });
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Cuotas sin intereses/i), { target: { value: '6' } });
@@ -77,23 +86,29 @@ describe('PaymentSelectionPage', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/mercadopago/checkout',
-        { order_id: 'ORD-001', installments: 6 }
+        '/api/v1/payments/initiate/',
+        { order_number: 'ORD-001', gateway: 'MERCADOPAGO', installments: 6 }
       );
     });
   });
 
-  it('UC-PAY-02: inicia pago PayPal y redirige al approve_url', async () => {
+  it('UC-PAY-02: inicia pago PayPal y redirige al checkout_url', async () => {
     apiService.post.mockResolvedValue({
-      data: { paypal_order_id: 'PP-9', approve_url: 'https://paypal.example/approve/9' },
+      data: {
+        payment_id:   125,
+        checkout_url: 'https://paypal.example/approve/9',
+        order_number: 'ORD-001',
+        amount:       '500.00',
+        installments: 1,
+      },
     });
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Pagar con PayPal/i }));
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/paypal/checkout',
-        { order_id: 'ORD-001' }
+        '/api/v1/payments/initiate/',
+        { order_number: 'ORD-001', gateway: 'PAYPAL' }
       );
     });
     await waitFor(() => {

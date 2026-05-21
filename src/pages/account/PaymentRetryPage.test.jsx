@@ -45,8 +45,15 @@ describe('PaymentRetryPage (UC-PAY-08)', () => {
   });
 
   it('reintenta el pago con el gateway elegido (PayPal) y redirige', async () => {
+    // DEC-BC-09: contract unificado. order_number (no order_id),
+    // gateway uppercase canon (PAYPAL no paypal), response trae
+    // `checkout_url` (no approve_url separado).
     apiService.post.mockResolvedValue({
-      data: { paypal_order_id: 'PP-Retry', approve_url: 'https://paypal.example/r/9' },
+      data: {
+        payment_id:   456,
+        checkout_url: 'https://paypal.example/r/9',
+        order_number: 'ORD-7',
+      },
     });
     render(wrap(<PaymentRetryPage />, makeStore()));
     fireEvent.click(screen.getByLabelText(/PayPal/i));
@@ -55,7 +62,7 @@ describe('PaymentRetryPage (UC-PAY-08)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/payments/retry',
-        { order_id: 'ORD-7', gateway: 'paypal' }
+        { order_number: 'ORD-7', gateway: 'PAYPAL' }
       );
     });
     await waitFor(() => {
@@ -69,6 +76,8 @@ describe('PaymentRetryPage (UC-PAY-08)', () => {
     });
     render(wrap(<PaymentRetryPage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/i }));
-    expect(await screen.findByRole('alert')).toHaveTextContent(/ORDEN_EXPIRADA/);
+    // DEC-BC-21 + canon-idioma: identifiers EN canonico. UI emite
+    // ORDER_EXPIRED; el test asertaba ES (outlier).
+    expect(await screen.findByRole('alert')).toHaveTextContent(/ORDER_EXPIRED/);
   });
 });

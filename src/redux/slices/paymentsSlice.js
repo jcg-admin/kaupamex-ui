@@ -15,10 +15,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const MP_CHECKOUT_URL     = '/api/v1/payments/mercadopago/checkout';
-const PAYPAL_CHECKOUT_URL = '/api/v1/payments/paypal/checkout';
-const RETRY_URL           = '/api/v1/payments/retry';
-const ADMIN_REFUND_URL    = '/api/v1/admin/payments';
+// DEC-BC-09 (2026-05-21): backend tiene UN SOLO endpoint
+// /api/v1/payments/initiate/ que acepta `gateway: MERCADOPAGO|PAYPAL`.
+// Las constantes anteriores /mercadopago/checkout + /paypal/checkout
+// eran 404 en produccion (audit T-101 U-04 + U-05). Single endpoint
+// alineado a InitiatePaymentSerializer (apps/payments/serializers.py:25-29).
+const PAYMENTS_INITIATE_URL = '/api/v1/payments/initiate/';
+const RETRY_URL             = '/api/v1/payments/retry';
+const ADMIN_REFUND_URL      = '/api/v1/admin/payments';
 
 // =============================================================================
 // Thunks
@@ -26,16 +30,20 @@ const ADMIN_REFUND_URL    = '/api/v1/admin/payments';
 
 /**
  * UC-PAY-01: inicia el pago con Mercado Pago.
- * Acepta `{ order_id, installments }` (installments opcional — UC-PAY-01-EXT MSI).
- * Respuesta esperada: `{ preference_id, payment_url }`.
+ *
+ * DEC-BC-09: contract alineado al backend canonico.
+ * Acepta `{ order_number, installments }` (installments opcional —
+ * UC-PAY-01-EXT MSI). Envia body `{ order_number, gateway: 'MERCADOPAGO',
+ * installments? }`. Respuesta backend: `{ payment_id, checkout_url,
+ * order_number, amount, installments }`.
  */
 export const initiateMercadoPagoPayment = createAsyncThunk(
   'payments/initiateMercadoPago',
-  async ({ order_id, installments }, { rejectWithValue }) => {
+  async ({ order_number, installments }, { rejectWithValue }) => {
     try {
-      const payload = { order_id };
+      const payload = { order_number, gateway: 'MERCADOPAGO' };
       if (installments) payload.installments = Number(installments);
-      const res = await apiService.post(MP_CHECKOUT_URL, payload);
+      const res = await apiService.post(PAYMENTS_INITIATE_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -45,13 +53,19 @@ export const initiateMercadoPagoPayment = createAsyncThunk(
 
 /**
  * UC-PAY-02: inicia el pago con PayPal.
- * Acepta `{ order_id }`. Respuesta: `{ paypal_order_id, approve_url }`.
+ *
+ * DEC-BC-09: mismo endpoint que MP, diferencia por `gateway`.
+ * Acepta `{ order_number }`. Envia `{ order_number, gateway: 'PAYPAL' }`.
+ * Respuesta backend: igual shape que MP (checkout_url, etc.).
  */
 export const initiatePayPalPayment = createAsyncThunk(
   'payments/initiatePayPal',
-  async ({ order_id }, { rejectWithValue }) => {
+  async ({ order_number }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(PAYPAL_CHECKOUT_URL, { order_id });
+      const res = await apiService.post(
+        PAYMENTS_INITIATE_URL,
+        { order_number, gateway: 'PAYPAL' }
+      );
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -60,15 +74,17 @@ export const initiatePayPalPayment = createAsyncThunk(
 );
 
 /**
- * UC-PAY-08: reintenta el pago de una orden en `PENDING_PAYMENT`,
- * permitiendo cambiar el gateway.
- * Acepta `{ order_id, gateway }`. Respuesta: `{ preference_id|paypal_order_id, payment_url|approve_url }`.
+ * UC-PAY-08: reintenta el pago de una orden, permitiendo cambiar el
+ * gateway.
+ *
+ * DEC-BC-09: contract alineado a backend. Envia `{ order_number,
+ * gateway }`. Respuesta canonica `{ checkout_url, ... }`.
  */
 export const retryPayment = createAsyncThunk(
   'payments/retry',
-  async ({ order_id, gateway }, { rejectWithValue }) => {
+  async ({ order_number, gateway }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(RETRY_URL, { order_id, gateway });
+      const res = await apiService.post(RETRY_URL, { order_number, gateway });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -101,7 +117,7 @@ const initialState = {
   isActioning:    false,
   actionError:    null,
   lastAction:     null, // 'mp_initiated' | 'paypal_initiated' | 'retried' | 'refunded'
-  lastInitiation: null, // { gateway, payment_url|approve_url, preference_id|paypal_order_id }
+  lastInitiation: null, // { gateway, checkout_url, payment_id, order_number, amount, installments } (DEC-BC-09)
   lastRefund:     null,
 };
 

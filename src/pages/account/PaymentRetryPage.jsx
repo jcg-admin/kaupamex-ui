@@ -28,13 +28,19 @@ export default function PaymentRetryPage() {
   useEffect(() => () => { dispatch(clearPaymentsActionState()); }, [dispatch]);
 
   useEffect(() => {
-    const url = lastInitiation?.payment_url || lastInitiation?.approve_url;
+    // DEC-BC-09: backend devuelve `checkout_url` unificado.
+    const url = lastInitiation?.checkout_url;
     if (url) redirectToGateway(url);
   }, [lastInitiation]);
 
   const onSubmit = (e) => {
     e.preventDefault();
-    dispatch(retryPayment({ order_id: orderId, gateway }));
+    // DEC-BC-09: backend espera `order_number`. gateway en uppercase
+    // canon: MERCADOPAGO/PAYPAL (no mercadopago/paypal).
+    dispatch(retryPayment({
+      order_number: orderId,
+      gateway: gateway.toUpperCase(),
+    }));
   };
 
   return (
