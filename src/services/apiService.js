@@ -48,6 +48,10 @@ class APIService {
     this._accessToken   = null;
     this._refreshToken  = null;
     this._isRefreshing  = false;
+    // DEC-BC-07: X-Cart-Token para sesion anonima de carrito.
+    // Mismo patron memory-only que tokens de auth: XSS-safe, se
+    // pierde al cerrar tab (aceptable para comprador anonimo).
+    this._cartToken     = null;
   }
 
   setAuthToken(token) {
@@ -75,6 +79,21 @@ class APIService {
     // usar clearTokens().
     this._accessToken = null;
     delete this.headers['Authorization'];
+  }
+
+  // DEC-BC-07: X-Cart-Token management. Propaga sesion anonima del
+  // carrito cross-request. Backend setea header en response;
+  // siguientes requests a /api/v1/cart/ envian el token.
+  setCartToken(token) {
+    this._cartToken = token || null;
+  }
+
+  getCartToken() {
+    return this._cartToken;
+  }
+
+  clearCartToken() {
+    this._cartToken = null;
   }
 
   addRequestInterceptor(fn)  { this._interceptors.request.push(fn); }
@@ -110,6 +129,11 @@ class APIService {
 
     // Request real al backend
     let config = { method, url: url.toString(), headers: { ...this.headers, ...headers } };
+    // DEC-BC-07: si hay _cartToken activo, propagarlo en requests a
+    // /api/v1/cart/ para mantener la sesion anonima cross-request.
+    if (this._cartToken && path.includes('/api/v1/cart/')) {
+      config.headers['X-Cart-Token'] = this._cartToken;
+    }
     for (const fn of this._interceptors.request) {
       config = (await fn(config)) ?? config;
     }
@@ -192,6 +216,13 @@ class APIService {
     let data = null;
     if (response.status !== 204) {
       try { data = await response.json(); } catch {}
+    }
+
+    // DEC-BC-07: si el backend devuelve X-Cart-Token (sesion anonima
+    // recien creada o rotada), guardarlo para siguientes requests.
+    const cartTokenHeader = response.headers.get('X-Cart-Token');
+    if (cartTokenHeader) {
+      this._cartToken = cartTokenHeader;
     }
 
     let result = { data, status: response.status, headers: response.headers };
