@@ -63,9 +63,15 @@ export const replySupportTicket = createAsyncThunk(
   'supportTickets/reply',
   async ({ id, body, isInternal = false }, { rejectWithValue }) => {
     try {
+      // T-112 D-01 SECURITY (alinear-ui-support-internal-notes-enum):
+      // backend SupportTicketReplyCreateSerializer (apps/support/
+      // serializers.py:141-145) lee `is_internal_note`. UI antes
+      // enviaba `is_internal` -> campo ignorado por DRF -> nota
+      // marcada interna se persistia como reply publico visible al
+      // comprador. Vector leak info confidencial admin.
       const res = await apiService.post(`${TICKETS_URL}${id}/replies/`, {
         body,
-        is_internal: isInternal,
+        is_internal_note: isInternal,
       });
       return res.data;
     } catch (err) {
