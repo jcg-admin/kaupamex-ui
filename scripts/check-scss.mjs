@@ -51,8 +51,19 @@ const IMPORT_SCOPE = [
   join(srcDir, 'layouts'),
 ];
 const BAD_IMPORT_PATTERNS = [
-  { re: /@use\s+['"](?:\.\.\/)+styles\/abstracts['"]/, why: 'relative path; use @use \'@styles/abstracts\' as *;' },
-  { re: /@use\s+['"]@styles\/abstracts\/(?:variables|mixins)['"]/, why: 'split import; use @use \'@styles/abstracts\' as *; (the barrel re-exports both)' },
+  {
+    // Any relative path landing on styles/abstracts, with or without
+    // a subpath (variables, mixins, _index, ...). Catches both the
+    // bare relative form and the relative+split combo.
+    re: /@use\s+['"](?:\.\.\/)+styles\/abstracts(?:\/[\w-]+)?['"]/,
+    why: "relative path; use @use '@styles/abstracts' as *;",
+  },
+  {
+    // Alias path with any abstracts subpath (variables, mixins, ...).
+    // The canonical barrel @styles/abstracts itself stays allowed.
+    re: /@use\s+['"]@styles\/abstracts\/[\w-]+['"]/,
+    why: "split import; use @use '@styles/abstracts' as *; (the barrel re-exports both)",
+  },
 ];
 
 function checkImports(file) {
