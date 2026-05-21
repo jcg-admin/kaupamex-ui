@@ -119,14 +119,15 @@ export const fetchManualNotificationAudience = createAsyncThunk(
 // =============================================================================
 
 const initialState = {
-  preferences:    [],
-  audienceCount:  null,
-  isLoading:      false,
-  isActioning:    false,
-  error:          null,
-  actionError:    null,
-  lastAction:     null,  // 'preferences_saved' | 'marked_read' | 'marked_all_read' | 'manual_sent'
-  lastSentReport: null,  // payload del envio manual
+  preferences:      [],
+  audienceCount:    null,
+  isLoading:        false,
+  isActioning:      false,
+  error:            null,
+  actionError:      null,
+  lastAction:       null,  // 'preferences_saved' | 'marked_read' | 'marked_all_read' | 'manual_sent'
+  lastSentReport:   null,  // payload del envio manual
+  skippedMandatory: [],    // tipos obligatorios ignorados en el ultimo PUT (UC-NOT-06 EX-02)
 };
 
 const notificationsSlice = createSlice({
@@ -135,9 +136,10 @@ const notificationsSlice = createSlice({
 
   reducers: {
     clearNotificationsActionState(state) {
-      state.actionError    = null;
-      state.lastAction     = null;
-      state.lastSentReport = null;
+      state.actionError      = null;
+      state.lastAction       = null;
+      state.lastSentReport   = null;
+      state.skippedMandatory = [];
     },
     setPreferences(state, action) {
       state.preferences = Array.isArray(action.payload) ? action.payload : [];
@@ -173,6 +175,9 @@ const notificationsSlice = createSlice({
         const payload = action.payload ?? {};
         const results = payload.results ?? payload.preferences ?? payload ?? [];
         state.preferences = Array.isArray(results) ? results : state.preferences;
+        state.skippedMandatory = Array.isArray(payload.skipped_mandatory)
+          ? payload.skipped_mandatory
+          : [];
       })
       .addCase(updateNotificationPreferences.rejected, (state, action) => {
         state.isActioning = false;

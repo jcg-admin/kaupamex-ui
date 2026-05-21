@@ -28,7 +28,7 @@ export default function NotificationPreferencesPage() {
     isLoading,
     isError: isReadError,
   } = useNotificationPreferences();
-  const { isActioning, actionError, lastAction } =
+  const { isActioning, actionError, lastAction, skippedMandatory } =
     useSelector((s) => s.notifications);
 
   const [draft, setDraft] = useState([]);
@@ -130,6 +130,14 @@ export default function NotificationPreferencesPage() {
           {lastAction === 'preferences_saved' && (
             <p className={styles.success} role="status">
               Preferencias guardadas correctamente.
+            </p>
+          )}
+
+          {lastAction === 'preferences_saved' && skippedMandatory?.length > 0 && (
+            <p className={styles.warning} role="status">
+              Algunas notificaciones son obligatorias y no pueden desactivarse:
+              {' '}
+              {skippedMandatory.join(', ')}.
             </p>
           )}
 
