@@ -65,6 +65,7 @@ const ReturnDetailPage        = lazy(() => import('@pages/account/ReturnDetailPa
 const ProductReviewCreatePage = lazy(() => import('@pages/account/ProductReviewCreatePage'));
 
 // Lazy pages — Notificaciones (comprador)
+const NotificationsPage           = lazy(() => import('@pages/account/NotificationsPage'));
 const NotificationPreferencesPage = lazy(() => import('@pages/account/NotificationPreferencesPage'));
 const PaymentStatusPage    = lazy(() => import('@pages/account/PaymentStatusPage'));
 const PaymentHistoryPage   = lazy(() => import('@pages/account/PaymentHistoryPage'));
@@ -203,6 +204,8 @@ export default function AppRouter() {
                 path="account/orders/:orderId/products/:productId/review"
                 element={<ProductReviewCreatePage />}
               />
+              {/* UC-NOT-01..05 — Bandeja de notificaciones del comprador */}
+              <Route path="account/notifications" element={<NotificationsPage />} />
               <Route path="account/notifications/preferences" element={<NotificationPreferencesPage />} />
               {/* UC-PAY-05 — Estado actual del pago de una orden propia */}
               <Route path="account/orders/:orderId/payment" element={<PaymentStatusPage />} />
