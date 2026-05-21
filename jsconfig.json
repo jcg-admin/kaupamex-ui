@@ -13,7 +13,6 @@
       "@mocks/*":     ["src/mocks/*"],
       "@styles/*":    ["src/styles/*"],
       "@utils/*":     ["src/utils/*"],
-      "@types/*":     ["src/types/*"],
       "@constants/*": ["src/constants/*"],
       "@pages/*":     ["src/pages/*"],
       "@router/*":    ["src/router/*"],
@@ -21,8 +20,7 @@
       "@layouts/*":   ["src/layouts/*"],
       "@context/*":   ["src/context/*"],
       "@lib/*":       ["src/lib/*"],
-      "@facades/*":   ["src/facades/*"],
-      "@decorators/*":["src/decorators/*"]
+      "@facades/*":   ["src/facades/*"]
     }
   },
   "include": ["src"]

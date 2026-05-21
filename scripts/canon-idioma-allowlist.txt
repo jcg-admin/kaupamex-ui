@@ -1,0 +1,102 @@
+# canon-idioma-allowlist (JS — check-canon-idioma.mjs)
+#
+# Origen: T-004 de iniciativa canon-idioma-enums-error-codes.
+#
+# Cada linea es un path relativo al cwd (ui/) que se omite del
+# scan. Lineas vacias y comentarios (#) se ignoran. Los modulos
+# listados aqui estan en migracion incremental (DEC-IDIOMA-5).
+# Cada modulo se retira de esta lista cuando su tarea T-X04..
+# T-X06 ("refactor mocks + UI") + T-X07 ("tests UI") + T-X08
+# ("retirar de allowlist") se completa.
+#
+# El scan UI cubre src/ + __mocks__/. Los paths usan prefijos:
+#   src/mocks/...
+#   src/redux/slices/...
+#   src/components/.../...
+#   src/pages/.../...
+#   src/hooks/...
+#
+# Estado inicial al cierre de T-004 (2026-05-20): TODOS los
+# modulos UI con violaciones detectadas (109 totales) estan
+# listados via path-prefix.
+#
+# Verificacion:
+#
+#   cd ui
+#   node scripts/check-canon-idioma.mjs
+#   # exit 0 esperado mientras la allowlist contenga los
+#   # paths con violaciones.
+
+# T-101..T-108 modulo 1: returns — MIGRADO. Entries retiradas
+# tras commit ui@<T-108>. Conservadas como comentario historico.
+#
+# src/components/returns/
+# src/mocks/interceptors/returns.js
+# src/mocks/interceptors/returns.test.js
+# src/redux/slices/returnsSlice.js  (no tenia violaciones)
+# src/redux/slices/returnsSlice.test.js  (no tenia violaciones)
+# src/pages/account/ReturnCreatePage.test.jsx
+# src/pages/account/ReturnDetailPage.jsx
+# src/pages/account/ReturnDetailPage.test.jsx
+# src/pages/account/ReturnsPage.test.jsx
+# src/pages/admin/AdminReturnsPage.jsx
+# src/pages/admin/AdminReturnsPage.test.jsx
+# src/pages/admin/AdminReturnDetailPage.test.jsx
+# src/hooks/domain/useReturns.test.jsx
+
+# T-201..T-208 modulo 2: cart — MIGRADO. Entry retirada.
+# Conservada como comentario historico:
+#
+# src/pages/cart/CartPage.test.jsx
+
+# T-301..T-308 modulo 3: payments — MIGRADO. Entry retirada.
+#
+# src/pages/account/PaymentRetryPage.test.jsx
+
+# T-401..T-408 (modulo 4: auth)
+# (sin violaciones residuales detectadas en UI hoy — heredan
+#  del backend; cuando se aplique T-403 backend, ningun JS
+#  necesita allowlist preventivo. Slot reservado.)
+
+# T-501..T-508 (modulo 5: orders)
+# (sin violaciones residuales en UI; mismo argumento.)
+
+# T-601..T-608 modulo 6: catalogue + admin products — MIGRADO.
+# Entries retiradas.
+#
+# src/components/admin/ProductDiscountCreateForm.test.jsx
+# src/pages/admin/AdminProductDiscountsPage.test.jsx
+# src/pages/catalog/ProductPage.jsx
+
+# T-701..T-708 modulo 7: inventory views MIGRADO (4 codes EN).
+# T-709 PENDIENTE: data migration de StockMovement.
+# adjustment_reason (CONTEO_FISICO, MERMA, ROBO, DEVOLUCION,
+# DESCONTINUADO, OTRO -> EN). UI mantiene ES en estos files
+# para coincidir con backend pendiente migracion. Cuando T-709
+# se aplique, este bloque entero se retira.
+src/mocks/interceptors/inventory.js
+src/mocks/interceptors/inventory.test.js
+src/pages/admin/AdminInventoryAdjustPage.jsx
+src/pages/admin/AdminInventoryAdjustPage.test.jsx
+src/pages/admin/AdminInventoryImportPage.test.jsx
+src/pages/admin/AdminInventoryMovementsPage.test.jsx
+src/redux/slices/inventorySlice.test.js
+
+# T-801..T-808 modulo 8: reviews + wishlist + variantes Yoruba
+# — MIGRADO. Entries retiradas.
+#
+# src/pages/admin/AdminReviewsModerationPage.jsx
+# src/pages/account/WishlistPage.jsx
+# src/redux/slices/wishlistSlice.test.js
+# src/redux/slices/yorubaVariantsSlice.test.js
+# src/hooks/useAddProductWithVariant.js
+# src/hooks/useAddProductWithVariant.test.jsx
+
+# FU descubiertos durante T-004 (no en audit FASE 2) — MIGRADO UI
+# parcialmente. Codigos backend de los modulos FU (voucher,
+# chartsize, logistics, reports, search_history, static_content)
+# pendientes de iniciativa-hermana canon-idioma-modulos-no-auditados.
+#
+# src/pages/ContactPage.test.jsx
+# src/pages/admin/AdminNotificationComposePage.test.jsx
+# src/pages/admin/AdminQuestionsModerationPage.jsx

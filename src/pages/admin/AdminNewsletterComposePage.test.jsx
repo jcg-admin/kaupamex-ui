@@ -57,13 +57,17 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Enviar campa[nñ]a/i }));
 
     await waitFor(() => {
+      // T-117 D-04 (iter 19): canon API
+      // CampaignCreateSerializer expone {subject, body, audience_filter}.
+      // Test antes asertaba {html_body, text_body, segment} soft-on-tests
+      // del bug. UI ahora mapea html_body -> body + segment ALL_ACTIVE
+      // -> audience_filter CONFIRMED (canon SubscriberStatus).
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/admin/newsletter/campaigns/',
         expect.objectContaining({
-          subject:   'Boletin de mayo',
-          html_body: '<p>Hola</p>',
-          text_body: 'Hola',
-          segment:   'ALL_ACTIVE',
+          subject:         'Boletin de mayo',
+          body:            '<p>Hola</p>',
+          audience_filter: 'CONFIRMED',
         }),
       );
     });
@@ -88,7 +92,13 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
     ).toBeInTheDocument();
   });
 
-  it('permite programar el envio futuro', async () => {
+  // T-117 D-04 (iter 19): scheduled_at field deferred a T-116b
+  // pipeline epic (~3-4 semanas con Celery + storage). Backend
+  // CampaignCreateSerializer NO acepta scheduled_at por ahora.
+  // Test skipeado preservando intent para reactivar cuando T-116b
+  // implemente scheduling. Anti-soft: el test antes asertaba
+  // scheduled_at en payload que NO se enviaba al backend.
+  it.skip('permite programar el envio futuro (deferred T-116b)', async () => {
     apiService.post.mockResolvedValue({ data: { id: 6, status: 'SCHEDULED' } });
     render(wrap(<AdminNewsletterComposePage />, makeStore()));
 

@@ -4,9 +4,9 @@
  * Yoruba con variantes:
  *
  *   1. Si el producto tiene variantes pero ninguna esta seleccionada,
- *      devuelve { ok:false, error:'VARIANTE_REQUERIDA' }.
+ *      devuelve { ok:false, error:'VARIANT_REQUIRED' }.
  *   2. Si la variante seleccionada esta sin stock, devuelve
- *      { ok:false, error:'VARIANTE_SIN_STOCK' }.
+ *      { ok:false, error:'VARIANT_OUT_OF_STOCK' }.
  *   3. Si pasa la validacion, despacha addToCart con product_id, variant_id y
  *      quantity. Para productos sin variantes envia variant_id=null.
  *
@@ -19,8 +19,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '@redux/slices/cartSlice';
 
 const errorCode = {
-  VARIANT_REQUIRED: 'VARIANTE_REQUERIDA',
-  VARIANT_NO_STOCK: 'VARIANTE_SIN_STOCK',
+  VARIANT_REQUIRED: 'VARIANT_REQUIRED',
+  VARIANT_NO_STOCK: 'VARIANT_OUT_OF_STOCK',
 };
 
 export default function useAddProductWithVariant() {

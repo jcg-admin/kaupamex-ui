@@ -64,12 +64,12 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('envia la solicitud al backend cuando el formulario es valido', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 50, status: 'PENDIENTE_REVISION' },
+      data: { id: 50, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Orden/i),     { target: { value: 'ORD-100' } });
-    fireEvent.change(screen.getByLabelText(/Motivo/i),    { target: { value: 'PRODUCTO_DANADO' } });
+    fireEvent.change(screen.getByLabelText(/Motivo/i),    { target: { value: 'DAMAGED_PRODUCT' } });
     fireEvent.change(screen.getByLabelText(/Descripci/i),
       { target: { value: 'El producto llego con daños visibles en el empaque' } });
     fireEvent.click(screen.getByRole('button', { name: /Enviar solicitud/i }));
@@ -79,7 +79,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
         expect.stringContaining('/returns/'),
         expect.objectContaining({
           order_id: 'ORD-100',
-          reason:   'PRODUCTO_DANADO',
+          reason:   'DAMAGED_PRODUCT',
         }),
       );
     });
@@ -87,7 +87,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('muestra confirmacion con el numero de solicitud creada', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 77, status: 'PENDIENTE_REVISION' },
+      data: { id: 77, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
@@ -115,7 +115,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('envia FormData con las fotos cuando el comprador adjunta archivos', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 88, status: 'PENDIENTE_REVISION' },
+      data: { id: 88, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
@@ -135,7 +135,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
     const [, body] = apiService.post.mock.calls[0];
     expect(body).toBeInstanceOf(FormData);
     expect(body.get('order_id')).toBe('ORD-100');
-    expect(body.get('reason')).toBe('PRODUCTO_DANADO');
+    expect(body.get('reason')).toBe('DAMAGED_PRODUCT');
     const photoEntries = body.getAll('photos');
     expect(photoEntries).toHaveLength(2);
     expect(photoEntries[0]).toBeInstanceOf(File);
@@ -174,7 +174,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('si no hay fotos, envia el payload JSON tradicional (compatibilidad)', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 99, status: 'PENDIENTE_REVISION' },
+      data: { id: 99, status: 'PENDING_REVIEW' },
     });
 
     render(wrap(<ReturnCreatePage />, makeStore()));
@@ -188,7 +188,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
     expect(body).not.toBeInstanceOf(FormData);
     expect(body).toEqual(expect.objectContaining({
       order_id:    'ORD-100',
-      reason:      'PRODUCTO_DANADO',
+      reason:      'DAMAGED_PRODUCT',
       description: expect.any(String),
     }));
   });

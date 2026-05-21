@@ -7,7 +7,12 @@
  *   - Timeout con AbortController
  *   - Interceptores de request/response
  *   - Mock-first via mockInterceptor (PY_*_SOURCE=mock)
- *   - httpOnly cookies para JWT (credentials: 'include')
+ *   - JWT Bearer en memory del modulo (DEC-AUTH-2 de
+ *     fix-ui-auth-logout-y-refresh-wiring). Backend Django
+ *     usa SIMPLE_JWT con AUTH_HEADER_TYPES=('Bearer',).
+ *   - Refresh reactivo al 401 con flag _isRefreshing
+ *     (DEC-AUTH-3 + DEC-AUTH-4). Si refresh falla, dispatch
+ *     'py:unauthorized' event.
  */
 
 import {
@@ -36,15 +41,60 @@ class APIService {
       'Accept':       'application/json',
       ...options.headers,
     };
-    this._interceptors = { request: [], response: [], error: [] };
+    this._interceptors  = { request: [], response: [], error: [] };
+    // DEC-AUTH-2: tokens en memory del modulo. NO localStorage/
+    // sessionStorage por XSS. Trade-off: reload del browser pierde
+    // la sesion (UX subóptima vs seguridad).
+    this._accessToken   = null;
+    this._refreshToken  = null;
+    this._isRefreshing  = false;
+    // DEC-BC-07: X-Cart-Token para sesion anonima de carrito.
+    // Mismo patron memory-only que tokens de auth: XSS-safe, se
+    // pierde al cerrar tab (aceptable para comprador anonimo).
+    this._cartToken     = null;
   }
 
   setAuthToken(token) {
+    this._accessToken = token || null;
     if (token) this.headers['Authorization'] = `Bearer ${token}`;
     else delete this.headers['Authorization'];
   }
 
-  clearAuthToken() { delete this.headers['Authorization']; }
+  setRefreshToken(token) {
+    this._refreshToken = token || null;
+  }
+
+  getRefreshToken() {
+    return this._refreshToken;
+  }
+
+  clearTokens() {
+    this._accessToken = null;
+    this._refreshToken = null;
+    delete this.headers['Authorization'];
+  }
+
+  clearAuthToken() {
+    // Backwards-compat: limpia solo el access. Para limpiar ambos
+    // usar clearTokens().
+    this._accessToken = null;
+    delete this.headers['Authorization'];
+  }
+
+  // DEC-BC-07: X-Cart-Token management. Propaga sesion anonima del
+  // carrito cross-request. Backend setea header en response;
+  // siguientes requests a /api/v1/cart/ envian el token.
+  setCartToken(token) {
+    this._cartToken = token || null;
+  }
+
+  getCartToken() {
+    return this._cartToken;
+  }
+
+  clearCartToken() {
+    this._cartToken = null;
+  }
 
   addRequestInterceptor(fn)  { this._interceptors.request.push(fn); }
   addResponseInterceptor(fn) { this._interceptors.response.push(fn); }
@@ -79,6 +129,11 @@ class APIService {
 
     // Request real al backend
     let config = { method, url: url.toString(), headers: { ...this.headers, ...headers } };
+    // DEC-BC-07: si hay _cartToken activo, propagarlo en requests a
+    // /api/v1/cart/ para mantener la sesion anonima cross-request.
+    if (this._cartToken && path.includes('/api/v1/cart/')) {
+      config.headers['X-Cart-Token'] = this._cartToken;
+    }
     for (const fn of this._interceptors.request) {
       config = (await fn(config)) ?? config;
     }
@@ -92,7 +147,8 @@ class APIService {
         method:      config.method,
         headers:     config.headers,
         body:        body ? JSON.stringify(body) : undefined,
-        credentials: 'include',
+        // DEC-AUTH-1: arquitectura Bearer, no cookies. credentials:
+        // 'include' se removio (sin cookies httpOnly que enviar).
         signal:      controller.signal,
       });
     } catch (err) {
@@ -117,7 +173,38 @@ class APIService {
       try { errorBody = await response.json(); } catch {}
 
       if (response.status === 401) {
-        this.clearAuthToken();
+        // DEC-AUTH-3 + DEC-AUTH-4: intento de refresh reactivo con
+        // flag _isRefreshing para evitar refreshes concurrentes.
+        const canRetry =
+          !this._isRefreshing &&
+          this._refreshToken &&
+          !path.includes('/auth/refresh/') &&
+          attempt === 1;
+
+        if (canRetry) {
+          this._isRefreshing = true;
+          try {
+            const refreshUrl = `${this.baseURL}/api/v1/auth/refresh/`;
+            const refreshRes = await fetch(refreshUrl, {
+              method:  'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body:    JSON.stringify({ refresh: this._refreshToken }),
+            });
+            if (refreshRes.ok) {
+              const refreshData = await refreshRes.json();
+              this.setAuthToken(refreshData.access);
+              if (refreshData.refresh) this.setRefreshToken(refreshData.refresh);
+              this._isRefreshing = false;
+              // Reintentar request original con nuevo token.
+              return this._request(method, path, options, attempt + 1);
+            }
+          } catch {
+            // Cae al cleanup
+          }
+          this._isRefreshing = false;
+        }
+
+        this.clearTokens();
         window.dispatchEvent(new CustomEvent('py:unauthorized'));
       }
 
@@ -129,6 +216,13 @@ class APIService {
     let data = null;
     if (response.status !== 204) {
       try { data = await response.json(); } catch {}
+    }
+
+    // DEC-BC-07: si el backend devuelve X-Cart-Token (sesion anonima
+    // recien creada o rotada), guardarlo para siguientes requests.
+    const cartTokenHeader = response.headers.get('X-Cart-Token');
+    if (cartTokenHeader) {
+      this._cartToken = cartTokenHeader;
     }
 
     let result = { data, status: response.status, headers: response.headers };

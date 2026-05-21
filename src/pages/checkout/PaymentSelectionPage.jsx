@@ -39,18 +39,23 @@ export default function PaymentSelectionPage() {
   useEffect(() => () => { dispatch(clearPaymentsActionState()); }, [dispatch]);
 
   useEffect(() => {
-    const url = lastInitiation?.payment_url || lastInitiation?.approve_url;
+    // DEC-BC-09: backend devuelve `checkout_url` (unico campo, no
+    // payment_url/approve_url separados por gateway).
+    const url = lastInitiation?.checkout_url;
     if (url) redirectToGateway(url);
   }, [lastInitiation]);
 
   const onPayMP = () => {
-    const payload = { order_id: orderId };
+    // DEC-BC-09: backend espera `order_number` (no order_id). El
+    // parametro URL :orderId ya es el order_number string PY-XXXX
+    // (per CheckoutPage redireccion line 41-42).
+    const payload = { order_number: orderId };
     if (installments) payload.installments = installments;
     dispatch(initiateMercadoPagoPayment(payload));
   };
 
   const onPayPP = () => {
-    dispatch(initiatePayPalPayment({ order_id: orderId }));
+    dispatch(initiatePayPalPayment({ order_number: orderId }));
   };
 
   return (

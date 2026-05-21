@@ -1,7 +1,7 @@
 /**
  * Tests — ProductPage (UC-CAT-02)
  */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider }       from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
@@ -183,7 +183,6 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   });
 
   it('UC-CHT-02: al hacer click sobre Agregar al carrito con variante seleccionada llama al API con variant_id', async () => {
-    const { fireEvent } = require('@testing-library/react');
     apiService.get.mockResolvedValue({
       data: {
         ...PRODUCT,
@@ -202,7 +201,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     await screen.findByRole('status');
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/cart/items/',
+      '/api/v1/cart/items/',
       expect.objectContaining({
         product_id: PRODUCT.id,
         variant_id: 1,
@@ -281,8 +280,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
       expect(await screen.findByText(/1,450\.00/)).toBeInTheDocument();
 
       // Selecciona "Mediano" (price_with_tax = 1740).
-      const { fireEvent } = require('@testing-library/react');
-      fireEvent.click(screen.getByRole('button', { name: /Mediano/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Mediano/ }));
 
       // El precio principal cambia al precio con IVA de la variante.
       // Aparece tambien dentro del boton de la variante; aqui solo
@@ -299,8 +297,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
       render(wrap('collar-oshun-dorado', store));
       await screen.findByRole('button', { name: /Chico/ });
 
-      const { fireEvent } = require('@testing-library/react');
-      fireEvent.click(screen.getByRole('button', { name: /Chico/ }));
+        fireEvent.click(screen.getByRole('button', { name: /Chico/ }));
       await screen.findAllByText(/1,392\.00/);
       // Despues de seleccionar Chico: 1,392 aparece tanto en el boton de
       // la variante como en el area principal del precio.
@@ -324,13 +321,12 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
       const store = makeStore();
       render(wrap('collar-oshun-dorado', store));
 
-      const { fireEvent } = require('@testing-library/react');
-      fireEvent.click(await screen.findByRole('button', { name: /Mediano/ }));
+        fireEvent.click(await screen.findByRole('button', { name: /Mediano/ }));
       fireEvent.click(screen.getByRole('button', { name: /^Agregar al carrito$/ }));
 
       await screen.findByRole('status');
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/cart/items/',
+        '/api/v1/cart/items/',
         expect.objectContaining({
           product_id: PRODUCT.id,
           variant_id: 12,

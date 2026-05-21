@@ -44,7 +44,7 @@ describe('mocks/interceptors/returns', () => {
     });
     expect(r.status).toBe(201);
     expect(r.data.order_id).toBe('ORD-9999');
-    expect(r.data.status).toBe('PENDIENTE_REVISION');
+    expect(r.data.status).toBe('PENDING_REVIEW');
   });
 
   it('POST sin reason devuelve 400', () => {
@@ -70,10 +70,10 @@ describe('mocks/interceptors/returns', () => {
       body:   JSON.stringify({ justification: 'OK' }),
     });
     expect(r.status).toBe(200);
-    expect(r.data.status).toBe('APROBADA');
+    expect(r.data.status).toBe('APPROVED');
 
     const after = interceptReturns('/api/v1/admin/returns/1/', { method: 'GET' });
-    expect(after.data.status).toBe('APROBADA');
+    expect(after.data.status).toBe('APPROVED');
   });
 
   it('POST reject sin justification devuelve 400', () => {
@@ -102,7 +102,7 @@ describe('mocks/interceptors/returns', () => {
       body:   JSON.stringify({ amount: 1250 }),
     });
     expect(r.status).toBe(200);
-    expect(r.data.status).toBe('REEMBOLSADA');
+    expect(r.data.status).toBe('REFUNDED');
     expect(r.data.refund.amount).toBe(1250);
   });
 

@@ -113,7 +113,8 @@ describe('ChangePasswordPage (UC-AUTH-08)', () => {
         {
           current_password: 'OldPass1!',
           new_password: 'NewPass1!',
-          confirm_password: 'NewPass1!',
+          // DEC-AUM-02: rename a canon API new_password_confirm.
+          new_password_confirm: 'NewPass1!',
         },
       ),
     );

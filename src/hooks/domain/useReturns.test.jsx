@@ -30,10 +30,10 @@ describe('useReturns hooks', () => {
   });
 
   it('useReturn(id) carga el detalle', async () => {
-    apiService.get.mockResolvedValue({ data: { id: 7, status: 'PENDIENTE' } });
+    apiService.get.mockResolvedValue({ data: { id: 7, status: 'PENDING_REVIEW' } });
     const { result } = renderHook(() => useReturn(7), { wrapper: makeWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data.status).toBe('PENDIENTE');
+    expect(result.current.data.status).toBe('PENDING_REVIEW');
   });
 
   it('useAdminReturns con filtro de estado', async () => {
@@ -41,7 +41,7 @@ describe('useReturns hooks', () => {
       data: { results: [], metrics: { pendientes: 3 } },
     });
     const { result } = renderHook(
-      () => useAdminReturns({ status: 'PENDIENTE' }),
+      () => useAdminReturns({ status: 'PENDING_REVIEW' }),
       { wrapper: makeWrapper() },
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

@@ -21,6 +21,10 @@ const NAV_ITEMS = [
   { to: '/account/notifications/preferences',    label: 'Notificaciones' },
   { to: '/account/profile',                      label: 'Mi perfil' },
   { to: '/account/change-password',              label: 'Cambiar contrasena' },
+  // UC-AUTH-16: deliberadamente al final del menu para no confundirlo
+  // con opciones cotidianas. La pagina tiene confirmacion explicita
+  // antes de invocar el endpoint de baja.
+  { to: '/account/deactivate',                   label: 'Dar de baja' },
 ];
 
 export default function AccountLayout() {

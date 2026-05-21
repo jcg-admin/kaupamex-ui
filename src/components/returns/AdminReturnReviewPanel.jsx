@@ -12,7 +12,7 @@ import {
 } from '@redux/slices/returnsSlice';
 import styles from './AdminReturnReviewPanel.module.scss';
 
-const REVIEWABLE_STATES = new Set(['PENDIENTE_REVISION', 'PENDIENTE_INFORMACION']);
+const REVIEWABLE_STATES = new Set(['PENDING_REVIEW', 'INFO_REQUESTED']);
 
 export default function AdminReturnReviewPanel({ returnRequest }) {
   const dispatch = useDispatch();

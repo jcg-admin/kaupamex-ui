@@ -24,7 +24,7 @@ const wrap = (ui, store) => (
 
 const COMPLETED = {
   id: 300,
-  status: 'COMPLETADA',
+  status: 'RECEIVED',
   payment: {
     id: 9001,
     amount: 1250,
@@ -34,7 +34,7 @@ const COMPLETED = {
   refund_amount_suggested: 1250,
 };
 
-const NOT_ELIGIBLE = { id: 300, status: 'APROBADA' };
+const NOT_ELIGIBLE = { id: 300, status: 'APPROVED' };
 
 afterEach(() => jest.clearAllMocks());
 

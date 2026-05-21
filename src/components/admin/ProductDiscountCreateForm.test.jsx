@@ -129,7 +129,7 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
   it('muestra mensaje de error 409 cuando ya hay descuento activo', async () => {
     apiService.post.mockRejectedValue(
       Object.assign(new Error('Ya existe descuento'), {
-        code: 'DESCUENTO_ACTIVO_EXISTENTE',
+        code: 'DISCOUNT_ALREADY_ACTIVE',
         status: 409,
       }),
     );

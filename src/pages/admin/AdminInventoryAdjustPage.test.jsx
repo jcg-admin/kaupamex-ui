@@ -89,7 +89,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
 
   it('muestra error si el backend rechaza con STOCK_NEGATIVO_NO_PERMITIDO', async () => {
     apiService.post.mockRejectedValue({
-      body: { detail: 'STOCK_NEGATIVO_NO_PERMITIDO' }, message: '422',
+      body: { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' }, message: '422',
     });
     render(wrap(makeStore()));
     fireEvent.change(screen.getByLabelText(/Cantidad nueva/i),

@@ -7,17 +7,27 @@ import { Link } from 'react-router-dom';
 import { useAdminSupportTickets } from '@hooks/domain/useSupportTickets';
 import styles from './AdminSupportPage.module.scss';
 
+// T-112 D-02 (alinear-ui-support-internal-notes-enum): enum sync
+// al modelo real apps/support/models.py:24-29. UI antes mapeaba
+// {OPEN, REPLIED, CLOSED} = inventado; backend define 5 estados
+// canon. Filtro UI por REPLIED retornaba [] vacio; estados reales
+// (IN_PROGRESS, AWAITING_USER, RESOLVED) se mostraban como codigo
+// crudo.
 const STATUS_LABEL = {
-  OPEN:    'Abierto',
-  REPLIED: 'Respondido',
-  CLOSED:  'Cerrado',
+  OPEN:           'Abierto',
+  IN_PROGRESS:    'En atencion',
+  AWAITING_USER:  'Esperando comprador',
+  RESOLVED:       'Resuelto',
+  CLOSED:         'Cerrado',
 };
 
 const STATUS_OPTIONS = [
-  { value: '',        label: 'Todos los estados' },
-  { value: 'OPEN',    label: 'Abierto' },
-  { value: 'REPLIED', label: 'Respondido' },
-  { value: 'CLOSED',  label: 'Cerrado' },
+  { value: '',               label: 'Todos los estados' },
+  { value: 'OPEN',           label: 'Abierto' },
+  { value: 'IN_PROGRESS',    label: 'En atencion' },
+  { value: 'AWAITING_USER',  label: 'Esperando comprador' },
+  { value: 'RESOLVED',       label: 'Resuelto' },
+  { value: 'CLOSED',         label: 'Cerrado' },
 ];
 
 function formatDate(iso) {

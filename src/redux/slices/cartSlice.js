@@ -10,12 +10,12 @@
  *   - Estado por accion (lastAction, isActioning, actionError) para UI
  *
  * API endpoints (English keys per DEC-DOC-005):
- *   GET    /api/cart/            — leer carrito
- *   POST   /api/cart/items/      — agregar producto (UC-CART-01)
- *   PATCH  /api/cart/items/:id/  — cambiar cantidad
- *   DELETE /api/cart/items/:id/  — eliminar item
- *   POST   /api/cart/voucher/    — aplicar cupon
- *   DELETE /api/cart/voucher/    — quitar cupon
+ *   GET    /api/v1/cart/            — leer carrito
+ *   POST /api/v1/cart/items/      — agregar producto (UC-CART-01)
+ *   PATCH /api/v1/cart/items/:id/  — cambiar cantidad
+ *   DELETE /api/v1/cart/items/:id/  — eliminar item
+ *   POST /api/v1/cart/voucher/    — aplicar cupon
+ *   DELETE /api/v1/cart/voucher/    — quitar cupon
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
@@ -23,12 +23,12 @@ import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
 // ─── Endpoints ────────────────────────────────────────────────────────
-const CART_URL          = '/api/cart/';
-const CART_ITEMS_URL    = '/api/cart/items/';
-const CART_ITEM_URL     = (id) => `/api/cart/items/${id}/`;
-const CART_VOUCHER_URL  = '/api/cart/voucher/';
-const CART_SAVE_URL     = '/api/cart/save/';
-const CART_SYNC_URL     = '/api/cart/sync/';
+const CART_URL          = '/api/v1/cart/';
+const CART_ITEMS_URL    = '/api/v1/cart/items/';
+const CART_ITEM_URL     = (id) => `/api/v1/cart/items/${id}/`;
+const CART_VOUCHER_URL  = '/api/v1/cart/voucher/';
+const CART_SAVE_URL     = '/api/v1/cart/save/';
+const CART_SYNC_URL     = '/api/v1/cart/sync/';
 
 // ─── Thunks ───────────────────────────────────────────────────────────
 
@@ -76,8 +76,10 @@ export const removeCartItem = createAsyncThunk(
   'cart/removeItem',
   async (itemId, { rejectWithValue }) => {
     try {
-      await apiService.delete(CART_ITEM_URL(itemId));
-      return itemId;
+      // DEC-BC-02 + DEC-BC-08: backend DELETE devuelve Cart actualizado
+      // (status 200) con totals. UI usa setCart consistentemente.
+      const res = await apiService.delete(CART_ITEM_URL(itemId));
+      return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
     }
@@ -134,22 +136,12 @@ export const syncCartOnLogin = createAsyncThunk(
   },
 );
 
-// ─── Helpers ──────────────────────────────────────────────────────────
-
-const calculateTotals = (items, voucher, taxRate = 0.16) => {
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discount = voucher
-    ? voucher.type === 'PERCENT'
-      ? subtotal * (voucher.value / 100)
-      : Math.min(voucher.value, subtotal)
-    : 0;
-  const taxable  = subtotal - discount;
-  const tax      = taxable * taxRate;
-  const total    = taxable + tax;
-  return { subtotal, discount, tax, total };
-};
-
 // ─── Slice ────────────────────────────────────────────────────────────
+// DEC-BC-02 + DEC-BC-08 (consolidadas, 2026-05-21): el UI ya NO
+// calcula totales localmente. Todas las cart mutations devuelven
+// Cart completo con `totals` desde el backend (apps/cart/views.py).
+// Eliminar el helper calculateTotals previene drift silencioso si
+// el backend cambia la politica de IVA (exencion, geografia, etc.).
 
 const cartSlice = createSlice({
   name: 'cart',
@@ -187,7 +179,18 @@ const cartSlice = createSlice({
       const cart = action.payload ?? {};
       state.items    = cart.items ?? [];
       state.voucher  = cart.voucher ?? null;
-      state.totals   = calculateTotals(state.items, state.voucher);
+      // DEC-BC-02 + DEC-BC-08: totals vienen del backend (CartSerializer).
+      // Backend serializa Decimal como strings + usa `tax_included`
+      // (per DEC-BC-05 IVA incluido). UI coerce a numbers y mapea
+      // `tax_included` -> `tax` para el shape que la pagina consume
+      // con .toFixed(). NUNCA recalcular localmente (drift fiscal).
+      const t = cart.totals ?? {};
+      state.totals = {
+        subtotal: Number(t.subtotal) || 0,
+        discount: Number(t.discount) || 0,
+        tax:      Number(t.tax_included ?? t.tax) || 0,
+        total:    Number(t.total) || 0,
+      };
       state.itemCount = state.items.reduce((n, i) => n + i.quantity, 0);
       state.isLoading = false;
       state.error    = null;
@@ -221,11 +224,9 @@ const cartSlice = createSlice({
 
     builder
       .addCase(updateCartItem.fulfilled, setCart)
-      .addCase(removeCartItem.fulfilled, (state, action) => {
-        state.items     = state.items.filter((i) => i.id !== action.payload);
-        state.totals    = calculateTotals(state.items, state.voucher);
-        state.itemCount = state.items.reduce((n, i) => n + i.quantity, 0);
-      });
+      // DEC-BC-08: backend DELETE devuelve Cart actualizado (200);
+      // setCart sustituye el filter+recalculo local.
+      .addCase(removeCartItem.fulfilled, setCart);
 
     builder
       .addCase(applyVoucher.fulfilled, setCart)

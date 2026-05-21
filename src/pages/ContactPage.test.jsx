@@ -64,7 +64,8 @@ describe('ContactPage (UC-COM-01)', () => {
           name:    'Visitante Uno',
           email:   'visitante@example.com',
           subject: 'Consulta de prueba',
-          message: 'Tengo una consulta sobre un producto del catalogo.',
+          // T-117 D-06: API canon expone `body` (no `message`).
+          body:    'Tengo una consulta sobre un producto del catalogo.',
         }),
       );
     });
@@ -88,7 +89,7 @@ describe('ContactPage (UC-COM-01)', () => {
   it('muestra error si el backend rechaza', async () => {
     apiService.post.mockRejectedValue({
       message: 'Limite de mensajes alcanzado',
-      code:    'LIMITE_ALCANZADO',
+      code:    'LIMIT_REACHED',
       status:  429,
     });
     render(wrap(<ContactPage />, makeStore()));

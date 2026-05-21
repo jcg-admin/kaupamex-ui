@@ -61,7 +61,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
     });
 
     expect(outcome.ok).toBe(false);
-    expect(outcome.error).toBe('VARIANTE_REQUERIDA');
+    expect(outcome.error).toBe('VARIANT_REQUIRED');
     expect(apiService.post).not.toHaveBeenCalled();
   });
 
@@ -80,7 +80,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
     });
 
     expect(outcome.ok).toBe(false);
-    expect(outcome.error).toBe('VARIANTE_SIN_STOCK');
+    expect(outcome.error).toBe('VARIANT_OUT_OF_STOCK');
     expect(apiService.post).not.toHaveBeenCalled();
   });
 
@@ -103,7 +103,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
 
     expect(outcome.ok).toBe(true);
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/cart/items/',
+      '/api/v1/cart/items/',
       expect.objectContaining({
         product_id: 7,
         variant_id: 201,
@@ -129,7 +129,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
 
     expect(outcome.ok).toBe(true);
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/cart/items/',
+      '/api/v1/cart/items/',
       expect.objectContaining({
         product_id: 8,
         variant_id: null,
@@ -153,7 +153,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
     });
 
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/cart/items/',
+      '/api/v1/cart/items/',
       expect.objectContaining({ quantity: 1 }),
     );
   });

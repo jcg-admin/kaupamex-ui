@@ -21,7 +21,7 @@ import styles from './AdminReviewsModerationPage.module.scss';
 const REJECT_REASONS = [
   { value: 'CONTENIDO_INAPROPIADO', label: 'Contenido inapropiado' },
   { value: 'SPAM',                  label: 'Spam' },
-  { value: 'IDIOMA_NO_SOPORTADO',   label: 'Idioma no soportado' },
+  { value: 'LANGUAGE_NOT_SUPPORTED',   label: 'Idioma no soportado' },
   { value: 'NO_RELACIONADA',        label: 'No relacionada al producto' },
 ];
 

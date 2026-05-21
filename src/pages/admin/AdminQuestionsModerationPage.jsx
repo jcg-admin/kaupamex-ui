@@ -15,7 +15,7 @@ import styles from './AdminQuestionsModerationPage.module.scss';
 const REJECT_REASONS = [
   { value: 'INAPROPIADA',    label: 'Contenido inapropiado' },
   { value: 'SPAM',           label: 'Spam' },
-  { value: 'IDIOMA_NO_SOPORTADO', label: 'Idioma no soportado' },
+  { value: 'LANGUAGE_NOT_SUPPORTED', label: 'Idioma no soportado' },
   { value: 'DUPLICADA',      label: 'Pregunta duplicada' },
 ];
 

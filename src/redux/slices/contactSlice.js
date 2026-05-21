@@ -29,11 +29,14 @@ export const sendContactMessage = createAsyncThunk(
   'contact/send',
   async ({ name, email, subject, message }, { rejectWithValue }) => {
     try {
+      // T-117 D-06 (alinear-ui-contact-form): API expone field
+      // `body` (ContactMessageCreateSerializer); UI antes enviaba
+      // `message` -> ignorado por DRF -> 400 GUARANTEED.
       const res = await apiService.post(CONTACT_PUBLIC_URL, {
         name,
         email,
         subject,
-        message,
+        body: message,
       });
       return res.data;
     } catch (err) {

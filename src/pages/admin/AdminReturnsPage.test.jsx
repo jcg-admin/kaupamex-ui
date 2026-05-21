@@ -32,11 +32,11 @@ const wrap = (ui, store) => (
 );
 
 const RETURNS = [
-  { id: 200, order_id: 'ORD-A', status: 'PENDIENTE_REVISION', created_at: '2026-05-01T10:00:00Z',
+  { id: 200, order_id: 'ORD-A', status: 'PENDING_REVIEW', created_at: '2026-05-01T10:00:00Z',
     customer: { id: 1, email: 'demo@test.mx', name: 'Demo Yoruba' }, reason: 'PRODUCTO_DANADO' },
-  { id: 201, order_id: 'ORD-B', status: 'APROBADA',           created_at: '2026-05-02T10:00:00Z',
+  { id: 201, order_id: 'ORD-B', status: 'APPROVED',           created_at: '2026-05-02T10:00:00Z',
     customer: { id: 2, email: 'maria@test.mx', name: 'María L.' }, reason: 'NO_COINCIDE_DESCRIPCION' },
-  { id: 202, order_id: 'ORD-C', status: 'PENDIENTE_INFORMACION', created_at: '2026-05-03T10:00:00Z',
+  { id: 202, order_id: 'ORD-C', status: 'INFO_REQUESTED', created_at: '2026-05-03T10:00:00Z',
     customer: { id: 3, email: 'juan@test.mx', name: 'Juan D.' }, reason: 'OTRO' },
 ];
 
@@ -87,13 +87,13 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
     await screen.findByText('ORD-A');
 
     fireEvent.change(screen.getByRole('combobox'),
-      { target: { value: 'PENDIENTE_REVISION' } });
+      { target: { value: 'PENDING_REVIEW' } });
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
         expect.stringContaining('/admin/returns/'),
         expect.objectContaining({
-          params: expect.objectContaining({ status: 'PENDIENTE_REVISION' }),
+          params: expect.objectContaining({ status: 'PENDING_REVIEW' }),
         }),
       );
     });

@@ -3,9 +3,8 @@
  * UC-NOT-07: Enviar notificacion manual a usuario(s) desde el admin.
  *
  * Permite tres tipos de destinatario:
- *   EMAIL   — un correo especifico
- *   ORDER   — el comprador de una orden
- *   PRODUCT — todos los compradores de un producto (segmento)
+ *   USER           — un usuario especifico (UC-NOT-07 canon)
+ *   PRODUCT_BUYERS — todos los compradores de un producto (segmento)
  *
  * Para destinatarios de tipo PRODUCT el admin puede pre-calcular el
  * conteo del segmento antes de confirmar el envio (UC-NOT-07 Alt C).
@@ -19,10 +18,14 @@ import {
 } from '@redux/slices/notificationsSlice';
 import styles from './AdminNotificationComposePage.module.scss';
 
+// T-116 D-02 + D-06 (iter 17): backend
+// apps/notifications/models.py:102-104 ManualNotification.RecipientType
+// expone solo USER + PRODUCT_BUYERS. UI antes inventaba {EMAIL, ORDER,
+// PRODUCT} -> ChoiceField rechazaba con 400. Anti-soft-on-tests +
+// alineamiento canon API.
 const RECIPIENT_TYPES = [
-  { value: 'EMAIL',   label: 'Email' },
-  { value: 'ORDER',   label: 'Orden' },
-  { value: 'PRODUCT', label: 'Producto (segmento)' },
+  { value: 'USER',           label: 'Usuario especifico' },
+  { value: 'PRODUCT_BUYERS', label: 'Compradores de producto (segmento)' },
 ];
 
 export default function AdminNotificationComposePage() {
@@ -36,7 +39,8 @@ export default function AdminNotificationComposePage() {
   } = useSelector((s) => s.notifications);
 
   const [form, setForm] = useState({
-    recipientType:       'EMAIL',
+    // T-116 D-02 (iter 17): canon RecipientType del backend.
+    recipientType:       'USER',
     recipientIdentifier: '',
     subject:             '',
     message:             '',
@@ -61,7 +65,7 @@ export default function AdminNotificationComposePage() {
     dispatch(sendManualNotification({
       recipientType:       form.recipientType,
       recipientIdentifier: form.recipientIdentifier,
-      productId:           form.recipientType === 'PRODUCT' ? form.recipientIdentifier : null,
+      productId:           form.recipientType === 'PRODUCT_BUYERS' ? form.recipientIdentifier : null,
       subject:             form.subject,
       message:             form.message,
     }));
@@ -112,14 +116,15 @@ export default function AdminNotificationComposePage() {
             value={form.recipientIdentifier}
             onChange={setField('recipientIdentifier')}
             placeholder={
-              form.recipientType === 'EMAIL'   ? 'cliente@example.com' :
-              form.recipientType === 'ORDER'   ? '#12345' :
-              'ID del producto'
+              // T-116 D-02 (iter 17): placeholder alineado a canon API.
+              form.recipientType === 'USER'
+                ? 'ID o username del usuario'
+                : 'ID del producto'
             }
           />
         </div>
 
-        {form.recipientType === 'PRODUCT' && (
+        {form.recipientType === 'PRODUCT_BUYERS' && (
           <div>
             <button
               type="button"

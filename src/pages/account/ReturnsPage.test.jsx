@@ -32,10 +32,10 @@ const wrap = (ui, store) => (
 );
 
 const RETURNS = [
-  { id: 10, order_id: 'ORD-001', status: 'PENDIENTE_REVISION', created_at: '2026-05-10T10:00:00Z' },
-  { id: 11, order_id: 'ORD-002', status: 'APROBADA',           created_at: '2026-05-09T10:00:00Z' },
-  { id: 12, order_id: 'ORD-003', status: 'COMPLETADA',         created_at: '2026-05-01T10:00:00Z' },
-  { id: 13, order_id: 'ORD-004', status: 'RECHAZADA',          created_at: '2026-04-25T10:00:00Z' },
+  { id: 10, order_id: 'ORD-001', status: 'PENDING_REVIEW', created_at: '2026-05-10T10:00:00Z' },
+  { id: 11, order_id: 'ORD-002', status: 'APPROVED',           created_at: '2026-05-09T10:00:00Z' },
+  { id: 12, order_id: 'ORD-003', status: 'RECEIVED',         created_at: '2026-05-01T10:00:00Z' },
+  { id: 13, order_id: 'ORD-004', status: 'REJECTED',          created_at: '2026-04-25T10:00:00Z' },
 ];
 
 afterEach(() => jest.clearAllMocks());
@@ -62,7 +62,9 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
     render(wrap(<ReturnsPage />, makeStore()));
     expect(await screen.findByText(/Pendiente de revisión/i)).toBeInTheDocument();
     expect(screen.getByText(/^Aprobada$/i)).toBeInTheDocument();
-    expect(screen.getByText(/Completada/i)).toBeInTheDocument();
+    // RECEIVED -> Recibida (canon EN, DEC-RET-02). Antes el test esperaba
+    // "Completada" — vocabulario cuatripartito UC-RET-03 D-01 resuelto.
+    expect(screen.getByText(/^Recibida$/i)).toBeInTheDocument();
     expect(screen.getByText(/Rechazada/i)).toBeInTheDocument();
   });
 

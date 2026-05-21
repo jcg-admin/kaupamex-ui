@@ -180,7 +180,7 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
     apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
     apiService.post.mockRejectedValue(
       Object.assign(new Error('Conflict'), {
-        code: 'DESCUENTO_YA_INACTIVO',
+        code: 'DISCOUNT_ALREADY_INACTIVE',
         status: 409,
       }),
     );

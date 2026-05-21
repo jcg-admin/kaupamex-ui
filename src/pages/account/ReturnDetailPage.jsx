@@ -45,7 +45,7 @@ export default function ReturnDetailPage() {
 
   const history  = current.history ?? [];
   const refund   = current.refund;
-  const rejected = current.status === 'RECHAZADA';
+  const rejected = current.status === 'REJECTED';
 
   return (
     <section className={styles.page} aria-labelledby="return-detail-title">

@@ -1,10 +1,17 @@
 /**
  * Auth Slice — PracticaYoruba
  *
- * SEGURIDAD:
- *   - NO se guardan tokens en Redux ni en localStorage.
- *   - Los tokens JWT los maneja el backend en httpOnly cookies.
- *   - Solo se guarda la informacion del usuario para mostrar en la UI.
+ * SEGURIDAD (DEC-AUTH-1, DEC-AUTH-2 de fix-ui-auth-logout-
+ * y-refresh-wiring):
+ *   - Backend usa JWT Bearer (SIMPLE_JWT.AUTH_HEADER_TYPES).
+ *   - Tokens (access + refresh) viven en memory del modulo
+ *     apiService. NO en Redux state ni localStorage (XSS-
+ *     vulnerable). Trade-off aceptado: reload del browser
+ *     pierde la sesion.
+ *   - Redux state guarda solo info del usuario para UI.
+ *   - Refresh reactivo: interceptor 401 en apiService llama
+ *     refreshSession y reintenta. Si refresh falla, dispatch
+ *     'py:unauthorized' event que UnauthorizedListener captura.
  *
  * Sprint 2: URLs corregidas a /api/v1/, thunks de perfil añadidos.
  */
@@ -28,16 +35,46 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-/** Cierra sesion e invalida el refresh token en blacklist. */
+/**
+ * Cierra sesion e invalida el refresh token en blacklist
+ * (simplejwt TokenBlacklistView requiere {refresh} en body).
+ * Fix D-17 del audit T-102.
+ */
 export const logoutUser = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
+    const refresh = apiService.getRefreshToken();
     try {
-      await apiService.post('/api/v1/auth/logout/', {});
-      return null;
+      await apiService.post('/api/v1/auth/logout/', refresh ? { refresh } : {});
     } catch {
       // Proceder con logout local aunque falle el backend
-      return null;
+    } finally {
+      apiService.clearTokens();
+    }
+    return null;
+  }
+);
+
+/**
+ * Refresca el access token usando el refresh actual.
+ * Se llama desde el interceptor 401 del apiService o
+ * manualmente. Implementacion D-23 del audit T-102.
+ * Backend SIMPLE_JWT.ROTATE_REFRESH_TOKENS=True devuelve
+ * nuevo refresh tambien (DEC-AUTH-5).
+ */
+export const refreshSession = createAsyncThunk(
+  'auth/refresh',
+  async (_, { rejectWithValue }) => {
+    const refresh = apiService.getRefreshToken();
+    if (!refresh) return rejectWithValue('No refresh token disponible');
+    try {
+      const response = await apiService.post('/api/v1/auth/refresh/', { refresh });
+      apiService.setAuthToken(response.data.access);
+      if (response.data.refresh) apiService.setRefreshToken(response.data.refresh);
+      return response.data;
+    } catch (error) {
+      apiService.clearTokens();
+      return rejectWithValue(error.message || 'Refresh fallo');
     }
   }
 );
@@ -88,10 +125,13 @@ export const changePassword = createAsyncThunk(
   'auth/changePassword',
   async ({ currentPassword, newPassword, confirmPassword }, { rejectWithValue }) => {
     try {
+      // DEC-AUM-02: API expone new_password_confirm (canon
+      // consistente con PasswordResetConfirmSerializer); UI antes
+      // enviaba confirm_password = mismatch silencioso.
       const response = await apiService.post('/api/v1/auth/change-password/', {
-        current_password: currentPassword,
-        new_password:     newPassword,
-        confirm_password: confirmPassword,
+        current_password:     currentPassword,
+        new_password:         newPassword,
+        new_password_confirm: confirmPassword,
       });
       return response.data;
     } catch (err) {
@@ -123,6 +163,25 @@ export const resendVerificationEmail = createAsyncThunk(
       const response = await apiService.post(
         '/api/v1/auth/resend-verification/',
         { email },
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-AUTH-16 — Dar de baja la propia cuenta. Requiere password actual.
+ *  Postcondicion API: is_active=False, deactivated_reason='self_deleted',
+ *  refresh tokens invalidados.
+ *  Postcondicion UI (reducer): user=null, isAuthenticated=false. La cuenta
+ *  puede reactivarse despues via UC-AUTH-01 Alt-A.2 (re-registro). */
+export const deactivateAccount = createAsyncThunk(
+  'auth/deactivateAccount',
+  async ({ password }, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(
+        '/api/v1/auth/me/deactivate/', { password },
       );
       return response.data;
     } catch (err) {
@@ -164,6 +223,10 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user ?? action.payload;
         state.error = null;
+        // DEC-AUTH-2: persistir tokens en apiService memory
+        // storage. Simplejwt devuelve {access, refresh, user}.
+        if (action.payload.access) apiService.setAuthToken(action.payload.access);
+        if (action.payload.refresh) apiService.setRefreshToken(action.payload.refresh);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -237,6 +300,26 @@ const authSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(changePassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // deactivateAccount (UC-AUTH-16)
+    builder
+      .addCase(deactivateAccount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deactivateAccount.fulfilled, (state) => {
+        // Backend confirma is_active=False + invalidacion de tokens.
+        // Limpiamos el estado de sesion local — el navegador queda
+        // como anonimo.
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+        state.error = null;
+      })
+      .addCase(deactivateAccount.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       });

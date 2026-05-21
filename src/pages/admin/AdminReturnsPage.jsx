@@ -13,9 +13,9 @@ import styles from './AdminReturnsPage.module.scss';
 
 const STATUS_OPTIONS = [
   { value: '',                       label: 'Estados activos' },
-  { value: 'PENDIENTE_REVISION',     label: 'Pendiente de revisión' },
-  { value: 'APROBADA',               label: 'Aprobada' },
-  { value: 'PENDIENTE_INFORMACION',  label: 'Pendiente de información' },
+  { value: 'PENDING_REVIEW',     label: 'Pendiente de revisión' },
+  { value: 'APPROVED',               label: 'Aprobada' },
+  { value: 'INFO_REQUESTED',  label: 'Pendiente de información' },
 ];
 
 function formatDate(iso) {

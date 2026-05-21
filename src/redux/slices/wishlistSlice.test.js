@@ -94,13 +94,13 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
   it('addToWishlist.rejected preserva code y validationErrors (UC-WISH-01)', async () => {
     apiService.post.mockRejectedValue(new APIError({
       message: 'ya en la lista',
-      code: 'PRODUCTO_YA_EN_WISHLIST',
+      code: 'PRODUCT_ALREADY_IN_WISHLIST',
       statusCode: 409,
     }));
     const store = makeStore();
     await store.dispatch(addToWishlist({ productId: 7 }));
     expect(store.getState().wishlist.actionError).toMatchObject({
-      code: 'PRODUCTO_YA_EN_WISHLIST',
+      code: 'PRODUCT_ALREADY_IN_WISHLIST',
       statusCode: 409,
     });
   });
@@ -144,12 +144,12 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
 
   it('moveWishlistItemToCart.rejected preserva code (UC-WISH-03)', async () => {
     apiService.post.mockRejectedValue(new APIError({
-      message: 'sin stock', code: 'PRODUCTO_SIN_STOCK', statusCode: 409,
+      message: 'sin stock', code: 'PRODUCT_OUT_OF_STOCK', statusCode: 409,
     }));
     const store = makeStore();
     await store.dispatch(moveWishlistItemToCart({ itemId: 5 }));
     expect(store.getState().wishlist.actionError).toMatchObject({
-      code: 'PRODUCTO_SIN_STOCK', statusCode: 409,
+      code: 'PRODUCT_OUT_OF_STOCK', statusCode: 409,
     });
   });
 
