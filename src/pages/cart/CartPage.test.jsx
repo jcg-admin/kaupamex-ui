@@ -38,6 +38,10 @@ const wrap = (ui, store) => (
   </Provider>
 );
 
+// DEC-BC-02 + DEC-BC-08 (2026-05-21): backend devuelve Cart con
+// `totals` calculado server-side. UI lee `state.totals` directo;
+// el test ya no asume calculo local (helper calculateTotals
+// eliminado).
 const CART_PAYLOAD = {
   items: [
     {
@@ -61,6 +65,14 @@ const CART_PAYLOAD = {
     },
   ],
   voucher: null,
+  totals: {
+    subtotal: '448.00',
+    discount: '0.00',
+    subtotal_net: '448.00',
+    tax_included: '61.79',
+    shipping_cost: null,
+    total: '448.00',
+  },
 };
 
 afterEach(() => jest.clearAllMocks());
@@ -75,12 +87,15 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     expect(screen.getByText(/Vela Ogun/)).toBeInTheDocument();
   });
 
-  it('muestra el subtotal calculado del carrito', async () => {
+  it('muestra el subtotal del backend (DEC-BC-02: sin recalculo)', async () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     render(wrap(<CartPage />, makeStore()));
 
-    // subtotal = 199*2 + 50 = 448
-    expect(await screen.findByText(/448/)).toBeInTheDocument();
+    // DEC-BC-02: subtotal viene del backend (CART_PAYLOAD.totals.subtotal
+    // = "448.00"). Con DEC-BC-05 IVA incluido, total == subtotal cuando
+    // no hay shipping_cost, asi que /448/ aparece >=2 veces (subtotal +
+    // total). findAllByText acepta cualquier numero >= 1.
+    expect((await screen.findAllByText(/448/)).length).toBeGreaterThan(0);
   });
 
   it('UC-CART-03 — al hacer click en Eliminar, hace DELETE /api/cart/items/:id/', async () => {
