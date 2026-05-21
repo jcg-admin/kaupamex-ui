@@ -48,6 +48,12 @@ class MockInterceptor {
     if (url.includes('/api/v1/auth/logout/'))   return this._logout();
     if (url.includes('/api/v1/auth/me/'))       return this._me();
     if (url.includes('/api/v1/auth/register/')) return this._register(body);
+    // DEC-AUM-04 (T-103 D-01-10 + D-02-10): handlers para
+    // verify-email + resend-verification. UC-AUTH-10 mantenimiento.
+    if (url.match(/\/api\/v1\/auth\/verify-email\//))
+      return this._verifyEmail(url);
+    if (url.includes('/api/v1/auth/resend-verification/'))
+      return this._resendVerification();
 
     // ─── Catálogo ────────────────────────────────────────────────
     if (url.includes('/api/v1/products/search/')) return this._searchProducts(url);
@@ -107,6 +113,19 @@ class MockInterceptor {
   _register(body) {
     if (!body?.email || !body?.password) return this._error(400, 'Email y contraseña requeridos.');
     return { status: 201, data: { user: this._mockUser(99, false, body.email) } };
+  }
+
+  // DEC-AUM-04 (T-103 D-01-10): mock para POST /verify-email/<token>/.
+  // Backend espera token en path; mock acepta cualquier path no vacio.
+  _verifyEmail(url) {
+    const m = url.match(/\/api\/v1\/auth\/verify-email\/([^/?]+)\/?/);
+    if (!m || !m[1]) return this._error(400, 'Token requerido.');
+    return this._ok({ verified: true, message: 'Email verificado correctamente.' });
+  }
+
+  // DEC-AUM-04 (T-103 D-02-10): mock para POST /resend-verification/.
+  _resendVerification() {
+    return this._ok({ sent: true, message: 'Correo de verificacion reenviado.' });
   }
 
   _mockUser(id, isStaff, email = 'comprador@test.mx') {
