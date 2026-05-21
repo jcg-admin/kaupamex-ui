@@ -19,8 +19,12 @@ import apiService from '@services/apiService';
 import logisticsReducer from '@redux/slices/logisticsSlice';
 import AdminLogisticsPage from './AdminLogisticsPage';
 
+// T-120 D-04 (alinear-ui-logistics-dashboard-fields): keys canon API
+// son `pending_pickup` / `in_transit`. Antes el mock usaba `group_a` /
+// `group_b` que coincidian con un bug (UI leia keys inexistentes) =
+// soft-on-tests. Test alineado a canon API.
 const PANEL = {
-  group_a: [
+  pending_pickup: [
     {
       order_id:   501,
       order_number: 'ORD-0501',
@@ -34,7 +38,7 @@ const PANEL = {
       created_at: '2026-05-18T11:30:00Z',
     },
   ],
-  group_b: [
+  in_transit: [
     {
       guide_id:        700,
       order_number:    'ORD-0490',
@@ -117,7 +121,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
   });
 
   it('muestra mensaje cuando ambos grupos estan vacios', async () => {
-    apiService.get.mockResolvedValue({ data: { group_a: [], group_b: [] } });
+    apiService.get.mockResolvedValue({ data: { pending_pickup: [], in_transit: [] } });
     render(wrap());
     expect(
       await screen.findByText(/No hay envios pendientes/i),
