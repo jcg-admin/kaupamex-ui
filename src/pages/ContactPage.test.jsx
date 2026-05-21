@@ -64,7 +64,8 @@ describe('ContactPage (UC-COM-01)', () => {
           name:    'Visitante Uno',
           email:   'visitante@example.com',
           subject: 'Consulta de prueba',
-          message: 'Tengo una consulta sobre un producto del catalogo.',
+          // T-117 D-06: API canon expone `body` (no `message`).
+          body:    'Tengo una consulta sobre un producto del catalogo.',
         }),
       );
     });
