@@ -20,14 +20,27 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-// ─── Thunks — Sprint 1 ────────────────────────────────────────────────
+// ─── URL Constants ────────────────────────────────────────────────────
+const AUTH_URLS = {
+  login:              '/api/v1/auth/login/',
+  logout:             '/api/v1/auth/logout/',
+  refresh:            '/api/v1/auth/refresh/',
+  register:           '/api/v1/auth/register/',
+  profile:            '/api/v1/auth/profile/',
+  changePassword:     '/api/v1/auth/change-password/',
+  verifyEmail:        '/api/v1/auth/verify-email/',
+  resendVerification: '/api/v1/auth/resend-verification/',
+  deactivate:         '/api/v1/auth/me/deactivate/',
+};
+
+// ─── Thunks — Sprint 1 ────────────────────────────────────────────────────
 
 /** Inicia sesion y obtiene tokens JWT. */
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ username, password }, { rejectWithValue }) => {
     try {
-      const response = await apiService.post('/api/v1/auth/login/', { username, password });
+      const response = await apiService.post(AUTH_URLS.login, { username, password });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message || 'Error al iniciar sesion');
@@ -45,7 +58,7 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     const refresh = apiService.getRefreshToken();
     try {
-      await apiService.post('/api/v1/auth/logout/', refresh ? { refresh } : {});
+      await apiService.post(AUTH_URLS.logout, refresh ? { refresh } : {});
     } catch {
       // Proceder con logout local aunque falle el backend
     } finally {
@@ -68,7 +81,7 @@ export const refreshSession = createAsyncThunk(
     const refresh = apiService.getRefreshToken();
     if (!refresh) return rejectWithValue('No refresh token disponible');
     try {
-      const response = await apiService.post('/api/v1/auth/refresh/', { refresh });
+      const response = await apiService.post(AUTH_URLS.refresh, { refresh });
       apiService.setAuthToken(response.data.access);
       if (response.data.refresh) apiService.setRefreshToken(response.data.refresh);
       return response.data;
@@ -84,7 +97,7 @@ export const registerUser = createAsyncThunk(
   'auth/register',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await apiService.post('/api/v1/auth/register/', data);
+      const response = await apiService.post(AUTH_URLS.register, data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -92,14 +105,14 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// ─── Thunks — Sprint 2 ────────────────────────────────────────────────
+// ─── Thunks — Sprint 2 ────────────────────────────────────────────────────
 
 /** Obtiene el perfil del comprador autenticado (UC-AUTH-05). */
 export const fetchProfile = createAsyncThunk(
   'auth/fetchProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get('/api/v1/auth/profile/');
+      const response = await apiService.get(AUTH_URLS.profile);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -112,7 +125,7 @@ export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await apiService.patch('/api/v1/auth/profile/', formData);
+      const response = await apiService.patch(AUTH_URLS.profile, formData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -128,7 +141,7 @@ export const changePassword = createAsyncThunk(
       // DEC-AUM-02: API expone new_password_confirm (canon
       // consistente con PasswordResetConfirmSerializer); UI antes
       // enviaba confirm_password = mismatch silencioso.
-      const response = await apiService.post('/api/v1/auth/change-password/', {
+      const response = await apiService.post(AUTH_URLS.changePassword, {
         current_password:     currentPassword,
         new_password:         newPassword,
         new_password_confirm: confirmPassword,
@@ -145,7 +158,7 @@ export const verifyEmail = createAsyncThunk(
   'auth/verifyEmail',
   async (token, { rejectWithValue }) => {
     try {
-      const response = await apiService.post('/api/v1/auth/verify-email/', {
+      const response = await apiService.post(AUTH_URLS.verifyEmail, {
         token,
       });
       return response.data;
@@ -161,7 +174,7 @@ export const resendVerificationEmail = createAsyncThunk(
   async (email, { rejectWithValue }) => {
     try {
       const response = await apiService.post(
-        '/api/v1/auth/resend-verification/',
+        AUTH_URLS.resendVerification,
         { email },
       );
       return response.data;
@@ -181,7 +194,7 @@ export const deactivateAccount = createAsyncThunk(
   async ({ password }, { rejectWithValue }) => {
     try {
       const response = await apiService.post(
-        '/api/v1/auth/me/deactivate/', { password },
+        AUTH_URLS.deactivate, { password },
       );
       return response.data;
     } catch (err) {
@@ -190,7 +203,7 @@ export const deactivateAccount = createAsyncThunk(
   }
 );
 
-// ─── Slice ────────────────────────────────────────────────────────────
+// ─── Slice ────────────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
   name: 'auth',
