@@ -9,6 +9,7 @@
  *
  * Endpoints cubiertos:
  *   Auth:      /api/auth/*, /api/v1/auth/login/
+ *   Addresses: /api/v1/auth/addresses/*                     (D-03-07)
  *   Catalog:   /api/v1/products/*, /api/v1/categories/*
  *   Cart:      /api/v1/cart/*
  *   Orders:    /api/v1/orders/*
@@ -50,10 +51,22 @@ class MockInterceptor {
     if (url.includes('/api/v1/auth/register/')) return this._register(body);
     // DEC-AUM-04 (T-103 D-01-10 + D-02-10): handlers para
     // verify-email + resend-verification. UC-AUTH-10 mantenimiento.
-    if (url.match(/\/api\/v1\/auth\/verify-email\//))
+    if (url.match(/\/api\/v1\/auth\/verify-email\//))  
       return this._verifyEmail(url);
     if (url.includes('/api/v1/auth/resend-verification/'))
       return this._resendVerification();
+
+    // ─── Direcciones (D-03-07) ───────────────────────────────────
+    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\/set-default\//) && method === 'POST')
+      return this._setDefaultAddress(url);
+    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\//) && method === 'PATCH')
+      return this._updateAddress(url, body);
+    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\//) && method === 'DELETE')
+      return this._deleteAddress(url);
+    if (url.includes('/api/v1/auth/addresses/') && method === 'POST')
+      return this._createAddress(body);
+    if (url.includes('/api/v1/auth/addresses/'))
+      return this._listAddresses();
 
     // ─── Catálogo ────────────────────────────────────────────────
     if (url.includes('/api/v1/products/search/')) return this._searchProducts(url);
@@ -298,6 +311,56 @@ class MockInterceptor {
       order_id: `PAYPAL-MOCK-${Date.now()}`,
       approve_url: 'https://sandbox.paypal.com/checkoutnow/mock',
     });
+  }
+
+  // ═══════ DIRECCIONES (D-03-07) ═══════
+
+  _addresses = [
+    { id: 1, alias: 'Casa', street: 'Calle Reforma 42', city: 'Ciudad de Mexico',
+      state: 'CDMX', postal_code: '06600', country: 'MX',
+      exterior_number: '42', interior_number: '', neighborhood: 'Juarez',
+      is_default: true },
+  ];
+
+  _listAddresses() {
+    return this._ok(this._addresses);
+  }
+
+  _createAddress(body) {
+    if (!body?.street || !body?.city || !body?.postal_code)
+      return this._error(400, 'Campos requeridos: street, city, postal_code.');
+    const addr = { id: Date.now(), is_default: this._addresses.length === 0,
+                   exterior_number: '', interior_number: '', neighborhood: '',
+                   ...body };
+    this._addresses.push(addr);
+    return { status: 201, data: addr };
+  }
+
+  _updateAddress(url, body) {
+    const id   = parseInt(url.match(/\/addresses\/(\d+)\//)?.[1]);
+    const addr = this._addresses.find(a => a.id === id);
+    if (!addr) return this._error(404, 'Direccion no encontrada.');
+    Object.assign(addr, body);
+    return this._ok(addr);
+  }
+
+  _deleteAddress(url) {
+    const id = parseInt(url.match(/\/addresses\/(\d+)\//)?.[1]);
+    const idx = this._addresses.findIndex(a => a.id === id);
+    if (idx === -1) return this._error(404, 'Direccion no encontrada.');
+    const wasDefault = this._addresses[idx].is_default;
+    this._addresses.splice(idx, 1);
+    if (wasDefault && this._addresses.length > 0)
+      this._addresses[0].is_default = true;
+    return { status: 204, data: null };
+  }
+
+  _setDefaultAddress(url) {
+    const id   = parseInt(url.match(/\/addresses\/(\d+)\//)?.[1]);
+    const addr = this._addresses.find(a => a.id === id);
+    if (!addr) return this._error(404, 'Direccion no encontrada.');
+    this._addresses.forEach(a => { a.is_default = a.id === id; });
+    return this._ok(addr);
   }
 
   // ═══════ WISHLIST ═══════
