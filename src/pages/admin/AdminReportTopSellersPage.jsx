@@ -18,7 +18,7 @@ const PERIOD_OPTIONS = [
   { value: 'year',    label: 'Año' },
 ];
 
-const LIMIT_OPTIONS = [10, 25, 50, 100];
+const LIMIT_OPTIONS = [10, 25, 50];  // D-08: UC-REP-02 max 50
 
 export default function AdminReportTopSellersPage() {
   const [period, setPeriod] = useState('month');

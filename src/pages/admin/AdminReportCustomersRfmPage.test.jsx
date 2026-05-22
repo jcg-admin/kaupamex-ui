@@ -16,9 +16,9 @@ import AdminReportCustomersRfmPage from './AdminReportCustomersRfmPage';
 
 const RESPONSE = {
   results: [
-    { customer_id: 1, email: 'vip@example.com',  name: 'Cliente VIP',  segment: 'VIP',       recency: 3,  frequency: 12, monetary: '5400.00' },
-    { customer_id: 2, email: 'new@example.com',  name: 'Cliente Nuevo', segment: 'NEW',      recency: 5,  frequency: 1,  monetary: '120.00'  },
-    { customer_id: 3, email: 'lost@example.com', name: 'Inactivo',     segment: 'INACTIVE', recency: 200, frequency: 1, monetary: '80.00'   },
+    { customer_id: 1, email: 'vip@example.com',  name: 'Cliente VIP',    segment: 'CHAMPIONS', recency: 3,   frequency: 12, monetary: '5400.00' },
+    { customer_id: 2, email: 'new@example.com',  name: 'Cliente Nuevo',  segment: 'RECENT',    recency: 5,   frequency: 1,  monetary: '120.00'  },
+    { customer_id: 3, email: 'lost@example.com', name: 'Ocasional',      segment: 'OCCASIONAL',recency: 200, frequency: 1,  monetary: '80.00'   },
   ],
   totals: { new_count: 1, returning_count: 2 },
 };
@@ -49,7 +49,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
     expect(await screen.findByText('vip@example.com')).toBeInTheDocument();
     expect(screen.getByText('new@example.com')).toBeInTheDocument();
     expect(screen.getByText('lost@example.com')).toBeInTheDocument();
-    expect(screen.getAllByText(/VIP/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Campeón/i).length).toBeGreaterThan(0);
   });
 
   it('muestra los filtros de segmento y periodo', async () => {
@@ -65,13 +65,13 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
     await screen.findByText('vip@example.com');
     fireEvent.change(
       screen.getByRole('combobox', { name: /Segmento/i }),
-      { target: { value: 'VIP' } },
+      { target: { value: 'CHAMPIONS' } },
     );
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
         '/api/v1/admin/reports/customers-rfm/',
         expect.objectContaining({
-          params: expect.objectContaining({ segment: 'VIP' }),
+          params: expect.objectContaining({ segment: 'CHAMPIONS' }),
         }),
       );
     });

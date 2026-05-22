@@ -16,21 +16,22 @@ const PERIOD_OPTIONS = [
   { value: 'year',    label: 'Año' },
 ];
 
+// D-16: values match backend RFM labels (DEC-DOC-005 — English identifiers).
 const SEGMENT_OPTIONS = [
-  { value: '',         label: 'Todos los segmentos' },
-  { value: 'NEW',      label: 'Nuevos' },
-  { value: 'REGULAR',  label: 'Regulares' },
-  { value: 'VIP',      label: 'VIP' },
-  { value: 'AT_RISK',  label: 'En riesgo' },
-  { value: 'INACTIVE', label: 'Inactivos' },
+  { value: '',           label: 'Todos los segmentos' },
+  { value: 'CHAMPIONS',  label: 'Campeones' },
+  { value: 'LOYAL',      label: 'Leales' },
+  { value: 'RECENT',     label: 'Recientes' },
+  { value: 'AT_RISK',    label: 'En riesgo' },
+  { value: 'OCCASIONAL', label: 'Ocasionales' },
 ];
 
 const SEGMENT_LABEL = {
-  NEW:      'Nuevo',
-  REGULAR:  'Regular',
-  VIP:      'VIP',
-  AT_RISK:  'En riesgo',
-  INACTIVE: 'Inactivo',
+  CHAMPIONS:  'Campeón',
+  LOYAL:      'Leal',
+  RECENT:     'Reciente',
+  AT_RISK:    'En riesgo',
+  OCCASIONAL: 'Ocasional',
 };
 
 export default function AdminReportCustomersRfmPage() {
