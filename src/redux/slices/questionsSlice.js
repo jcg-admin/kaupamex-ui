@@ -25,11 +25,12 @@ const ADMIN_MODERATE_REJECT_URL   = (id) => `/api/v1/admin/questions/${id}/rejec
 /** UC-QST-01: visitante envia una pregunta sobre un producto. */
 export const askProductQuestion = createAsyncThunk(
   'questions/ask',
-  async ({ productId, body, email }, { rejectWithValue }) => {
+  async ({ productId, body, askerName, askerEmail }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(PUBLIC_ASK_URL(productId), {
         body,
-        email: email || null,
+        asker_name:  askerName  || null,
+        asker_email: askerEmail || null,
       });
       return res.data;
     } catch (err) {
@@ -43,7 +44,7 @@ export const answerProductQuestion = createAsyncThunk(
   'questions/answer',
   async ({ id, body }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADMIN_ANSWER_URL(id), { body });
+      const res = await apiService.post(ADMIN_ANSWER_URL(id), { answer_body: body });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
