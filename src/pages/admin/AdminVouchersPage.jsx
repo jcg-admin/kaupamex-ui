@@ -12,6 +12,7 @@ import {
 } from '@redux/slices/vouchersSlice';
 import { useVouchers, VOUCHERS_QUERY_KEY } from '@hooks/domain/useVouchers';
 import VoucherCreateForm from '@components/admin/VoucherCreateForm';
+import VoucherEditForm from '@components/admin/VoucherEditForm';
 import styles from './AdminVouchersPage.module.scss';
 
 const TYPE_LABEL = { PERCENT: 'Porcentaje', FIXED: 'Fijo' };
@@ -27,11 +28,13 @@ export default function AdminVouchersPage() {
   const { data: items = [], isLoading, isError } = useVouchers();
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.vouchers);
-  const [isCreateOpen, setCreateOpen] = useState(false);
+  const [isCreateOpen, setCreateOpen]     = useState(false);
+  const [editVoucher,  setEditVoucher]    = useState(null);
 
   useEffect(() => {
-    if (lastAction === 'created' || lastAction === 'deactivated') {
+    if (lastAction === 'created' || lastAction === 'updated' || lastAction === 'deactivated') {
       setCreateOpen(false);
+      setEditVoucher(null);
       queryClient.invalidateQueries({ queryKey: VOUCHERS_QUERY_KEY });
       dispatch(clearVoucherActionState());
     }
@@ -109,6 +112,15 @@ export default function AdminVouchersPage() {
                   </span>
                 </td>
                 <td>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    aria-label={`Editar ${v.code}`}
+                    onClick={() => setEditVoucher(v)}
+                    disabled={isActioning}
+                  >
+                    Editar
+                  </button>
                   {v.is_active && (
                     <button
                       type="button"
@@ -116,6 +128,7 @@ export default function AdminVouchersPage() {
                       aria-label={`Desactivar ${v.code}`}
                       onClick={() => handleDeactivate(v)}
                       disabled={isActioning}
+                      style={{ marginLeft: '0.5rem' }}
                     >
                       Desactivar
                     </button>
@@ -129,6 +142,13 @@ export default function AdminVouchersPage() {
 
       {isCreateOpen && (
         <VoucherCreateForm onClose={() => setCreateOpen(false)} />
+      )}
+
+      {editVoucher && (
+        <VoucherEditForm
+          voucher={editVoucher}
+          onClose={() => setEditVoucher(null)}
+        />
       )}
     </section>
   );
