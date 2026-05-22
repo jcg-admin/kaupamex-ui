@@ -8,7 +8,7 @@
  * USAR SOLO EN DEVELOPMENT.
  *
  * Endpoints cubiertos:
- *   Auth:      /api/auth/*, /api/v1/auth/login/
+ *   Auth:      /api/auth/*, /api/v1/auth/login/, /api/v1/auth/change-password/ (D-05-08)
  *   Addresses: /api/v1/auth/addresses/*                     (D-03-07)
  *   Catalog:   /api/v1/products/*, /api/v1/categories/*
  *   Cart:      /api/v1/cart/*
@@ -51,10 +51,13 @@ class MockInterceptor {
     if (url.includes('/api/v1/auth/register/')) return this._register(body);
     // DEC-AUM-04 (T-103 D-01-10 + D-02-10): handlers para
     // verify-email + resend-verification. UC-AUTH-10 mantenimiento.
-    if (url.match(/\/api\/v1\/auth\/verify-email\//))  
+    if (url.match(/\/api\/v1\/auth\/verify-email\//)) 
       return this._verifyEmail(url);
     if (url.includes('/api/v1/auth/resend-verification/'))
       return this._resendVerification();
+    // D-05-08: handler change-password
+    if (url.includes('/api/v1/auth/change-password/') && method === 'POST')
+      return this._changePassword(body);
 
     // ─── Direcciones (D-03-07) ───────────────────────────────────
     if (url.match(/\/api\/v1\/auth\/addresses\/\d+\/set-default\//) && method === 'POST')
@@ -139,6 +142,16 @@ class MockInterceptor {
   // DEC-AUM-04 (T-103 D-02-10): mock para POST /resend-verification/.
   _resendVerification() {
     return this._ok({ sent: true, message: 'Correo de verificacion reenviado.' });
+  }
+
+  _changePassword(body) {
+    if (!body?.current_password || !body?.new_password || !body?.new_password_confirm)
+      return this._error(400, 'Campos requeridos: current_password, new_password, new_password_confirm.');
+    if (body.new_password !== body.new_password_confirm)
+      return this._error(400, 'Las contrasenas nuevas no coinciden.');
+    if (body.current_password === 'wrong')
+      return this._error(400, 'La contrasena actual es incorrecta.');
+    return this._ok({ detail: 'Password changed successfully.' });
   }
 
   _mockUser(id, isStaff, email = 'comprador@test.mx') {
