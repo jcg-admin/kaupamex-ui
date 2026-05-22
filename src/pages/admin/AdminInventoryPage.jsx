@@ -34,9 +34,9 @@ export default function AdminInventoryPage() {
   const summary = data?.summary ?? data?.resumen ?? null;
 
   const counts = useMemo(() => ({
-    normales: summary?.productos_normales   ?? 0,
-    bajos:    summary?.productos_bajo_stock ?? 0,
-    agotados: summary?.productos_agotados   ?? 0,
+    normales: summary?.normal ?? 0,
+    bajos:    summary?.low    ?? 0,
+    agotados: summary?.out    ?? 0,
   }), [summary]);
 
   return (
@@ -109,7 +109,7 @@ export default function AdminInventoryPage() {
                 <td>{it.sku}</td>
                 <td>{it.product_name}</td>
                 <td>{it.stock}</td>
-                <td>{it.min_threshold}</td>
+                <td>{it.threshold}</td>
                 <td>
                   <span className={styles[STATUS_CLASS[it.status]] || styles.badgeNormal}>
                     {STATUS_LABEL[it.status] ?? it.status}
