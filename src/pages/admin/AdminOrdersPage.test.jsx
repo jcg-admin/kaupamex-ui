@@ -29,7 +29,7 @@ const ORDERS = [
     status_display: 'Pendiente',
     created_at: '2026-05-10T10:00:00Z',
     value: { total: '1249.00' },
-    user: { email: 'cliente@example.com' },
+    user_email: 'cliente@example.com',
   },
   {
     order_number: 'PY-2026-000102', status: 'SHIPPED',

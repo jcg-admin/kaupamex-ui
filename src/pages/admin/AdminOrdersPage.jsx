@@ -136,7 +136,7 @@ export default function AdminOrdersPage() {
                 <td>{STATUS_LABEL[order.status] ?? order.status_display ?? order.status}</td>
                 <td>{formatDate(order.created_at)}</td>
                 <td>{order.value?.total ?? order.total ?? '—'}</td>
-                <td>{order.user?.email ?? order.guest_email ?? '—'}</td>
+                <td>{order.user_email ?? order.guest_email ?? '—'}</td>
                 <td>
                   <Link to={`/admin/orders/${order.order_number}`}>Ver detalle</Link>
                 </td>
