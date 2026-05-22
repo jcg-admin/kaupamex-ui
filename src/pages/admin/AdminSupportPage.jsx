@@ -47,10 +47,11 @@ export default function AdminSupportPage() {
   const metrics = data?.metrics ?? null;
 
   const summary = useMemo(() => ({
-    open:     metrics?.open     ?? 0,
-    replied:  metrics?.replied  ?? 0,
-    closed:   metrics?.closed   ?? 0,
-    avg:      metrics?.avg_first_response_hours ?? null,
+    open:        metrics?.open          ?? 0,
+    in_progress: (metrics?.in_progress ?? 0) + (metrics?.awaiting_user ?? 0),
+    resolved:    metrics?.resolved      ?? 0,
+    closed:      metrics?.closed        ?? 0,
+    avg:         metrics?.avg_first_response_hours ?? null,
   }), [metrics]);
 
   const handleStatusChange = (event) => {
@@ -75,8 +76,12 @@ export default function AdminSupportPage() {
           <span className={styles.metricValue}>{summary.open}</span>
         </div>
         <div className={styles.metric}>
-          <span className={styles.metricLabel}>Respondidos</span>
-          <span className={styles.metricValue}>{summary.replied}</span>
+          <span className={styles.metricLabel}>En proceso</span>
+          <span className={styles.metricValue}>{summary.in_progress}</span>
+        </div>
+        <div className={styles.metric}>
+          <span className={styles.metricLabel}>Resueltos</span>
+          <span className={styles.metricValue}>{summary.resolved}</span>
         </div>
         <div className={styles.metric}>
           <span className={styles.metricLabel}>Cerrados</span>
@@ -137,8 +142,8 @@ export default function AdminSupportPage() {
           </thead>
           <tbody>
             {items.map((ticket) => (
-              <tr key={ticket.id}>
-                <td>#{ticket.id}</td>
+              <tr key={ticket.ticket_id}>
+                <td>#{ticket.ticket_id}</td>
                 <td>{ticket.subject}</td>
                 <td>
                   <div className={styles.customer}>
@@ -153,7 +158,7 @@ export default function AdminSupportPage() {
                 <td>{ticket.replies_count ?? 0}</td>
                 <td>
                   <Link
-                    to={`/support/tickets/${ticket.id}`}
+                    to={`/support/tickets/${ticket.ticket_id}`}
                     className={styles.detailLink}
                   >
                     Ver detalle

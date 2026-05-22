@@ -12,7 +12,7 @@ import {
 } from '@redux/slices/supportTicketsSlice';
 import styles from './SupportTicketActions.module.scss';
 
-const CLOSABLE_STATUSES = new Set(['OPEN', 'REPLIED']);
+const CLOSABLE_STATUSES = new Set(['OPEN', 'IN_PROGRESS', 'AWAITING_USER', 'RESOLVED']);
 
 export default function SupportTicketActions({ ticket }) {
   const dispatch = useDispatch();
@@ -25,13 +25,13 @@ export default function SupportTicketActions({ ticket }) {
       '¿Marcar este ticket como resuelto? Podrás reabrirlo si el problema persiste.'
     );
     if (!ok) return;
-    dispatch(closeSupportTicket({ id: ticket.id, reason: '' }));
+    dispatch(closeSupportTicket({ id: ticket.ticket_id, reason: '' }));
   };
 
   const handleReopen = () => {
     const ok = window.confirm('¿Reabrir este ticket?');
     if (!ok) return;
-    dispatch(reopenSupportTicket(ticket.id));
+    dispatch(reopenSupportTicket(ticket.ticket_id));
   };
 
   if (ticket.status === 'CLOSED') {
