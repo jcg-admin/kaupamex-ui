@@ -1,156 +1,97 @@
 /**
- * ProfilePage — PracticaYoruba
- * Ver y editar el perfil del comprador (UC-AUTH-05 y UC-AUTH-06).
+ * ProfilePage — Práctica Yorùbà
+ * Edición de datos personales: nombre, apellido, teléfono, fecha de nacimiento, avatar.
  *
- * Sprint 2:
- *   - Con PY_PROFILE_SOURCE=mock usa datos del MockRegistry.
- *   - Con PY_PROFILE_SOURCE=real usa GET/PATCH /api/v1/auth/profile/.
+ * Endpoints:
+ *   GET / PATCH /auth/profile/
  */
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProfile, updateProfile } from '@redux/slices/authSlice';
-import { selectUser, selectAuthLoading } from '@redux/selectors';
-import { loadMock } from '@mocks/registry';
+import { Link } from 'react-router-dom';
+import { fetchProfile, updateProfile, uploadAvatar } from '@redux/slices/authSlice';
+import AccountSidebar from '@components/account/AccountSidebar';
+import { MetaTag, Button, Field } from '@components/common/primitives';
 import styles from './ProfilePage.module.scss';
 
-const USE_MOCK = process.env.PY_PROFILE_SOURCE === 'mock';
-
-function CompletenessBar({ value }) {
-  const color = value === 100 ? '#5a9e5a' : value >= 60 ? '#B8860B' : '#c0392b';
-  return (
-    <div style={{ marginBottom: 16 }}>
-      <p style={{ margin: '0 0 4px', fontSize: 13, color: '#666' }}>
-        Completitud del perfil: <strong>{value}%</strong>
-      </p>
-      <div style={{ height: 8, background: '#e9e5e0', borderRadius: 4, overflow: 'hidden' }}>
-        <div style={{ width: `${value}%`, height: '100%', background: color,
-                      borderRadius: 4, transition: 'width 0.4s' }} />
-      </div>
-    </div>
-  );
-}
-
 export default function ProfilePage() {
-  const dispatch  = useDispatch();
-  const user      = useSelector(selectUser);
-  const isLoading = useSelector(selectAuthLoading);
+  const dispatch = useDispatch();
+  const user = useSelector((s) => s.auth?.user);
+  const [form, setForm] = useState({});
+  const [savedToast, setSavedToast] = useState(false);
 
-  const [editing, setEditing]     = useState(false);
-  const [success, setSuccess]     = useState(false);
-  const [fields, setFields]       = useState({
-    first_name: '', last_name: '', phone: '',
-  });
+  useEffect(() => { dispatch(fetchProfile()); }, [dispatch]);
+  useEffect(() => { if (user) setForm(user); }, [user]);
 
-  useEffect(() => {
-    if (USE_MOCK) {
-      const mockProfile = loadMock('profile');
-      dispatch({ type: 'auth/fetchProfile/fulfilled', payload: mockProfile });
-    } else {
-      dispatch(fetchProfile());
-    }
-  }, [dispatch]);
+  if (!user) return null;
+  const initials = `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase();
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
-  useEffect(() => {
-    if (user) {
-      setFields({
-        first_name: user.first_name || '',
-        last_name:  user.last_name  || '',
-        phone:      user.phone      || '',
-      });
-    }
-  }, [user]);
-
-  const handleChange = (e) =>
-    setFields(prev => ({ ...prev, [e.target.name]: e.target.value }));
-
-  const handleSave = async () => {
-    if (USE_MOCK) {
-      dispatch({ type: 'auth/updateProfile/fulfilled', payload: fields });
-      setEditing(false);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-      return;
-    }
-    const result = await dispatch(updateProfile(fields));
-    if (updateProfile.fulfilled.match(result)) {
-      setEditing(false);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await dispatch(updateProfile(form));
+    setSavedToast(true);
+    setTimeout(() => setSavedToast(false), 2500);
   };
 
-  if (isLoading && !user) return <div className={styles.page}><p>Cargando perfil...</p></div>;
+  const handleAvatar = (e) => {
+    const file = e.target.files?.[0];
+    if (file) dispatch(uploadAvatar(file));
+  };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Mi perfil</h1>
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <nav className={styles.breadcrumb}>
+          <Link to="/account">Mi cuenta</Link>
+          <span>/</span>
+          <span className={styles.bcCurrent}>Datos personales</span>
+        </nav>
 
-        {user && (
-          <CompletenessBar value={user.profile_completeness ?? 0} />
-        )}
+        <div className={styles.layout}>
+          <AccountSidebar />
 
-        {success && (
-          <p className={styles.successMsg} role="status">
-            Perfil actualizado correctamente.
-          </p>
-        )}
-
-        {editing ? (
-          <div className={styles.form}>
-            <div className={styles.field}>
-              <label>Nombre</label>
-              <input name="first_name" value={fields.first_name} onChange={handleChange} />
-            </div>
-            <div className={styles.field}>
-              <label>Apellido</label>
-              <input name="last_name" value={fields.last_name} onChange={handleChange} />
-            </div>
-            <div className={styles.field}>
-              <label>Telefono</label>
-              <input name="phone" type="tel" value={fields.phone} onChange={handleChange} />
-            </div>
-            <div className={styles.actions}>
-              <button onClick={handleSave} className={styles.primaryBtn}>
-                Guardar cambios
-              </button>
-              <button onClick={() => setEditing(false)} className={styles.secondaryBtn}>
-                Cancelar
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className={styles.info}>
-            <Row label="Usuario"  value={user?.username} />
-            <Row label="Email"    value={user?.email} />
-            <Row label="Nombre"   value={user?.first_name || '—'} />
-            <Row label="Apellido" value={user?.last_name  || '—'} />
-            <Row label="Telefono" value={user?.phone      || '—'} />
-            {user?.pending_fields?.length > 0 && (
-              <p className={styles.pending}>
-                Completa tu perfil: {user.pending_fields.join(', ')}
+          <section>
+            <header className={styles.header}>
+              <MetaTag tone="bronze">Datos personales</MetaTag>
+              <h1 className={styles.title}>Tu perfil</h1>
+              <p className={styles.lead}>
+                Información que usamos para envíos, comunicación y facturación.
+                No se comparte con terceros.
               </p>
-            )}
-            <button onClick={() => setEditing(true)} className={styles.primaryBtn}>
-              Editar perfil
-            </button>
-          </div>
-        )}
+            </header>
 
-        {USE_MOCK && (
-          <p className={styles.mockBadge}>Modo mock activo (PY_PROFILE_SOURCE=mock)</p>
-        )}
+            <div className={styles.avatarRow}>
+              <div className={styles.avatar}>
+                {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
+              </div>
+              <div>
+                <div className={styles.avatarTitle}>Foto de perfil</div>
+                <div className={styles.avatarDesc}>JPG o PNG, máximo 5 MB. La redimensionamos a 800×800.</div>
+                <label className={styles.avatarBtn}>
+                  Subir nueva foto
+                  <input type="file" accept="image/jpeg,image/png" onChange={handleAvatar} hidden />
+                </label>
+              </div>
+            </div>
+
+            <form className={styles.form} onSubmit={handleSubmit}>
+              <div className={styles.formGrid}>
+                <Field label="Nombre"        value={form.first_name} onChange={set('first_name')} required />
+                <Field label="Apellido"       value={form.last_name}  onChange={set('last_name')} />
+                <Field label="Nombre de usuario" value={form.username} onChange={set('username')} required />
+                <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} required hint="Cambiar el correo requiere re-verificación" />
+                <Field label="Teléfono"       value={form.phone}     onChange={set('phone')} />
+                <Field label="Fecha de nacimiento" type="date" value={form.date_of_birth} onChange={set('date_of_birth')} />
+              </div>
+              <div className={styles.formActions}>
+                <Button type="submit" variant="primary">Guardar cambios</Button>
+                {savedToast && <span className={styles.toast}>✓ Cambios guardados</span>}
+              </div>
+            </form>
+          </section>
+        </div>
       </div>
-    </div>
-  );
-}
-
-function Row({ label, value }) {
-  return (
-    <div className={styles.row}>
-      <span className={styles.rowLabel}>{label}</span>
-      <span className={styles.rowValue}>{value}</span>
-    </div>
+    </main>
   );
 }

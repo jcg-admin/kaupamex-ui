@@ -1,243 +1,260 @@
 /**
- * ProductPage — PracticaYoruba
- * UC-CAT-02: Ficha completa de un producto.
+ * ProductPage — Práctica Yorùbà
+ * Detalle de producto con galería, selector de variantes,
+ * trust strip y descripción extendida.
+ *
+ * Endpoints:
+ *   GET /catalogue/{slug}/
+ *   POST /cart/items/
+ *   POST /wishlist/
  */
+
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchProduct,
-  clearCurrentProduct,
-} from '@redux/slices/catalogSlice';
-import { clearSelectedVariant } from '@redux/slices/yorubaVariantsSlice';
-import VariantSelector from '@components/catalog/VariantSelector';
-import AddToWishlistButton from '@components/wishlist/AddToWishlistButton';
-import RelatedProductsSection from '@components/catalog/RelatedProductsSection';
-import useAddProductWithVariant from '@hooks/useAddProductWithVariant';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { fetchProduct } from '@redux/slices/catalogSlice';
+import { addToCart } from '@redux/slices/cartSlice';
+import { toggleWishlist } from '@redux/slices/wishlistSlice';
+import ProductCard from '@components/catalog/ProductCard';
+import { MetaTag, Price, Button } from '@components/common/primitives';
 import styles from './ProductPage.module.scss';
 
 export default function ProductPage() {
-  const { slug }   = useParams();
-  const dispatch   = useDispatch();
-  const navigate   = useNavigate();
+  const { slug } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const product = useSelector((s) => s.catalog?.currentProduct);
+  const isLoading = useSelector((s) => s.catalog?.isLoading);
 
-  const { currentProduct: product, isLoading, error } = useSelector((s) => s.catalog);
-  const selectedVariantId = useSelector(
-    (s) => s.yorubaVariants?.selectedVariantId ?? null,
-  );
+  const [variant, setVariant] = useState(null);
+  const [qty, setQty] = useState(1);
+  const [activeImg, setActiveImg] = useState(0);
 
-  const { addProduct } = useAddProductWithVariant();
-  const [cartFeedback, setCartFeedback] = useState(null);
-
+  useEffect(() => { dispatch(fetchProduct(slug)); }, [dispatch, slug]);
   useEffect(() => {
-    dispatch(fetchProduct(slug));
-    return () => {
-      dispatch(clearCurrentProduct());
-      dispatch(clearSelectedVariant());
-    };
-  }, [dispatch, slug]);
+    if (product?.variants?.length > 0) setVariant(product.variants[0]);
+  }, [product]);
 
-  const handleAddToCart = async () => {
-    if (!product) return;
-    const outcome = await addProduct(product, 1);
-    if (outcome.ok) {
-      setCartFeedback({ type: 'success', message: 'Producto agregado al carrito.' });
-    } else if (outcome.error === 'VARIANT_REQUIRED') {
-      setCartFeedback({ type: 'error', message: 'Selecciona una variante antes de agregar al carrito.' });
-    } else if (outcome.error === 'VARIANT_OUT_OF_STOCK') {
-      setCartFeedback({ type: 'error', message: 'La variante seleccionada no tiene stock disponible.' });
-    } else {
-      setCartFeedback({ type: 'error', message: 'No se pudo agregar al carrito.' });
-    }
+  if (isLoading || !product) {
+    return <div className={styles.loading}>Cargando…</div>;
+  }
+
+  const images = product.images || [];
+  const effectivePrice = variant?.price_override ?? product.price_with_tax ?? product.base_price;
+  const stock = variant?.stock ?? product.stock;
+  const isAvailable = stock > 0;
+  const related = product.related_products || [];
+
+  const handleAddToCart = () => {
+    dispatch(addToCart({
+      product_id: product.id,
+      variant_id: variant?.id,
+      quantity: qty,
+    }));
+    navigate('/cart');
   };
-
-  if (isLoading) {
-    return (
-      <div className={styles.loading} aria-live="polite">
-        <div className={styles.spinner} />
-        <p>Cargando producto...</p>
-      </div>
-    );
-  }
-
-  if (error || (!isLoading && !product)) {
-    return (
-      <div className={styles.notFound}>
-        <h1>Producto no disponible</h1>
-        <p>Este producto no existe o ya no está publicado.</p>
-        <Link to="/catalog" className={styles.backLink}>
-          Ver catálogo completo
-        </Link>
-      </div>
-    );
-  }
-
-  if (!product) return null;
-
-  const {
-    name, sku, description, short_description,
-    base_price, price_with_tax,
-    availability, stock,
-    category, images, discount,
-    is_featured,
-    variants,
-  } = product;
-
-  const hasVariants = Array.isArray(variants) && variants.length > 0;
-  const selectedVariant = hasVariants
-    ? variants.find((v) => v.id === selectedVariantId) ?? null
-    : null;
-
-  // UC-CHT-01: el precio mostrado refleja la variante seleccionada. El
-  // contrato real (apps/chartsize commit 5e72899) expone price_with_tax;
-  // mantenemos fallback a effective_price / price para mocks heredados.
-  const displayPrice = (
-    selectedVariant?.price_with_tax
-    ?? selectedVariant?.effective_price
-    ?? selectedVariant?.price
-    ?? price_with_tax
-  );
-  const isAvailable = hasVariants
-    ? variants.some((v) => v.stock > 0)
-    : availability === 'IN_STOCK';
 
   return (
     <main className={styles.page}>
-      {/* Breadcrumb */}
-      <nav className={styles.breadcrumb} aria-label="Ruta de navegación">
-        <Link to="/catalog">Catálogo</Link>
-        {category && (
-          <>
-            <span aria-hidden="true"> / </span>
-            <Link to={`/catalog?category=${category.id}`}>{category.name}</Link>
-          </>
-        )}
-        <span aria-hidden="true"> / </span>
-        <span aria-current="page">{name}</span>
-      </nav>
+      <section className={styles.main}>
+        <div className={styles.container}>
+          <nav className={styles.breadcrumb}>
+            <Link to="/">Inicio</Link><span>/</span>
+            <Link to="/catalog">Catálogo</Link><span>/</span>
+            {product.category_name && (<><Link to={`/catalog?cat=${product.category_slug}`}>{product.category_name}</Link><span>/</span></>)}
+            {product.orisha_name && (<><Link to={`/catalog?orisha=${product.orisha_slug}`}>{product.orisha_name}</Link><span>/</span></>)}
+            <span className={styles.bcCurrent}>{product.name}</span>
+          </nav>
 
-      <div className={styles.layout}>
-        {/* Galería */}
-        <section aria-label="Imágenes del producto">
-          <div className={styles.mainImage}>
-            {images && images.length > 0 ? (
-              <img src={images[0].url} alt={images[0].alt || name} />
-            ) : (
-              <div className={styles.imagePlaceholder}>
-                <span className={styles.skuLabel}>{sku}</span>
+          <div className={styles.layout}>
+            {/* Gallery */}
+            <div className={styles.gallery}>
+              <div className={styles.thumbs}>
+                {images.length > 0 ? images.map((img, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`${styles.thumb} ${i === activeImg ? styles.thumbActive : ''}`}
+                    onClick={() => setActiveImg(i)}
+                  >
+                    <img src={img.url} alt="" />
+                  </button>
+                )) : <div className={styles.thumbPlaceholder} />}
               </div>
-            )}
-          </div>
-        </section>
-
-        {/* Información */}
-        <section className={styles.info}>
-          {is_featured && (
-            <span className={styles.featuredBadge}>Destacado</span>
-          )}
-          {category && (
-            <Link
-              to={`/catalog?category=${category.id}`}
-              className={styles.categoryLink}
-            >
-              {category.name}
-            </Link>
-          )}
-
-          <h1 className={styles.name}>{name}</h1>
-          <p className={styles.skuText}>SKU: {sku}</p>
-
-          {short_description && (
-            <p className={styles.shortDesc}>{short_description}</p>
-          )}
-
-          {/* Precios */}
-          <div className={styles.pricing}>
-            {discount ? (
-              <>
-                <span className={styles.originalPrice}>
-                  ${Number(base_price).toLocaleString('es-MX', {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-                <span className={styles.discountedPrice}>
-                  ${Number(discount.final_price).toLocaleString('es-MX', {
-                    minimumFractionDigits: 2,
-                  })}
-                </span>
-                <span className={styles.discountBadge}>
-                  -{discount.pct}%
-                </span>
-              </>
-            ) : (
-              <span className={styles.price}>
-                ${Number(displayPrice).toLocaleString('es-MX', {
-                  minimumFractionDigits: 2,
-                })}
-              </span>
-            )}
-            <span className={styles.taxLabel}>precio con IVA incluido</span>
-          </div>
-
-          {/* Disponibilidad */}
-          <div className={styles.availability}>
-            {isAvailable ? (
-              <span className={styles.inStock}>
-                Disponible — {stock} {stock === 1 ? 'unidad' : 'unidades'}
-              </span>
-            ) : (
-              <span className={styles.outOfStock}>Sin stock</span>
-            )}
-          </div>
-
-          {/* UC-CHT-01: selector de variantes Yoruba (Tamano, Presentacion, Material) */}
-          {hasVariants && <VariantSelector variants={variants} />}
-
-          {/* CTA */}
-          <button
-            type="button"
-            className={styles.addToCart}
-            disabled={!isAvailable || (hasVariants && !selectedVariant)}
-            aria-disabled={!isAvailable || (hasVariants && !selectedVariant)}
-            onClick={handleAddToCart}
-          >
-            {isAvailable
-              ? hasVariants && !selectedVariant
-                ? 'Selecciona una variante'
-                : 'Agregar al carrito'
-              : 'Sin disponibilidad'}
-          </button>
-
-          {/* UC-WISH-01: agregar a la lista de deseos */}
-          <AddToWishlistButton
-            productId={product.id}
-            variantId={selectedVariantId ?? null}
-          />
-
-          {/* UC-CHT-02: feedback al intentar agregar al carrito */}
-          {cartFeedback && (
-            <p
-              role={cartFeedback.type === 'error' ? 'alert' : 'status'}
-              className={
-                cartFeedback.type === 'error' ? styles.cartError : styles.cartSuccess
-              }
-            >
-              {cartFeedback.message}
-            </p>
-          )}
-
-          {/* Descripción completa */}
-          {description && (
-            <div className={styles.description}>
-              <h2 className={styles.descTitle}>Descripción</h2>
-              <p>{description}</p>
+              <div className={styles.mainImg}>
+                {images[activeImg]
+                  ? <img src={images[activeImg].url} alt={product.name} />
+                  : <div className={styles.imgPlaceholder}>{product.name}</div>}
+              </div>
             </div>
-          )}
-        </section>
-      </div>
 
-      {/* UC-CAT-07 — Productos relacionados (se oculta solo si vacio/error) */}
-      <RelatedProductsSection slug={slug} />
+            {/* Info */}
+            <div className={styles.info}>
+              <div className={styles.tags}>
+                {product.category_name && <MetaTag tone="bronze">{product.category_name}</MetaTag>}
+                {product.orisha_name && <><span className={styles.tagDot}>·</span><MetaTag tone="coral">{`Para ${product.orisha_name}`}</MetaTag></>}
+                <span className={styles.tagDot}>·</span>
+                <span className={styles.sku}>SKU · {product.sku}</span>
+              </div>
+
+              <h1 className={styles.title}>{product.name}</h1>
+              <p className={styles.shortDesc}>{product.short_description}</p>
+
+              <div className={styles.priceRow}>
+                <Price amount={effectivePrice} size="xl" showCurrency />
+                {product.installments_label && (
+                  <span className={styles.installments}>· {product.installments_label}</span>
+                )}
+              </div>
+              <div className={styles.priceFinePrint}>
+                IVA INCLUIDO {product.free_shipping && '· ENVÍO GRATIS EN ESTE PEDIDO'}
+              </div>
+
+              {/* Variants */}
+              {product.variants?.length > 0 && (
+                <div className={styles.variants}>
+                  <div className={styles.variantsHeader}>
+                    <MetaTag>{product.variant_type_name || 'Variante'}</MetaTag>
+                    {product.size_chart_url && (
+                      <a href={product.size_chart_url} className={styles.sizeGuide}>
+                        GUÍA DE TALLAS →
+                      </a>
+                    )}
+                  </div>
+                  <div className={styles.variantGrid}>
+                    {product.variants.map((v) => {
+                      const isActive = variant?.id === v.id;
+                      return (
+                        <button
+                          key={v.id}
+                          type="button"
+                          onClick={() => setVariant(v)}
+                          className={`${styles.variantBtn} ${isActive ? styles.variantBtnActive : ''}`}
+                        >
+                          <div className={styles.variantLabel}>{v.label}</div>
+                          {v.sub_label && <div className={styles.variantSub}>{v.sub_label}</div>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* CTA */}
+              <div className={styles.cta}>
+                <div className={styles.qty}>
+                  <button type="button" onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
+                  <span>{qty}</span>
+                  <button type="button" onClick={() => setQty(qty + 1)}>+</button>
+                </div>
+                <Button variant="primary" size="lg" onClick={handleAddToCart} disabled={!isAvailable}>
+                  {isAvailable ? 'Agregar a la bolsa' : 'Sin stock'}
+                </Button>
+                <button
+                  type="button"
+                  className={styles.wishBtn}
+                  onClick={() => dispatch(toggleWishlist({ productId: product.id, variantId: variant?.id }))}
+                >♡</button>
+              </div>
+
+              {/* Availability */}
+              <div className={styles.availability}>
+                <span className={`${styles.availDot} ${isAvailable ? styles.availDotOk : styles.availDotOut}`} />
+                <span>
+                  {isAvailable
+                    ? <><strong>Disponible</strong> · {stock} {stock === 1 ? 'pieza' : 'piezas'} en bodega</>
+                    : 'Agotado · avísame cuando vuelva'}
+                </span>
+              </div>
+
+              {/* Trust strip */}
+              <div className={styles.trust}>
+                <div>
+                  <MetaTag tone="bronze">Orisha</MetaTag>
+                  <div>{product.orisha_name || '—'}</div>
+                </div>
+                <div>
+                  <MetaTag tone="bronze">Uso ritual</MetaTag>
+                  <div>{product.ritual_use || '—'}</div>
+                </div>
+                <div>
+                  <MetaTag tone="bronze">Envío</MetaTag>
+                  <div>2–4 días en México · DHL</div>
+                </div>
+                <div>
+                  <MetaTag tone="bronze">Devolución</MetaTag>
+                  <div>30 días en empaque sellado</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Description */}
+      <section className={styles.descSection}>
+        <div className={styles.descContainer}>
+          <div className={styles.descSidebar}>
+            <MetaTag tone="bronze">Sobre esta pieza</MetaTag>
+            <h2 className={styles.descSidebarTitle}>Información del producto</h2>
+          </div>
+          <div className={styles.descBlocks}>
+            {product.description && (
+              <DescBlock title="Descripción">
+                <div dangerouslySetInnerHTML={{ __html: product.description }} />
+              </DescBlock>
+            )}
+            {product.ritual_meaning && (
+              <DescBlock title="Significado en la religión Yorùbà">
+                <div dangerouslySetInnerHTML={{ __html: product.ritual_meaning }} />
+              </DescBlock>
+            )}
+            {product.care_instructions && (
+              <DescBlock title="Cuidado y conservación">
+                <div dangerouslySetInnerHTML={{ __html: product.care_instructions }} />
+              </DescBlock>
+            )}
+            {product.specifications?.length > 0 && (
+              <DescBlock title="Especificaciones">
+                <div className={styles.specs}>
+                  {product.specifications.map(([k, v]) => (
+                    <div key={k} className={styles.specRow}>
+                      <span className={styles.specKey}>{k}</span>
+                      <span className={styles.specValue}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </DescBlock>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Related */}
+      {related.length > 0 && (
+        <section className={styles.related}>
+          <div className={styles.relatedInner}>
+            <header className={styles.relatedHeader}>
+              <MetaTag tone="bronze">Acompañan esta pieza</MetaTag>
+              <h2 className={styles.relatedTitle}>
+                Otros objetos para {product.orisha_name || 'este uso ritual'}
+              </h2>
+            </header>
+            <div className={styles.relatedGrid}>
+              {related.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
+  );
+}
+
+function DescBlock({ title, children }) {
+  return (
+    <div className={styles.descBlock}>
+      <h3 className={styles.descBlockTitle}>{title}</h3>
+      <div className={styles.descBlockBody}>{children}</div>
+    </div>
   );
 }
