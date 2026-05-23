@@ -73,7 +73,7 @@ export const rejectProductQuestion = createAsyncThunk(
   async ({ id, reason }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(ADMIN_MODERATE_REJECT_URL(id), {
-        reason: reason || 'INAPROPIADA',
+        reason: reason || 'INAPPROPRIATE',
       });
       return res.data;
     } catch (err) {

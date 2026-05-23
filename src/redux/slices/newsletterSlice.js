@@ -60,7 +60,7 @@ export const adminUnsubscribeSubscriber = createAsyncThunk(
   async ({ id, reason }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(ADMIN_UNSUBSCRIBE_MANUAL_URL(id), {
-        reason: reason || 'SOLICITUD_MANUAL',
+        reason: reason || 'MANUAL_REQUEST',
       });
       return res.data;
     } catch (err) {
