@@ -12,7 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
 import logoUrl from '@assets/practica-yoruba-logo.svg';
-import styles from '../auth/LoginPage.module.scss';
+import styles from './LoginPage.module.scss';
 
 export default function RegisterPage() {
   const dispatch = useDispatch();

@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
         </form>
 
         <div className={styles.footer}>
-          ¿Necesitas otro enlace? <Link to="/auth/recover">Volver al paso 1</Link>
+          ¿Necesitas otro enlace? <Link to="/auth/forgot-password">Volver al paso 1</Link>
         </div>
       </div>
     </main>

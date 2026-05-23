@@ -70,7 +70,7 @@ export default function LoginPage() {
                 required
                 error={error}
               />
-              <Link to="/auth/recover" className={styles.forgotLink}>
+              <Link to="/auth/forgot-password" className={styles.forgotLink}>
                 ¿OLVIDASTE TU CONTRASEÑA?
               </Link>
             </div>
