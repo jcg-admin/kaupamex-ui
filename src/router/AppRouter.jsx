@@ -136,7 +136,7 @@ export default function AppRouter() {
       <UnauthorizedListener />
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {─── Tienda pública ─── */}
+          {/* --- Tienda publica --- */}
           <Route element={<StorefrontLayout />}>
             <Route index element={<HomePage />} />
             <Route path="catalog" element={<CatalogPage />} />
@@ -160,7 +160,7 @@ export default function AppRouter() {
             <Route path="catalog/:productId/reviews" element={<ProductReviewsListPage />} />
           </Route>
 
-          {─── Auth ─── */}
+          {/* --- Auth --- */}
           <Route path="auth">
             <Route path="login"                    element={<LoginPage />} />
             <Route path="register"                 element={<RegisterPage />} />
@@ -170,7 +170,7 @@ export default function AppRouter() {
             <Route path="verify-email"             element={<VerifyEmailPage />} />
           </Route>
 
-          {─── Checkout — requiere autenticacion ─── */}
+          {/* --- Checkout: requiere autenticacion --- */}
           {/*
            * Directiva activa: "forzamos login antes, no podemos comprar
            * si no esta registrado." /checkout y /checkout/payment/:id
@@ -186,7 +186,7 @@ export default function AppRouter() {
             </Route>
           </Route>
 
-          {─── Callbacks de gateway de pago — publicos ─── */}
+          {/* --- Callbacks de gateway de pago: publicos --- */}
           {/*
            * payment-return, confirmation y payment-failed permanecen
            * publicos: la sesion puede expirar mientras el usuario esta
@@ -201,7 +201,7 @@ export default function AppRouter() {
             <Route path="order/:id/payment-failed" element={<PaymentFailedPage />} />
           </Route>
 
-          {─── Cuenta del comprador ─── */}
+          {/* --- Cuenta del comprador --- */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AccountLayout />}>
               <Route path="account"             element={<AccountPage />} />
@@ -241,7 +241,7 @@ export default function AppRouter() {
             </Route>
           </Route>
 
-          {─── Soporte (tickets del comprador) ─── */}
+          {/* --- Soporte (tickets del comprador) --- */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AccountLayout />}>
               <Route path="support/tickets"      element={<SupportTicketsPage />} />
@@ -250,7 +250,7 @@ export default function AppRouter() {
             </Route>
           </Route>
 
-          {─── Admin ─── */}
+          {/* --- Admin --- */}
           <Route element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
               <Route path="admin"             element={<AdminDashboardPage />} />
@@ -325,7 +325,7 @@ export default function AppRouter() {
             </Route>
           </Route>
 
-          {─── Fallbacks ─── */}
+          {/* --- Fallbacks --- */}
           <Route path="404" element={<NotFoundPage />} />
           <Route path="*"   element={<Navigate to="/404" replace />} />
         </Routes>
