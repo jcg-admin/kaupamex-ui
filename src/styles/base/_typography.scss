@@ -1,70 +1,125 @@
 // ═══════════════════════════════════════════════════════════════════════
-// TYPOGRAPHY — PracticaYoruba
+// TIPOGRAFÍA — Práctica Yorùbà
+// ═══════════════════════════════════════════════════════════════════════
+// Fraunces (display, editorial) + IBM Plex Sans (UI) + IBM Plex Mono (meta)
 // ═══════════════════════════════════════════════════════════════════════
 
 @use '../abstracts' as *;
 
-// Clases de utilidad tipográfica
+// ─────────────────────────────────────────────────────────────────────
+// Importar fuentes desde Google Fonts
+// ─────────────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+// ─────────────────────────────────────────────────────────────────────
+// Base
+// ─────────────────────────────────────────────────────────────────────
+html, body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $text-secondary;
+  background: $bg-page;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Headings — Fraunces, editorial
+// ─────────────────────────────────────────────────────────────────────
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-display;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  line-height: $line-height-tight;
+  letter-spacing: $ls-snug;
+  margin: 0;
+}
+
+h1 { font-size: $font-size-5xl; letter-spacing: $ls-tight; }
+h2 { font-size: $font-size-4xl; }
+h3 { font-size: $font-size-2xl; font-weight: $font-weight-medium; }
+h4 { font-size: $font-size-xl;  font-weight: $font-weight-medium; }
+h5 { font-size: $font-size-lg;  font-weight: $font-weight-medium; }
+h6 { font-size: $font-size-md;  font-weight: $font-weight-medium; }
+
+em.accent {
+  font-style: italic;
+  color: $bronze;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Párrafos
+// ─────────────────────────────────────────────────────────────────────
+p {
+  margin: 0;
+  line-height: $line-height-relaxed;
+}
+
+a {
+  color: $text-link;
+  text-decoration: none;
+  transition: $transition-colors;
+
+  &:hover {
+    color: $text-link-hover;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Eyebrow / metadata — IBM Plex Mono, mayúsculas, tracking amplio
+// ─────────────────────────────────────────────────────────────────────
+.eyebrow,
+.meta-tag {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+  letter-spacing: $ls-eyebrow;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.eyebrow--bronze { color: $bronze; }
+.eyebrow--lime   { color: $lime-soft; }
+.eyebrow--coral  { color: $coral; }
+.eyebrow--vino   { color: $vino-soft; }
+
+// ─────────────────────────────────────────────────────────────────────
+// Inline elements
+// ─────────────────────────────────────────────────────────────────────
+strong, b {
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+
+code {
+  font-family: $font-family-mono;
+  font-size: 0.92em;
+  background: rgba($lime, 0.08);
+  color: $lime-soft;
+  padding: 1px 6px;
+  border-radius: $border-radius-sm;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Reglas de selección
+// ─────────────────────────────────────────────────────────────────────
+::selection {
+  background: rgba($lime, 0.3);
+  color: $text-primary;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Utilidades tipográficas
+// ─────────────────────────────────────────────────────────────────────
 .text-xs     { font-size: $font-size-xs; }
 .text-sm     { font-size: $font-size-sm; }
 .text-base   { font-size: $font-size-base; }
 .text-lg     { font-size: $font-size-lg; }
 .text-xl     { font-size: $font-size-xl; }
-.text-2xl    { font-size: $font-size-2xl; }
-.text-3xl    { font-size: $font-size-3xl; }
-
-.font-light     { font-weight: $font-weight-light; }
-.font-normal    { font-weight: $font-weight-normal; }
-.font-medium    { font-weight: $font-weight-medium; }
-.font-semibold  { font-weight: $font-weight-semibold; }
-.font-bold      { font-weight: $font-weight-bold; }
-
-.text-primary   { color: $text-primary; }
+.text-muted  { color: $text-muted; }
 .text-secondary { color: $text-secondary; }
-.text-muted     { color: $text-muted; }
-.text-link      { color: $text-link; }
-.text-inverse   { color: $text-inverse; }
-.text-success   { color: $success-color; }
-.text-error     { color: $error-color; }
-.text-warning   { color: $warning-color; }
-
-.text-left    { text-align: left; }
-.text-center  { text-align: center; }
-.text-right   { text-align: right; }
-
-.text-truncate { @include text-truncate; }
-.text-clamp-2  { @include text-clamp(2); }
-.text-clamp-3  { @include text-clamp(3); }
-
-// Precio — elemento central en e-commerce
-.price {
-  @include price-display;
-
-  &--original {
-    font-size: $font-size-sm;
-    font-weight: $font-weight-normal;
-    color: $text-muted;
-    text-decoration: line-through;
-  }
-
-  &--discount {
-    color: $accent-color;
-  }
-}
-
-// Etiqueta de sección
-.section-title {
-  @include heading($font-size-2xl);
-  margin-bottom: $spacing-6;
-
-  @include media-md {
-    font-size: $font-size-3xl;
-  }
-}
-
-.section-subtitle {
-  font-size: $font-size-lg;
-  color: $text-secondary;
-  margin-bottom: $spacing-8;
-  max-width: 600px;
-}
+.text-primary   { color: $text-primary; }
+.font-mono   { font-family: $font-family-mono; }
+.font-display { font-family: $font-family-display; }

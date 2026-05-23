@@ -1,10 +1,3 @@
-/**
- * Header — Práctica Yorùbà
- * Cabecera con logo, tagline IFÁ · ÒRÌSÀ · OLÓDÙMARÈ,
- * navegación Yorùbà (por òrìsà / ritual / elekes / herramientas / libros),
- * búsqueda, cuenta y carrito.
- */
-
 import { Link, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -44,7 +37,7 @@ export default function Header() {
             <span>Atención L-V 10:00 — 19:00 · Envíos a toda la república</span>
           </div>
           <div className={styles.topStripRight}>
-            <Link to="/contact">Ayuda</Link>
+            <Link to="/help">Ayuda</Link>
             <Link to="/account/orders">Rastrear pedido</Link>
             <Link to="/contact">Contacto</Link>
           </div>
