@@ -15,11 +15,16 @@ import VoucherCreateForm from '@components/admin/VoucherCreateForm';
 import VoucherEditForm from '@components/admin/VoucherEditForm';
 import styles from './AdminVouchersPage.module.scss';
 
-const TYPE_LABEL = { PERCENT: 'Porcentaje', FIXED: 'Fijo' };
+const TYPE_LABEL = {
+  FIXED:        'Monto fijo',
+  PERCENTAGE:   'Porcentaje',
+  FREE_SHIPPING: 'Envio gratis',
+};
 
 function formatValue(voucher) {
-  if (voucher.type === 'PERCENT') return `${voucher.value}%`;
-  return `$${voucher.value}`;
+  if (voucher.voucher_type === 'PERCENTAGE')   return `${voucher.discount_pct}%`;
+  if (voucher.voucher_type === 'FREE_SHIPPING') return 'Envio gratis';
+  return `$${voucher.discount_value}`;
 }
 
 export default function AdminVouchersPage() {
@@ -100,10 +105,10 @@ export default function AdminVouchersPage() {
             {items.map((v) => (
               <tr key={v.id}>
                 <td>{v.code}</td>
-                <td>{TYPE_LABEL[v.type] ?? v.type}</td>
+                <td>{TYPE_LABEL[v.voucher_type] ?? v.voucher_type}</td>
                 <td>{formatValue(v)}</td>
                 <td>{v.max_uses ?? 'Sin limite'}</td>
-                <td>{v.ends_at ?? '—'}</td>
+                <td>{v.valid_until ? v.valid_until.slice(0, 10) : '—'}</td>
                 <td>
                   <span
                     className={v.is_active ? styles.badgeActive : styles.badgeInactive}
