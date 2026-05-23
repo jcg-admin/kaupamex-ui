@@ -1,195 +1,117 @@
 /**
- * WishlistPage — PracticaYoruba
+ * WishlistPage — Práctica Yorùbà
+ * Lista de deseos con badges (bajó precio, última unidad) + move-to-cart.
  *
- *   UC-WISH-02 — Ver la lista de deseos del comprador autenticado.
- *   UC-WISH-03 — Mover producto de la lista al carrito.
- *
- * Lectura via React Query (useWishlist), mutaciones via wishlistSlice
- * preservando lastAction para mostrar confirmaciones (canonical D-010).
+ * Endpoints:
+ *   GET /wishlist/
+ *   DELETE /wishlist/{pk}/
+ *   POST /wishlist/{pk}/move-to-cart/
  */
-import { useCallback, useState } from 'react';
+
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-import { useWishlist, WISHLIST_KEY } from '@hooks/domain/useWishlist';
-import {
-  removeFromWishlist,
-  moveWishlistItemToCart,
-  clearWishlistActionState,
-} from '@redux/slices/wishlistSlice';
+import { fetchWishlist, removeFromWishlist, moveWishlistItemToCart } from '@redux/slices/wishlistSlice';
+import AccountSidebar from '@components/account/AccountSidebar';
+import { MetaTag, Price, Button, EmptyState } from '@components/common/primitives';
 import styles from './WishlistPage.module.scss';
 
-const FILTERS = [
-  { value: '',             label: 'Todos' },
-  { value: 'IN_STOCK',     label: 'Con stock' },
-  { value: 'OUT_OF_STOCK', label: 'Sin stock' },
-];
-
-function priceLabel(item) {
-  const product = item.product ?? {};
-  return product.price_with_tax ?? product.base_price ?? 0;
-}
-
 export default function WishlistPage() {
-  const dispatch    = useDispatch();
-  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
+  const { items = [], isLoading } = useSelector((s) => s.wishlist || {});
 
-  const [filter, setFilter] = useState('');
-  const params = filter ? { availability: filter } : {};
-
-  const { data, isLoading, isError } = useWishlist(params);
-
-  const isActioning = useSelector((s) => s.wishlist?.isActioning);
-  const actionError = useSelector((s) => s.wishlist?.actionError);
-  const lastAction  = useSelector((s) => s.wishlist?.lastAction);
-
-  const items = data?.items ?? [];
-  const totalItems = data?.total_items ?? items.length;
-  const outOfStockCount = data?.items_out_of_stock ?? 0;
-
-  const invalidate = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: WISHLIST_KEY });
-  }, [queryClient]);
-
-  const handleRemove = useCallback(async (itemId) => {
-    dispatch(clearWishlistActionState());
-    const result = await dispatch(removeFromWishlist(itemId));
-    if (removeFromWishlist.fulfilled.match(result)) invalidate();
-  }, [dispatch, invalidate]);
-
-  const handleMoveToCart = useCallback(async (itemId, keepInWishlist = false) => {
-    dispatch(clearWishlistActionState());
-    const result = await dispatch(
-      moveWishlistItemToCart({ itemId, keepInWishlist }),
-    );
-    if (moveWishlistItemToCart.fulfilled.match(result)) invalidate();
-  }, [dispatch, invalidate]);
+  useEffect(() => { dispatch(fetchWishlist()); }, [dispatch]);
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Lista de deseos</h1>
-        <p className={styles.subtitle}>
-          {totalItems > 0
-            ? `${totalItems} ${totalItems === 1 ? 'producto guardado' : 'productos guardados'}`
-            : 'Aun no has guardado productos.'}
-          {outOfStockCount > 0 && ` · ${outOfStockCount} sin stock`}
-        </p>
-      </header>
+      <div className={styles.container}>
+        <nav className={styles.breadcrumb}>
+          <Link to="/account">Mi cuenta</Link>
+          <span>/</span>
+          <span className={styles.bcCurrent}>Lista de deseos</span>
+        </nav>
 
-      <div className={styles.filters} role="tablist" aria-label="Filtros de disponibilidad">
-        {FILTERS.map((f) => (
-          <button
-            key={f.value || 'all'}
-            type="button"
-            role="tab"
-            aria-selected={filter === f.value}
-            className={`${styles.filterBtn} ${filter === f.value ? styles.filterActive : ''}`}
-            onClick={() => setFilter(f.value)}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+        <div className={styles.layout}>
+          <AccountSidebar />
 
-      {actionError && (
-        <p className={styles.error} role="alert">
-          {actionError.code === 'PRODUCT_OUT_OF_STOCK'
-            ? 'Este producto ya no tiene stock disponible.'
-            : actionError.message || 'No se pudo completar la accion.'}
-        </p>
-      )}
+          <section>
+            <header className={styles.header}>
+              <div>
+                <MetaTag tone="bronze">{items.length} {items.length === 1 ? 'pieza guardada' : 'piezas guardadas'}</MetaTag>
+                <h1 className={styles.title}>Lista de deseos</h1>
+                <p className={styles.lead}>
+                  Piezas que guardaste para más adelante. Te avisamos si bajan de precio
+                  o si llega su última unidad.
+                </p>
+              </div>
+              {items.length > 0 && (
+                <Button variant="secondary" onClick={() => items.forEach(i => dispatch(moveWishlistItemToCart(i.id)))}>
+                  Mover todo al carrito
+                </Button>
+              )}
+            </header>
 
-      {lastAction === 'moved' && !actionError && (
-        <p className={styles.success} role="status">
-          Producto movido al carrito.
-        </p>
-      )}
+            {isLoading && <div className={styles.loading}>Cargando…</div>}
 
-      {isLoading && (
-        <div className={styles.loading} aria-live="polite">
-          <div className={styles.spinner} />
-          <p>Cargando lista...</p>
+            {!isLoading && items.length === 0 && (
+              <EmptyState
+                icon="♡"
+                title="No tienes piezas guardadas"
+                description="Cuando encuentres una pieza que quieras pero no quieras comprar ahora, guárdala aquí."
+              >
+                <Link to="/catalog"><Button variant="primary">Ir al catálogo</Button></Link>
+              </EmptyState>
+            )}
+
+            {!isLoading && items.length > 0 && (
+              <div className={styles.grid}>
+                {items.map((it) => <WishItem key={it.id} item={it} dispatch={dispatch} />)}
+              </div>
+            )}
+          </section>
         </div>
-      )}
-
-      {isError && !isLoading && (
-        <p className={styles.error} role="alert">
-          No se pudo cargar la lista. Intenta de nuevo.
-        </p>
-      )}
-
-      {!isLoading && !isError && items.length === 0 && (
-        <p className={styles.empty}>
-          Tu lista de deseos esta vacia. Explora el{' '}
-          <Link to="/catalog">catalogo</Link> para guardar productos.
-        </p>
-      )}
-
-      {!isLoading && items.length > 0 && (
-        <ul className={styles.items}>
-          {items.map((item) => {
-            const product = item.product ?? {};
-            const inStock = item.availability !== 'OUT_OF_STOCK';
-            const productName = product.name ?? 'Producto';
-            return (
-              <li key={item.id} className={styles.item}>
-                {product.image && (
-                  <img
-                    src={product.image}
-                    alt={productName}
-                    className={styles.image}
-                  />
-                )}
-                <div className={styles.info}>
-                  <h2 className={styles.itemTitle}>
-                    {product.slug ? (
-                      <Link to={`/catalog/${product.slug}`}>{productName}</Link>
-                    ) : (
-                      productName
-                    )}
-                  </h2>
-                  <div className={styles.priceRow}>
-                    <strong className={styles.price}>
-                      ${priceLabel(item).toLocaleString('es-MX')}
-                    </strong>
-                    {item.price_dropped && (
-                      <span className={styles.priceDrop}>
-                        Rebaja {item.price_drop_percent}%
-                      </span>
-                    )}
-                  </div>
-                  <span
-                    className={inStock ? styles.inStock : styles.outOfStock}
-                  >
-                    {inStock ? 'Disponible' : 'Sin stock'}
-                  </span>
-                </div>
-                <div className={styles.actions}>
-                  <button
-                    type="button"
-                    className={styles.moveBtn}
-                    disabled={!inStock || isActioning}
-                    onClick={() => handleMoveToCart(item.id)}
-                    aria-label={`Mover ${productName} al carrito`}
-                  >
-                    Mover al carrito
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.removeBtn}
-                    disabled={isActioning}
-                    onClick={() => handleRemove(item.id)}
-                    aria-label={`Eliminar ${productName} de la lista`}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      </div>
     </main>
+  );
+}
+
+function WishItem({ item, dispatch }) {
+  const priceChanged = item.price_at_add && item.current_price < item.price_at_add;
+  const lowStock = item.is_available && item.stock <= 3;
+
+  return (
+    <article className={styles.wishCard}>
+      <div className={styles.wishImg}>
+        {item.image_url
+          ? <img src={item.image_url} alt={item.product_name} />
+          : <div className={styles.wishImgPlaceholder}>{item.product_name}</div>}
+        {priceChanged && <span className={`${styles.badge} ${styles.badgeLime}`}>Bajó de precio</span>}
+        {lowStock && <span className={`${styles.badge} ${styles.badgeVino}`}>Última unidad</span>}
+        <button
+          type="button"
+          className={styles.removeBtn}
+          onClick={() => dispatch(removeFromWishlist(item.id))}
+          aria-label="Quitar de deseos"
+        >×</button>
+      </div>
+      <div className={styles.wishBody}>
+        <div className={styles.wishTags}>
+          {item.category_name && <MetaTag tone="bronze">{item.category_name}</MetaTag>}
+          {item.orisha_name && <MetaTag tone="coral">{item.orisha_name}</MetaTag>}
+        </div>
+        <h3 className={styles.wishName}>{item.product_name}</h3>
+        <div className={styles.wishPrices}>
+          <Price amount={item.current_price} size="md" />
+          {priceChanged && (
+            <span className={styles.wishPriceWas}>
+              ${item.price_at_add.toLocaleString('es-MX')}
+            </span>
+          )}
+        </div>
+        <Button variant="primary" block size="sm" onClick={() => dispatch(moveWishlistItemToCart(item.id))}>
+          Mover al carrito
+        </Button>
+      </div>
+    </article>
   );
 }

@@ -1,176 +1,324 @@
 /**
- * CheckoutPage — PracticaYoruba
- * UC-ORD-01: Crear orden desde el carrito (checkout).
+ * CheckoutPage — Práctica Yorùbà
+ * UC-ORD-01: Identificación · Dirección · Envío · Pago
+ * Soporta checkout invitado (Q1 confirmado).
  *
- * Recoge direccion de envio + opcionalmente shipping_method_id y notas,
- * y dispara `checkoutOrder` contra POST /api/v1/checkout/.
- * Tras exito redirige a /order/<order_number>/confirmation.
+ * Endpoints:
+ *   GET /auth/addresses/
+ *   POST /checkout/
+ *   POST /payments/initiate/
+ *   GET /payments/installments/
  */
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { checkoutOrder, clearOrdersActionState } from '@redux/slices/ordersSlice';
-import styles from './CheckoutPage.module.scss';
 
-const EMPTY_ADDRESS = {
-  recipient_name: '',
-  street:         '',
-  city:           '',
-  state:          '',
-  zip_code:       '',
-  country:        'MX',
-  phone:          '',
-};
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchAddresses } from '@redux/slices/authSlice';
+import { createOrder, initiatePayment } from '@redux/slices/checkoutSlice';
+import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
+import logoUrl from '@assets/practica-yoruba-logo.svg';
+import styles from './CheckoutPage.module.scss';
 
 export default function CheckoutPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isActioning, actionError, lastAction, lastOrder } = useSelector((s) => s.orders);
-  // Tolerar stores que no incluyen el slice de auth (tests previos UC-ORD-01).
-  const isAuthenticated = useSelector((s) => s.auth?.isAuthenticated ?? false);
+  const cart = useSelector((s) => s.cart || {});
+  const auth = useSelector((s) => s.auth || {});
+  const { items = [], totals = {} } = cart;
+  const isAuth = !!auth.user;
 
-  const [address,       setAddress]       = useState(EMPTY_ADDRESS);
-  const [shippingId,    setShippingId]    = useState('');
-  const [notes,         setNotes]         = useState('');
-  const [acceptTerms,   setAcceptTerms]   = useState(false);
-  // UC-ORD-01: campos requeridos solo para invitados (sin JWT).
-  const [guestEmail,    setGuestEmail]    = useState('');
-  const [guestName,     setGuestName]     = useState('');
+  // Local state per step
+  const [mode, setMode] = useState(isAuth ? 'signin' : 'guest');
+  const [email, setEmail] = useState(auth.user?.email || '');
+  const [address, setAddress] = useState({});
+  const [shipping, setShipping] = useState('std');
+  const [payment, setPayment] = useState('mp');
+  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (lastAction === 'checkout' && lastOrder?.order_number) {
-      const num = lastOrder.order_number;
-      dispatch(clearOrdersActionState());
-      navigate(`/order/${num}/confirmation`, { replace: true });
-    }
-  }, [lastAction, lastOrder, navigate, dispatch]);
+  useEffect(() => { if (isAuth) dispatch(fetchAddresses()); }, [dispatch, isAuth]);
 
-  const setField = (k) => (e) => setAddress({ ...address, [k]: e.target.value });
-
-  const onSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      address,
-      notes,
-    };
-    if (shippingId) payload.shipping_method_id = Number(shippingId);
-    if (!isAuthenticated) {
-      // Guest checkout — UC-ORD-01: backend requiere email y nombre
-      // del comprador cuando no hay JWT.
-      payload.guest_email = guestEmail;
-      payload.guest_name  = guestName;
+    setSubmitting(true);
+    try {
+      const order = await dispatch(createOrder({
+        email, address, shipping_method: shipping, mode,
+      })).unwrap();
+      const { redirect_url } = await dispatch(initiatePayment({
+        order_number: order.order_number, gateway: payment,
+      })).unwrap();
+      if (redirect_url) {
+        window.location.href = redirect_url;
+      } else {
+        navigate(`/order/${order.order_number}/confirmation`);
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmitting(false);
     }
-    dispatch(checkoutOrder(payload));
   };
 
   return (
-    <section className={styles.page} aria-labelledby="checkout-title">
-      <header className={styles.header}>
-        <h1 id="checkout-title" className={styles.title}>Finalizar compra</h1>
-        <p className={styles.subtitle}>
-          Confirma tu direccion de envio y los datos del pedido.
-        </p>
+    <main className={styles.page}>
+      {/* Mini header */}
+      <header className={styles.checkoutHeader}>
+        <div className={styles.checkoutHeaderInner}>
+          <Link to="/" className={styles.brand}>
+            <img src={logoUrl} alt="" className={styles.brandLogo} />
+            <span>
+              <span className={styles.brandName}>Práctica Yorùbà</span>
+              <span className={styles.brandTag}>Ifá · Òrìsà · Olódùmarè</span>
+            </span>
+          </Link>
+          <div className={styles.steps}>
+            <Step n="01" label="Carrito"        state="done" />
+            <Step n="02" label="Datos y envío"  state="active" />
+            <Step n="03" label="Pago"           state="pending" />
+            <Step n="04" label="Confirmación"   state="pending" />
+          </div>
+          <div className={styles.secureBadge}>PAGO PROTEGIDO · SSL/TLS</div>
+        </div>
       </header>
 
-      {!isAuthenticated && (
-        <aside className={styles.guestNotice} role="note">
-          <p>
-            Estas comprando como invitado. Si lo prefieres,{' '}
-            <Link to="/auth/login" state={{ from: { pathname: '/checkout' } }}>
-              inicia sesion
-            </Link>{' '}
-            para guardar tu pedido en tu cuenta.
-          </p>
-        </aside>
-      )}
-
-      <form onSubmit={onSubmit} className={styles.form} aria-label="Formulario de checkout">
-        {!isAuthenticated && (
-          <fieldset className={styles.fieldset}>
-            <legend>Datos de contacto</legend>
-            <label>Correo electronico
-              <input
+      <form className={styles.container} onSubmit={handleSubmit}>
+        <div className={styles.layout}>
+          <div className={styles.mainCol}>
+            {/* Identificación */}
+            <Section n="01" title="Identificación">
+              {!isAuth && (
+                <div className={styles.modeToggle}>
+                  <ModeCard
+                    id="guest" mode={mode} setMode={setMode}
+                    title="Continuar como invitado"
+                    sub="Sin crear cuenta · solo necesitamos tu correo"
+                  />
+                  <ModeCard
+                    id="signin" mode={mode} setMode={setMode}
+                    title="Tengo cuenta"
+                    sub="Iniciar sesión · usar mis direcciones guardadas"
+                  />
+                </div>
+              )}
+              <Field
+                label="Correo de contacto"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="tu@correo.mx"
                 type="email"
-                value={guestEmail}
-                onChange={(e) => setGuestEmail(e.target.value)}
                 required
+                hint="Te enviaremos el comprobante y el seguimiento a este correo."
               />
-            </label>
-            <label>Nombre completo
-              <input
-                type="text"
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                required
-              />
-            </label>
-          </fieldset>
-        )}
+            </Section>
 
-        <fieldset className={styles.fieldset}>
-          <legend>Direccion de envio</legend>
-          <label>Destinatario
-            <input value={address.recipient_name} onChange={setField('recipient_name')} required />
-          </label>
-          <label>Calle y numero
-            <input value={address.street} onChange={setField('street')} required />
-          </label>
-          <label>Ciudad
-            <input value={address.city} onChange={setField('city')} required />
-          </label>
-          <label>Estado
-            <input value={address.state} onChange={setField('state')} required />
-          </label>
-          <label>Codigo postal
-            <input value={address.zip_code} onChange={setField('zip_code')} required />
-          </label>
-          <label>Telefono
-            <input value={address.phone} onChange={setField('phone')} />
-          </label>
-        </fieldset>
+            {/* Dirección */}
+            <Section n="02" title="Dirección de envío">
+              <AddressForm address={address} setAddress={setAddress} />
+            </Section>
 
-        <fieldset className={styles.fieldset}>
-          <legend>Envio</legend>
-          <label>ID metodo de envio
-            <input
-              type="number"
-              min="1"
-              value={shippingId}
-              onChange={(e) => setShippingId(e.target.value)}
-              required
-            />
-          </label>
-        </fieldset>
+            {/* Envío */}
+            <Section n="03" title="Método de envío">
+              <ShippingOptions selected={shipping} onSelect={setShipping} />
+            </Section>
 
-        <label className={styles.notes}>
-          Notas para el pedido (opcional)
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
-        </label>
+            {/* Pago */}
+            <Section n="04" title="Forma de pago">
+              <PaymentMethods selected={payment} onSelect={setPayment} />
+            </Section>
+          </div>
 
-        <label className={styles.terms}>
-          <input
-            type="checkbox"
-            checked={acceptTerms}
-            onChange={(e) => setAcceptTerms(e.target.checked)}
-            required
+          <CheckoutSummary
+            items={items}
+            totals={totals}
+            submitting={submitting}
           />
-          Acepto los terminos y condiciones de compra.
-        </label>
-
-        <button
-          type="submit"
-          className={styles.primaryBtn}
-          disabled={isActioning || !acceptTerms}
-        >
-          {isActioning ? 'Procesando…' : 'Confirmar pedido'}
-        </button>
-
-        {actionError && (
-          <p role="alert" className={styles.error}>
-            {actionError.message ?? 'No se pudo crear la orden. Intenta de nuevo.'}
-          </p>
-        )}
+        </div>
       </form>
+
+      {/* Mini footer */}
+      <footer className={styles.checkoutFooter}>
+        <span>© {new Date().getFullYear()} Práctica Yorùbà</span>
+        <span className={styles.footerLinks}>
+          <Link to="/info/terminos">Términos</Link>
+          <Link to="/info/privacidad">Privacidad</Link>
+          <Link to="/info/envios">Envíos &amp; devoluciones</Link>
+          <Link to="/ayuda">Ayuda</Link>
+        </span>
+      </footer>
+    </main>
+  );
+}
+
+function Step({ n, label, state }) {
+  return (
+    <div className={`${styles.step} ${styles[`step_${state}`]}`}>
+      <span className={styles.stepNum}>{state === 'done' ? '✓' : n}</span>
+      <span className={styles.stepLabel}>{label}</span>
+    </div>
+  );
+}
+
+function Section({ n, title, children }) {
+  return (
+    <section className={styles.section}>
+      <header className={styles.sectionHeader}>
+        <span className={styles.sectionNum}>· {n} ·</span>
+        <h2 className={styles.sectionTitle}>{title}</h2>
+      </header>
+      {children}
     </section>
+  );
+}
+
+function ModeCard({ id, mode, setMode, title, sub }) {
+  const active = mode === id;
+  return (
+    <button
+      type="button"
+      onClick={() => setMode(id)}
+      className={`${styles.optionCard} ${active ? styles.optionCardActive : ''}`}
+    >
+      <span className={`${styles.radio} ${active ? styles.radioActive : ''}`} />
+      <div>
+        <div className={styles.optionTitle}>{title}</div>
+        <div className={styles.optionSub}>{sub}</div>
+      </div>
+    </button>
+  );
+}
+
+function AddressForm({ address, setAddress }) {
+  const set = (k) => (e) => setAddress({ ...address, [k]: e.target.value });
+  return (
+    <div className={styles.addressForm}>
+      <div className={styles.formRow2}>
+        <Field label="Nombre completo del destinatario" value={address.recipient_name} onChange={set('recipient_name')} required />
+        <Field label="Teléfono" value={address.phone} onChange={set('phone')} required />
+      </div>
+      <Field label="Calle y número" value={address.street} onChange={set('street')} required />
+      <div className={styles.formRow3}>
+        <Field label="Colonia" value={address.colony} onChange={set('colony')} required />
+        <Field label="C.P." value={address.zip_code} onChange={set('zip_code')} required />
+        <Field label="Alcaldía / Municipio" value={address.city} onChange={set('city')} required />
+      </div>
+      <div className={styles.formRow2}>
+        <Field label="Estado" value={address.state} onChange={set('state')} required />
+        <Field label="País" value={address.country || 'México'} onChange={set('country')} />
+      </div>
+      <Field
+        label="Referencias para entrega (opcional)"
+        value={address.notes} onChange={set('notes')}
+        textarea
+        placeholder="Edificio color terracota, portero llamarse Don Aldo"
+      />
+    </div>
+  );
+}
+
+function ShippingOptions({ selected, onSelect }) {
+  const opts = [
+    { id: 'std',    t: 'Estándar resguardado', sub: 'DHL · 2 a 4 días hábiles',           price: 'GRATIS', priceNote: 'incluido en tu pedido', tone: 'lime' },
+    { id: 'exp',    t: 'Expedito · 24 horas',  sub: 'DHL Express · solo CDMX y zona metro', price: '$280 MXN', priceNote: '' },
+    { id: 'pickup', t: 'Recoger en tienda',    sub: 'Punto de recogida · L-V 10-19',      price: 'GRATIS', priceNote: 'cita por correo', tone: 'lime' },
+  ];
+  return (
+    <div className={styles.options}>
+      {opts.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          onClick={() => onSelect(o.id)}
+          className={`${styles.optionCard} ${styles.optionCardWide} ${selected === o.id ? styles.optionCardActive : ''}`}
+        >
+          <span className={`${styles.radio} ${selected === o.id ? styles.radioActive : ''}`} />
+          <div>
+            <div className={styles.optionTitle}>{o.t}</div>
+            <div className={styles.optionSub}>{o.sub}</div>
+          </div>
+          <div className={styles.optionPrice}>
+            <span className={o.tone === 'lime' ? styles.optionPriceLime : ''}>{o.price}</span>
+            {o.priceNote && <span className={styles.optionPriceNote}>{o.priceNote}</span>}
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function PaymentMethods({ selected, onSelect }) {
+  const opts = [
+    { id: 'mp',   t: 'Mercado Pago',          sub: 'Tarjeta · SPEI · OXXO Pay · 6 meses sin intereses' },
+    { id: 'pp',   t: 'PayPal',                 sub: 'Cuenta PayPal o tarjeta sin compartir datos' },
+    { id: 'spei', t: 'Transferencia SPEI',     sub: 'Recibirás CLABE única · pedido reservado 24 hrs' },
+  ];
+  return (
+    <div className={styles.options}>
+      {opts.map((o) => (
+        <button
+          key={o.id}
+          type="button"
+          onClick={() => onSelect(o.id)}
+          className={`${styles.optionCard} ${styles.optionCardWide} ${selected === o.id ? styles.optionCardActive : ''}`}
+        >
+          <span className={`${styles.radio} ${selected === o.id ? styles.radioActive : ''}`} />
+          <div>
+            <div className={styles.optionTitle}>{o.t}</div>
+            <div className={styles.optionSub}>{o.sub}</div>
+          </div>
+          <span className={styles.optionExternal}>Externo ↗</span>
+        </button>
+      ))}
+      <div className={styles.infoBox}>
+        <span className={styles.infoBoxIcon}>· i ·</span>
+        <div>
+          Al confirmar, te llevamos a la página segura del proveedor para completar el cobro.
+          Tus datos de tarjeta nunca tocan nuestros servidores. Volverás aquí automáticamente
+          al terminar.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CheckoutSummary({ items, totals, submitting }) {
+  return (
+    <aside className={styles.summary}>
+      <div className={styles.summaryCard}>
+        <header className={styles.summaryHeader}>
+          <h3 className={styles.summaryTitle}>Tu pedido</h3>
+          <div className={styles.summaryMeta}>{items.length} PIEZAS</div>
+        </header>
+        <div className={styles.summaryItems}>
+          {items.map((it) => (
+            <div key={it.id} className={styles.summaryItem}>
+              <div className={styles.summaryItemImg}>
+                {it.image_url ? <img src={it.image_url} alt="" /> : null}
+              </div>
+              <div>
+                <div className={styles.summaryItemName}>{it.product_name}</div>
+                {it.orisha_name && <div className={styles.summaryItemOrisha}>{it.orisha_name.toUpperCase()}</div>}
+              </div>
+              <Price amount={it.unit_price * it.quantity} size="sm" />
+            </div>
+          ))}
+        </div>
+        <div className={styles.summaryTotals}>
+          <SumRow label="Subtotal" value={`$${(totals.subtotal || 0).toLocaleString('es-MX')} MXN`} />
+          {totals.discount > 0 && <SumRow label="Descuento" value={`−$${totals.discount.toLocaleString('es-MX')} MXN`} tone="lime" />}
+          <SumRow label="Envío" value="Gratis" tone="lime" />
+          <SumRow label="IVA incluido" value={`$${(totals.tax_included || 0).toLocaleString('es-MX')} MXN`} muted />
+          <div className={styles.summaryTotalRow}>
+            <span>Total</span>
+            <Price amount={totals.total || 0} size="lg" />
+          </div>
+          <Button type="submit" variant="primary" block size="lg" disabled={submitting}>
+            {submitting ? 'Procesando…' : 'Confirmar y pagar'}
+          </Button>
+          <div className={styles.summaryDisclaimer}>
+            Al confirmar aceptas los <Link to="/info/terminos">términos</Link> y el{' '}
+            <Link to="/info/privacidad">aviso de privacidad</Link>.
+          </div>
+        </div>
+      </div>
+    </aside>
   );
 }
