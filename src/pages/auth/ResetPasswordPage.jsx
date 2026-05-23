@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { confirmPasswordReset } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './AuthSimplePage.module.scss';
 
 export default function ResetPasswordPage() {
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
         </form>
 
         <div className={styles.footer}>
-          ¿Necesitas otro enlace? <Link to="/auth/forgot-password">Volver al paso 1</Link>
+          ¿Necesitas otro enlace? <Link to="/auth/recuperar">Volver al paso 1</Link>
         </div>
       </div>
     </main>

@@ -20,7 +20,7 @@ import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Button, EmptyState } from '@components/common/primitives';
 import styles from './CatalogPage.module.scss';
 
-const ORISHAS = ['Yemayá','Shangó','Oshún','Obatalá','Oyá','Eleguá','Oggún','Babálú-Ayé'];
+const ORISHAS = ['Yemayá','Shangó','Oshún','Obatalá','Oyá','Eleguá','Oggún','Babalú-Ayé'];
 const TYPES   = ['Eleke','Otán','Sopera','Herramienta','Bandera','Libro'];
 
 export default function CatalogPage() {
@@ -124,10 +124,10 @@ export default function CatalogPage() {
               </div>
             )}
 
-            {pagination.totalPages > 1 && (
+            {pagination.total_pages > 1 && (
               <Pagination
                 current={pagination.page}
-                total={pagination.totalPages}
+                total={pagination.total_pages}
                 onPage={(p) => dispatch(setPage(p))}
               />
             )}

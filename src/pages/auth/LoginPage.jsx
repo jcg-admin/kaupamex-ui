@@ -9,16 +9,16 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { loginUser } from '@redux/slices/authSlice';
+import { login } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './LoginPage.module.scss';
 
 export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = location.state?.from?.pathname || '/account';
+  const redirectTo = location.state?.from?.pathname || '/mi-cuenta';
 
   const [creds, setCreds] = useState({ email: '', password: '', remember: true });
   const [error, setError] = useState('');
@@ -29,7 +29,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await dispatch(loginUser(creds)).unwrap();
+      await dispatch(login(creds)).unwrap();
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError('Correo o contraseña incorrectos.');
@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className={styles.formWrap}>
           <div className={styles.tabs}>
             <span className={`${styles.tab} ${styles.tabActive}`}>Iniciar sesión</span>
-            <Link to="/auth/register" className={styles.tab}>Crear cuenta</Link>
+            <Link to="/auth/registro" className={styles.tab}>Crear cuenta</Link>
           </div>
 
           <h2 className={styles.title}>Bienvenido de vuelta</h2>
@@ -70,7 +70,7 @@ export default function LoginPage() {
                 required
                 error={error}
               />
-              <Link to="/auth/forgot-password" className={styles.forgotLink}>
+              <Link to="/auth/recuperar" className={styles.forgotLink}>
                 ¿OLVIDASTE TU CONTRASEÑA?
               </Link>
             </div>
@@ -99,7 +99,7 @@ export default function LoginPage() {
 
             <div className={styles.footer}>
               ¿Aún no tienes cuenta?{' '}
-              <Link to="/auth/register">Crear una ahora →</Link>
+              <Link to="/auth/registro">Crear una ahora →</Link>
             </div>
           </form>
         </div>
@@ -138,7 +138,6 @@ function SplitHero() {
 
       <div className={styles.heroFootnote}>Envíos a toda la república mexicana</div>
 
-      {/* Decorative circles */}
       <div className={styles.deco1} aria-hidden="true" />
       <div className={styles.deco2} aria-hidden="true" />
     </section>
