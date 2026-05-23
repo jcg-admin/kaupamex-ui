@@ -1,117 +1,144 @@
-@use '@styles/abstracts' as *;
+@use '@styles/abstracts/variables' as *;
 
 .card {
-  @include flex-column;
-  background:    $white;
-  border:        1px solid $border-color;
-  border-radius: $radius-lg;
-  overflow:      hidden;
-  text-decoration: none;
-  color:         inherit;
-  transition:    box-shadow 0.2s ease, transform 0.2s ease;
-  position:      relative;
+  display: flex;
+  flex-direction: column;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  transition: $card-transition;
+  height: 100%;
 
   &:hover {
-    box-shadow: $shadow-md;
-    transform:  translateY(-2px);
+    border-color: $border-medium;
+    .wishBtn { opacity: 1; }
   }
 }
 
-.badge {
-  position:    absolute;
-  top:         12px;
-  left:        12px;
-  background:  $primary-color;
-  color:       $white;
-  font-size:   $font-size-xs;
-  font-weight: 600;
-  padding:     3px 8px;
-  border-radius: $radius-sm;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  z-index: 1;
-}
+.imageLink { display: block; text-decoration: none; }
 
 .imageArea {
-  width:            100%;
-  aspect-ratio:     1 / 1;
-  background:       $bg-subtle;
-  border-bottom:    1px solid $border-color;
+  position: relative;
+  aspect-ratio: $product-card-img-ratio;
+  background: linear-gradient(135deg, rgba($lime, 0.04), rgba($bronze, 0.06));
+  overflow: hidden;
+}
+
+.image {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform $transition-slow;
+
+  .card:hover & { transform: scale(1.03); }
 }
 
 .imagePlaceholder {
-  @include flex-column-center;
-  width:  100%;
-  height: 100%;
-  gap:    8px;
+  width: 100%; height: 100%;
+  display: grid;
+  place-items: center;
+  border-bottom: 1px dashed $border-medium;
 }
 
-.sku {
-  font-size:   $font-size-xs;
-  color:       $text-muted;
+.placeholderSku {
   font-family: $font-family-mono;
-}
-
-.info {
-  @include flex-column;
-  padding: 16px;
-  gap:     6px;
-  flex:    1;
-}
-
-.category {
-  font-size:      $font-size-xs;
-  color:          $text-muted;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: $ls-eyebrow;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight:    500;
 }
+
+// Badges
+.badge {
+  position: absolute;
+  top: $spacing-3;
+  left: $spacing-3;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+}
+.badgeFeatured { background: $bronze;    color: $bg-page; }
+.badgeOffer    { background: $vino;      color: $text-primary; }
+.badgeOut      { background: $bg-sunken; color: $text-muted; border: 1px solid $border-medium; }
+
+// Wishlist button
+.wishBtn {
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3;
+  width: 36px; height: 36px;
+  display: grid;
+  place-items: center;
+  background: rgba($bg-sunken, 0.8);
+  backdrop-filter: blur(4px);
+  border: 1px solid $border-medium;
+  border-radius: $border-radius-full;
+  color: $text-muted;
+  cursor: pointer;
+  opacity: 0;
+  transition: $transition-colors;
+
+  &:hover { color: $vino-soft; border-color: $vino-soft; }
+}
+.wishBtnActive {
+  opacity: 1;
+  color: $vino-soft;
+  border-color: $vino-soft;
+}
+
+// Info
+.info {
+  padding: $spacing-5 $spacing-4 $spacing-6;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  flex: 1;
+}
+
+.tags {
+  display: flex;
+  gap: $spacing-2;
+  flex-wrap: wrap;
+}
+.tag {
+  font-family: $font-family-mono;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 7px;
+  border-radius: $border-radius-sm;
+}
+.tagCategory { color: $bronze;     background: rgba($bronze, 0.08); }
+.tagOrisha   { color: $coral-soft; background: rgba($coral, 0.08); }
 
 .name {
   font-family: $font-family-display;
-  font-size:   $font-size-md;
-  color:       $text-primary;
-  font-weight: 600;
-  line-height: 1.35;
-  margin:      0;
+  font-size: $font-size-md;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  line-height: $line-height-snug;
 
-  mark {
-    background: $primary-50;
-    color:      $primary-dark;
-    border-radius: 2px;
-    padding:    0 2px;
-  }
+  em { color: $lime-soft; font-style: normal; } // search highlight
 }
 
 .pricing {
-  @include flex-start;
-  gap:        6px;
-  margin-top: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-3;
+  margin-top: auto;
 }
-
 .price {
-  font-size:   $font-size-lg;
-  font-weight: 700;
-  color:       $text-primary;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  letter-spacing: $ls-snug;
 }
-
-.priceLabel {
+.priceWas {
+  font-family: $font-family-mono;
   font-size: $font-size-xs;
-  color:     $text-muted;
-}
-
-.footer {
-  margin-top: 8px;
-}
-
-.inStock {
-  font-size:  $font-size-xs;
-  color:      $in-stock-color;
-  font-weight: 500;
-}
-
-.outOfStock {
-  font-size:  $font-size-xs;
-  color:      $out-of-stock-color;
-  font-weight: 500;
+  color: $text-muted;
+  text-decoration: line-through;
+  letter-spacing: 0.06em;
 }

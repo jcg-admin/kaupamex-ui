@@ -1,119 +1,246 @@
-@use '@styles/abstracts' as *;
+// ═══════════════════════════════════════════════════════════════════════
+// Header — Práctica Yorùbà
+// ═══════════════════════════════════════════════════════════════════════
+@use '@styles/abstracts/variables' as *;
 
 .header {
+  background: $bg-page;
+  border-bottom: 1px solid $border-color;
   position: sticky;
   top: 0;
-  z-index: $z-fixed;
-  background-color: $header-bg;
-  border-bottom: 1px solid $header-border;
-  box-shadow: $header-shadow;
-  height: $header-height;
-
-  @include media-down-md { height: $header-height-mobile; }
+  z-index: $z-sticky;
 }
 
-.inner {
-  @include flex-between;
-  height: 100%;
+// ─────────────────────────────────────────────────────────────────────
+// Top utility strip
+// ─────────────────────────────────────────────────────────────────────
+.topStrip {
+  background: $bg-sunken;
+  border-bottom: 1px solid $border-color;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.06em;
+  color: $text-muted;
+}
+.topStripInner {
   max-width: $content-max-width;
   margin: 0 auto;
-  padding: 0 $content-padding-desktop;
-  gap: $spacing-4;
+  padding: 8px $content-padding-desktop;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
-  @include media-down-md { padding: 0 $content-padding-mobile; }
+  @media (max-width: $bp-md) { display: none; }
 }
-
-.brand {
-  text-decoration: none;
-  flex-shrink: 0;
+.topStripLeft {
+  display: flex; gap: $spacing-6;
+  text-transform: uppercase;
 }
+.topStripRight {
+  display: flex; gap: $spacing-5;
 
-.brandName {
-  font-family: $font-family-display;
-  font-size: $font-size-xl;
-  font-weight: $font-weight-bold;
-  color: $secondary-color;
-  letter-spacing: -0.01em;
+  a {
+    color: $text-muted;
+    text-transform: uppercase;
 
-  @include media-down-md { font-size: $font-size-lg; }
+    &:hover { color: $text-secondary; }
+  }
 }
+.bronze { color: $bronze; font-weight: $font-weight-medium; }
+.dot { color: $text-muted; opacity: 0.5; }
 
-.nav {
-  @include flex-center;
-  gap: $spacing-1;
-  flex: 1;
-  justify-content: center;
-
-  @include media-down-lg { display: none; }
+// ─────────────────────────────────────────────────────────────────────
+// Main bar
+// ─────────────────────────────────────────────────────────────────────
+.mainBar {
+  border-bottom: 1px solid $border-color;
 }
+.mainBarInner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-5 $content-padding-desktop;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: $spacing-8;
+  align-items: center;
 
-.navLink {
-  padding: $spacing-1 $spacing-3;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $text-secondary;
-  border-radius: $border-radius-md;
-  text-decoration: none;
-  transition: $transition-colors;
-  white-space: nowrap;
-
-  &:hover { color: $primary-color; background: $primary-50; }
-}
-
-.navLinkActive {
-  color: $primary-color;
-  font-weight: $font-weight-semibold;
-}
-
-.actions {
-  @include flex-center;
-  gap: $spacing-1;
-  flex-shrink: 0;
-}
-
-%icon-btn {
-  @include flex-center;
-  width: 40px;
-  height: 40px;
-  border-radius: $border-radius-full;
-  color: $text-secondary;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  transition: $transition-colors;
-
-  &:hover {
-    background: $primary-50;
-    color: $primary-color;
+  @media (max-width: $bp-md) {
+    grid-template-columns: 1fr auto;
+    padding: $spacing-3 $content-padding-mobile;
+    gap: $spacing-3;
   }
 }
 
-.iconBtn { @extend %icon-btn; }
+// Brand
+.brand {
+  display: flex; align-items: center; gap: $spacing-4;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
 
-.cartBtn {
-  @extend %icon-btn;
-  position: relative;
+  &:hover { color: inherit; }
 }
+.brandLogo {
+  width: 48px; height: 48px;
+  filter: invert(1);
+  flex-shrink: 0;
 
-.notificationBtn {
-  @extend %icon-btn;
-  position: relative;
+  @media (max-width: $bp-md) { width: 36px; height: 36px; }
 }
-
-.cartCount,
-.notificationCount {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  min-width: 18px;
-  height: 18px;
-  background: $accent-color;
-  color: $bg-surface;
-  font-size: 10px;
-  font-weight: $font-weight-bold;
-  border-radius: $border-radius-full;
-  @include flex-center;
-  padding: 0 4px;
+.brandText {
+  display: flex; flex-direction: column; gap: 3px;
+}
+.brandName {
+  font-family: $font-family-display;
+  font-size: 22px;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  letter-spacing: $ls-snug;
   line-height: 1;
+
+  @media (max-width: $bp-md) { font-size: 18px; }
+}
+.brandTag {
+  font-family: $font-family-mono;
+  font-size: 9.5px;
+  color: $bronze;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  line-height: 1;
+}
+
+// Search
+.searchTrigger {
+  display: flex; align-items: center; gap: $spacing-3;
+  width: 100%;
+  max-width: 520px;
+  justify-self: center;
+  padding: 11px $spacing-4;
+  border: 1px solid $border-medium;
+  border-radius: $border-radius-sm;
+  background: transparent;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: $transition-colors;
+
+  &:hover {
+    border-color: $border-strong;
+    color: $text-secondary;
+  }
+
+  @media (max-width: $bp-md) { display: none; }
+}
+.searchPlaceholder {
+  flex: 1;
+  text-align: left;
+  font-family: $font-family-base;
+}
+.searchKbd {
+  font-family: $font-family-mono;
+  font-size: 10px;
+  color: $text-muted;
+  letter-spacing: 0.08em;
+  border: 1px solid $border-medium;
+  padding: 2px 6px;
+  border-radius: $border-radius-sm;
+  background: transparent;
+}
+
+// Actions
+.actions {
+  display: flex; align-items: center; gap: $spacing-6;
+  font-size: $font-size-sm;
+
+  @media (max-width: $bp-md) { gap: $spacing-3; }
+}
+.actionLink {
+  color: $text-secondary;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  padding: 8px 0;
+  transition: $transition-colors;
+
+  &:hover { color: $text-primary; }
+
+  @media (max-width: $bp-md) {
+    &:not(.cartBtn) { display: none; }
+  }
+}
+.cartBtn {
+  display: inline-flex; align-items: center; gap: $spacing-2;
+  color: $text-primary;
+  padding: 8px $spacing-4;
+  border: 1px solid $border-medium;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  text-decoration: none;
+  position: relative;
+  transition: $transition-colors;
+
+  &:hover { border-color: $lime; color: $lime-soft; }
+}
+.cartCount {
+  background: $bronze;
+  color: $bg-page;
+  padding: 1px 7px;
+  border-radius: $border-radius-full;
+  font-family: $font-family-mono;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Categories nav
+// ─────────────────────────────────────────────────────────────────────
+.categoriesNav {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+}
+.categoriesInner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: 0 $content-padding-desktop;
+  display: flex;
+  gap: $spacing-10;
+  font-size: $font-size-sm;
+  letter-spacing: 0.02em;
+  align-items: center;
+  white-space: nowrap;
+
+  @media (max-width: $bp-md) {
+    padding: 0 $content-padding-mobile;
+    gap: $spacing-6;
+  }
+}
+.navLink {
+  padding: $spacing-4 0;
+  color: $text-secondary;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: $transition-colors;
+
+  &:hover { color: $text-primary; }
+}
+.navLinkActive {
+  color: $text-primary;
+  font-weight: $font-weight-medium;
+  border-bottom-color: $bronze;
+}
+.navSpacer { flex: 1; }
+.navLinkAccent {
+  padding: $spacing-4 0;
+  color: $bronze;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+
+  &:hover { color: $bronze-soft; }
 }

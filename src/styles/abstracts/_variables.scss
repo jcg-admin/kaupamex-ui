@@ -1,122 +1,121 @@
 // ═══════════════════════════════════════════════════════════════════════
-// VARIABLES SCSS — PracticaYoruba E-commerce
+// VARIABLES SCSS — Práctica Yorùbà E-commerce
 // ═══════════════════════════════════════════════════════════════════════
-// Paleta Armonía Complementaria — Nestor Topaz v1.0
-// Verde lima (dominante) + Rojo vino (complementario) + acentos cálidos
+// Paleta del brazalete · Tema oscuro
+// Verde lima (dominante 45%) · Rojo vino (complementario 35%)
+// Dorado bronce (árbitro 12%) · Naranja coral (puente 5%) · Rust (cierre 3%)
+// Tipografía: Fraunces (display) + IBM Plex Sans (UI) + IBM Plex Mono (meta)
 // ═══════════════════════════════════════════════════════════════════════
 
 // ─────────────────────────────────────────────────────────────────────
-// 1. COLORES PRIMARIOS — Paleta Armonía Complementaria
+// 1. PALETA DEL BRAZALETE — 5 tonos complementarios
 // ─────────────────────────────────────────────────────────────────────
 
-// Primario: verde lima (dominante estructural — 45%)
-// Contraste: 8.02:1 vs oscuro (AAA) / solo usar sobre fondos oscuros
-$primary-color:     #8CB800;    // Chartreuse intenso — botones, CTA, highlights
-$primary-light:     #C8E060;    // Verde lima claro — hover states
-$primary-dark:      #6A9000;    // Verde lima oscuro — pressed states
-$primary-50:        #EEF4D0;    // Verde muy suave — backgrounds
-$primary-100:       #C8E060;    // Verde suave — tinted backgrounds
+// Verde lima — DOMINANTE
+$lime:              #8CB800;
+$lime-soft:         #A8C840;
+$lime-deep:         #6A9000;
+$lime-shadow:       #4A6200;
+$lime-tint:         #C8E060;
+$lime-cream:        #EEF4D0;
 
-// Secundario: rojo vino (complementario directo — 35%)
-// Contraste: 10.33:1 vs blanco (AAA) — ideal para texto sobre fondos claros
-$secondary-color:   #7A1E1E;    // Rojo oscuro — texto, headers, sidebar
-$secondary-light:   #A03030;    // Rojo medio — nav hover
-$secondary-dark:    #4A0E0E;    // Rojo muy oscuro
+// Rojo vino — COMPLEMENTARIO
+$vino:              #7A1E1E;
+$vino-soft:         #9A4040;
+$vino-deep:         #5A1212;
 
-// Acento: naranja coral (transición — 5%)
-$accent-color:      #D86030;    // Naranja coral — alertas, urgencia, CTA secundario
-$accent-light:      #E88060;    // Coral claro — hover
-$accent-dark:       #B04820;    // Coral oscuro — pressed
+// Dorado bronce mate — ÁRBITRO
+$bronze:            #B89840;
+$bronze-soft:       #C8AA60;
+$bronze-deep:       #8C7028;
 
-// Separador: dorado bronce mate (ritmo — 12%)
-$separator-color:   #B89840;    // Dorado bronce — separadores, badges
+// Naranja coral — PUENTE
+$coral:             #D86030;
+$coral-soft:        #E2855A;
 
-// Cierre metálico: dorado oxidado (3%)
-$metallic-color:    #A07820;    // Dorado envejecido — bordes premium, iconos
-
-// ─────────────────────────────────────────────────────────────────────
-// 2. COLORES NEUTROS Y SUPERFICIES
-// ─────────────────────────────────────────────────────────────────────
-
-// Fondos
-$bg-page:           #F5F7EE;    // Suave terroso — fondo de página
-$bg-surface:        #FFFFFF;    // Blanco puro — cards, modals
-$bg-sunken:         #EAEEE0;    // Terroso oscuro — inputs, code blocks
-$bg-overlay:        rgba(122, 30, 30, 0.5);  // Overlay de modals
-
-// Texto
-$text-primary:      #0E1400;    // Casi negro verdoso — texto principal
-$text-strong:       #1A2200;    // Variante — títulos, énfasis fuerte
-$text-secondary:    #3A4A20;    // Verde oscuro — texto secundario
-$text-soft:         #4A5830;    // Variante — caption, subtítulos
-$text-muted:        #6A7850;    // Musgo claro — placeholder, disabled
-$text-inverse:      #F5F7EE;    // Blanco verdoso — texto sobre fondos oscuros
-$text-link:         $primary-color;
-$text-link-hover:   $primary-dark;
-
-// Escala de grises neutrales — paralela a la paleta cálida Yoruba
-// para los componentes que necesitan un gris frío (admin, tablas,
-// indicadores de estado). Frecuencia y uso documentados en
-// docs/scss-audit.md.
-$gray-50:           #FAFAFA;    // Fondos sutiles
-$gray-200:          #EEEEEE;    // Separadores claros, hover state
-$gray-400:          #CCCCCC;    // Bordes neutros
-$gray-500:          #999999;    // Iconos secundarios
-$gray-600:          #666666;    // Texto secundario neutro
-$gray-700:          #555555;    // Texto principal neutro
-$gray-800:          #333333;    // Headers en fondo claro
-$gray-950:          #1A1A1A;    // Casi negro neutro
-
-// Bordes
-$border-color:      #D0D8B8;    // Verde gris suave — bordes generales
-$border-focus:      $primary-color;
-$border-error:      #C0392B;
+// Dorado oxidado — CIERRE
+$rust:              #A07820;
 
 // ─────────────────────────────────────────────────────────────────────
-// 3. COLORES DE ESTADO
+// 2. ROLES SEMÁNTICOS PRIMARIOS
 // ─────────────────────────────────────────────────────────────────────
 
-$success-color:     #27AE60;    // Verde — orden confirmada, pago exitoso
-$success-strong:    #1F7A4D;    // Verde emerald — confirmaciones críticas
-$success-bg:        #EAFAF1;
-$success-border:    #A9DFBF;
+// Primario: verde lima (CTAs principales)
+$primary-color:     $lime;
+$primary-light:     $lime-soft;
+$primary-dark:      $lime-deep;
+$primary-50:        rgba($lime, 0.08);
+$primary-100:       rgba($lime, 0.16);
 
-$error-color:       #C0392B;    // Rojo — errores, validación
-$danger-strong:     #B00020;    // Rojo material — errores prominentes
-$danger-deep:       #A32018;    // Rojo profundo — pressed states
-$danger-bg:         #FDECEA;    // Fondo del rojo material
-$error-bg:          #FDEDEC;
-$error-border:      #F1948A;
+// Secundario: vino (acentos cálidos)
+$secondary-color:   $vino;
+$secondary-light:   $vino-soft;
+$secondary-dark:    $vino-deep;
 
-$warning-color:     #E67E22;    // Naranja — advertencias, stock bajo
-$warning-bg:        #FEF9E7;
-$warning-border:    #FAD7A0;
-
-// Familia ámbar — para estados pending y avisos ámbar Material-style
-$amber-500:         #D97706;    // Ámbar saturado — íconos pending
-$amber-700:         #C47A00;    // Ámbar oscuro — color de texto status_PENDING
-$amber-900:         #5A4318;    // Ámbar profundo — texto sobre fondo claro
-$amber-bg:          #FEF3C7;    // Fondo ámbar suave
-
-$info-color:        #2980B9;    // Azul — información, tooltips
-$info-strong:       #1F3A8A;    // Azul navy — links destacados
-$info-bg:           #EBF5FB;
-$info-border:       #AED6F1;
-
-// Familia indigo — azules fríos Material/Tailwind para admin
-// y pantallas con identidad "cool" (refunds, payments).
-$indigo-500:        #4A5FC1;    // Indigo principal
-$indigo-600:        #1C5BD8;    // Indigo saturado
-$indigo-700:        #1A4F8B;    // Indigo oscuro / navy claro
-$indigo-900:        #14296B;    // Indigo profundo
-
-// Stock / disponibilidad
-$in-stock-color:    $success-color;
-$low-stock-color:   $warning-color;
-$out-of-stock-color: $error-color;
+// Acento: coral (puente, highlights, info)
+$accent-color:      $coral;
+$accent-light:      $coral-soft;
+$accent-dark:       $rust;
 
 // ─────────────────────────────────────────────────────────────────────
-// 4. ESPACIADO — Sistema base 4px
+// 3. SUPERFICIES — Tema oscuro
+// ─────────────────────────────────────────────────────────────────────
+
+$bg-page:           #0E1400;    // Verde-negro · fondo principal
+$bg-surface:        #161D04;    // Panel sutil sobre fondo
+$bg-sunken:         #0A1004;    // Footer / sidebar / depresión
+$bg-elevated:       #1F2808;    // Cards elevadas
+$bg-vino-panel:     #2A1010;    // Panel cálido tintado de vino
+$bg-overlay:        rgba(10, 16, 4, 0.78);  // Overlay de modals
+
+// ─────────────────────────────────────────────────────────────────────
+// 4. TIPOGRAFÍA — Colores
+// ─────────────────────────────────────────────────────────────────────
+
+$text-primary:      #F5F7EE;    // Off-white de la paleta
+$text-secondary:    #B8B7A5;    // Gris cálido · cuerpo
+$text-muted:        #7A7D62;    // Gris medio · metadata
+$text-inverse:      #0E1400;    // Sobre fondos lima/blanco
+$text-link:         $lime;
+$text-link-hover:   $lime-soft;
+
+// ─────────────────────────────────────────────────────────────────────
+// 5. BORDES
+// ─────────────────────────────────────────────────────────────────────
+
+$border-color:      rgba(245, 247, 238, 0.08);
+$border-medium:     rgba(245, 247, 238, 0.14);
+$border-strong:     rgba(245, 247, 238, 0.24);
+$border-focus:      $lime;
+$border-error:      $vino-soft;
+
+// ─────────────────────────────────────────────────────────────────────
+// 6. ESTADOS
+// ─────────────────────────────────────────────────────────────────────
+
+$success-color:     $lime;
+$success-bg:        rgba($lime, 0.08);
+$success-border:    rgba($lime, 0.3);
+
+$error-color:       $vino-soft;
+$error-bg:          rgba($vino, 0.12);
+$error-border:      rgba($vino-soft, 0.4);
+
+$warning-color:     $bronze;
+$warning-bg:        rgba($bronze, 0.08);
+$warning-border:    rgba($bronze, 0.3);
+
+$info-color:        $coral;
+$info-bg:           rgba($coral, 0.08);
+$info-border:       rgba($coral, 0.3);
+
+// Stock
+$in-stock-color:    $lime-soft;
+$low-stock-color:   $bronze-soft;
+$out-of-stock-color: $vino-soft;
+
+// ─────────────────────────────────────────────────────────────────────
+// 7. ESPACIADO — Sistema base 4px
 // ─────────────────────────────────────────────────────────────────────
 
 $spacing-1:  4px;
@@ -132,7 +131,6 @@ $spacing-16: 64px;
 $spacing-20: 80px;
 $spacing-24: 96px;
 
-// Aliases semánticos
 $space-xs:   $spacing-1;
 $space-sm:   $spacing-2;
 $space-md:   $spacing-4;
@@ -142,13 +140,14 @@ $space-2xl:  $spacing-12;
 $space-3xl:  $spacing-16;
 
 // ─────────────────────────────────────────────────────────────────────
-// 5. TIPOGRAFÍA
+// 8. TIPOGRAFÍA — Familias
 // ─────────────────────────────────────────────────────────────────────
 
-$font-family-base:    'Inter', -apple-system, BlinkMacSystemFont,
+$font-family-base:    'IBM Plex Sans', -apple-system, BlinkMacSystemFont,
                       'Segoe UI', 'Roboto', sans-serif;
-$font-family-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
-$font-family-mono:    'JetBrains Mono', 'SFMono-Regular', 'Consolas', monospace;
+$font-family-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+$font-family-mono:    'IBM Plex Mono', 'JetBrains Mono', 'SFMono-Regular',
+                      'Consolas', monospace;
 
 // Tamaños
 $font-size-xs:   11px;
@@ -161,6 +160,7 @@ $font-size-2xl:  24px;
 $font-size-3xl:  30px;
 $font-size-4xl:  36px;
 $font-size-5xl:  48px;
+$font-size-6xl:  64px;
 
 // Pesos
 $font-weight-light:     300;
@@ -171,25 +171,32 @@ $font-weight-bold:      700;
 $font-weight-extrabold: 800;
 
 // Interlineado
-$line-height-tight:   1.2;
-$line-height-snug:    1.35;
-$line-height-normal:  1.5;
+$line-height-tight:   1.1;
+$line-height-snug:    1.3;
+$line-height-normal:  1.55;
 $line-height-relaxed: 1.65;
 $line-height-loose:   2;
 
+// Letter-spacing semántico
+$ls-tight:  -0.02em;
+$ls-snug:   -0.01em;
+$ls-normal: 0;
+$ls-wide:   0.04em;
+$ls-wider:  0.08em;
+$ls-eyebrow: 0.18em;
+
 // ─────────────────────────────────────────────────────────────────────
-// 6. BORDES Y RADIOS
+// 9. BORDES Y RADIOS — Tonos sobrios, corporativos
 // ─────────────────────────────────────────────────────────────────────
 
 $border-radius-none: 0;
-$border-radius-sm:   4px;
-$border-radius-md:   8px;
-$border-radius-lg:   12px;
-$border-radius-xl:   16px;
-$border-radius-2xl:  24px;
+$border-radius-sm:   2px;
+$border-radius-md:   3px;
+$border-radius-lg:   4px;
+$border-radius-xl:   8px;
+$border-radius-2xl:  16px;
 $border-radius-full: 9999px;
 
-// Alias principal
 $border-radius: $border-radius-md;
 
 $border-width-thin:  1px;
@@ -197,24 +204,25 @@ $border-width-base:  1px;
 $border-width-thick: 2px;
 
 // ─────────────────────────────────────────────────────────────────────
-// 7. SOMBRAS
+// 10. SOMBRAS — Discretas sobre fondo oscuro
 // ─────────────────────────────────────────────────────────────────────
 
-$shadow-xs:  0 1px 2px 0 rgba(122, 30, 30, 0.05);
-$shadow-sm:  0 1px 3px 0 rgba(122, 30, 30, 0.08),
-             0 1px 2px 0 rgba(122, 30, 30, 0.04);
-$shadow-md:  0 4px 6px -1px rgba(122, 30, 30, 0.08),
-             0 2px 4px -1px rgba(122, 30, 30, 0.04);
-$shadow-lg:  0 10px 15px -3px rgba(122, 30, 30, 0.08),
-             0 4px 6px -2px rgba(122, 30, 30, 0.04);
-$shadow-xl:  0 20px 25px -5px rgba(122, 30, 30, 0.1),
-             0 10px 10px -5px rgba(122, 30, 30, 0.04);
+$shadow-xs:  0 1px 2px 0 rgba(0, 0, 0, 0.25);
+$shadow-sm:  0 1px 3px 0 rgba(0, 0, 0, 0.4),
+             0 1px 2px 0 rgba(0, 0, 0, 0.2);
+$shadow-md:  0 4px 6px -1px rgba(0, 0, 0, 0.5),
+             0 2px 4px -1px rgba(0, 0, 0, 0.3);
+$shadow-lg:  0 10px 15px -3px rgba(0, 0, 0, 0.5),
+             0 4px 6px -2px rgba(0, 0, 0, 0.3);
+$shadow-xl:  0 20px 25px -5px rgba(0, 0, 0, 0.55),
+             0 10px 10px -5px rgba(0, 0, 0, 0.3);
 $shadow-card: $shadow-sm;
 $shadow-card-hover: $shadow-md;
-$shadow-modal: 0 25px 50px -12px rgba(122, 30, 30, 0.25);
+$shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+$shadow-glow-lime: 0 0 0 3px rgba($lime, 0.15);
 
 // ─────────────────────────────────────────────────────────────────────
-// 8. TRANSICIONES
+// 11. TRANSICIONES
 // ─────────────────────────────────────────────────────────────────────
 
 $transition-fast:    150ms ease;
@@ -231,7 +239,7 @@ $transition-shadow:  box-shadow $transition-fast;
 $transition-transform: transform $transition-fast;
 
 // ─────────────────────────────────────────────────────────────────────
-// 9. Z-INDEX
+// 12. Z-INDEX
 // ─────────────────────────────────────────────────────────────────────
 
 $z-hide:              -1;
@@ -246,134 +254,112 @@ $z-tooltip:         1070;
 $z-toast:           1080;
 
 // ─────────────────────────────────────────────────────────────────────
-// 10. BREAKPOINTS — Responsive Design
+// 13. BREAKPOINTS
 // ─────────────────────────────────────────────────────────────────────
 
 $bp-xs:   0;
-$bp-sm:   480px;    // Teléfonos grandes
-$bp-md:   768px;    // Tablets
-$bp-lg:   1024px;   // Laptops
-$bp-xl:   1280px;   // Desktops
-$bp-2xl:  1536px;   // Monitores grandes
+$bp-sm:   480px;
+$bp-md:   768px;
+$bp-lg:   1024px;
+$bp-xl:   1280px;
+$bp-2xl:  1536px;
 
 // ─────────────────────────────────────────────────────────────────────
-// 11. LAYOUT — Estructura global
+// 14. LAYOUT
 // ─────────────────────────────────────────────────────────────────────
 
-$header-height:            64px;
+$header-height:            72px;
 $header-height-mobile:     56px;
-$header-bg:                $bg-surface;
+$header-bg:                $bg-page;
 $header-border:            $border-color;
-$header-shadow:            $shadow-sm;
+$header-shadow:            none;
 
 $sidebar-width:            260px;
 $sidebar-width-collapsed:  64px;
 $sidebar-width-mobile:     80%;
-$sidebar-bg:               $secondary-color;
-$sidebar-text:             $text-inverse;
+$sidebar-bg:               $bg-sunken;
+$sidebar-text:             $text-secondary;
 $sidebar-transition:       width 300ms ease-out;
 
-$content-max-width:        1280px;
-$content-padding-desktop:  $spacing-8;
+$content-max-width:        1440px;
+$content-padding-desktop:  $spacing-10;
 $content-padding-tablet:   $spacing-4;
 $content-padding-mobile:   $spacing-3;
 
-$footer-height:            80px;
-$footer-bg:                $secondary-dark;
-$footer-text:              rgba($text-inverse, 0.8);
+$footer-height:            auto;
+$footer-bg:                $bg-sunken;
+$footer-text:              $text-secondary;
 
 // ─────────────────────────────────────────────────────────────────────
-// 12. COMPONENTES — Botones
+// 15. COMPONENTES — Botones
 // ─────────────────────────────────────────────────────────────────────
 
-$btn-padding-y:      10px;
-$btn-padding-x:      20px;
+$btn-padding-y:      14px;
+$btn-padding-x:      24px;
 $btn-border-radius:  $border-radius-md;
-$btn-font-weight:    $font-weight-semibold;
-$btn-font-size:      $font-size-base;
+$btn-font-weight:    $font-weight-medium;
+$btn-font-size:      $font-size-sm;
 $btn-transition:     $transition-default;
 $btn-line-height:    1.5;
+$btn-letter-spacing: $ls-wide;
+$btn-text-transform: uppercase;
 
-$btn-padding-y-sm:   6px;
-$btn-padding-x-sm:   14px;
-$btn-font-size-sm:   $font-size-sm;
+$btn-padding-y-sm:   8px;
+$btn-padding-x-sm:   16px;
+$btn-font-size-sm:   $font-size-xs;
 
-$btn-padding-y-lg:   14px;
-$btn-padding-x-lg:   28px;
-$btn-font-size-lg:   $font-size-lg;
+$btn-padding-y-lg:   18px;
+$btn-padding-x-lg:   32px;
+$btn-font-size-lg:   $font-size-base;
 
 // ─────────────────────────────────────────────────────────────────────
-// 13. COMPONENTES — Formularios
+// 16. COMPONENTES — Formularios
 // ─────────────────────────────────────────────────────────────────────
 
-$input-padding-y:          10px;
-$input-padding-x:          14px;
-$input-border-radius:      $border-radius-md;
-$input-border-color:       $border-color;
-$input-bg:                 $bg-surface;
+$input-padding-y:          14px;
+$input-padding-x:          16px;
+$input-border-radius:      $border-radius-sm;
+$input-border-color:       $border-medium;
+$input-bg:                 transparent;
 $input-color:              $text-primary;
 $input-placeholder-color:  $text-muted;
-$input-focus-border-color: $primary-color;
-$input-focus-shadow:       0 0 0 3px rgba($primary-color, 0.15);
+$input-focus-border-color: $lime;
+$input-focus-shadow:       $shadow-glow-lime;
 $input-font-size:          $font-size-base;
 $input-transition:         $transition-default;
 
 // ─────────────────────────────────────────────────────────────────────
-// 14. COMPONENTES — Cards de Producto
+// 17. COMPONENTES — Cards
 // ─────────────────────────────────────────────────────────────────────
 
 $card-bg:             $bg-surface;
 $card-border:         $border-color;
-$card-border-radius:  $border-radius-lg;
-$card-padding:        $spacing-4;
-$card-shadow:         $shadow-card;
-$card-shadow-hover:   $shadow-card-hover;
+$card-border-radius:  $border-radius-sm;
+$card-padding:        $spacing-6;
+$card-shadow:         none;
+$card-shadow-hover:   $shadow-sm;
 $card-transition:     $transition-default;
 
-$product-card-img-ratio: 4 / 3;  // Relación de aspecto de imágenes
+$product-card-img-ratio: 4 / 5;
 
 // ─────────────────────────────────────────────────────────────────────
-// 15. COMPONENTES — Badges y Pills
+// 18. COMPONENTES — Badges
 // ─────────────────────────────────────────────────────────────────────
 
-$badge-padding-y:     3px;
-$badge-padding-x:     8px;
-$badge-border-radius: $border-radius-full;
+$badge-padding-y:     4px;
+$badge-padding-x:     10px;
+$badge-border-radius: $border-radius-sm;
 $badge-font-size:     $font-size-xs;
 $badge-font-weight:   $font-weight-semibold;
 
 // ═══════════════════════════════════════════════════════════════════════
-// Fin variables — PracticaYoruba
+// ALIASES — compatibilidad con nombres alternativos del proyecto
 // ═══════════════════════════════════════════════════════════════════════
-
-// ─────────────────────────────────────────────────────────────────────
-// ALIASES — compatibilidad con nombres alternativos usados en componentes
-// ─────────────────────────────────────────────────────────────────────
-$bg-card:        $card-bg;          // _modal.scss, _table.scss, _progress-bar.scss
-$primary-tint:   $primary-50;       // _form-stepper.scss, _focus-indicators.scss
-$text-on-btn:    $text-inverse;     // _avatar.scss, _form-stepper.scss, _progress-bar.scss
-$success:        $success-color;    // _progress-bar.scss, _form-stepper.scss
-$warning:        $warning-color;    // _progress-bar.scss
-$error:          $error-color;      // _progress-bar.scss
-$border:         $border-color;    // _modal.scss, _table.scss, _tabs.scss, _progress-bar.scss, _animations.scss
-$primary:        $primary-color;    // _tabs.scss, _animations.scss, AnimatedLoadingSpinner
-
-// Colores (estilo Bootstrap) — usados en pages/* y components/*
-$color-primary:  $primary-color;
-$color-danger:   $error-color;
-$color-error:    $error-color;
-$color-text:     $text-primary;
-$white:          #FFFFFF;
-
-// Superficies / fondos
-$surface:        $bg-surface;
-$bg-subtle:      $bg-sunken;
-$bg-muted:       $bg-sunken;
-
-// Radios (alias cortos)
-$radius-sm:      $border-radius-sm;
-$radius-md:      $border-radius-md;
-$radius-lg:      $border-radius-lg;
-
-// Tipografía display
-$font-size-display: $font-size-4xl;
+$bg-card:        $card-bg;
+$primary-tint:   $primary-50;
+$text-on-btn:    $text-inverse;
+$success:        $success-color;
+$warning:        $warning-color;
+$error:          $error-color;
+$border:         $border-color;
+$primary:        $primary-color;

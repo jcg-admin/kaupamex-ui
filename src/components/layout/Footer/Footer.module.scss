@@ -1,92 +1,143 @@
-@use '@styles/abstracts' as *;
+// ═══════════════════════════════════════════════════════════════════════
+// Footer — Práctica Yorùbà
+// ═══════════════════════════════════════════════════════════════════════
+@use '@styles/abstracts/variables' as *;
 
 .footer {
-  background-color: $secondary-dark;
-  color: rgba($text-inverse, 0.8);
-  margin-top: auto;
+  background: $bg-sunken;
+  border-top: 1px solid $border-medium;
+  margin-top: $spacing-20;
+  color: $text-secondary;
+  font-size: $font-size-sm;
 }
 
 .inner {
-  display: flex;
-  gap: $spacing-8;
   max-width: $content-max-width;
   margin: 0 auto;
-  padding: $spacing-12 $content-padding-desktop;
+  padding: $spacing-16 $content-padding-desktop $spacing-8;
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, 1fr);
+  gap: $spacing-12;
 
-  @include media-down-lg {
-    flex-direction: column;
-    gap: $spacing-6;
-    padding: $spacing-8 $content-padding-tablet;
+  @media (max-width: $bp-lg) {
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: $spacing-8;
   }
-
-  @include media-down-md {
-    padding: $spacing-6 $content-padding-mobile;
+  @media (max-width: $bp-md) {
+    grid-template-columns: 1fr 1fr;
+    padding: $spacing-10 $content-padding-mobile $spacing-6;
+    gap: $spacing-6;
+  }
+  @media (max-width: $bp-sm) {
+    grid-template-columns: 1fr;
   }
 }
 
-.brand { flex-shrink: 0; }
-
+// Brand column
+.brandCol {
+  @media (max-width: $bp-lg) { grid-column: 1 / -1; }
+  @media (max-width: $bp-md) { grid-column: 1 / -1; }
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: $spacing-5;
+}
+.brandLogo {
+  width: 40px; height: 40px;
+  filter: invert(1);
+  flex-shrink: 0;
+}
 .brandName {
   font-family: $font-family-display;
   font-size: $font-size-xl;
-  font-weight: $font-weight-bold;
-  color: $primary-light;
-  display: block;
-  margin-bottom: $spacing-2;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  line-height: 1;
 }
-
-.tagline {
-  font-size: $font-size-sm;
-  color: rgba($text-inverse, 0.5);
-  max-width: 200px;
+.brandTag {
+  font-family: $font-family-mono;
+  font-size: 9px;
+  color: $bronze;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  margin-top: 4px;
+}
+.brandDesc {
+  color: $text-muted;
   line-height: $line-height-relaxed;
+  max-width: 280px;
+  margin: 0 0 $spacing-6;
+}
+.brandMeta {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  font-style: normal;
+  color: $text-muted;
+  letter-spacing: 0.08em;
+  line-height: 1.9;
+  text-transform: uppercase;
 }
 
-.nav {
-  display: flex;
-  gap: $spacing-8;
-  flex: 1;
-  justify-content: flex-end;
-
-  @include media-down-md {
-    flex-wrap: wrap;
-    gap: $spacing-6;
-    justify-content: flex-start;
-  }
+// Columns
+.col h4 {}
+.colTitle {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $ls-eyebrow;
+  text-transform: uppercase;
+  color: $bronze;
+  margin: 0 0 $spacing-5;
 }
-
-.col {
+.colList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing-2;
-  min-width: 120px;
+  gap: $spacing-3;
 
-  a {
+  li a {
+    color: $text-secondary;
     font-size: $font-size-sm;
-    color: rgba($text-inverse, 0.6);
     text-decoration: none;
-    transition: color $transition-fast;
+    transition: $transition-colors;
 
-    &:hover { color: $primary-light; }
+    &:hover { color: $text-primary; }
   }
 }
 
-.colTitle {
-  font-size: $font-size-xs;
-  font-weight: $font-weight-semibold;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba($text-inverse, 0.4);
-  margin-bottom: $spacing-1;
-}
-
+// Bottom row
 .bottom {
-  border-top: 1px solid rgba($text-inverse, 0.08);
-  padding: $spacing-4 $content-padding-desktop;
-  text-align: center;
+  border-top: 1px solid $border-color;
+}
+.bottomInner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-5 $content-padding-desktop;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: $text-muted;
+  text-transform: uppercase;
 
-  p {
-    font-size: $font-size-xs;
-    color: rgba($text-inverse, 0.35);
+  @media (max-width: $bp-md) {
+    padding: $spacing-4 $content-padding-mobile;
+    flex-direction: column;
+    gap: $spacing-3;
+    align-items: flex-start;
   }
+}
+.payments {
+  display: flex;
+  gap: $spacing-6;
+
+  @media (max-width: $bp-md) { gap: $spacing-4; flex-wrap: wrap; }
 }

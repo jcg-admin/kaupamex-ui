@@ -12,6 +12,7 @@
 // Arquitectura CSS Modules:
 //   main.scss (globales mínimos)
 //       └── base/         reset + typography + keyframes
+//       └── abstracts/    tipografía base (html, body, headings, links)
 //       └── accessibility/ :focus-visible
 //
 //   ComponenteName.module.scss (estilos de componente)
@@ -23,8 +24,13 @@
 
 // 1. Reset y base de elementos
 @use 'base/reset';
+
+// 2. Tipografía base Brazalete — html, body, headings, links, selection
+@use 'abstracts/typography';
+
+// 3. Utilidades tipográficas y clases de componente
 @use 'base/typography';
 @use 'base/animations';
 
-// 2. Accesibilidad — :focus-visible global (WCAG AA)
+// 4. Accesibilidad — :focus-visible global (WCAG AA)
 @use 'accessibility/index';

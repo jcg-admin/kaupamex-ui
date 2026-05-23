@@ -1,0 +1,40 @@
+@use '@styles/abstracts/variables' as *;
+
+.sidebar {
+  position: sticky;
+  top: calc($header-height + $spacing-6);
+  align-self: start;
+
+  @media (max-width: $bp-md) {
+    position: static;
+    margin-bottom: $spacing-6;
+  }
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-3;
+  padding: 14px $spacing-4;
+  border-left: 2px solid transparent;
+  color: $text-secondary;
+  text-decoration: none;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+  transition: $transition-colors;
+
+  &:hover { color: $text-primary; }
+}
+.linkActive {
+  border-left-color: $bronze;
+  background: rgba($bronze, 0.06);
+  color: $text-primary;
+  font-weight: $font-weight-medium;
+}
+.label { flex: 1; }
+.counter {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
