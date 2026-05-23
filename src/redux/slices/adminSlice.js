@@ -7,8 +7,6 @@
  *   UC-AUTH-13 — Suspender cuenta de usuario
  *   UC-AUTH-14 — Reactivar cuenta de usuario
  *   UC-AUTH-15 — Crear usuario administrador
- *   UC-AUTH-16 — Forzar reset de contraseña
- *   UC-AUTH-17 — Promover usuario a administrador
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
@@ -204,6 +202,7 @@ const adminSlice = createSlice({
       .addCase(suspendUser.fulfilled, (state) => {
         state.isActioning = false;
         state.lastAction  = 'suspended';
+        // Actualizar en lista local si existe
         if (state.currentUser) {
           state.currentUser = { ...state.currentUser, is_active: false };
         }
