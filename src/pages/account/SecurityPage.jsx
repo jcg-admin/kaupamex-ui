@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { changePassword, logoutUser } from '@redux/slices/authSlice';
+import { changePassword, logoutAllSessions } from '@redux/slices/authSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Button, Field } from '@components/common/primitives';
 import styles from './SecurityPage.module.scss';
@@ -25,7 +25,7 @@ export default function SecurityPage() {
       return;
     }
     try {
-      await dispatch(changePassword({ current_password: pwd.current, new_password: pwd.next })).unwrap();
+      await dispatch(changePassword({ currentPassword: pwd.current, newPassword: pwd.next, confirmPassword: pwd.confirm })).unwrap();
       setPwd({ current: '', next: '', confirm: '' });
     } catch (e) {
       setErr('No se pudo cambiar la contraseña. Verifica tu contraseña actual.');
@@ -75,7 +75,7 @@ export default function SecurityPage() {
                   <SessionRow key={s.id} session={s} />
                 ))}
               </div>
-              <Button variant="secondary" onClick={() => dispatch(logoutUser())}>
+              <Button variant="secondary" onClick={() => dispatch(logoutAllSessions())}>
                 Cerrar todas las sesiones excepto esta
               </Button>
             </Card>

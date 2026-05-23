@@ -1,12 +1,3 @@
-/**
- * AddressesPage — Práctica Yorùbà
- * CRUD de direcciones (max 5).
- *
- * Endpoints:
- *   GET / POST   /auth/addresses/
- *   GET / PATCH / DELETE  /auth/addresses/{id}/
- */
-
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';

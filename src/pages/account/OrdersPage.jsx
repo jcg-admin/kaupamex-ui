@@ -1,11 +1,3 @@
-/**
- * OrdersPage — Práctica Yorùbà
- * Lista paginada de pedidos del comprador.
- *
- * Endpoints:
- *   GET /orders/?status={status}&page={n}
- */
-
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';

@@ -1,13 +1,3 @@
-/**
- * OrderDetailPage — Práctica Yorùbà
- * Detalle de un pedido con timeline + items + dirección + totales.
- *
- * Endpoints:
- *   GET /{order_number}/
- *   POST /{order_number}/cancel/
- *   POST /payments/{n}/refund/
- */
-
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
@@ -49,7 +39,6 @@ export default function OrderDetailPage() {
           <span className={styles.bcCurrent}>{order.order_number}</span>
         </nav>
 
-        {/* Hero */}
         <header className={styles.hero}>
           <div>
             <div className={styles.heroMeta}>

@@ -1,9 +1,3 @@
-/**
- * AccountPage — Práctica Yorùbà
- * Dashboard de cuenta: avatar, completitud de perfil, accesos rápidos,
- * últimos pedidos.
- */
-
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -20,7 +14,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     dispatch(fetchProfile());
-    dispatch(fetchOrders({ limit: 3 }));
+    dispatch(fetchOrders());
   }, [dispatch]);
 
   if (!user) return null;
@@ -114,9 +108,9 @@ export default function AccountPage() {
             </section>
 
             <div className={styles.quickGrid}>
-              <QuickCard to="/account/wishlist"   t="Lista de deseos"   d="Tus piezas guardadas" />
-              <QuickCard to="/account/addresses" t="Mis direcciones"   d="Hasta 5 ubicaciones" />
-              <QuickCard to="/account/security"   t="Seguridad"          d="Contraseña y sesiones" />
+              <QuickCard to="/account/wishlist"    t="Lista de deseos"  d="Tus piezas guardadas" />
+              <QuickCard to="/account/addresses"   t="Mis direcciones"  d="Hasta 5 ubicaciones" />
+              <QuickCard to="/account/security"    t="Seguridad"         d="Contraseña y sesiones" />
             </div>
           </section>
         </div>

@@ -1,11 +1,3 @@
-/**
- * ProfilePage — Práctica Yorùbà
- * Edición de datos personales: nombre, apellido, teléfono, fecha de nacimiento, avatar.
- *
- * Endpoints:
- *   GET / PATCH /auth/profile/
- */
-
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
