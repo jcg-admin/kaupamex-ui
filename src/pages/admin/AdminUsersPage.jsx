@@ -32,7 +32,7 @@ export default function AdminUsersPage() {
   const [status, setStatus] = useState('active');
   const [search, setSearch] = useState('');
   const users = useSelector((s) => s.admin?.users || []);
-  const isLoading = useSelector((s) => s.admin?.isLoading);
+  const isLoading = useSelector((s) => s.admin?.isLoadingUsers);
 
   useEffect(() => {
     dispatch(fetchAdminUsers({ role, status, search }));
@@ -112,7 +112,7 @@ export default function AdminUsersPage() {
                   </div>
                 </td>
                 <td>
-                  <Link to={`/admin/users/${u.id}`} className={styles.itemName}>
+                  <Link to={`/admin/usuarios/${u.id}`} className={styles.itemName}>
                     {u.first_name} {u.last_name}
                   </Link>
                   <div className={styles.muted}>@{u.username}</div>
@@ -133,7 +133,7 @@ export default function AdminUsersPage() {
                   {u.last_login ? new Date(u.last_login).toLocaleDateString('es-MX') : '—'}
                 </td>
                 <td className={styles.actions}>
-                  <Link to={`/admin/users/${u.id}`} className={styles.actionBtn} title="Ver">→</Link>
+                  <Link to={`/admin/usuarios/${u.id}`} className={styles.actionBtn} title="Ver">→</Link>
                 </td>
               </tr>
             ))}

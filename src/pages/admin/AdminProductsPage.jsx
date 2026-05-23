@@ -35,7 +35,7 @@ export default function AdminProductsPage() {
         </div>
         <div className={styles.headerActions}>
           <Button variant="secondary">Importar CSV</Button>
-          <Link to="/admin/products/new"><Button variant="primary">+ Nuevo producto</Button></Link>
+          <Link to="/admin/productos/nuevo"><Button variant="primary">+ Nuevo producto</Button></Link>
         </div>
       </header>
 
@@ -88,7 +88,7 @@ export default function AdminProductsPage() {
                   </div>
                 </td>
                 <td>
-                  <Link to={`/admin/products/${p.id}`} className={styles.itemName}>
+                  <Link to={`/admin/productos/${p.id}`} className={styles.itemName}>
                     {p.name}
                     {p.is_featured && <span className={styles.starBadge}>★</span>}
                   </Link>
@@ -117,7 +117,7 @@ export default function AdminProductsPage() {
                     onClick={() => dispatch(toggleProductFeatured(p.id))}
                     title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
                   >★</button>
-                  <Link to={`/admin/products/${p.id}`} className={styles.actionBtn} title="Editar">✎</Link>
+                  <Link to={`/admin/productos/${p.id}`} className={styles.actionBtn} title="Editar">✎</Link>
                   <button
                     type="button"
                     className={`${styles.actionBtn} ${styles.actionDelete}`}

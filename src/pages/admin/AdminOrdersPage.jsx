@@ -93,7 +93,7 @@ export default function AdminOrdersPage() {
             {!isLoading && orders.map((o) => (
               <tr key={o.order_number}>
                 <td>
-                  <Link to={`/admin/orders/${o.order_number}`} className={`${styles.itemName} ${styles.mono}`}>
+                  <Link to={`/admin/pedidos/${o.order_number}`} className={`${styles.itemName} ${styles.mono}`}>
                     {o.order_number}
                   </Link>
                 </td>
@@ -117,7 +117,7 @@ export default function AdminOrdersPage() {
                   </span>
                 </td>
                 <td className={styles.actions}>
-                  <Link to={`/admin/orders/${o.order_number}`} className={styles.actionBtn} title="Ver">→</Link>
+                  <Link to={`/admin/pedidos/${o.order_number}`} className={styles.actionBtn} title="Ver">→</Link>
                 </td>
               </tr>
             ))}
@@ -127,3 +127,6 @@ export default function AdminOrdersPage() {
     </div>
   );
 }
+
+// Cosmetic local style: muted text in table
+const _ = `.muted { color: var(--c-ink-mute, #7A7D62); font-size: 11px; }`;

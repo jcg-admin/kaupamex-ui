@@ -64,7 +64,7 @@ export default function AdminDashboardPage() {
         <section className={styles.card}>
           <header className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Pedidos recientes</h2>
-            <Link to="/admin/orders" className={styles.cardLink}>Ver todos →</Link>
+            <Link to="/admin/pedidos" className={styles.cardLink}>Ver todos →</Link>
           </header>
           <table className={styles.table}>
             <thead>
@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
               {(m.recent_orders || []).slice(0, 6).map((o) => (
                 <tr key={o.order_number}>
                   <td className={styles.mono}>
-                    <Link to={`/admin/orders/${o.order_number}`}>{o.order_number}</Link>
+                    <Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link>
                   </td>
                   <td>{o.customer_name}</td>
                   <td>
@@ -124,7 +124,7 @@ export default function AdminDashboardPage() {
         <section className={styles.card}>
           <header className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Top productos · 30 días</h2>
-            <Link to="/admin/products" className={styles.cardLink}>Ver todos →</Link>
+            <Link to="/admin/productos" className={styles.cardLink}>Ver todos →</Link>
           </header>
           <ul className={styles.topList}>
             {(m.top_products || []).slice(0, 5).map((p, i) => (
