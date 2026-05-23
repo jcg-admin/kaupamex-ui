@@ -22,7 +22,7 @@ export default function NotFoundPage() {
         </p>
         <div className={styles.ctas}>
           <Link to="/"><Button variant="primary" size="lg">Ir al catálogo</Button></Link>
-          <Link to="/catalog?cat=por-orisha"><Button variant="secondary" size="lg">Buscar por òrìsà</Button></Link>
+          <Link to="/catalogo?cat=por-orisha"><Button variant="secondary" size="lg">Buscar por òrìsà</Button></Link>
         </div>
       </div>
     </main>

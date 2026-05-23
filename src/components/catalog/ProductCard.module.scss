@@ -146,6 +146,7 @@
   margin: 0;
   transition: $transition-colors;
 
+  // highlight from search results
   :global(mark) {
     background: rgba($lime, 0.25);
     color: $text-primary;

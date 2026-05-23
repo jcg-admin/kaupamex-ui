@@ -1,15 +1,16 @@
 /**
  * HomePage — Práctica Yorùbà
- * Hero editorial + franja de info + destacados + grid de òrìsà + manifiesto + newsletter
+ * Hero editorial + franja de info + destacados + grid de òrìsà + manifiesto + novedades + newsletter
  *
  * Endpoints consumidos:
  *   GET /catalogue/?is_featured=true
+ *   GET /catalogue/categories/?root=true
  */
 
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchProducts } from '@redux/slices/catalogSlice';
+import { fetchFeaturedProducts, fetchCategories } from '@redux/slices/catalogSlice';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Button } from '@components/common/primitives';
 import styles from './HomePage.module.scss';
@@ -25,10 +26,11 @@ const ORISHAS = [
 
 export default function HomePage() {
   const dispatch = useDispatch();
-  const { products = [], isLoading } = useSelector((s) => s.catalog || {});
+  const { featured = [], isLoading } = useSelector((s) => s.catalog || {});
 
   useEffect(() => {
-    dispatch(fetchProducts({ is_featured: true }));
+    dispatch(fetchFeaturedProducts());
+    dispatch(fetchCategories());
   }, [dispatch]);
 
   return (
@@ -46,8 +48,8 @@ export default function HomePage() {
               el camino del santo. Catálogo organizado por òrìsà, con envío a toda la república.
             </p>
             <div className={styles.heroCtas}>
-              <Link to="/catalog"><Button variant="primary" size="md">Entrar al catálogo</Button></Link>
-              <Link to="/catalog?cat=por-orisha"><Button variant="secondary" size="md">Por òrìsà</Button></Link>
+              <Link to="/catalogo"><Button variant="primary" size="md">Entrar al catálogo</Button></Link>
+              <Link to="/catalogo?cat=por-orisha"><Button variant="secondary" size="md">Por òrìsà</Button></Link>
             </div>
             <div className={styles.heroStats}>
               <Stat n="16" l="òrìsà principales" />
@@ -89,12 +91,12 @@ export default function HomePage() {
                 Piezas destacadas <em>esta semana</em>
               </h2>
             </div>
-            <Link to="/catalog" className={styles.sectionLink}>Ver todas →</Link>
+            <Link to="/catalogo" className={styles.sectionLink}>Ver todas →</Link>
           </header>
           <div className={styles.productGrid}>
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-              : products.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
+              : featured.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         </div>
       </section>
@@ -116,7 +118,7 @@ export default function HomePage() {
             {ORISHAS.map((o) => (
               <Link
                 key={o.slug}
-                to={`/catalog?orisha=${o.slug}`}
+                to={`/catalogo?orisha=${o.slug}`}
                 className={styles.orishaCard}
               >
                 <div className={styles.orishaImg}>

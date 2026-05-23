@@ -1,27 +1,33 @@
+/**
+ * Footer — Práctica Yorùbà
+ * 5 columnas: marca, catálogo, cuenta, tradición, apoyo.
+ * Sin afirmaciones biográficas inventadas.
+ */
+
 import { Link } from 'react-router-dom';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Footer.module.scss';
 
 const COLUMNS = [
   {
     title: 'Catálogo',
     items: [
-      { to: '/catalog',                  label: 'Novedades' },
-      { to: '/catalog?cat=por-orisha',   label: 'Por òrìsà' },
-      { to: '/catalog?cat=por-ritual',   label: 'Por ritual' },
-      { to: '/catalog?cat=elekes',       label: 'Elekes' },
-      { to: '/catalog?cat=herramientas', label: 'Herramientas' },
-      { to: '/catalog?cat=libros',       label: 'Libros & láminas' },
+      { to: '/catalogo',                  label: 'Novedades' },
+      { to: '/catalogo?cat=por-orisha',   label: 'Por òrìsà' },
+      { to: '/catalogo?cat=por-ritual',   label: 'Por ritual' },
+      { to: '/catalogo?cat=elekes',       label: 'Elekes' },
+      { to: '/catalogo?cat=herramientas', label: 'Herramientas' },
+      { to: '/catalogo?cat=libros',       label: 'Libros & láminas' },
     ],
   },
   {
     title: 'Cuenta',
     items: [
       { to: '/auth/login',          label: 'Ingresar' },
-      { to: '/auth/register',       label: 'Crear cuenta' },
-      { to: '/account/orders',      label: 'Mis pedidos' },
-      { to: '/account/addresses',   label: 'Direcciones' },
-      { to: '/account/wishlist',    label: 'Lista de deseos' },
+      { to: '/auth/registro',       label: 'Crear cuenta' },
+      { to: '/mi-cuenta/pedidos',   label: 'Mis pedidos' },
+      { to: '/mi-cuenta/direcciones', label: 'Direcciones' },
+      { to: '/mi-cuenta/favoritos', label: 'Lista de deseos' },
     ],
   },
   {

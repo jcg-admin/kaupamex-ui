@@ -4,23 +4,23 @@
  */
 
 import { NavLink } from 'react-router-dom';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './AdminSidebar.module.scss';
 
 const ADMIN_NAV = [
   { section: 'Operación', items: [
     { to: '/admin',           label: 'Resumen',         end: true },
-    { to: '/admin/orders',    label: 'Pedidos' },
-    { to: '/admin/products',  label: 'Productos' },
-    { to: '/admin/inventory', label: 'Inventario' },
+    { to: '/admin/pedidos',   label: 'Pedidos' },
+    { to: '/admin/productos', label: 'Productos' },
+    { to: '/admin/inventario', label: 'Inventario' },
   ]},
   { section: 'Comunidad', items: [
-    { to: '/admin/users',     label: 'Usuarios' },
+    { to: '/admin/usuarios',  label: 'Usuarios' },
     { to: '/admin/vouchers',  label: 'Vouchers' },
   ]},
   { section: 'Configuración', items: [
-    { to: '/admin/categories', label: 'Categorías' },
-    { to: '/admin/settings',   label: 'Ajustes del sitio' },
+    { to: '/admin/categorias', label: 'Categorías' },
+    { to: '/admin/ajustes',    label: 'Ajustes del sitio' },
   ]},
 ];
 

@@ -1,23 +1,28 @@
 /**
  * ProductCard — Práctica Yorùbà
- * Tarjeta de producto editorial:
- *   · imagen (aspect 4/5), tag categoría, tag òrìsà, nombre, precio
- *   · badge Destacado / Oferta / Sin stock
+ * Tarjeta de producto editorial con:
+ *   · imagen (aspect 4/5) — usa product.image_url o placeholder
+ *   · tag de categoría (eleke, otán, herramienta, libro…)
+ *   · tag de òrìsà (Yemayá, Shangó, Oshún…) — viene de product.orisha_name
+ *   · nombre del producto
+ *   · precio formateado en MXN
+ *   · badge "Destacado" / "Oferta" si aplica
  *   · botón flotante de wishlist
  *
- * product = {
- *   id, name, slug, sku,
- *   base_price, price_with_tax,
- *   category_name, orisha_name,
- *   stock, is_featured, has_discount,
- *   image_url,
- *   highlighted_name,
- * }
+ * Compatible con la estructura del backend Django:
+ *   product = {
+ *     id, name, slug, sku,
+ *     base_price, price_with_tax,
+ *     category_name, orisha_name,    // <- nuevos campos
+ *     stock, is_featured, has_discount,
+ *     image_url,                      // <- nuevo campo
+ *     highlighted_name,
+ *   }
  */
 
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
+import { toggleWishlist } from '@redux/slices/wishlistSlice';
 import styles from './ProductCard.module.scss';
 
 function formatPrice(amount) {
@@ -46,16 +51,12 @@ export default function ProductCard({ product, inWishlist = false }) {
   const handleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (inWishlist) {
-      dispatch(removeFromWishlist({ productId: id }));
-    } else {
-      dispatch(addToWishlist({ productId: id }));
-    }
+    dispatch(toggleWishlist({ productId: id }));
   };
 
   return (
     <article className={styles.card}>
-      <Link to={`/catalog/${slug}`} className={styles.imageLink}>
+      <Link to={`/catalogo/${slug}`} className={styles.imageLink}>
         <div className={styles.imageArea}>
           {image_url ? (
             <img

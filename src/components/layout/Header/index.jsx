@@ -1,3 +1,16 @@
+/**
+ * Header — Práctica Yorùbà
+ * Cabecera con logo, tagline IFÁ · ÒRÌSÀ · OLÓDÙMARÈ,
+ * navegación Yorùbà (por òrìsà / ritual / elekes / herramientas / libros),
+ * búsqueda, cuenta y carrito.
+ *
+ * Mantiene la integración Redux existente:
+ * - selectIsAuthenticated
+ * - selectCartItemCount
+ * - selectIsSearchOpen
+ * - toggleSearch, openModal del uiSlice
+ */
+
 import { Link, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -6,15 +19,16 @@ import {
   selectIsSearchOpen,
 } from '@redux/selectors';
 import { toggleSearch, openModal } from '@redux/slices/uiSlice';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Header.module.scss';
 
+// Navegación Yorùbà — categorías específicas de la tradición
 const MAIN_NAV = [
-  { to: '/catalog?cat=por-orisha',     label: 'Por òrìsà' },
-  { to: '/catalog?cat=por-ritual',     label: 'Por ritual' },
-  { to: '/catalog?cat=elekes',         label: 'Elekes & collares' },
-  { to: '/catalog?cat=herramientas',   label: 'Herramientas' },
-  { to: '/catalog?cat=libros',         label: 'Libros & láminas' },
+  { to: '/catalogo?cat=por-orisha',     label: 'Por òrìsà' },
+  { to: '/catalogo?cat=por-ritual',     label: 'Por ritual' },
+  { to: '/catalogo?cat=elekes',         label: 'Elekes & collares' },
+  { to: '/catalogo?cat=herramientas',   label: 'Herramientas' },
+  { to: '/catalogo?cat=libros',         label: 'Libros & láminas' },
 ];
 
 export default function Header() {
@@ -37,9 +51,9 @@ export default function Header() {
             <span>Atención L-V 10:00 — 19:00 · Envíos a toda la república</span>
           </div>
           <div className={styles.topStripRight}>
-            <Link to="/help">Ayuda</Link>
-            <Link to="/account/orders">Rastrear pedido</Link>
-            <Link to="/contact">Contacto</Link>
+            <Link to="/ayuda">Ayuda</Link>
+            <Link to="/mi-cuenta/pedidos">Rastrear pedido</Link>
+            <Link to="/contacto">Contacto</Link>
           </div>
         </div>
       </div>
@@ -83,7 +97,7 @@ export default function Header() {
           {/* Actions */}
           <div className={styles.actions}>
             {isAuth ? (
-              <Link to="/account" className={styles.actionLink}>
+              <Link to="/mi-cuenta" className={styles.actionLink}>
                 Mi cuenta
               </Link>
             ) : (
@@ -96,12 +110,12 @@ export default function Header() {
               </button>
             )}
 
-            <Link to="/account/wishlist" className={styles.actionLink}>
+            <Link to="/mi-cuenta/favoritos" className={styles.actionLink}>
               Deseos
             </Link>
 
             <Link
-              to="/cart"
+              to="/carrito"
               className={styles.cartBtn}
               aria-label={`Carrito (${cartCount} ${cartCount === 1 ? 'pieza' : 'piezas'})`}
             >
@@ -129,7 +143,7 @@ export default function Header() {
             </NavLink>
           ))}
           <span className={styles.navSpacer} />
-          <Link to="/catalog" className={styles.navLinkAccent}>
+          <Link to="/catalogo" className={styles.navLinkAccent}>
             · Catálogo completo →
           </Link>
         </div>
