@@ -1,3 +1,11 @@
+/**
+ * ProfilePage — Práctica Yorùbà
+ * Edición de datos personales: nombre, apellido, teléfono, fecha de nacimiento, avatar.
+ *
+ * Endpoints:
+ *   GET / PATCH /auth/profile/
+ */
+
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -35,7 +43,7 @@ export default function ProfilePage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <span>/</span>
           <span className={styles.bcCurrent}>Datos personales</span>
         </nav>

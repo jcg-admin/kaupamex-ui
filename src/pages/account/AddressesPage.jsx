@@ -1,3 +1,12 @@
+/**
+ * AddressesPage — Práctica Yorùbà
+ * CRUD de direcciones (max 5).
+ *
+ * Endpoints:
+ *   GET / POST   /auth/addresses/
+ *   GET / PATCH / DELETE  /auth/addresses/{id}/
+ */
+
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -24,7 +33,7 @@ export default function AddressesPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <span>/</span>
           <span className={styles.bcCurrent}>Direcciones</span>
         </nav>

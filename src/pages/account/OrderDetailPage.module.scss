@@ -85,6 +85,7 @@
   margin-bottom: $spacing-6;
 }
 
+// Timeline
 .timeline { position: relative; padding-left: $spacing-3; }
 .timelineRail {
   position: absolute;
@@ -106,8 +107,15 @@
   margin-top: 6px; margin-left: 10px;
   border: 1px dashed $border-strong;
 }
-.timelineDotDone { background: $lime; border: 0; }
-.timelineDotActive { background: $coral; border: 0; box-shadow: 0 0 0 5px rgba($coral, 0.18); }
+.timelineDotDone {
+  background: $lime;
+  border: 0;
+}
+.timelineDotActive {
+  background: $coral;
+  border: 0;
+  box-shadow: 0 0 0 5px rgba($coral, 0.18);
+}
 .timelineTitle {
   font-family: $font-family-display;
   font-size: $font-size-lg;
@@ -115,7 +123,11 @@
   font-weight: $font-weight-medium;
 }
 .timelineTitleActive { color: $text-primary; }
-.timelineDetail { font-size: $font-size-sm; color: $text-muted; margin-top: 3px; }
+.timelineDetail {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-top: 3px;
+}
 .timelineWhen {
   font-family: $font-family-mono;
   font-size: $font-size-xs;
@@ -124,6 +136,7 @@
   margin-top: 6px;
 }
 
+// Items
 .itemsList { border: 1px solid $border-color; }
 .itemRow {
   display: grid;
@@ -141,9 +154,21 @@
   img { width: 100%; height: 100%; object-fit: cover; }
 }
 .itemInfo { display: flex; flex-direction: column; gap: 4px; }
-.itemName { font-family: $font-family-display; font-size: $font-size-base; color: $text-primary; line-height: 1.3; margin-top: 4px; }
-.itemSku { font-family: $font-family-mono; font-size: $font-size-xs; color: $text-muted; letter-spacing: 0.06em; }
+.itemName {
+  font-family: $font-family-display;
+  font-size: $font-size-base;
+  color: $text-primary;
+  line-height: 1.3;
+  margin-top: 4px;
+}
+.itemSku {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.06em;
+}
 
+// Address
 .addressBox {
   border: 1px solid $border-color;
   padding: $spacing-6;
@@ -160,12 +185,39 @@
   font-style: normal;
   strong { font-weight: $font-weight-medium; }
 }
-.addressNotes { margin-top: $spacing-2; color: $text-secondary; font-size: $font-size-sm; line-height: $line-height-relaxed; font-style: italic; }
-.addressFootnote { margin-top: $spacing-4; font-family: $font-family-mono; font-size: $font-size-xs; color: $text-muted; letter-spacing: 0.06em; text-transform: uppercase; }
+.addressNotes {
+  margin-top: $spacing-2;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  font-style: italic;
+}
+.addressFootnote {
+  margin-top: $spacing-4;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
 
-.sideCard { background: $bg-surface; border: 1px solid $border-medium; padding: $spacing-7; }
-.sideCardOutline { border: 1px solid $border-color; padding: $spacing-6; }
-.sideCardTitle { font-family: $font-family-display; font-size: $font-size-xl; font-weight: $font-weight-medium; color: $text-primary; margin-bottom: $spacing-4; }
+// Side cards
+.sideCard {
+  background: $bg-surface;
+  border: 1px solid $border-medium;
+  padding: $spacing-7;
+}
+.sideCardOutline {
+  border: 1px solid $border-color;
+  padding: $spacing-6;
+}
+.sideCardTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-bottom: $spacing-4;
+}
 .sideCardTotal {
   border-top: 1px solid $border-medium;
   margin-top: $spacing-3;
@@ -175,8 +227,33 @@
   align-items: baseline;
   & > span:first-child { font-family: $font-family-display; font-size: $font-size-lg; color: $text-primary; }
 }
-.paymentMethod { margin-top: $spacing-3; font-size: $font-size-base; color: $text-primary; }
-.paymentMeta { margin-top: 6px; font-size: $font-size-sm; color: $text-muted; }
-.paymentLink { margin-top: $spacing-4; display: inline-block; font-family: $font-family-mono; font-size: $font-size-xs; color: $coral; letter-spacing: 0.08em; }
-.supportText { margin-top: $spacing-3; color: $text-secondary; font-size: $font-size-sm; line-height: $line-height-relaxed; }
-.supportActions { margin-top: $spacing-4; display: flex; flex-direction: column; gap: $spacing-2; }
+.paymentMethod {
+  margin-top: $spacing-3;
+  font-size: $font-size-base;
+  color: $text-primary;
+}
+.paymentMeta {
+  margin-top: 6px;
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+.paymentLink {
+  margin-top: $spacing-4;
+  display: inline-block;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $coral;
+  letter-spacing: 0.08em;
+}
+.supportText {
+  margin-top: $spacing-3;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+}
+.supportActions {
+  margin-top: $spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}

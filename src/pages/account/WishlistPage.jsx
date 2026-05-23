@@ -1,7 +1,17 @@
+/**
+ * WishlistPage — Práctica Yorùbà
+ * Lista de deseos con badges (bajó precio, última unidad) + move-to-cart.
+ *
+ * Endpoints:
+ *   GET /wishlist/
+ *   DELETE /wishlist/{pk}/
+ *   POST /wishlist/{pk}/move-to-cart/
+ */
+
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchWishlist, removeFromWishlist, moveWishlistItemToCart } from '@redux/slices/wishlistSlice';
+import { fetchWishlist, removeWishlistItem, moveToCart } from '@redux/slices/wishlistSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Price, Button, EmptyState } from '@components/common/primitives';
 import styles from './WishlistPage.module.scss';
@@ -16,7 +26,7 @@ export default function WishlistPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <span>/</span>
           <span className={styles.bcCurrent}>Lista de deseos</span>
         </nav>
@@ -35,7 +45,7 @@ export default function WishlistPage() {
                 </p>
               </div>
               {items.length > 0 && (
-                <Button variant="secondary" onClick={() => items.forEach(i => dispatch(moveWishlistItemToCart(i.id)))}>
+                <Button variant="secondary" onClick={() => items.forEach(i => dispatch(moveToCart(i.id)))}>
                   Mover todo al carrito
                 </Button>
               )}
@@ -49,7 +59,7 @@ export default function WishlistPage() {
                 title="No tienes piezas guardadas"
                 description="Cuando encuentres una pieza que quieras pero no quieras comprar ahora, guárdala aquí."
               >
-                <Link to="/catalog"><Button variant="primary">Ir al catálogo</Button></Link>
+                <Link to="/catalogo"><Button variant="primary">Ir al catálogo</Button></Link>
               </EmptyState>
             )}
 
@@ -80,7 +90,7 @@ function WishItem({ item, dispatch }) {
         <button
           type="button"
           className={styles.removeBtn}
-          onClick={() => dispatch(removeFromWishlist(item.id))}
+          onClick={() => dispatch(removeWishlistItem(item.id))}
           aria-label="Quitar de deseos"
         >×</button>
       </div>
@@ -98,7 +108,7 @@ function WishItem({ item, dispatch }) {
             </span>
           )}
         </div>
-        <Button variant="primary" block size="sm" onClick={() => dispatch(moveWishlistItemToCart(item.id))}>
+        <Button variant="primary" block size="sm" onClick={() => dispatch(moveToCart(item.id))}>
           Mover al carrito
         </Button>
       </div>

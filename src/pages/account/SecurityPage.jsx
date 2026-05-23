@@ -1,3 +1,13 @@
+/**
+ * SecurityPage — Práctica Yorùbà
+ * Cambio de contraseña + lista de sesiones activas + eliminar cuenta.
+ *
+ * Endpoints:
+ *   POST /auth/change-password/
+ *   POST /auth/logout/
+ *   (eliminar cuenta: endpoint a confirmar con backend)
+ */
+
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -25,7 +35,7 @@ export default function SecurityPage() {
       return;
     }
     try {
-      await dispatch(changePassword({ currentPassword: pwd.current, newPassword: pwd.next, confirmPassword: pwd.confirm })).unwrap();
+      await dispatch(changePassword({ current_password: pwd.current, new_password: pwd.next })).unwrap();
       setPwd({ current: '', next: '', confirm: '' });
     } catch (e) {
       setErr('No se pudo cambiar la contraseña. Verifica tu contraseña actual.');
@@ -36,7 +46,7 @@ export default function SecurityPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <span>/</span>
           <span className={styles.bcCurrent}>Seguridad</span>
         </nav>
@@ -50,6 +60,7 @@ export default function SecurityPage() {
               <h1 className={styles.title}>Contraseña y sesiones</h1>
             </header>
 
+            {/* Change password */}
             <Card title="Cambiar contraseña">
               <p className={styles.cardLead}>Te pediremos tu contraseña actual antes de aplicar el cambio.</p>
               <form className={styles.form} onSubmit={handleChangePwd}>
@@ -69,6 +80,7 @@ export default function SecurityPage() {
               </div>
             </Card>
 
+            {/* Sessions */}
             <Card title="Sesiones activas" subtitle="Lugares donde tu cuenta está iniciada hoy">
               <div className={styles.sessions}>
                 {MOCK_SESSIONS.map((s) => (
@@ -80,6 +92,7 @@ export default function SecurityPage() {
               </Button>
             </Card>
 
+            {/* Delete account */}
             <Card title="Eliminar cuenta" tone="vino">
               <p className={styles.cardLead}>
                 Si eliminas tu cuenta, no podrás recuperarla. Tu historial de pedidos se

@@ -46,10 +46,10 @@ export default function CartPage() {
             title="Aún no has elegido ninguna pieza"
             description="Explora el catálogo por òrìsà, por tipo de objeto o por uso ritual. Cuando agregues algo, lo verás aquí."
           >
-            <Link to="/catalog">
+            <Link to="/catalogo">
               <Button variant="primary">Ir al catálogo</Button>
             </Link>
-            <Link to="/catalog?cat=por-orisha">
+            <Link to="/catalogo?cat=por-orisha">
               <Button variant="secondary">Ver por òrìsà</Button>
             </Link>
           </EmptyState>
@@ -285,7 +285,7 @@ function CartSummary({
         <Button variant="primary" block size="lg" onClick={onCheckout}>
           Continuar al checkout →
         </Button>
-        <Link to="/catalog" className={styles.summaryBack}>
+        <Link to="/catalogo" className={styles.summaryBack}>
           Seguir explorando
         </Link>
 

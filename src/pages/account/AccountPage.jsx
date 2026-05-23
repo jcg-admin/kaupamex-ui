@@ -1,3 +1,9 @@
+/**
+ * AccountPage — Práctica Yorùbà
+ * Dashboard de cuenta: avatar, completitud de perfil, accesos rápidos,
+ * últimos pedidos.
+ */
+
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -14,7 +20,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     dispatch(fetchProfile());
-    dispatch(fetchOrders());
+    dispatch(fetchOrders({ limit: 3 }));
   }, [dispatch]);
 
   if (!user) return null;
@@ -62,7 +68,7 @@ export default function AccountPage() {
                       : 'Casi terminas.'}
                   </div>
                 </div>
-                <Link to="/account/profile">
+                <Link to="/mi-cuenta/perfil">
                   <Button variant="primary">Completar perfil</Button>
                 </Link>
               </div>
@@ -71,7 +77,7 @@ export default function AccountPage() {
             <section className={styles.recentOrders}>
               <header className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Pedidos recientes</h2>
-                <Link to="/account/orders" className={styles.sectionLink}>
+                <Link to="/mi-cuenta/pedidos" className={styles.sectionLink}>
                   Ver todos →
                 </Link>
               </header>
@@ -79,7 +85,7 @@ export default function AccountPage() {
               {orders.length === 0 ? (
                 <div className={styles.empty}>
                   <p>Aún no tienes pedidos.</p>
-                  <Link to="/catalog">
+                  <Link to="/catalogo">
                     <Button variant="secondary">Ir al catálogo</Button>
                   </Link>
                 </div>
@@ -98,7 +104,7 @@ export default function AccountPage() {
                         {o.status_label || o.status}
                       </div>
                       <Price amount={o.total} size="md" />
-                      <Link to={`/account/orders/${o.order_number}`}>
+                      <Link to={`/mi-cuenta/pedidos/${o.order_number}`}>
                         <Button variant="secondary" size="sm">Detalle</Button>
                       </Link>
                     </article>
@@ -108,9 +114,9 @@ export default function AccountPage() {
             </section>
 
             <div className={styles.quickGrid}>
-              <QuickCard to="/account/wishlist"    t="Lista de deseos"  d="Tus piezas guardadas" />
-              <QuickCard to="/account/addresses"   t="Mis direcciones"  d="Hasta 5 ubicaciones" />
-              <QuickCard to="/account/security"    t="Seguridad"         d="Contraseña y sesiones" />
+              <QuickCard to="/mi-cuenta/favoritos"   t="Lista de deseos"   d="Tus piezas guardadas" />
+              <QuickCard to="/mi-cuenta/direcciones" t="Mis direcciones"   d="Hasta 5 ubicaciones" />
+              <QuickCard to="/mi-cuenta/seguridad"   t="Seguridad"          d="Contraseña y sesiones" />
             </div>
           </section>
         </div>

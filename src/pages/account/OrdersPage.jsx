@@ -1,3 +1,11 @@
+/**
+ * OrdersPage — Práctica Yorùbà
+ * Lista paginada de pedidos del comprador.
+ *
+ * Endpoints:
+ *   GET /orders/?status={status}&page={n}
+ */
+
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -34,7 +42,7 @@ export default function OrdersPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
           <span>/</span>
           <span className={styles.bcCurrent}>Mis pedidos</span>
         </nav>
@@ -67,7 +75,7 @@ export default function OrdersPage() {
                 title="Aún no tienes pedidos"
                 description="Cuando hagas tu primer pedido, lo verás aquí con todo el seguimiento."
               >
-                <Link to="/catalog"><Button variant="primary">Ir al catálogo</Button></Link>
+                <Link to="/catalogo"><Button variant="primary">Ir al catálogo</Button></Link>
               </EmptyState>
             )}
 
@@ -110,7 +118,7 @@ function OrderRow({ order }) {
         </div>
         <Price amount={order.total} size="md" />
       </div>
-      <Link to={`/account/orders/${order.order_number}`}>
+      <Link to={`/mi-cuenta/pedidos/${order.order_number}`}>
         <Button variant="secondary" size="sm">Ver detalle</Button>
       </Link>
     </article>
