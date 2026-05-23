@@ -1,0 +1,114 @@
+@use '@styles/abstracts/variables' as *;
+
+.page { background: $bg-page; min-height: 60vh; }
+.container {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-12 $content-padding-desktop $spacing-24;
+  @media (max-width: $bp-md) { padding: $spacing-8 $content-padding-mobile $spacing-16; }
+}
+.breadcrumb {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  margin-bottom: $spacing-6;
+  display: flex; gap: $spacing-3;
+  a { color: $text-muted; &:hover { color: $text-secondary; } }
+}
+.bcCurrent { color: $text-secondary; }
+.layout { display: grid; grid-template-columns: 260px 1fr; gap: $spacing-12; @media (max-width: $bp-md) { grid-template-columns: 1fr; gap: $spacing-6; } }
+
+.header { margin-bottom: $spacing-10; }
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin-top: $spacing-3;
+}
+
+.card {
+  border: 1px solid $border-medium;
+  padding: $spacing-7;
+  margin-bottom: $spacing-6;
+}
+.cardVino {
+  border-color: $vino;
+  background: rgba($vino, 0.05);
+}
+.cardTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-bottom: $spacing-4;
+}
+.cardSubtitle {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-bottom: $spacing-5;
+}
+.cardLead {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-bottom: $spacing-5;
+}
+
+.form { display: flex; flex-direction: column; gap: $spacing-4; max-width: 480px; }
+
+.warning {
+  margin-top: $spacing-5;
+  padding: 14px;
+  background: rgba($bronze, 0.08);
+  border: 1px solid $border-color;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  display: flex;
+  gap: $spacing-3;
+  strong { color: $text-primary; font-weight: $font-weight-medium; }
+}
+.warningIcon { color: $bronze; font-family: $font-family-mono; }
+
+.sessions {
+  display: flex;
+  flex-direction: column;
+}
+.sessionRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: $spacing-4;
+  padding: 14px 0;
+  border-bottom: 1px solid $border-color;
+  align-items: center;
+  font-size: $font-size-sm;
+  &:last-of-type { border-bottom: 0; }
+  @media (max-width: $bp-md) { grid-template-columns: 1fr 1fr; }
+}
+.sessionDevice { color: $text-primary; }
+.sessionLoc { color: $text-muted; }
+.sessionWhen {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.06em;
+}
+.sessionCurrent { color: $lime-soft; }
+.sessionClose {
+  background: none; border: 0;
+  font-size: $font-size-xs;
+  color: $text-secondary;
+  cursor: pointer;
+  &:hover { color: $vino-soft; }
+}
+.sessionDash { color: $text-muted; }
+
+.deleteBtn {
+  background: none; border: 0;
+  color: $vino-soft;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  padding: 0;
+  &:hover { color: $vino; }
+}

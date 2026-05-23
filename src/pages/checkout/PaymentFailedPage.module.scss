@@ -1,0 +1,107 @@
+@use '@styles/abstracts/variables' as *;
+
+.loading { padding: $spacing-20; text-align: center; color: $text-muted; background: $bg-page; }
+.page { background: $bg-page; min-height: 100vh; padding: $spacing-12 0; }
+.container { max-width: 720px; margin: 0 auto; padding: 0 $content-padding-desktop; @media (max-width: $bp-md) { padding: 0 $content-padding-mobile; } }
+
+.hero {
+  text-align: center;
+  padding-bottom: $spacing-10;
+  border-bottom: 1px solid $border-color;
+}
+.xIcon {
+  width: 72px; height: 72px;
+  border-radius: 999px;
+  border: 1px solid $vino;
+  background: rgba($vino, 0.15);
+  display: grid; place-items: center;
+  margin: 0 auto $spacing-6;
+  color: $vino-soft;
+  font-size: 30px;
+}
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin: $spacing-4 0;
+  line-height: 1.05;
+  letter-spacing: $ls-snug;
+  em { font-style: italic; color: $vino-soft; }
+}
+.lead {
+  font-size: $font-size-md;
+  color: $text-secondary;
+  max-width: 540px;
+  margin: 0 auto;
+  line-height: $line-height-relaxed;
+  strong { color: $text-primary; font-family: $font-family-mono; }
+}
+
+.reasonBox { padding: $spacing-8 0; }
+.reasonCard {
+  margin-top: $spacing-3;
+  padding: $spacing-5;
+  border: 1px solid $border-color;
+  background: rgba(245,247,238,0.02);
+}
+.reasonTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-bottom: 6px;
+}
+.reasonDesc { font-size: $font-size-sm; color: $text-secondary; line-height: $line-height-relaxed; }
+.reasonMeta {
+  margin-top: $spacing-3;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  color: $text-muted;
+  letter-spacing: 0.06em;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-3;
+  margin-bottom: $spacing-8;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
+}
+
+.history {}
+.historyList {
+  margin-top: $spacing-4;
+  border: 1px solid $border-color;
+}
+.historyRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: $spacing-4;
+  padding: $spacing-4 $spacing-5;
+  align-items: center;
+  border-bottom: 1px solid $border-color;
+  font-size: $font-size-sm;
+  &:last-child { border-bottom: 0; }
+}
+.historyWhen { font-family: $font-family-mono; font-size: $font-size-xs; color: $text-muted; }
+.historyStatus {
+  color: $vino-soft;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.supportBox {
+  margin-top: $spacing-8;
+  padding: $spacing-5;
+  border: 1px dashed $border-medium;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  @media (max-width: $bp-md) { flex-direction: column; gap: $spacing-3; align-items: flex-start; }
+}
+.supportLink { color: $coral; }

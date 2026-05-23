@@ -1,206 +1,134 @@
-@use '@styles/abstracts' as *;
+@use '@styles/abstracts/variables' as *;
 
-.page {
-  width: 100%;
-  max-width: 720px;
+.page { background: $bg-page; min-height: 60vh; }
+.container {
+  max-width: $content-max-width;
   margin: 0 auto;
-  padding: $spacing-8 $spacing-4;
+  padding: $spacing-12 $content-padding-desktop $spacing-24;
+  @media (max-width: $bp-md) { padding: $spacing-8 $content-padding-mobile $spacing-16; }
 }
-
-.header {
-  margin-bottom: $spacing-4;
-}
-
-.title {
-  margin: 0 0 $spacing-1;
-  font-family: $font-family-display;
-  font-size: $font-size-2xl;
-  color: $text-secondary;
-}
-
-.subtitle {
-  margin: 0;
-  color: $text-muted;
-  font-size: $font-size-sm;
-}
-
-.loading,
-.empty {
-  text-align: center;
-  padding: $spacing-6;
-  color: $text-muted;
-}
-
-.list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: $spacing-3;
-}
-
-.item {
-  display: flex;
-  gap: $spacing-4;
-  padding: $spacing-4;
-  background: $bg-surface;
-  border: 1px solid $border-color;
-  border-radius: 8px;
-  align-items: flex-start;
-}
-
-.info {
-  flex: 1;
-}
-
-.recipient {
-  margin: 0 0 $spacing-1;
-  font-weight: 600;
-}
-
-.badge {
-  margin-left: $spacing-2;
-  display: inline-block;
-  padding: 2px 8px;
-  background: $primary-color;
-  color: $bg-surface;
-  border-radius: 12px;
+.breadcrumb {
+  font-family: $font-family-mono;
   font-size: $font-size-xs;
-}
-
-.line {
-  margin: 2px 0;
   color: $text-muted;
-  font-size: $font-size-sm;
+  letter-spacing: 0.1em;
+  margin-bottom: $spacing-6;
+  display: flex; gap: $spacing-3;
+  a { color: $text-muted; &:hover { color: $text-secondary; } }
+}
+.bcCurrent { color: $text-secondary; }
+.layout { display: grid; grid-template-columns: 260px 1fr; gap: $spacing-12; @media (max-width: $bp-md) { grid-template-columns: 1fr; gap: $spacing-6; } }
+
+.header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: $spacing-8; gap: $spacing-4; @media (max-width: $bp-md) { flex-direction: column; align-items: flex-start; } }
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin-top: $spacing-3;
 }
 
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2;
-}
+.capacityBar { display: flex; gap: 4px; margin-bottom: $spacing-8; }
+.capSlot { flex: 1; height: 3px; border-radius: 2px; background: $border-medium; }
+.capSlotFilled { background: $lime; }
 
-.form {
-  background: $bg-surface;
-  border: 1px solid $border-color;
-  border-radius: 8px;
-  padding: $spacing-4;
-  display: grid;
-  gap: $spacing-3;
-}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: $spacing-5; @media (max-width: $bp-md) { grid-template-columns: 1fr; } }
 
-.formTitle {
-  margin: 0 0 $spacing-2;
+.card {
+  border: 1px solid $border-medium;
+  padding: $spacing-6;
+}
+.cardDefault {
+  border-color: $lime;
+  background: rgba($lime, 0.04);
+}
+.cardHeader { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: $spacing-4; }
+.cardAlias {
   font-family: $font-family-display;
   font-size: $font-size-xl;
+  color: $text-primary;
+  font-weight: $font-weight-medium;
 }
-
-.field {
-  display: grid;
-  gap: 4px;
-
-  label {
-    font-size: $font-size-sm;
-    color: $text-secondary;
-  }
-
-  input {
-    padding: $spacing-2 $spacing-3;
-    /* stylelint-disable-next-line color-no-hex */
-    border: 1px solid #d4c4a8;
-    border-radius: 4px;
-  }
-}
-
-.fieldError {
-  color: $error-color;
-  font-size: $font-size-xs;
-}
-
-.zoneError {
-  background: $danger-bg;
-  color: $accent-dark;
-  padding: $spacing-2 $spacing-3;
-  border-radius: 4px;
-}
-
-.formActions {
-  display: flex;
-  gap: $spacing-3;
-}
-
-.footer {
-  margin-top: $spacing-4;
-  display: flex;
-  align-items: center;
-  gap: $spacing-3;
-}
-
-.btnPrimary {
-  background: $primary-color;
-  color: $bg-surface;
-  border: none;
-  padding: $spacing-2 $spacing-4;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:disabled {
-    /* stylelint-disable-next-line color-no-hex */
-    background: #c8b88a;
-    cursor: not-allowed;
-  }
-}
-
-.btnSecondary {
-  background: transparent;
-  color: $text-secondary;
-  /* stylelint-disable-next-line color-no-hex */
-  border: 1px solid #d4c4a8;
-  padding: $spacing-2 $spacing-3;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background: $amber-bg;
-  }
-}
-
-.btnDanger {
-  background: transparent;
-  color: $error-color;
-  border: 1px solid $error-border;
-  padding: $spacing-2 $spacing-3;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-.success {
-  background: $success-bg;
-  color: $success-strong;
-  padding: $spacing-2 $spacing-3;
-  border-radius: 4px;
-  margin-bottom: $spacing-3;
-}
-
-.error {
-  background: $danger-bg;
-  color: $accent-dark;
-  padding: $spacing-2 $spacing-3;
-  border-radius: 4px;
-  margin-bottom: $spacing-3;
-}
-
-.cancelLink {
-  color: $text-muted;
-  text-decoration: none;
+.cardBody {
   font-size: $font-size-sm;
+  color: $text-secondary;
+  line-height: $line-height-relaxed;
+  font-style: normal;
+  strong { color: $text-primary; font-weight: $font-weight-medium; }
+}
+.cardFooter {
+  margin-top: $spacing-5;
+  padding-top: $spacing-4;
+  border-top: 1px solid $border-color;
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cardAction {
+  background: none; border: 0;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 0;
+}
+.cardActionEdit    { color: $lime-soft; }
+.cardActionDefault { color: $coral; }
+.cardActionDelete  { color: $vino-soft; margin-left: auto; }
 
-  &:hover {
-    text-decoration: underline;
-  }
+.emptySlot {
+  border: 1px dashed $border-strong;
+  padding: $spacing-6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: $text-muted;
+  min-height: 180px;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  gap: $spacing-2;
+}
+.emptyPlus { font-size: 24px; }
+
+.note {
+  margin-top: $spacing-8;
+  padding: 14px $spacing-5;
+  border: 1px solid $border-color;
+  background: rgba($bronze, 0.05);
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  strong { color: $text-primary; }
+}
+.noteIcon { color: $bronze; font-family: $font-family-mono; }
+
+.formCard {
+  border: 1px solid $lime;
+  background: rgba($lime, 0.04);
+  padding: $spacing-6;
+  margin-bottom: $spacing-8;
+}
+.formTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-bottom: $spacing-5;
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-4;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
+}
+.formActions {
+  margin-top: $spacing-5;
+  display: flex;
+  gap: $spacing-3;
 }

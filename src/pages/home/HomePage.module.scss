@@ -1,145 +1,414 @@
-@use '@styles/abstracts' as *;
+@use '@styles/abstracts/variables' as *;
 
 .page {
-  width: 100%;
+  background: $bg-page;
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Hero
+// ─────────────────────────────────────────────────────────────────────
 .hero {
-  background: linear-gradient(135deg, $primary-dark, $primary-color);
-  color: $bg-surface;
-  padding: $spacing-12 $spacing-6;
-  text-align: center;
+  border-bottom: 1px solid $border-color;
 }
-
 .heroInner {
-  max-width: 720px;
+  max-width: $content-max-width;
   margin: 0 auto;
+  padding: $spacing-20 $content-padding-desktop $spacing-16;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-16;
+  align-items: center;
+
+  @media (max-width: $bp-lg) {
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+    padding: $spacing-12 $content-padding-tablet;
+  }
+  @media (max-width: $bp-md) {
+    padding: $spacing-8 $content-padding-mobile;
+  }
 }
 
 .heroTitle {
   font-family: $font-family-display;
-  font-size: $font-size-2xl;
-  margin: 0 0 $spacing-3;
-}
+  font-size: 80px;
+  font-weight: $font-weight-normal;
+  line-height: 1.02;
+  color: $text-primary;
+  margin: $spacing-5 0 $spacing-6;
+  letter-spacing: $ls-tight;
 
-.heroSubtitle {
+  @media (max-width: $bp-lg) { font-size: 56px; }
+  @media (max-width: $bp-md) { font-size: 40px; }
+}
+.heroEm {
+  font-style: italic;
+  color: $bronze;
+}
+.heroLead {
   font-size: $font-size-lg;
-  margin: 0 0 $spacing-6;
-  opacity: 0.95;
+  line-height: $line-height-relaxed;
+  color: $text-secondary;
+  max-width: 500px;
+  margin-bottom: $spacing-10;
 }
-
-.heroActions {
+.heroCtas {
   display: flex;
-  justify-content: center;
+  gap: $spacing-4;
+  margin-bottom: $spacing-12;
+
+  @media (max-width: $bp-sm) { flex-direction: column; gap: $spacing-3; }
+}
+
+.heroStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid $border-color;
+  padding-top: $spacing-6;
+
+  @media (max-width: $bp-sm) { gap: $spacing-4; }
+}
+.stat {}
+.statNum {
+  font-family: $font-family-display;
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  line-height: 1;
+}
+.statLabel {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: $spacing-2;
+}
+
+// Hero images
+.heroImages {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  grid-template-rows: 1fr 1fr;
   gap: $spacing-3;
-  flex-wrap: wrap;
+  height: 640px;
+
+  @media (max-width: $bp-lg) { height: 420px; }
+  @media (max-width: $bp-md) { display: none; }
+}
+.heroImg {
+  background: rgba($lime, 0.04);
+  border: 1px solid $border-color;
+  overflow: hidden;
+  position: relative;
+}
+.heroImgTall { grid-row: 1 / span 2; }
+
+.imagePlaceholder {
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg,
+    rgba($lime, 0.04) 0%,
+    rgba($bronze, 0.05) 100%);
+  border: 1px dashed $border-medium;
+  min-height: 200px;
 }
 
-.primaryBtn {
-  background: $bg-surface;
-  color: $primary-dark;
-  padding: $spacing-3 $spacing-6;
-  border-radius: $border-radius-md;
-  font-weight: 600;
-  text-decoration: none;
+// ─────────────────────────────────────────────────────────────────────
+// Trust strip
+// ─────────────────────────────────────────────────────────────────────
+.trust {
+  background: $bg-sunken;
+  border-bottom: 1px solid $border-color;
+}
+.trustInner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-8 $content-padding-desktop;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-12;
+
+  @media (max-width: $bp-lg) { grid-template-columns: repeat(2, 1fr); gap: $spacing-6; }
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; padding: $spacing-6 $content-padding-mobile; }
+}
+.trustItem {
+  display: flex;
+  gap: $spacing-4;
+  align-items: flex-start;
+}
+.trustNum {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $bronze;
+  letter-spacing: $ls-eyebrow;
+  padding-top: 3px;
+}
+.trustTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-bottom: 4px;
+}
+.trustDesc {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  line-height: $line-height-relaxed;
 }
 
-.secondaryBtn {
-  background: transparent;
-  color: $bg-surface;
-  padding: $spacing-3 $spacing-6;
-  border: 1px solid $bg-surface;
-  border-radius: $border-radius-md;
-  text-decoration: none;
+// ─────────────────────────────────────────────────────────────────────
+// Section helpers
+// ─────────────────────────────────────────────────────────────────────
+.featured,
+.orishas,
+.manifiesto,
+.newsletter {
+  border-bottom: 1px solid $border-color;
 }
 
+.featuredInner,
+.orishasInner,
+.manifiestoInner,
+.newsletterInner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-24 $content-padding-desktop;
+
+  @media (max-width: $bp-lg) { padding: $spacing-16 $content-padding-tablet; }
+  @media (max-width: $bp-md) { padding: $spacing-12 $content-padding-mobile; }
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: $spacing-6;
+  margin-bottom: $spacing-12;
+
+  @media (max-width: $bp-md) { flex-direction: column; align-items: flex-start; gap: $spacing-3; }
+}
+.sectionHeaderWide {
+  margin-bottom: $spacing-12;
+  max-width: 720px;
+}
 .sectionTitle {
   font-family: $font-family-display;
-  font-size: $font-size-2xl;
-  margin: 0 0 $spacing-5;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
   color: $text-primary;
+  margin-top: $spacing-4;
+  letter-spacing: $ls-snug;
+  line-height: 1.1;
+
+  em { font-style: italic; color: $bronze; }
+
+  @media (max-width: $bp-md) { font-size: $font-size-3xl; }
+}
+.sectionLead {
+  font-size: $font-size-base;
+  color: $text-secondary;
+  max-width: 580px;
+  margin-top: $spacing-4;
+  line-height: $line-height-relaxed;
+}
+.sectionLink {
+  color: $coral;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
 }
 
-.categories {
-  padding: $spacing-10 $spacing-6;
-  max-width: 1100px;
-  margin: 0 auto;
+// ─────────────────────────────────────────────────────────────────────
+// Featured products grid
+// ─────────────────────────────────────────────────────────────────────
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-8;
+
+  @media (max-width: $bp-lg) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: $bp-sm) { grid-template-columns: 1fr; }
 }
 
-.categoryList {
-  list-style: none;
+// Skeleton (loading)
+.skel {
   display: flex;
-  gap: $spacing-4;
-  flex-wrap: wrap;
-  padding: 0;
-  margin: 0;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+.skelImg {
+  aspect-ratio: 4 / 5;
+  background: rgba($lime, 0.04);
+  border: 1px dashed $border-medium;
+}
+.skelLine {
+  height: 12px;
+  background: rgba($lime, 0.06);
+  border-radius: $border-radius-sm;
 }
 
-.categoryLink {
+// ─────────────────────────────────────────────────────────────────────
+// Òrìsà grid
+// ─────────────────────────────────────────────────────────────────────
+.orishas {
+  background: rgba($bronze, 0.02);
+}
+.orishaGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: $spacing-4;
+
+  @media (max-width: $bp-xl) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: $bp-md) { grid-template-columns: repeat(2, 1fr); }
+}
+.orishaCard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  border: 1px solid $border-color;
+  padding: $spacing-4;
+  text-decoration: none;
+  color: inherit;
+  transition: $transition-default;
+
+  &:hover {
+    border-color: $bronze;
+    background: rgba($bronze, 0.04);
+  }
+}
+.orishaImg {
+  aspect-ratio: 1;
+  background: rgba($lime, 0.04);
+  border: 1px dashed $border-medium;
+  overflow: hidden;
+}
+.orishaInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.orishaName {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+.orishaColor {
+  font-family: $font-family-mono;
+  font-size: 10px;
+  color: $text-muted;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Manifiesto
+// ─────────────────────────────────────────────────────────────────────
+.manifiestoInner {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: $spacing-20;
+  align-items: center;
+
+  @media (max-width: $bp-lg) { grid-template-columns: 1fr; gap: $spacing-8; }
+}
+.manifiestoImg {
+  aspect-ratio: 4 / 5;
+  width: 100%;
+}
+.manifiestoTitle {
+  font-family: $font-family-display;
+  font-size: 52px;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin: $spacing-5 0 $spacing-8;
+  line-height: 1.05;
+  letter-spacing: $ls-snug;
+
+  em { font-style: italic; color: $bronze; }
+
+  @media (max-width: $bp-md) { font-size: $font-size-4xl; }
+}
+.manifiestoBody {
+  font-size: $font-size-base;
+  color: $text-secondary;
+  line-height: $line-height-relaxed;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  max-width: 540px;
+
+  strong { color: $text-primary; font-weight: $font-weight-medium; }
+}
+.manifiestoLink {
   display: inline-block;
-  padding: $spacing-3 $spacing-5;
-  background: $primary-50;
+  margin-top: $spacing-8;
+  color: $coral;
+  font-size: $font-size-sm;
+  text-decoration: none;
+
+  &:hover { color: $coral-soft; }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Newsletter
+// ─────────────────────────────────────────────────────────────────────
+.newsletterInner {
+  max-width: 800px;
+  text-align: center;
+  background: linear-gradient(180deg, $bg-page 0%, $bg-sunken 100%);
+}
+.newsletterTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
   color: $text-primary;
-  border-radius: $border-radius-md;
-  text-decoration: none;
-  font-weight: 500;
-
-  &:hover {
-    background: $primary-100;
-  }
+  margin: $spacing-5 0;
+  line-height: 1.1;
 }
-
-.featured {
-  padding: $spacing-10 $spacing-6;
-  max-width: 1200px;
+.newsletterLead {
+  color: $text-secondary;
+  font-size: $font-size-base;
+  margin-bottom: $spacing-10;
+  max-width: 560px;
+  margin-inline: auto;
+  line-height: $line-height-relaxed;
+}
+.newsletterForm {
+  display: flex;
+  gap: $spacing-2;
+  max-width: 540px;
   margin: 0 auto;
-}
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: $spacing-5;
+  @media (max-width: $bp-sm) { flex-direction: column; }
 }
-
-.featuredFooter {
-  margin-top: $spacing-6;
-  text-align: right;
-}
-
-.linkInline {
-  color: $primary-color;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.ctaRow {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: $spacing-4;
-  padding: $spacing-10 $spacing-6;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.ctaCard {
-  display: block;
-  background: $primary-50;
+.newsletterInput {
+  flex: 1;
+  background: rgba(245, 247, 238, 0.03);
+  border: 1px solid $border-medium;
+  border-radius: $border-radius-sm;
+  padding: 14px 18px;
   color: $text-primary;
-  padding: $spacing-5;
-  border-radius: $border-radius-md;
-  text-decoration: none;
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  outline: none;
 
-  h3 {
-    margin: 0 0 $spacing-2;
-    color: $text-primary;
-  }
-
-  p {
-    margin: 0;
-    color: $text-muted;
-  }
-
-  &:hover {
-    background: $primary-100;
-  }
+  &:focus { border-color: $lime; }
+  &::placeholder { color: $text-muted; }
+}
+.newsletterFinePrint {
+  margin-top: $spacing-5;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
