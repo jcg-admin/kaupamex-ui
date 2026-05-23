@@ -1,33 +1,22 @@
 /**
  * Admin Slice — PracticaYoruba
- * Gestión del panel administrativo.
+ * Gestión de usuarios desde el panel admin.
  *
  * Sprint 4:
  *   UC-AUTH-12 — Ver perfil de usuario (Admin)
  *   UC-AUTH-13 — Suspender cuenta de usuario
  *   UC-AUTH-14 — Reactivar cuenta de usuario
  *   UC-AUTH-15 — Crear usuario administrador
- *
- * Sprint 6:
- *   fetchAdminMetrics   — dashboard KPIs (→ /admin/dashboard/)
- *   fetchAdminProducts  — catálogo admin
- *   deleteProduct       — eliminar producto
- *   toggleProductFeatured — destacar / quitar destaque
- *   fetchAdminOrders    — pedidos admin
- *   toggleUserActive    — suspender o reactivar según estado actual
- *   resetUserPassword   — forzar reset de contraseña por email
- *   makeUserAdmin       — promover / degradar rol admin
+ *   UC-AUTH-16 — Forzar reset de contraseña
+ *   UC-AUTH-17 — Promover usuario a administrador
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 
-const ADMIN_USERS_URL    = '/api/v1/admin/users/';
-const ADMIN_METRICS_URL  = '/api/v1/admin/dashboard/';
-const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
-const ADMIN_ORDERS_URL   = '/api/v1/admin/orders/';
+const ADMIN_USERS_URL = '/api/v1/admin/users/';
 
 // =============================================================================
-// Thunks — Sprint 4 (users)
+// Thunks
 // =============================================================================
 
 /** UC-AUTH-11: Listar usuarios con búsqueda y paginación */
@@ -95,42 +84,12 @@ export const createAdminUser = createAsyncThunk(
   }
 );
 
-// =============================================================================
-// Thunks — Sprint 6 (metrics + products + orders + user actions)
-// =============================================================================
-
-/** Dashboard KPIs: ventas, pedidos, ticket promedio, usuarios nuevos. */
-export const fetchAdminMetrics = createAsyncThunk(
-  'admin/fetchMetrics',
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await apiService.get(ADMIN_METRICS_URL);
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-/** Listar productos del catálogo con filtros de estado / búsqueda. */
-export const fetchAdminProducts = createAsyncThunk(
-  'admin/fetchProducts',
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      const res = await apiService.get(ADMIN_PRODUCTS_URL, { params });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-/** Eliminar un producto por pk. Devuelve el pk eliminado. */
-export const deleteProduct = createAsyncThunk(
-  'admin/deleteProduct',
+/** UC-AUTH-16: Forzar reset de contraseña de un usuario */
+export const resetUserPassword = createAsyncThunk(
+  'admin/resetUserPassword',
   async (pk, { rejectWithValue }) => {
     try {
-      await apiService.delete(`${ADMIN_PRODUCTS_URL}${pk}/`);
+      await apiService.post(`${ADMIN_USERS_URL}${pk}/reset-password/`);
       return pk;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -138,66 +97,7 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
-/** Toggle is_featured (lee estado actual de Redux, luego PATCH). */
-export const toggleProductFeatured = createAsyncThunk(
-  'admin/toggleProductFeatured',
-  async (pk, { getState, rejectWithValue }) => {
-    try {
-      const products = getState().admin.products;
-      const product = products.find((p) => p.id === pk);
-      const isFeatured = product ? !product.is_featured : true;
-      const res = await apiService.patch(`${ADMIN_PRODUCTS_URL}${pk}/`, {
-        is_featured: isFeatured,
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-/** Listar pedidos con filtros de estado / búsqueda. */
-export const fetchAdminOrders = createAsyncThunk(
-  'admin/fetchOrders',
-  async (params = {}, { rejectWithValue }) => {
-    try {
-      const res = await apiService.get(ADMIN_ORDERS_URL, { params });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-/**
- * Toggle is_active: lee currentUser.is_active y despacha
- * suspendUser o reactivateUser según corresponda.
- */
-export const toggleUserActive = createAsyncThunk(
-  'admin/toggleUserActive',
-  async (pk, { getState, dispatch }) => {
-    const isActive = getState().admin.currentUser?.is_active;
-    if (isActive) {
-      return dispatch(suspendUser(pk));
-    }
-    return dispatch(reactivateUser(pk));
-  }
-);
-
-/** Enviar email de restablecimiento de contraseña al usuario. */
-export const resetUserPassword = createAsyncThunk(
-  'admin/resetUserPassword',
-  async (pk, { rejectWithValue }) => {
-    try {
-      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/reset-password/`);
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(err.message);
-    }
-  }
-);
-
-/** Promover o degradar usuario a administrador (toggle is_staff). */
+/** UC-AUTH-17: Promover usuario a administrador */
 export const makeUserAdmin = createAsyncThunk(
   'admin/makeUserAdmin',
   async (pk, { rejectWithValue }) => {
@@ -229,25 +129,18 @@ const adminSlice = createSlice({
     },
     search: '',
 
-    metrics:           {},
-    products:          [],
-    orders:            [],
-
-    isLoading:         false,
-    isLoadingUser:     false,
-    isLoadingMetrics:  false,
-    isLoadingProducts: false,
-    isLoadingOrders:   false,
-    isActioning:       false,
-    error:             null,
-    userError:         null,
-    actionError:       null,
-    lastAction:        null,
+    isLoading:        false,
+    isLoadingUser:    false,
+    isActioning:      false,   // suspend / reactivate / create / resetPwd / makeAdmin
+    error:            null,
+    userError:        null,
+    actionError:      null,
+    lastAction:       null,    // 'suspended' | 'reactivated' | 'created' | 'password_reset' | 'made_admin'
   },
 
   reducers: {
     setSearch(state, action) {
-      state.search          = action.payload;
+      state.search         = action.payload;
       state.pagination.page = 1;
     },
     setPage(state, action) {
@@ -355,86 +248,7 @@ const adminSlice = createSlice({
         state.actionError = action.payload;
       });
 
-    // fetchAdminMetrics (Sprint 6)
-    builder
-      .addCase(fetchAdminMetrics.pending, (state) => {
-        state.isLoadingMetrics = true;
-        state.error = null;
-      })
-      .addCase(fetchAdminMetrics.fulfilled, (state, action) => {
-        state.isLoadingMetrics = false;
-        state.metrics = action.payload;
-      })
-      .addCase(fetchAdminMetrics.rejected, (state, action) => {
-        state.isLoadingMetrics = false;
-        state.error = action.payload;
-      });
-
-    // fetchAdminProducts (Sprint 6)
-    builder
-      .addCase(fetchAdminProducts.pending, (state) => {
-        state.isLoadingProducts = true;
-        state.error = null;
-      })
-      .addCase(fetchAdminProducts.fulfilled, (state, action) => {
-        state.isLoadingProducts = false;
-        const payload = action.payload;
-        state.products = payload.results ?? (Array.isArray(payload) ? payload : []);
-      })
-      .addCase(fetchAdminProducts.rejected, (state, action) => {
-        state.isLoadingProducts = false;
-        state.error = action.payload;
-      });
-
-    // deleteProduct (Sprint 6)
-    builder
-      .addCase(deleteProduct.pending, (state) => {
-        state.isActioning = true;
-        state.actionError = null;
-      })
-      .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.isActioning = false;
-        state.products = state.products.filter((p) => p.id !== action.payload);
-      })
-      .addCase(deleteProduct.rejected, (state, action) => {
-        state.isActioning = false;
-        state.actionError = action.payload;
-      });
-
-    // toggleProductFeatured (Sprint 6)
-    builder
-      .addCase(toggleProductFeatured.pending, (state) => {
-        state.isActioning = true;
-        state.actionError = null;
-      })
-      .addCase(toggleProductFeatured.fulfilled, (state, action) => {
-        state.isActioning = false;
-        state.products = state.products.map((p) =>
-          p.id === action.payload.id ? { ...p, ...action.payload } : p
-        );
-      })
-      .addCase(toggleProductFeatured.rejected, (state, action) => {
-        state.isActioning = false;
-        state.actionError = action.payload;
-      });
-
-    // fetchAdminOrders (Sprint 6)
-    builder
-      .addCase(fetchAdminOrders.pending, (state) => {
-        state.isLoadingOrders = true;
-        state.error = null;
-      })
-      .addCase(fetchAdminOrders.fulfilled, (state, action) => {
-        state.isLoadingOrders = false;
-        const payload = action.payload;
-        state.orders = payload.results ?? (Array.isArray(payload) ? payload : []);
-      })
-      .addCase(fetchAdminOrders.rejected, (state, action) => {
-        state.isLoadingOrders = false;
-        state.error = action.payload;
-      });
-
-    // resetUserPassword (Sprint 6)
+    // resetUserPassword
     builder
       .addCase(resetUserPassword.pending, (state) => {
         state.isActioning = true;
@@ -442,14 +256,14 @@ const adminSlice = createSlice({
       })
       .addCase(resetUserPassword.fulfilled, (state) => {
         state.isActioning = false;
-        state.lastAction  = 'password_reset_sent';
+        state.lastAction  = 'password_reset';
       })
       .addCase(resetUserPassword.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       });
 
-    // makeUserAdmin (Sprint 6)
+    // makeUserAdmin
     builder
       .addCase(makeUserAdmin.pending, (state) => {
         state.isActioning = true;
@@ -457,9 +271,9 @@ const adminSlice = createSlice({
       })
       .addCase(makeUserAdmin.fulfilled, (state, action) => {
         state.isActioning = false;
-        state.lastAction  = 'role_changed';
+        state.lastAction  = 'made_admin';
         if (state.currentUser) {
-          state.currentUser = { ...state.currentUser, is_staff: action.payload.is_staff };
+          state.currentUser = { ...state.currentUser, ...action.payload };
         }
       })
       .addCase(makeUserAdmin.rejected, (state, action) => {
