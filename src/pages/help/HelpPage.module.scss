@@ -1,0 +1,67 @@
+.page {
+  min-height: 60vh;
+  padding-block: var(--space-8, 3rem) var(--space-12, 5rem);
+  background: var(--color-surface, #fff);
+}
+
+.inner {
+  max-width: 900px;
+  margin-inline: auto;
+  padding-inline: var(--space-4, 1.5rem);
+}
+
+.title {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text, #111);
+  margin-bottom: var(--space-2, 0.75rem);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #555);
+  margin-bottom: var(--space-7, 3rem);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4, 1.5rem);
+}
+
+.card {
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 8px;
+  padding: var(--space-4, 1.5rem);
+}
+
+.cardTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text, #111);
+  margin-bottom: var(--space-3, 1rem);
+}
+
+.cardList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  a {
+    font-size: 0.875rem;
+    color: var(--color-accent, #7c3aed);
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.hours {
+  margin-top: var(--space-3, 1rem);
+  font-size: 0.8125rem;
+  color: var(--color-muted, #888);
+}
