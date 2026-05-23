@@ -1,13 +1,3 @@
-/**
- * WishlistPage — Práctica Yorùbà
- * Lista de deseos con badges (bajó precio, última unidad) + move-to-cart.
- *
- * Endpoints:
- *   GET /wishlist/
- *   DELETE /wishlist/{pk}/
- *   POST /wishlist/{pk}/move-to-cart/
- */
-
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
