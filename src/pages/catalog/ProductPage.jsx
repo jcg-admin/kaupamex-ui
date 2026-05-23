@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchProduct } from '@redux/slices/catalogSlice';
 import { addToCart } from '@redux/slices/cartSlice';
-import { toggleWishlist } from '@redux/slices/wishlistSlice';
+import { addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import styles from './ProductPage.module.scss';
@@ -23,8 +23,9 @@ export default function ProductPage() {
   const { slug } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const product = useSelector((s) => s.catalog?.currentProduct);
-  const isLoading = useSelector((s) => s.catalog?.isLoading);
+  const product = useSelector((s) => s.catalog?.current);
+  const isLoading = useSelector((s) => s.catalog?.isLoadingDetail);
+  const wishlistItems = useSelector((s) => s.wishlist?.items || []);
 
   const [variant, setVariant] = useState(null);
   const [qty, setQty] = useState(1);
@@ -45,13 +46,24 @@ export default function ProductPage() {
   const isAvailable = stock > 0;
   const related = product.related_products || [];
 
+  const wishlistItem = wishlistItems.find((i) => i.product_slug === product.slug);
+  const isWishlisted = Boolean(wishlistItem);
+
   const handleAddToCart = () => {
     dispatch(addToCart({
-      product_id: product.id,
-      variant_id: variant?.id,
+      productId: product.id,
+      variantId: variant?.id,
       quantity: qty,
     }));
     navigate('/cart');
+  };
+
+  const handleToggleWishlist = () => {
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(wishlistItem.id));
+    } else {
+      dispatch(addToWishlist({ productId: product.id, variantId: variant?.id }));
+    }
   };
 
   return (
@@ -143,7 +155,7 @@ export default function ProductPage() {
               {/* CTA */}
               <div className={styles.cta}>
                 <div className={styles.qty}>
-                  <button type="button" onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
+                  <button type="button" onClick={() => setQty(Math.max(1, qty - 1))}>-</button>
                   <span>{qty}</span>
                   <button type="button" onClick={() => setQty(qty + 1)}>+</button>
                 </div>
@@ -153,8 +165,9 @@ export default function ProductPage() {
                 <button
                   type="button"
                   className={styles.wishBtn}
-                  onClick={() => dispatch(toggleWishlist({ productId: product.id, variantId: variant?.id }))}
-                >♡</button>
+                  onClick={handleToggleWishlist}
+                  aria-label={isWishlisted ? 'Quitar de lista de deseos' : 'Agregar a lista de deseos'}
+                >{isWishlisted ? '♥' : '♡'}</button>
               </div>
 
               {/* Availability */}
