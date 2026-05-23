@@ -37,6 +37,10 @@ const ProductQuestionAskPage    = lazy(() => import('@pages/catalog/ProductQuest
 const ProductQuestionsListPage  = lazy(() => import('@pages/catalog/ProductQuestionsListPage'));
 const ProductReviewsListPage    = lazy(() => import('@pages/catalog/ProductReviewsListPage'));
 
+// Lazy pages — Paginas informativas y ayuda (UC-INF-01)
+const InfoPage = lazy(() => import('@pages/info/InfoPage'));
+const HelpPage = lazy(() => import('@pages/help/HelpPage'));
+
 // Lazy pages — Auth
 const LoginPage       = lazy(() => import('@pages/auth/LoginPage'));
 const RegisterPage    = lazy(() => import('@pages/auth/RegisterPage'));
@@ -158,6 +162,10 @@ export default function AppRouter() {
             <Route path="catalog/:productId/questions" element={<ProductQuestionsListPage />} />
             {/* UC-REV-02 — Listado publico de resenas aprobadas */}
             <Route path="catalog/:productId/reviews" element={<ProductReviewsListPage />} />
+            {/* UC-INF-01 — Paginas informativas estaticas (terminos, privacidad, envios, etc.) */}
+            <Route path="info/:slug" element={<InfoPage />} />
+            {/* Centro de ayuda */}
+            <Route path="help" element={<HelpPage />} />
           </Route>
 
           {/* --- Auth --- */}
