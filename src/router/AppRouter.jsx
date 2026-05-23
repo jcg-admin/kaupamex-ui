@@ -25,6 +25,9 @@ const CartPage        = lazy(() => import('@pages/cart/CartPage'));
 const CheckoutPage    = lazy(() => import('@pages/checkout/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
 const PaymentSelectionPage = lazy(() => import('@pages/checkout/PaymentSelectionPage'));
+const PaymentReturnPage   = lazy(() => import('@pages/checkout/PaymentReturnPage'));
+const PaymentFailedPage   = lazy(() => import('@pages/checkout/PaymentFailedPage'));
+const ExpressCheckoutPage = lazy(() => import('@pages/checkout/ExpressCheckoutPage'));
 
 // Lazy pages — Comms publicas (contacto, newsletter, preguntas)
 const ContactPage               = lazy(() => import('@pages/ContactPage'));
@@ -50,6 +53,7 @@ const ProfilePage     = lazy(() => import('@pages/account/ProfilePage'));
 const ChangePasswordPage = lazy(() => import('@pages/account/ChangePasswordPage'));
 const DeactivateAccountPage = lazy(() => import('@pages/account/DeactivateAccountPage'));
 const AddressesPage      = lazy(() => import('@pages/account/AddressesPage'));
+const SecurityPage        = lazy(() => import('@pages/account/SecurityPage'));
 // UC-SRCH-03 — Historial personal de busquedas
 const SearchHistoryPage  = lazy(() => import('@pages/account/SearchHistoryPage'));
 
@@ -172,12 +176,18 @@ export default function AppRouter() {
            * acepta carrito anonimo + datos de contacto + direccion sin JWT.
            * Por eso /checkout y la confirmacion quedan publicas; la
            * seleccion de gateway tambien (necesaria para invitados).
+           * PaymentReturn y PaymentFailed tambien son publicas —
+           * el usuario puede haber llegado al gateway sin cuenta.
            */}
           <Route element={<StorefrontLayout />}>
             <Route path="checkout" element={<CheckoutPage />} />
             {/* UC-PAY-01 / UC-PAY-02 — Seleccion de gateway de pago */}
             <Route path="checkout/payment/:orderId" element={<PaymentSelectionPage />} />
+            {/* Retorno del gateway (polling hasta APPROVED/FAILED) */}
+            <Route path="checkout/payment-return/:id" element={<PaymentReturnPage />} />
             <Route path="order/:id/confirmation" element={<OrderSuccessPage />} />
+            {/* UC-PAY-03 — Pago rechazado: razón + reintento */}
+            <Route path="order/:id/payment-failed" element={<PaymentFailedPage />} />
           </Route>
 
           {/* ─── Cuenta del comprador ─── */}
@@ -194,6 +204,8 @@ export default function AppRouter() {
               <Route path="account/deactivate" element={<DeactivateAccountPage />} />
               {/* UC-AUTH-07 — Libreta de direcciones */}
               <Route path="account/addresses"   element={<AddressesPage />} />
+              {/* Seguridad: cambio de contraseña + sesiones activas */}
+              <Route path="account/security"    element={<SecurityPage />} />
               {/* UC-SRCH-03 — Historial personal de busquedas */}
               <Route path="account/search-history" element={<SearchHistoryPage />} />
               <Route path="account/returns"     element={<ReturnsPage />} />
@@ -213,6 +225,8 @@ export default function AppRouter() {
               <Route path="account/orders/:orderId/payments" element={<PaymentHistoryPage />} />
               {/* UC-PAY-08 — Reintentar pago fallido */}
               <Route path="account/orders/:orderId/payment/retry" element={<PaymentRetryPage />} />
+              {/* Express checkout — solo para clientes recurrentes */}
+              <Route path="checkout/express" element={<ExpressCheckoutPage />} />
             </Route>
           </Route>
 

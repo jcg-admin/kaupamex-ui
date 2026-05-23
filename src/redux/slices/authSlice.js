@@ -14,6 +14,7 @@
  *     'py:unauthorized' event que UnauthorizedListener captura.
  *
  * Sprint 2: URLs corregidas a /api/v1/, thunks de perfil añadidos.
+ * Sprint 5: address CRUD + logout-all-sessions añadidos.
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
@@ -32,6 +33,10 @@ const AUTH_URLS = {
   resendVerification: '/api/v1/auth/resend-verification/',
   deactivate:         '/api/v1/auth/me/deactivate/',
 };
+
+const ADDRESSES_URL  = '/api/v1/auth/addresses/';
+const ADDRESS_URL    = (id) => `/api/v1/auth/addresses/${id}/`;
+const LOGOUT_ALL_URL = '/api/v1/auth/logout-all/';
 
 // ─── Thunks — Sprint 1 ────────────────────────────────────────────────────
 
@@ -203,13 +208,79 @@ export const deactivateAccount = createAsyncThunk(
   }
 );
 
+// ─── Thunks — Sprint 5 (address CRUD + logout all) ────────────────────────
+
+/** Obtiene la libreta de direcciones del usuario autenticado (UC-AUTH-07). */
+export const fetchAddresses = createAsyncThunk(
+  'auth/fetchAddresses',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ADDRESSES_URL);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** Crea una nueva direccion de envio. */
+export const createAddress = createAsyncThunk(
+  'auth/createAddress',
+  async (data, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(ADDRESSES_URL, data);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** Elimina una direccion por id. */
+export const deleteAddress = createAsyncThunk(
+  'auth/deleteAddress',
+  async (id, { rejectWithValue }) => {
+    try {
+      await apiService.delete(ADDRESS_URL(id));
+      return id;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** Marca una direccion como predeterminada. */
+export const setDefaultAddress = createAsyncThunk(
+  'auth/setDefaultAddress',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await apiService.patch(ADDRESS_URL(id), { is_default: true });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** Cierra todas las sesiones activas excepto la actual. */
+export const logoutAllSessions = createAsyncThunk(
+  'auth/logoutAllSessions',
+  async (_, { rejectWithValue }) => {
+    try {
+      await apiService.post(LOGOUT_ALL_URL);
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
 // ─── Slice ────────────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user:            null,    // { id, email, first_name, last_name, phone, avatar_url,
-                              //   is_staff, profile_completeness, pending_fields }
+                              //   is_staff, profile_completeness, pending_fields, addresses }
     isAuthenticated: false,
     isLoading:       false,
     error:           null,
@@ -334,6 +405,76 @@ const authSlice = createSlice({
       })
       .addCase(deactivateAccount.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // fetchAddresses (Sprint 5)
+    builder
+      .addCase(fetchAddresses.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchAddresses.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user) {
+          const { results } = action.payload;
+          state.user.addresses = results ?? action.payload;
+        }
+      })
+      .addCase(fetchAddresses.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // createAddress (Sprint 5)
+    builder
+      .addCase(createAddress.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(createAddress.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user) {
+          state.user.addresses = [...(state.user.addresses || []), action.payload];
+        }
+      })
+      .addCase(createAddress.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // deleteAddress (Sprint 5) — payload is the deleted id
+    builder
+      .addCase(deleteAddress.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(deleteAddress.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user?.addresses) {
+          state.user.addresses = state.user.addresses.filter(
+            (a) => a.id !== action.payload
+          );
+        }
+      })
+      .addCase(deleteAddress.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // setDefaultAddress (Sprint 5) — payload is the updated address object
+    builder
+      .addCase(setDefaultAddress.pending, (state) => { state.isLoading = true; state.error = null; })
+      .addCase(setDefaultAddress.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user?.addresses) {
+          state.user.addresses = state.user.addresses.map((a) => ({
+            ...a,
+            is_default: a.id === action.payload.id,
+          }));
+        }
+      })
+      .addCase(setDefaultAddress.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // logoutAllSessions (Sprint 5) — no state change on success
+    builder
+      .addCase(logoutAllSessions.rejected, (state, action) => {
         state.error = action.payload;
       });
   },

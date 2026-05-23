@@ -9,8 +9,9 @@
  *   UC-ORD-07 — Transicion de estado (admin)
  *   UC-ORD-08 — Cancelar orden (admin)
  *
- * Lecturas (listado, detalle, dashboard) viven en
- * `src/hooks/domain/useOrders.js` via React Query.
+ * Lecturas (listado, detalle):
+ *   fetchOrders      — GET /api/v1/orders/?status={filter}
+ *   fetchOrderDetail — GET /api/v1/orders/{order_number}/
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
@@ -22,6 +23,8 @@ const ADDRESS_URL               = (orderNumber) => `/api/v1/orders/${orderNumber
 const SHIPPING_URL              = (orderNumber) => `/api/v1/orders/${orderNumber}/shipping/`;
 const ADMIN_STATUS_URL          = (orderNumber) => `/api/v1/admin/orders/${orderNumber}/status/`;
 const ADMIN_CANCEL_URL          = (orderNumber) => `/api/v1/admin/orders/${orderNumber}/cancel/`;
+const ORDERS_URL                = '/api/v1/orders/';
+const ORDER_DETAIL_URL          = (orderNumber) => `/api/v1/orders/${orderNumber}/`;
 
 // =============================================================================
 // Thunks
@@ -110,11 +113,42 @@ export const adminCancelOrder = createAsyncThunk(
   },
 );
 
+/** Lista de pedidos del comprador con filtro opcional de estado. */
+export const fetchOrders = createAsyncThunk(
+  'orders/fetchOrders',
+  async ({ filter = 'all' } = {}, { rejectWithValue }) => {
+    try {
+      const params = filter !== 'all' ? { status: filter } : {};
+      const res = await apiService.get(ORDERS_URL, { params });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** Detalle de una orden por numero de orden. */
+export const fetchOrderDetail = createAsyncThunk(
+  'orders/fetchOrderDetail',
+  async (orderNumber, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ORDER_DETAIL_URL(orderNumber));
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
 // =============================================================================
 // Slice
 // =============================================================================
 
 const initialState = {
+  list:            [],
+  current:         null,
+  isLoading:       false,
+  isLoadingDetail: false,
   isActioning:     false,
   actionError:     null,
   lastAction:      null, // 'checkout' | 'cancelled' | 'address_updated' | 'shipping_updated' | 'admin_transitioned' | 'admin_cancelled'
@@ -174,7 +208,34 @@ const ordersSlice = createSlice({
 
       .addCase(adminCancelOrder.pending,   handlePending)
       .addCase(adminCancelOrder.fulfilled, makeFulfilled('admin_cancelled'))
-      .addCase(adminCancelOrder.rejected,  handleRejected);
+      .addCase(adminCancelOrder.rejected,  handleRejected)
+
+      .addCase(fetchOrders.pending, (state) => {
+        state.isLoading  = true;
+        state.actionError = null;
+      })
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        const { results } = action.payload;
+        state.list      = results ?? action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.isLoading  = false;
+        state.actionError = action.payload;
+      })
+
+      .addCase(fetchOrderDetail.pending, (state) => {
+        state.isLoadingDetail = true;
+        state.current         = null;
+      })
+      .addCase(fetchOrderDetail.fulfilled, (state, action) => {
+        state.current         = action.payload;
+        state.isLoadingDetail = false;
+      })
+      .addCase(fetchOrderDetail.rejected, (state, action) => {
+        state.isLoadingDetail = false;
+        state.actionError     = action.payload;
+      });
   },
 });
 
