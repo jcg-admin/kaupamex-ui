@@ -73,7 +73,7 @@ describe('mocks/interceptors/inventory', () => {
       body:   JSON.stringify({ new_quantity: -1, reason: 'MERMA' }),
     });
     expect(r.status).toBe(409);
-    expect(r.data.detail).toMatch(/STOCK_NEGATIVO/);
+    expect(r.data.detail).toMatch(/NEGATIVE_STOCK_NOT_ALLOWED/);
   });
 
   it('POST adjust sobre variante inexistente devuelve 404', () => {

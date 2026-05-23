@@ -30,28 +30,24 @@ describe('RegisterPage', () => {
   it('renderiza el formulario de registro', () => {
     renderPage();
     expect(screen.getByRole('heading', { name: /crear cuenta/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/nombre de usuario/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/^contrasena$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^contrasena/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/confirmar contrasena/i)).toBeInTheDocument();
   });
 
-  it('error de validacion: username demasiado corto', async () => {
+  it('error de validacion: contrasena demasiado corta', async () => {
     renderPage();
-    fireEvent.change(screen.getByLabelText(/nombre de usuario/i), {
-      target: { value: 'ab', name: 'username' },
+    fireEvent.change(screen.getByLabelText(/^contrasena/i), {
+      target: { value: '1234567', name: 'password' },
     });
     fireEvent.click(screen.getByRole('button', { name: /crear cuenta/i }));
     await waitFor(() => {
-      expect(screen.getByText(/al menos 3 caracteres/i)).toBeInTheDocument();
+      expect(screen.getByText(/al menos 8 caracteres/i)).toBeInTheDocument();
     });
   });
 
   it('error de validacion: email invalido', async () => {
     renderPage();
-    fireEvent.change(screen.getByLabelText(/nombre de usuario/i), {
-      target: { value: 'usuariotest', name: 'username' },
-    });
     fireEvent.change(screen.getByLabelText(/^email/i), {
       target: { value: 'correo-sin-arroba', name: 'email' },
     });
@@ -63,7 +59,7 @@ describe('RegisterPage', () => {
 
   it('error de validacion: contrasenas no coinciden', async () => {
     renderPage();
-    fireEvent.change(screen.getByLabelText(/^contrasena$/i), {
+    fireEvent.change(screen.getByLabelText(/^contrasena/i), {
       target: { value: 'Pass1234!', name: 'password' },
     });
     fireEvent.change(screen.getByLabelText(/confirmar contrasena/i), {

@@ -30,8 +30,8 @@ export default function ProductQuestionAskPage() {
     dispatch(clearQuestionsActionState());
     dispatch(askProductQuestion({
       productId,
-      body:  body.trim(),
-      email: email.trim() || null,
+      body:       body.trim(),
+      askerEmail: email.trim() || null,
     }));
   };
 
