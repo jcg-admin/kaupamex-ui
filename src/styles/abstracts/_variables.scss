@@ -1,47 +1,56 @@
 // ═══════════════════════════════════════════════════════════════════════
 // VARIABLES SCSS — PracticaYoruba E-commerce
 // ═══════════════════════════════════════════════════════════════════════
-// Paleta Yoruba: oros, tierra, coral, crema — estética sagrada y cálida
+// Paleta Armonía Complementaria — Nestor Topaz v1.0
+// Verde lima (dominante) + Rojo vino (complementario) + acentos cálidos
 // ═══════════════════════════════════════════════════════════════════════
 
 // ─────────────────────────────────────────────────────────────────────
-// 1. COLORES PRIMARIOS — Paleta Yoruba
+// 1. COLORES PRIMARIOS — Paleta Armonía Complementaria
 // ─────────────────────────────────────────────────────────────────────
 
-// Primario: oro sagrado
-$primary-color:     #B8860B;    // DarkGoldenrod — botones, CTA, highlights
-$primary-light:     #DAA520;    // Goldenrod — hover states
-$primary-dark:      #8B6914;    // Oro oscuro — pressed states
-$primary-50:        #FEF9E7;    // Oro muy suave — backgrounds
-$primary-100:       #FDEFC3;    // Oro suave — tinted backgrounds
+// Primario: verde lima (dominante estructural — 45%)
+// Contraste: 8.02:1 vs oscuro (AAA) / solo usar sobre fondos oscuros
+$primary-color:     #8CB800;    // Chartreuse intenso — botones, CTA, highlights
+$primary-light:     #C8E060;    // Verde lima claro — hover states
+$primary-dark:      #6A9000;    // Verde lima oscuro — pressed states
+$primary-50:        #EEF4D0;    // Verde muy suave — backgrounds
+$primary-100:       #C8E060;    // Verde suave — tinted backgrounds
 
-// Secundario: tierra profunda
-$secondary-color:   #3D1F0D;    // Caoba oscuro — texto principal, headers
-$secondary-light:   #6B3A2A;    // Caoba medio — sidebar, nav
-$secondary-dark:    #1A0C05;    // Casi negro caoba
+// Secundario: rojo vino (complementario directo — 35%)
+// Contraste: 10.33:1 vs blanco (AAA) — ideal para texto sobre fondos claros
+$secondary-color:   #7A1E1E;    // Rojo oscuro — texto, headers, sidebar
+$secondary-light:   #A03030;    // Rojo medio — nav hover
+$secondary-dark:    #4A0E0E;    // Rojo muy oscuro
 
-// Acento: coral yoruba
-$accent-color:      #CC4A1B;    // Coral-rojo — badges, alertas, urgencia
-$accent-light:      #E8704A;    // Coral claro — hover
-$accent-dark:       #A33514;    // Coral oscuro
+// Acento: naranja coral (transición — 5%)
+$accent-color:      #D86030;    // Naranja coral — alertas, urgencia, CTA secundario
+$accent-light:      #E88060;    // Coral claro — hover
+$accent-dark:       #B04820;    // Coral oscuro — pressed
+
+// Separador: dorado bronce mate (ritmo — 12%)
+$separator-color:   #B89840;    // Dorado bronce — separadores, badges
+
+// Cierre metálico: dorado oxidado (3%)
+$metallic-color:    #A07820;    // Dorado envejecido — bordes premium, iconos
 
 // ─────────────────────────────────────────────────────────────────────
 // 2. COLORES NEUTROS Y SUPERFICIES
 // ─────────────────────────────────────────────────────────────────────
 
 // Fondos
-$bg-page:           #FAFAF7;    // Blanco crema — fondo de página
+$bg-page:           #F5F7EE;    // Suave terroso — fondo de página
 $bg-surface:        #FFFFFF;    // Blanco puro — cards, modals
-$bg-sunken:         #F5F2EC;    // Crema oscuro — inputs, code blocks
-$bg-overlay:        rgba(61, 31, 13, 0.5);  // Overlay de modals
+$bg-sunken:         #EAEEE0;    // Terroso oscuro — inputs, code blocks
+$bg-overlay:        rgba(122, 30, 30, 0.5);  // Overlay de modals
 
 // Texto
-$text-primary:      #1C1008;    // Casi negro — texto principal
-$text-strong:       #2C2418;    // Variante carbón — títulos, énfasis fuerte
-$text-secondary:    #5C4A3A;    // Caoba gris — texto secundario
-$text-soft:         #6B5F50;    // Variante grafito — caption, subtítulos
-$text-muted:        #9C8A7A;    // Gris cálido — placeholder, disabled
-$text-inverse:      #FAFAF7;    // Crema — texto sobre fondos oscuros
+$text-primary:      #0E1400;    // Casi negro verdoso — texto principal
+$text-strong:       #1A2200;    // Variante — títulos, énfasis fuerte
+$text-secondary:    #3A4A20;    // Verde oscuro — texto secundario
+$text-soft:         #4A5830;    // Variante — caption, subtítulos
+$text-muted:        #6A7850;    // Musgo claro — placeholder, disabled
+$text-inverse:      #F5F7EE;    // Blanco verdoso — texto sobre fondos oscuros
 $text-link:         $primary-color;
 $text-link-hover:   $primary-dark;
 
@@ -59,7 +68,7 @@ $gray-800:          #333333;    // Headers en fondo claro
 $gray-950:          #1A1A1A;    // Casi negro neutro
 
 // Bordes
-$border-color:      #E8E0D5;    // Beige — bordes generales
+$border-color:      #D0D8B8;    // Verde gris suave — bordes generales
 $border-focus:      $primary-color;
 $border-error:      #C0392B;
 
@@ -191,18 +200,18 @@ $border-width-thick: 2px;
 // 7. SOMBRAS
 // ─────────────────────────────────────────────────────────────────────
 
-$shadow-xs:  0 1px 2px 0 rgba(61, 31, 13, 0.05);
-$shadow-sm:  0 1px 3px 0 rgba(61, 31, 13, 0.08),
-             0 1px 2px 0 rgba(61, 31, 13, 0.04);
-$shadow-md:  0 4px 6px -1px rgba(61, 31, 13, 0.08),
-             0 2px 4px -1px rgba(61, 31, 13, 0.04);
-$shadow-lg:  0 10px 15px -3px rgba(61, 31, 13, 0.08),
-             0 4px 6px -2px rgba(61, 31, 13, 0.04);
-$shadow-xl:  0 20px 25px -5px rgba(61, 31, 13, 0.1),
-             0 10px 10px -5px rgba(61, 31, 13, 0.04);
+$shadow-xs:  0 1px 2px 0 rgba(122, 30, 30, 0.05);
+$shadow-sm:  0 1px 3px 0 rgba(122, 30, 30, 0.08),
+             0 1px 2px 0 rgba(122, 30, 30, 0.04);
+$shadow-md:  0 4px 6px -1px rgba(122, 30, 30, 0.08),
+             0 2px 4px -1px rgba(122, 30, 30, 0.04);
+$shadow-lg:  0 10px 15px -3px rgba(122, 30, 30, 0.08),
+             0 4px 6px -2px rgba(122, 30, 30, 0.04);
+$shadow-xl:  0 20px 25px -5px rgba(122, 30, 30, 0.1),
+             0 10px 10px -5px rgba(122, 30, 30, 0.04);
 $shadow-card: $shadow-sm;
 $shadow-card-hover: $shadow-md;
-$shadow-modal: 0 25px 50px -12px rgba(61, 31, 13, 0.25);
+$shadow-modal: 0 25px 50px -12px rgba(122, 30, 30, 0.25);
 
 // ─────────────────────────────────────────────────────────────────────
 // 8. TRANSICIONES
