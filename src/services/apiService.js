@@ -22,7 +22,17 @@ import {
   createErrorFromResponse,
 } from '@utils/apiErrors';
 
-import mockInterceptor from '@mocks/mockInterceptor';
+// T-302 (H-07): conditional require keeps mock modules OUT of
+// production bundles. Webpack replaces process.env.NODE_ENV with
+// the literal at build time; the false branch is dead-code-
+// eliminated, so @mocks/mockInterceptor is never bundled in prod.
+// Using !== 'production' (not === 'development') so that
+// jest.mock('@mocks/mockInterceptor') still intercepts correctly
+// when NODE_ENV='test'.
+const mockInterceptor =
+  process.env.NODE_ENV !== 'production'
+    ? require('@mocks/mockInterceptor').default
+    : { intercept: async () => null };
 
 const DEFAULT_TIMEOUT        = 30_000;
 const DEFAULT_RETRY_ATTEMPTS = 3;
