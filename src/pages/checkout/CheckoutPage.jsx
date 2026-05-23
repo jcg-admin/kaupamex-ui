@@ -7,6 +7,7 @@
  *   GET /auth/addresses/
  *   POST /checkout/
  *   POST /api/v1/payments/initiate/ (gateway: MERCADOPAGO | PAYPAL)
+ *   SPEI: sin llamada a /initiate/ — pedido queda PENDING, CLABE por correo.
  */
 
 import { useState, useEffect } from 'react';
@@ -49,6 +50,7 @@ export default function CheckoutPage() {
         const result = await dispatch(initPayPal({ order_number: order.order_number })).unwrap();
         checkout_url = result.checkout_url;
       }
+      // SPEI: checkout_url queda null — pedido PENDING, CLABE enviada por correo.
 
       if (checkout_url) {
         window.location.href = checkout_url;
@@ -70,7 +72,7 @@ export default function CheckoutPage() {
             <img src={logoUrl} alt="" className={styles.brandLogo} />
             <span>
               <span className={styles.brandName}>Práctica Yorùbà</span>
-              <span className={styles.brandTag}>Ifá · Òrìsà · Olódùmarè</span>
+              <span className={styles.brandTag}>Ifá · Òrìṣà · Olódùmarè</span>
             </span>
           </Link>
           <div className={styles.steps}>
@@ -207,12 +209,18 @@ function ShippingOptions({ selected, onSelect }) {
   );
 }
 
+const PAYMENT_INFO = {
+  gateway: 'Al confirmar, te llevamos a la página segura del proveedor para completar el cobro. Tus datos de tarjeta nunca tocan nuestros servidores. Volvarás aquí automáticamente al terminar.',
+  spei:    'Al confirmar, te enviaremos una CLABE bancaria a tu correo. Tienes 24 horas para realizar la transferencia; mientras tanto tu pedido queda reservado.',
+};
+
 function PaymentMethods({ selected, onSelect }) {
   const opts = [
-    { id: 'mp',   t: 'Mercado Pago',          sub: 'Tarjeta · SPEI · OXXO Pay · 6 meses sin intereses' },
-    { id: 'pp',   t: 'PayPal',                 sub: 'Cuenta PayPal o tarjeta sin compartir datos' },
-    { id: 'spei', t: 'Transferencia SPEI',     sub: 'Recibirás CLABE única · pedido reservado 24 hrs' },
+    { id: 'mp',   t: 'Mercado Pago',          sub: 'Tarjeta · SPEI · OXXO Pay · 6 meses sin intereses', external: true  },
+    { id: 'pp',   t: 'PayPal',                 sub: 'Cuenta PayPal o tarjeta sin compartir datos',         external: true  },
+    { id: 'spei', t: 'Transferencia SPEI',     sub: 'Recibirás CLABE única · pedido reservado 24 hrs',     external: false },
   ];
+  const infoText = selected === 'spei' ? PAYMENT_INFO.spei : PAYMENT_INFO.gateway;
   return (
     <div className={styles.options}>
       {opts.map((o) => (
@@ -227,16 +235,12 @@ function PaymentMethods({ selected, onSelect }) {
             <div className={styles.optionTitle}>{o.t}</div>
             <div className={styles.optionSub}>{o.sub}</div>
           </div>
-          <span className={styles.optionExternal}>Externo ↗</span>
+          {o.external && <span className={styles.optionExternal}>Externo ↗</span>}
         </button>
       ))}
       <div className={styles.infoBox}>
         <span className={styles.infoBoxIcon}>· i ·</span>
-        <div>
-          Al confirmar, te llevamos a la página segura del proveedor para completar el cobro.
-          Tus datos de tarjeta nunca tocan nuestros servidores. Volverás aquí automáticamente
-          al terminar.
-        </div>
+        <div>{infoText}</div>
       </div>
     </div>
   );
