@@ -1,19 +1,19 @@
 /**
  * PaymentFailedPage — Práctica Yorùbà
  * Pantalla de rechazo de pago con razón legible + reintento.
- * Pedido reservado 24 hrs.
+ * Ruta: /order/:id/payment-failed
  *
  * Endpoints:
- *   GET /payments/{n}/retry-eligibility/
- *   GET /payments/{n}/history/
- *   POST /payments/initiate/  (con misma orden, nuevo intento)
+ *   GET /orders/{id}/
+ *   GET /payments/{id}/history/
+ *   POST /payments/retry/
  */
 
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
-import { fetchOrderDetail } from '@redux/slices/ordersSlice';
-import { fetchPaymentHistory, retryPayment } from '@redux/slices/checkoutSlice';
+import { retryPayment } from '@redux/slices/paymentsSlice';
+import { apiService } from '@services/apiService';
 import { MetaTag, Button } from '@components/common/primitives';
 import styles from './PaymentFailedPage.module.scss';
 
@@ -29,17 +29,17 @@ const ERROR_MESSAGES = {
 export default function PaymentFailedPage() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const order = useSelector((s) => s.orders?.current);
-  const history = useSelector((s) => s.checkout?.paymentHistory || []);
+  const [order, setOrder] = useState(null);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchOrderDetail(id));
-    dispatch(fetchPaymentHistory(id));
-  }, [dispatch, id]);
+    apiService.get(`/orders/${id}/`).then(setOrder).catch(() => {});
+    apiService.get(`/payments/${id}/history/`).then((h) => setHistory(h || [])).catch(() => {});
+  }, [id]);
 
   if (!order) return <div className={styles.loading}>Cargando…</div>;
 
-  const lastFailed = history.find(h => h.status === 'FAILED') || {};
+  const lastFailed = history.find((h) => h.status === 'FAILED') || {};
   const errorInfo = ERROR_MESSAGES[lastFailed.gateway_error_code] || ERROR_MESSAGES.cc_rejected_other_reason;
 
   return (
@@ -94,7 +94,7 @@ export default function PaymentFailedPage() {
 
         <div className={styles.supportBox}>
           <span>¿Necesitas ayuda? Podemos atenderte por correo o teléfono.</span>
-          <Link to="/ayuda" className={styles.supportLink}>Contactar soporte →</Link>
+          <Link to="/help" className={styles.supportLink}>Contactar soporte →</Link>
         </div>
       </div>
     </main>

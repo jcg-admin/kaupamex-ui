@@ -1,20 +1,20 @@
 /**
  * CheckoutPage — Práctica Yorùbà
  * UC-ORD-01: Identificación · Dirección · Envío · Pago
- * Soporta checkout invitado (Q1 confirmado).
+ * Login requerido antes de llegar aquí (ProtectedRoute).
  *
  * Endpoints:
  *   GET /auth/addresses/
  *   POST /checkout/
- *   POST /payments/initiate/
- *   GET /payments/installments/
+ *   POST /payments/mercadopago/initiate/
+ *   POST /payments/paypal/initiate/
  */
 
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchAddresses } from '@redux/slices/authSlice';
-import { createOrder, initiatePayment } from '@redux/slices/checkoutSlice';
+import { fetchAddresses } from '@redux/slices/addressesSlice';
+import { createOrder, initMercadoPago, initPayPal } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
 import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './CheckoutPage.module.scss';
@@ -25,28 +25,32 @@ export default function CheckoutPage() {
   const cart = useSelector((s) => s.cart || {});
   const auth = useSelector((s) => s.auth || {});
   const { items = [], totals = {} } = cart;
-  const isAuth = !!auth.user;
 
-  // Local state per step
-  const [mode, setMode] = useState(isAuth ? 'signin' : 'guest');
   const [email, setEmail] = useState(auth.user?.email || '');
   const [address, setAddress] = useState({});
   const [shipping, setShipping] = useState('std');
   const [payment, setPayment] = useState('mp');
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => { if (isAuth) dispatch(fetchAddresses()); }, [dispatch, isAuth]);
+  useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
       const order = await dispatch(createOrder({
-        email, address, shipping_method: shipping, mode,
+        email, address, shipping_method: shipping,
       })).unwrap();
-      const { redirect_url } = await dispatch(initiatePayment({
-        order_number: order.order_number, gateway: payment,
-      })).unwrap();
+
+      let redirect_url = null;
+      if (payment === 'mp') {
+        const result = await dispatch(initMercadoPago({ order_number: order.order_number })).unwrap();
+        redirect_url = result.redirect_url;
+      } else if (payment === 'pp') {
+        const result = await dispatch(initPayPal({ order_number: order.order_number })).unwrap();
+        redirect_url = result.redirect_url;
+      }
+
       if (redirect_url) {
         window.location.href = redirect_url;
       } else {
@@ -83,22 +87,7 @@ export default function CheckoutPage() {
       <form className={styles.container} onSubmit={handleSubmit}>
         <div className={styles.layout}>
           <div className={styles.mainCol}>
-            {/* Identificación */}
             <Section n="01" title="Identificación">
-              {!isAuth && (
-                <div className={styles.modeToggle}>
-                  <ModeCard
-                    id="guest" mode={mode} setMode={setMode}
-                    title="Continuar como invitado"
-                    sub="Sin crear cuenta · solo necesitamos tu correo"
-                  />
-                  <ModeCard
-                    id="signin" mode={mode} setMode={setMode}
-                    title="Tengo cuenta"
-                    sub="Iniciar sesión · usar mis direcciones guardadas"
-                  />
-                </div>
-              )}
               <Field
                 label="Correo de contacto"
                 value={email}
@@ -110,38 +99,30 @@ export default function CheckoutPage() {
               />
             </Section>
 
-            {/* Dirección */}
             <Section n="02" title="Dirección de envío">
               <AddressForm address={address} setAddress={setAddress} />
             </Section>
 
-            {/* Envío */}
             <Section n="03" title="Método de envío">
               <ShippingOptions selected={shipping} onSelect={setShipping} />
             </Section>
 
-            {/* Pago */}
             <Section n="04" title="Forma de pago">
               <PaymentMethods selected={payment} onSelect={setPayment} />
             </Section>
           </div>
 
-          <CheckoutSummary
-            items={items}
-            totals={totals}
-            submitting={submitting}
-          />
+          <CheckoutSummary items={items} totals={totals} submitting={submitting} />
         </div>
       </form>
 
-      {/* Mini footer */}
       <footer className={styles.checkoutFooter}>
         <span>© {new Date().getFullYear()} Práctica Yorùbà</span>
         <span className={styles.footerLinks}>
           <Link to="/info/terminos">Términos</Link>
           <Link to="/info/privacidad">Privacidad</Link>
           <Link to="/info/envios">Envíos &amp; devoluciones</Link>
-          <Link to="/ayuda">Ayuda</Link>
+          <Link to="/help">Ayuda</Link>
         </span>
       </footer>
     </main>
@@ -166,23 +147,6 @@ function Section({ n, title, children }) {
       </header>
       {children}
     </section>
-  );
-}
-
-function ModeCard({ id, mode, setMode, title, sub }) {
-  const active = mode === id;
-  return (
-    <button
-      type="button"
-      onClick={() => setMode(id)}
-      className={`${styles.optionCard} ${active ? styles.optionCardActive : ''}`}
-    >
-      <span className={`${styles.radio} ${active ? styles.radioActive : ''}`} />
-      <div>
-        <div className={styles.optionTitle}>{title}</div>
-        <div className={styles.optionSub}>{sub}</div>
-      </div>
-    </button>
   );
 }
 

@@ -2,6 +2,9 @@
 
 .page { background: $bg-page; min-height: 100vh; display: flex; flex-direction: column; }
 
+// ─────────────────────────────────────────────────────────────────────
+// Mini header (sin el header del storefront)
+// ─────────────────────────────────────────────────────────────────────
 .checkoutHeader { border-bottom: 1px solid $border-color; }
 .checkoutHeaderInner {
   max-width: $content-max-width;
@@ -33,6 +36,9 @@
 .step_pending .stepNum, .step_pending .stepLabel { color: $text-muted; }
 .secureBadge { font-family: $font-family-mono; font-size: $font-size-xs; color: $text-muted; letter-spacing: 0.08em; @media (max-width: $bp-lg) { display: none; } }
 
+// ─────────────────────────────────────────────────────────────────────
+// Layout
+// ─────────────────────────────────────────────────────────────────────
 .container {
   max-width: $content-max-width;
   margin: 0 auto;
@@ -49,6 +55,9 @@
 }
 .mainCol { display: flex; flex-direction: column; gap: $spacing-10; min-width: 0; }
 
+// ─────────────────────────────────────────────────────────────────────
+// Section
+// ─────────────────────────────────────────────────────────────────────
 .section {}
 .sectionHeader {
   display: flex;
@@ -71,13 +80,9 @@
   color: $text-primary;
 }
 
-.modeToggle {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-3;
-  margin-bottom: $spacing-6;
-  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
-}
+// ─────────────────────────────────────────────────────────────────────
+// Radio option cards
+// ─────────────────────────────────────────────────────────────────────
 .options { display: flex; flex-direction: column; gap: $spacing-3; }
 .optionCard {
   display: grid;
@@ -128,6 +133,9 @@
 .optionPriceNote { display: block; font-family: $font-family-mono; font-size: 10px; color: $text-muted; letter-spacing: 0.06em; margin-top: 2px; }
 .optionExternal { font-family: $font-family-mono; font-size: 10px; color: $text-muted; letter-spacing: 0.1em; text-transform: uppercase; }
 
+// ─────────────────────────────────────────────────────────────────────
+// Address form
+// ─────────────────────────────────────────────────────────────────────
 .addressForm { display: flex; flex-direction: column; gap: $spacing-4; }
 .formRow2 {
   display: grid;
@@ -142,6 +150,9 @@
   @media (max-width: $bp-md) { grid-template-columns: 1fr 1fr; }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Info box
+// ─────────────────────────────────────────────────────────────────────
 .infoBox {
   margin-top: $spacing-4;
   padding: 14px $spacing-4;
@@ -156,6 +167,9 @@
 }
 .infoBoxIcon { color: $coral; font-family: $font-family-mono; font-size: $font-size-xs; }
 
+// ─────────────────────────────────────────────────────────────────────
+// Summary
+// ─────────────────────────────────────────────────────────────────────
 .summary { position: sticky; top: $spacing-6; align-self: start; @media (max-width: $bp-lg) { position: static; } }
 .summaryCard { background: $bg-surface; border: 1px solid $border-medium; }
 .summaryHeader { padding: $spacing-5 $spacing-7; border-bottom: 1px solid $border-color; }
@@ -199,6 +213,9 @@
   a { color: $coral; }
 }
 
+// ─────────────────────────────────────────────────────────────────────
+// Footer
+// ─────────────────────────────────────────────────────────────────────
 .checkoutFooter {
   border-top: 1px solid $border-color;
   padding: $spacing-5 $content-padding-desktop;

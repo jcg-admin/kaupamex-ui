@@ -1,26 +1,25 @@
 /**
  * OrderSuccessPage — Práctica Yorùbà
  * Confirmación post-pago tras retorno del gateway.
- * Llamada desde /order/:id/confirmation
+ * Ruta: /order/:id/confirmation
  *
  * Endpoints:
- *   GET /payments/{order_number}/return/
- *   GET /{order_number}/
+ *   GET /orders/{id}/
  */
 
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { fetchOrderDetail } from '@redux/slices/ordersSlice';
+import { apiService } from '@services/apiService';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import styles from './OrderSuccessPage.module.scss';
 
 export default function OrderSuccessPage() {
   const { id } = useParams();
-  const dispatch = useDispatch();
-  const order = useSelector((s) => s.orders?.current);
+  const [order, setOrder] = useState(null);
 
-  useEffect(() => { dispatch(fetchOrderDetail(id)); }, [dispatch, id]);
+  useEffect(() => {
+    apiService.get(`/orders/${id}/`).then(setOrder).catch(() => {});
+  }, [id]);
 
   if (!order) return <div className={styles.loading}>Cargando…</div>;
 
@@ -29,7 +28,6 @@ export default function OrderSuccessPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        {/* Hero confirmation */}
         <header className={styles.hero}>
           <div className={styles.checkIcon}>✓</div>
           <MetaTag tone="lime">Pedido confirmado · {order.payment?.gateway_label || 'Pago'} aprobó tu pago</MetaTag>
@@ -42,7 +40,6 @@ export default function OrderSuccessPage() {
           </p>
         </header>
 
-        {/* Key facts */}
         <div className={styles.facts}>
           <Fact n="01" t="Pago"    v={order.payment?.status_label || 'Aprobado'}      sub={`ID ${order.payment?.gateway_payment_id || ''}`} tone="lime" />
           <Fact n="02" t="Total"   v={`$${order.total?.toLocaleString('es-MX')} MXN`}  sub="IVA incluido" />
@@ -50,7 +47,6 @@ export default function OrderSuccessPage() {
           <Fact n="04" t="Entrega" v={order.eta || 'En 2-4 días'}                       sub="estimada" tone="bronze" />
         </div>
 
-        {/* Next steps */}
         <section className={styles.nextSteps}>
           <h2 className={styles.sectionTitle}>Qué pasa ahora</h2>
           <div className={styles.nextGrid}>
@@ -60,7 +56,6 @@ export default function OrderSuccessPage() {
           </div>
         </section>
 
-        {/* Mini recap */}
         <section className={styles.recap}>
           <div>
             <MetaTag tone="bronze">Resumen rápido</MetaTag>
@@ -85,7 +80,6 @@ export default function OrderSuccessPage() {
           </Link>
         </section>
 
-        {/* CTAs */}
         <div className={styles.ctas}>
           <Link to="/catalog"><Button variant="secondary" block size="lg">Seguir explorando el catálogo</Button></Link>
           <Link to="/info/santoral"><Button variant="secondary" block size="lg">Ver calendario del santoral</Button></Link>
