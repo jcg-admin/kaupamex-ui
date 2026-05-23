@@ -81,6 +81,24 @@ export const moveWishlistItemToCart = createAsyncThunk(
   },
 );
 
+/**
+ * Toggle wishlist: si el producto ya está en la lista lo elimina;
+ * si no, lo agrega. Delega a removeFromWishlist / addToWishlist.
+ */
+export const toggleWishlist = createAsyncThunk(
+  'wishlist/toggleWishlist',
+  async ({ productId, variantId = null }, { getState, dispatch }) => {
+    const items = getState().wishlist.items;
+    const existing = items.find(
+      (i) => i.product?.id === productId || i.product_id === productId
+    );
+    if (existing) {
+      return dispatch(removeFromWishlist(existing.id));
+    }
+    return dispatch(addToWishlist({ productId, variantId }));
+  }
+);
+
 // =============================================================================
 // Slice
 // =============================================================================
@@ -91,7 +109,7 @@ const initialState = {
   isActioning: false,
   error:       null,
   actionError: null,
-  lastAction:  null, // 'added' | 'removed' | 'moved'
+  lastAction:  null,
 };
 
 const wishlistSlice = createSlice({

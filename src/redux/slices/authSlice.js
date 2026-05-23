@@ -15,6 +15,7 @@
  *
  * Sprint 2: URLs corregidas a /api/v1/, thunks de perfil añadidos.
  * Sprint 5: address CRUD + logout-all-sessions añadidos.
+ * Sprint 6: password reset + avatar upload añadidos.
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
@@ -23,15 +24,17 @@ import { serializeApiError } from '@utils/serializeApiError';
 
 // ─── URL Constants ────────────────────────────────────────────────────
 const AUTH_URLS = {
-  login:              '/api/v1/auth/login/',
-  logout:             '/api/v1/auth/logout/',
-  refresh:            '/api/v1/auth/refresh/',
-  register:           '/api/v1/auth/register/',
-  profile:            '/api/v1/auth/profile/',
-  changePassword:     '/api/v1/auth/change-password/',
-  verifyEmail:        '/api/v1/auth/verify-email/',
-  resendVerification: '/api/v1/auth/resend-verification/',
-  deactivate:         '/api/v1/auth/me/deactivate/',
+  login:                '/api/v1/auth/login/',
+  logout:               '/api/v1/auth/logout/',
+  refresh:              '/api/v1/auth/refresh/',
+  register:             '/api/v1/auth/register/',
+  profile:              '/api/v1/auth/profile/',
+  changePassword:       '/api/v1/auth/change-password/',
+  verifyEmail:          '/api/v1/auth/verify-email/',
+  resendVerification:   '/api/v1/auth/resend-verification/',
+  deactivate:           '/api/v1/auth/me/deactivate/',
+  passwordReset:        '/api/v1/auth/password-reset/',
+  passwordResetConfirm: '/api/v1/auth/password-reset/confirm/',
 };
 
 const ADDRESSES_URL  = '/api/v1/auth/addresses/';
@@ -163,9 +166,7 @@ export const verifyEmail = createAsyncThunk(
   'auth/verifyEmail',
   async (token, { rejectWithValue }) => {
     try {
-      const response = await apiService.post(AUTH_URLS.verifyEmail, {
-        token,
-      });
+      const response = await apiService.post(AUTH_URLS.verifyEmail, { token });
       return response.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -192,8 +193,7 @@ export const resendVerificationEmail = createAsyncThunk(
 /** UC-AUTH-16 — Dar de baja la propia cuenta. Requiere password actual.
  *  Postcondicion API: is_active=False, deactivated_reason='self_deleted',
  *  refresh tokens invalidados.
- *  Postcondicion UI (reducer): user=null, isAuthenticated=false. La cuenta
- *  puede reactivarse despues via UC-AUTH-01 Alt-A.2 (re-registro). */
+ *  Postcondicion UI (reducer): user=null, isAuthenticated=false. */
 export const deactivateAccount = createAsyncThunk(
   'auth/deactivateAccount',
   async ({ password }, { rejectWithValue }) => {
@@ -274,13 +274,57 @@ export const logoutAllSessions = createAsyncThunk(
   }
 );
 
+// ─── Thunks — Sprint 6 (password reset + avatar) ────────────────────────────
+
+/** Solicita el email de restablecimiento de contraseña (UC-AUTH-09). */
+export const requestPasswordReset = createAsyncThunk(
+  'auth/requestPasswordReset',
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(AUTH_URLS.passwordReset, { email });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** Confirma la nueva contraseña con uid + token del enlace. */
+export const confirmPasswordReset = createAsyncThunk(
+  'auth/confirmPasswordReset',
+  async ({ uid, token, new_password }, { rejectWithValue }) => {
+    try {
+      const response = await apiService.post(AUTH_URLS.passwordResetConfirm, {
+        uid, token, new_password,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** Sube una nueva foto de perfil (PATCH /auth/profile/ con FormData). */
+export const uploadAvatar = createAsyncThunk(
+  'auth/uploadAvatar',
+  async (file, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+      const response = await apiService.patch(AUTH_URLS.profile, formData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
 // ─── Slice ────────────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
-    user:            null,    // { id, email, first_name, last_name, phone, avatar_url,
-                              //   is_staff, profile_completeness, pending_fields, addresses }
+    user:            null,
     isAuthenticated: false,
     isLoading:       false,
     error:           null,
@@ -307,8 +351,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user ?? action.payload;
         state.error = null;
-        // DEC-AUTH-2: persistir tokens en apiService memory
-        // storage. Simplejwt devuelve {access, refresh, user}.
         if (action.payload.access) apiService.setAuthToken(action.payload.access);
         if (action.payload.refresh) apiService.setRefreshToken(action.payload.refresh);
       })
@@ -334,7 +376,6 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state) => {
-        // El registro no inicia sesion automaticamente (is_active=False)
         state.isLoading = false;
         state.error = null;
       })
@@ -343,7 +384,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // fetchProfile (Sprint 2)
+    // fetchProfile
     builder
       .addCase(fetchProfile.pending, (state) => {
         state.isLoading = true;
@@ -359,7 +400,7 @@ const authSlice = createSlice({
         state.user = null;
       });
 
-    // updateProfile (Sprint 2)
+    // updateProfile
     builder
       .addCase(updateProfile.pending, (state) => {
         state.isLoading = true;
@@ -374,7 +415,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // changePassword (Sprint 2)
+    // changePassword
     builder
       .addCase(changePassword.pending, (state) => {
         state.isLoading = true;
@@ -388,16 +429,13 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // deactivateAccount (UC-AUTH-16)
+    // deactivateAccount
     builder
       .addCase(deactivateAccount.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
       .addCase(deactivateAccount.fulfilled, (state) => {
-        // Backend confirma is_active=False + invalidacion de tokens.
-        // Limpiamos el estado de sesion local — el navegador queda
-        // como anonimo.
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
@@ -408,7 +446,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // fetchAddresses (Sprint 5)
+    // fetchAddresses
     builder
       .addCase(fetchAddresses.pending, (state) => {
         state.isLoading = true;
@@ -425,7 +463,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // createAddress (Sprint 5)
+    // createAddress
     builder
       .addCase(createAddress.pending, (state) => { state.isLoading = true; state.error = null; })
       .addCase(createAddress.fulfilled, (state, action) => {
@@ -439,7 +477,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // deleteAddress (Sprint 5) — payload is the deleted id
+    // deleteAddress
     builder
       .addCase(deleteAddress.pending, (state) => { state.isLoading = true; state.error = null; })
       .addCase(deleteAddress.fulfilled, (state, action) => {
@@ -455,7 +493,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // setDefaultAddress (Sprint 5) — payload is the updated address object
+    // setDefaultAddress
     builder
       .addCase(setDefaultAddress.pending, (state) => { state.isLoading = true; state.error = null; })
       .addCase(setDefaultAddress.fulfilled, (state, action) => {
@@ -472,9 +510,54 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
-    // logoutAllSessions (Sprint 5) — no state change on success
+    // logoutAllSessions
     builder
       .addCase(logoutAllSessions.rejected, (state, action) => {
+        state.error = action.payload;
+      });
+
+    // requestPasswordReset (Sprint 6)
+    builder
+      .addCase(requestPasswordReset.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(requestPasswordReset.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(requestPasswordReset.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // confirmPasswordReset (Sprint 6)
+    builder
+      .addCase(confirmPasswordReset.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(confirmPasswordReset.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(confirmPasswordReset.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      });
+
+    // uploadAvatar (Sprint 6)
+    builder
+      .addCase(uploadAvatar.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (state.user) {
+          state.user = { ...state.user, ...action.payload };
+        }
+      })
+      .addCase(uploadAvatar.rejected, (state, action) => {
+        state.isLoading = false;
         state.error = action.payload;
       });
   },
