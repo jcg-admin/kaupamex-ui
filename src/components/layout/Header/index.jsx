@@ -3,12 +3,6 @@
  * Cabecera con logo, tagline IFÁ · ÒRÌSÀ · OLÓDÙMARÈ,
  * navegación Yorùbà (por òrìsà / ritual / elekes / herramientas / libros),
  * búsqueda, cuenta y carrito.
- *
- * Mantiene la integración Redux existente:
- * - selectIsAuthenticated
- * - selectCartItemCount
- * - selectIsSearchOpen
- * - toggleSearch, openModal del uiSlice
  */
 
 import { Link, NavLink } from 'react-router-dom';
@@ -22,13 +16,12 @@ import { toggleSearch, openModal } from '@redux/slices/uiSlice';
 import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './Header.module.scss';
 
-// Navegación Yorùbà — categorías específicas de la tradición
 const MAIN_NAV = [
-  { to: '/catalogo?cat=por-orisha',     label: 'Por òrìsà' },
-  { to: '/catalogo?cat=por-ritual',     label: 'Por ritual' },
-  { to: '/catalogo?cat=elekes',         label: 'Elekes & collares' },
-  { to: '/catalogo?cat=herramientas',   label: 'Herramientas' },
-  { to: '/catalogo?cat=libros',         label: 'Libros & láminas' },
+  { to: '/catalog?cat=por-orisha',     label: 'Por òrìsà' },
+  { to: '/catalog?cat=por-ritual',     label: 'Por ritual' },
+  { to: '/catalog?cat=elekes',         label: 'Elekes & collares' },
+  { to: '/catalog?cat=herramientas',   label: 'Herramientas' },
+  { to: '/catalog?cat=libros',         label: 'Libros & láminas' },
 ];
 
 export default function Header() {
@@ -52,8 +45,8 @@ export default function Header() {
           </div>
           <div className={styles.topStripRight}>
             <Link to="/ayuda">Ayuda</Link>
-            <Link to="/mi-cuenta/pedidos">Rastrear pedido</Link>
-            <Link to="/contacto">Contacto</Link>
+            <Link to="/account/orders">Rastrear pedido</Link>
+            <Link to="/contact">Contacto</Link>
           </div>
         </div>
       </div>
@@ -61,7 +54,6 @@ export default function Header() {
       {/* ─── Main bar: logo + search + actions ─── */}
       <div className={styles.mainBar}>
         <div className={styles.mainBarInner}>
-          {/* Brand */}
           <Link to="/" className={styles.brand} aria-label="Inicio">
             <img
               src={logoUrl}
@@ -75,7 +67,6 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* Search */}
           <button
             type="button"
             className={styles.searchTrigger}
@@ -94,10 +85,9 @@ export default function Header() {
             <kbd className={styles.searchKbd}>⌘ K</kbd>
           </button>
 
-          {/* Actions */}
           <div className={styles.actions}>
             {isAuth ? (
-              <Link to="/mi-cuenta" className={styles.actionLink}>
+              <Link to="/account" className={styles.actionLink}>
                 Mi cuenta
               </Link>
             ) : (
@@ -110,12 +100,12 @@ export default function Header() {
               </button>
             )}
 
-            <Link to="/mi-cuenta/favoritos" className={styles.actionLink}>
+            <Link to="/account/wishlist" className={styles.actionLink}>
               Deseos
             </Link>
 
             <Link
-              to="/carrito"
+              to="/cart"
               className={styles.cartBtn}
               aria-label={`Carrito (${cartCount} ${cartCount === 1 ? 'pieza' : 'piezas'})`}
             >
@@ -143,7 +133,7 @@ export default function Header() {
             </NavLink>
           ))}
           <span className={styles.navSpacer} />
-          <Link to="/catalogo" className={styles.navLinkAccent}>
+          <Link to="/catalog" className={styles.navLinkAccent}>
             · Catálogo completo →
           </Link>
         </div>

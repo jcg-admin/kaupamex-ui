@@ -1,7 +1,6 @@
 /**
  * Footer — Práctica Yorùbà
  * 5 columnas: marca, catálogo, cuenta, tradición, apoyo.
- * Sin afirmaciones biográficas inventadas.
  */
 
 import { Link } from 'react-router-dom';
@@ -12,22 +11,22 @@ const COLUMNS = [
   {
     title: 'Catálogo',
     items: [
-      { to: '/catalogo',                  label: 'Novedades' },
-      { to: '/catalogo?cat=por-orisha',   label: 'Por òrìsà' },
-      { to: '/catalogo?cat=por-ritual',   label: 'Por ritual' },
-      { to: '/catalogo?cat=elekes',       label: 'Elekes' },
-      { to: '/catalogo?cat=herramientas', label: 'Herramientas' },
-      { to: '/catalogo?cat=libros',       label: 'Libros & láminas' },
+      { to: '/catalog',                   label: 'Novedades' },
+      { to: '/catalog?cat=por-orisha',    label: 'Por òrìsà' },
+      { to: '/catalog?cat=por-ritual',    label: 'Por ritual' },
+      { to: '/catalog?cat=elekes',        label: 'Elekes' },
+      { to: '/catalog?cat=herramientas',  label: 'Herramientas' },
+      { to: '/catalog?cat=libros',        label: 'Libros & láminas' },
     ],
   },
   {
     title: 'Cuenta',
     items: [
-      { to: '/auth/login',          label: 'Ingresar' },
-      { to: '/auth/registro',       label: 'Crear cuenta' },
-      { to: '/mi-cuenta/pedidos',   label: 'Mis pedidos' },
-      { to: '/mi-cuenta/direcciones', label: 'Direcciones' },
-      { to: '/mi-cuenta/favoritos', label: 'Lista de deseos' },
+      { to: '/auth/login',           label: 'Ingresar' },
+      { to: '/auth/register',        label: 'Crear cuenta' },
+      { to: '/account/orders',       label: 'Mis pedidos' },
+      { to: '/account/addresses',    label: 'Direcciones' },
+      { to: '/account/wishlist',     label: 'Lista de deseos' },
     ],
   },
   {
@@ -56,7 +55,6 @@ export default function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
-        {/* Marca */}
         <div className={styles.brandCol}>
           <Link to="/" className={styles.brand} aria-label="Inicio">
             <img
@@ -81,7 +79,6 @@ export default function Footer() {
           </address>
         </div>
 
-        {/* Columnas */}
         {COLUMNS.map((col) => (
           <div key={col.title} className={styles.col}>
             <h4 className={styles.colTitle}>{col.title}</h4>
@@ -96,7 +93,6 @@ export default function Footer() {
         ))}
       </div>
 
-      {/* Bottom row */}
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
           <span>© {new Date().getFullYear()} Práctica Yorùbà · practicayoruba.com</span>
