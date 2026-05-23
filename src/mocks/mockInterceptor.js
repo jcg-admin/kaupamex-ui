@@ -10,7 +10,7 @@
  * Endpoints cubiertos:
  *   Auth:      /api/auth/*, /api/v1/auth/login/, /api/v1/auth/change-password/ (D-05-08)
  *   Addresses: /api/v1/auth/addresses/*                     (D-03-07)
- *   Catalog:   /api/v1/products/*, /api/v1/categories/*
+ *   Catalog:   /api/v1/catalogue/*, /api/v1/catalogue/categories/*
  *   Cart:      /api/v1/cart/*
  *   Orders:    /api/v1/orders/*
  *   Checkout:  /api/v1/payments/*
@@ -72,10 +72,10 @@ class MockInterceptor {
       return this._listAddresses();
 
     // ─── Catálogo ────────────────────────────────────────────────
-    if (url.includes('/api/v1/products/search/')) return this._searchProducts(url);
-    if (url.match(/\/api\/v1\/products\/[^/]+\//)) return this._productDetail(url);
-    if (url.includes('/api/v1/products/'))        return this._productList(url);
-    if (url.includes('/api/v1/categories/'))      return this._categories();
+    if (url.includes('/api/v1/catalogue/search/'))          return this._searchProducts(url);
+    if (url.includes('/api/v1/catalogue/categories/'))      return this._categories();
+    if (url.match(/\/api\/v1\/catalogue\/[^/]+\//))         return this._productDetail(url);
+    if (url.includes('/api/v1/catalogue/'))                 return this._productList(url);
 
     // ─── Carrito ─────────────────────────────────────────────────
     if (url.includes('/api/v1/cart/voucher/') && method === 'POST')   return this._applyVoucher(body);
@@ -169,7 +169,7 @@ class MockInterceptor {
   }
 
   _productDetail(url) {
-    const slug = url.split('/api/v1/products/')[1].replace(/\//g, '');
+    const slug = url.split('/api/v1/catalogue/')[1].replace(/\//g, '');
     return this._ok(this._generateProduct(slug, 1));
   }
 
