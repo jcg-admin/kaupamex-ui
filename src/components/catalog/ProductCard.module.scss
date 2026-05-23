@@ -1,50 +1,58 @@
+// ═══════════════════════════════════════════════════════════════════════
+// ProductCard — Práctica Yorùbà
+// ═══════════════════════════════════════════════════════════════════════
 @use '@styles/abstracts/variables' as *;
 
 .card {
   display: flex;
   flex-direction: column;
-  background: $bg-surface;
-  border: 1px solid $border-color;
-  transition: $card-transition;
-  height: 100%;
+  gap: $spacing-4;
+  padding-bottom: $spacing-5;
+  border-bottom: 1px solid $border-color;
+  transition: $transition-colors;
 
   &:hover {
-    border-color: $border-medium;
-    .wishBtn { opacity: 1; }
+    .image,
+    .imagePlaceholder { transform: scale(1.02); }
+    .name { color: $text-primary; }
   }
 }
 
-.imageLink { display: block; text-decoration: none; }
+.imageLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
 
 .imageArea {
   position: relative;
-  aspect-ratio: $product-card-img-ratio;
-  background: linear-gradient(135deg, rgba($lime, 0.04), rgba($bronze, 0.06));
+  aspect-ratio: 4 / 5;
+  background: rgba($lime, 0.04);
   overflow: hidden;
 }
 
-.image {
-  width: 100%; height: 100%;
+.image,
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  display: block;
-  transition: transform $transition-slow;
-
-  .card:hover & { transform: scale(1.03); }
+  transition: transform $transition-slower;
 }
 
 .imagePlaceholder {
-  width: 100%; height: 100%;
-  display: grid;
-  place-items: center;
-  border-bottom: 1px dashed $border-medium;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,
+    rgba($lime, 0.04) 0%,
+    rgba($bronze, 0.06) 100%);
+  border: 1px dashed $border-medium;
 }
-
 .placeholderSku {
   font-family: $font-family-mono;
   font-size: $font-size-xs;
   color: $text-muted;
-  letter-spacing: $ls-eyebrow;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 // Badges
@@ -54,72 +62,95 @@
   left: $spacing-3;
   font-family: $font-family-mono;
   font-size: 10px;
+  font-weight: $font-weight-semibold;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 4px 8px;
+  padding: 4px 10px;
+  border-radius: $border-radius-sm;
+  z-index: 1;
 }
-.badgeFeatured { background: $bronze;    color: $bg-page; }
-.badgeOffer    { background: $vino;      color: $text-primary; }
-.badgeOut      { background: $bg-sunken; color: $text-muted; border: 1px solid $border-medium; }
+.badgeFeatured {
+  background: $bronze;
+  color: $bg-page;
+}
+.badgeOffer {
+  background: $lime;
+  color: $bg-page;
+}
+.badgeOut {
+  background: $vino;
+  color: $text-primary;
+  top: $spacing-3;
+  right: $spacing-3;
+  left: auto;
+}
 
 // Wishlist button
 .wishBtn {
   position: absolute;
   top: $spacing-3;
   right: $spacing-3;
-  width: 36px; height: 36px;
+  width: 32px;
+  height: 32px;
+  border-radius: $border-radius-full;
+  background: rgba($bg-page, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid $border-medium;
+  color: $text-secondary;
+  cursor: pointer;
   display: grid;
   place-items: center;
-  background: rgba($bg-sunken, 0.8);
-  backdrop-filter: blur(4px);
-  border: 1px solid $border-medium;
-  border-radius: $border-radius-full;
-  color: $text-muted;
-  cursor: pointer;
-  opacity: 0;
-  transition: $transition-colors;
+  transition: $transition-default;
 
-  &:hover { color: $vino-soft; border-color: $vino-soft; }
+  &:hover {
+    color: $vino-soft;
+    border-color: $vino-soft;
+  }
 }
 .wishBtnActive {
-  opacity: 1;
   color: $vino-soft;
   border-color: $vino-soft;
+  background: rgba($vino, 0.18);
+
+  svg { fill: currentColor; }
 }
 
 // Info
 .info {
-  padding: $spacing-5 $spacing-4 $spacing-6;
   display: flex;
   flex-direction: column;
   gap: $spacing-3;
-  flex: 1;
 }
-
 .tags {
   display: flex;
-  gap: $spacing-2;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: $spacing-3;
 }
 .tag {
   font-family: $font-family-mono;
   font-size: 10px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding: 3px 7px;
-  border-radius: $border-radius-sm;
 }
-.tagCategory { color: $bronze;     background: rgba($bronze, 0.08); }
-.tagOrisha   { color: $coral-soft; background: rgba($coral, 0.08); }
+.tagCategory { color: $bronze; }
+.tagOrisha   { color: $coral; }
 
 .name {
   font-family: $font-family-display;
-  font-size: $font-size-md;
-  font-weight: $font-weight-normal;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  line-height: 1.25;
   color: $text-primary;
-  line-height: $line-height-snug;
+  margin: 0;
+  transition: $transition-colors;
 
-  em { color: $lime-soft; font-style: normal; } // search highlight
+  :global(mark) {
+    background: rgba($lime, 0.25);
+    color: $text-primary;
+    padding: 0 2px;
+  }
 }
 
 .pricing {
@@ -130,15 +161,13 @@
 }
 .price {
   font-family: $font-family-display;
-  font-size: $font-size-xl;
+  font-size: $font-size-lg;
   font-weight: $font-weight-medium;
   color: $text-primary;
   letter-spacing: $ls-snug;
 }
 .priceWas {
-  font-family: $font-family-mono;
-  font-size: $font-size-xs;
+  font-size: $font-size-sm;
   color: $text-muted;
   text-decoration: line-through;
-  letter-spacing: 0.06em;
 }

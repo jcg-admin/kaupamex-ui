@@ -1,12 +1,23 @@
 /**
  * ProductCard — Práctica Yorùbà
- * Tarjeta de producto editorial con imagen, tags de òrìsà/categoría,
- * precio y botón de wishlist.
+ * Tarjeta de producto editorial:
+ *   · imagen (aspect 4/5), tag categoría, tag òrìsà, nombre, precio
+ *   · badge Destacado / Oferta / Sin stock
+ *   · botón flotante de wishlist
+ *
+ * product = {
+ *   id, name, slug, sku,
+ *   base_price, price_with_tax,
+ *   category_name, orisha_name,
+ *   stock, is_featured, has_discount,
+ *   image_url,
+ *   highlighted_name,
+ * }
  */
 
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { addToWishlist } from '@redux/slices/wishlistSlice';
+import { addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
 import styles from './ProductCard.module.scss';
 
 function formatPrice(amount) {
@@ -35,7 +46,11 @@ export default function ProductCard({ product, inWishlist = false }) {
   const handleWishlist = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(addToWishlist({ productId: id }));
+    if (inWishlist) {
+      dispatch(removeFromWishlist({ productId: id }));
+    } else {
+      dispatch(addToWishlist({ productId: id }));
+    }
   };
 
   return (
