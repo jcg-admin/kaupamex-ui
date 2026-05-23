@@ -6,8 +6,7 @@
  * Endpoints:
  *   GET /auth/addresses/
  *   POST /checkout/
- *   POST /payments/mercadopago/initiate/
- *   POST /payments/paypal/initiate/
+ *   POST /api/v1/payments/initiate/ (gateway: MERCADOPAGO | PAYPAL)
  */
 
 import { useState, useEffect } from 'react';
@@ -42,17 +41,17 @@ export default function CheckoutPage() {
         email, address, shipping_method: shipping,
       })).unwrap();
 
-      let redirect_url = null;
+      let checkout_url = null;
       if (payment === 'mp') {
         const result = await dispatch(initMercadoPago({ order_number: order.order_number })).unwrap();
-        redirect_url = result.redirect_url;
+        checkout_url = result.checkout_url;
       } else if (payment === 'pp') {
         const result = await dispatch(initPayPal({ order_number: order.order_number })).unwrap();
-        redirect_url = result.redirect_url;
+        checkout_url = result.checkout_url;
       }
 
-      if (redirect_url) {
-        window.location.href = redirect_url;
+      if (checkout_url) {
+        window.location.href = checkout_url;
       } else {
         navigate(`/order/${order.order_number}/confirmation`);
       }

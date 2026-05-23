@@ -9,18 +9,18 @@ import styles from './AdminSidebar.module.scss';
 
 const ADMIN_NAV = [
   { section: 'Operación', items: [
-    { to: '/admin',           label: 'Resumen',         end: true },
-    { to: '/admin/pedidos',   label: 'Pedidos' },
-    { to: '/admin/productos', label: 'Productos' },
-    { to: '/admin/inventario', label: 'Inventario' },
+    { to: '/admin',            label: 'Resumen',         end: true },
+    { to: '/admin/orders',     label: 'Pedidos' },
+    { to: '/admin/products',   label: 'Productos' },
+    { to: '/admin/inventory',  label: 'Inventario' },
   ]},
   { section: 'Comunidad', items: [
-    { to: '/admin/usuarios',  label: 'Usuarios' },
-    { to: '/admin/vouchers',  label: 'Vouchers' },
+    { to: '/admin/users',      label: 'Usuarios' },
+    { to: '/admin/vouchers',   label: 'Vouchers' },
   ]},
   { section: 'Configuración', items: [
-    { to: '/admin/categorias', label: 'Categorías' },
-    { to: '/admin/ajustes',    label: 'Ajustes del sitio' },
+    { to: '/admin/categories',      label: 'Categorías' },
+    { to: '/admin/system-settings', label: 'Ajustes del sitio' },
   ]},
 ];
 

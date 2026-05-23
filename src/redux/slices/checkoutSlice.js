@@ -7,6 +7,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 
 const CREATE_ORDER_URL = '/api/v1/orders/checkout/';
+const PAYMENTS_URL     = '/api/v1/payments/initiate/';
 
 export const createOrder = createAsyncThunk(
   'checkout/createOrder',
@@ -24,24 +25,35 @@ export const createOrder = createAsyncThunk(
   }
 );
 
+/**
+ * UC-PAY-01: inicia pago con Mercado Pago.
+ * DEC-BC-09: POST /api/v1/payments/initiate/ con gateway: MERCADOPAGO.
+ * Acepta { order_number, installments? }.
+ */
 export const initMercadoPago = createAsyncThunk(
   'checkout/initMercadoPago',
-  async (orderId, { rejectWithValue }) => {
+  async ({ order_number, installments }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`/api/v1/payments/mercadopago/create/`, { order_id: orderId });
-      return res.data; // { preference_id, init_point }
+      const payload = { order_number, gateway: 'MERCADOPAGO' };
+      if (installments) payload.installments = Number(installments);
+      const res = await apiService.post(PAYMENTS_URL, payload);
+      return res.data; // { payment_id, checkout_url, order_number, amount, installments }
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
 
+/**
+ * UC-PAY-02: inicia pago con PayPal.
+ * DEC-BC-09: mismo endpoint, gateway: PAYPAL.
+ */
 export const initPayPal = createAsyncThunk(
   'checkout/initPayPal',
-  async (orderId, { rejectWithValue }) => {
+  async ({ order_number }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`/api/v1/payments/paypal/create/`, { order_id: orderId });
-      return res.data; // { order_id, approve_url }
+      const res = await apiService.post(PAYMENTS_URL, { order_number, gateway: 'PAYPAL' });
+      return res.data; // { payment_id, checkout_url, order_number, amount, installments }
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -69,7 +81,7 @@ const checkoutSlice = createSlice({
     shippingOptions: [],
     paymentMethod:   null, // 'mercadopago' | 'paypal'
     orderId:         null,
-    paymentData:     null, // preference_id (MP) | order_id (PayPal)
+    paymentData:     null, // { payment_id, checkout_url, ... } per DEC-BC-09
     isLoading:       false,
     error:           null,
   },
