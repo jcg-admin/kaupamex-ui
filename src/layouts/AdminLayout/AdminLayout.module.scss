@@ -1,0 +1,13 @@
+@use '@styles/abstracts/variables' as *;
+
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: $bg-page;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
+}
+.content {
+  min-width: 0;
+  background: $bg-page;
+}

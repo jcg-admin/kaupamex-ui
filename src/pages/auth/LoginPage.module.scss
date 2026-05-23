@@ -1,20 +1,166 @@
-@use '@styles/abstracts' as *;
+@use '@styles/abstracts/variables' as *;
 
 .page {
-  width: 100%;
-  padding: $spacing-8 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  background: $bg-page;
+  @media (max-width: $bp-md) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
 }
 
-.placeholder {
-  @include flex-column-center;
-  min-height: 40vh;
-  gap: $spacing-4;
-  text-align: center;
-  color: $text-muted;
-
-  h1 {
-    font-family: $font-family-display;
-    font-size: $font-size-2xl;
-    color: $text-secondary;
+// ─── Hero column ───
+.heroCol {
+  background: $bg-sunken;
+  padding: $spacing-16 $spacing-12;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid $border-color;
+  position: relative;
+  overflow: hidden;
+  @media (max-width: $bp-md) {
+    padding: $spacing-8 $content-padding-mobile;
+    border-right: 0;
+    border-bottom: 1px solid $border-color;
   }
+}
+.heroBrand { display: flex; align-items: center; gap: $spacing-3; text-decoration: none; color: inherit; }
+.heroLogo { width: 48px; height: 48px; filter: invert(1); }
+.heroName { font-family: $font-family-display; font-size: $font-size-xl; color: $text-primary; font-weight: $font-weight-medium; line-height: 1; }
+.heroTag { font-family: $font-family-mono; font-size: 10px; color: $bronze; letter-spacing: 0.24em; text-transform: uppercase; margin-top: 4px; }
+
+.heroBody { position: relative; z-index: 2; max-width: 480px; }
+.heroTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-5xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  line-height: 1.05;
+  margin-top: $spacing-5;
+  margin-bottom: $spacing-6;
+  letter-spacing: $ls-tight;
+  em { font-style: italic; color: $bronze; }
+  @media (max-width: $bp-md) { font-size: $font-size-3xl; }
+}
+.heroLead {
+  font-size: $font-size-md;
+  color: $text-secondary;
+  line-height: $line-height-relaxed;
+  max-width: 440px;
+}
+.perks { list-style: none; padding: 0; margin: $spacing-10 0 0; display: flex; flex-direction: column; gap: $spacing-3; }
+.perk { display: flex; gap: $spacing-3; font-size: $font-size-sm; color: $text-secondary; }
+.perkDot { color: $lime-soft; font-family: $font-family-mono; }
+.heroFootnote {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  @media (max-width: $bp-md) { display: none; }
+}
+.deco1, .deco2 {
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid $border-medium;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+  right: -120px;
+}
+.deco1 { width: 380px; height: 380px; }
+.deco2 { width: 520px; height: 520px; right: -260px; border-color: $border-color; }
+
+// ─── Form column ───
+.formCol {
+  padding: $spacing-16 $spacing-16;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  @media (max-width: $bp-md) { padding: $spacing-8 $content-padding-mobile; }
+}
+.formWrap { max-width: 460px; width: 100%; margin: 0 auto; }
+.tabs {
+  display: flex;
+  gap: $spacing-8;
+  margin-bottom: $spacing-10;
+  border-bottom: 1px solid $border-color;
+}
+.tab {
+  padding: 14px 0;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  margin-bottom: -1px;
+  letter-spacing: 0.01em;
+}
+.tabActive { color: $text-primary; font-weight: $font-weight-medium; border-bottom-color: $bronze; }
+
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin-bottom: 4px;
+}
+.lead { font-size: $font-size-sm; color: $text-muted; margin-bottom: $spacing-6; }
+
+.form { display: flex; flex-direction: column; gap: $spacing-5; }
+.passwordField { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.forgotLink {
+  position: absolute;
+  top: 0; right: 0;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  color: $coral;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+}
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  cursor: pointer;
+  input { display: none; }
+  input:checked + .checkbox { background: $lime; border-color: $lime;
+    &::after { content: '✓'; color: $bg-page; font-size: 11px; font-weight: 700; }
+  }
+}
+.checkbox {
+  width: 16px; height: 16px;
+  border: 1px solid $border-strong;
+  border-radius: $border-radius-sm;
+  display: grid;
+  place-items: center;
+}
+.divider {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  margin: $spacing-3 0;
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $border-color;
+  }
+  span {
+    font-family: $font-family-mono;
+    font-size: 10px;
+    color: $text-muted;
+    letter-spacing: 0.12em;
+  }
+}
+.footer {
+  text-align: center;
+  margin-top: $spacing-4;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  a { color: $coral; }
 }

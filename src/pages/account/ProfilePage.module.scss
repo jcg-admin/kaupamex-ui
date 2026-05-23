@@ -1,20 +1,98 @@
-@use '@styles/abstracts' as *;
+@use '@styles/abstracts/variables' as *;
 
-.page {
-  width: 100%;
-  padding: $spacing-8 0;
+.page { background: $bg-page; min-height: 60vh; }
+.container {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-12 $content-padding-desktop $spacing-24;
+  @media (max-width: $bp-md) { padding: $spacing-8 $content-padding-mobile $spacing-16; }
+}
+.breadcrumb {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  margin-bottom: $spacing-6;
+  display: flex;
+  gap: $spacing-3;
+  a { color: $text-muted; &:hover { color: $text-secondary; } }
+}
+.bcCurrent { color: $text-secondary; }
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: $spacing-12;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; gap: $spacing-6; }
 }
 
-.placeholder {
-  @include flex-column-center;
-  min-height: 40vh;
-  gap: $spacing-4;
-  text-align: center;
-  color: $text-muted;
+.header { margin-bottom: $spacing-8; }
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin-top: $spacing-3;
+}
+.lead {
+  color: $text-secondary;
+  margin-top: $spacing-3;
+  max-width: 580px;
+  line-height: $line-height-relaxed;
+}
 
-  h1 {
-    font-family: $font-family-display;
-    font-size: $font-size-2xl;
-    color: $text-secondary;
-  }
+.avatarRow {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: $spacing-6;
+  align-items: center;
+  padding: $spacing-6;
+  border: 1px solid $border-color;
+  margin-bottom: $spacing-8;
+}
+.avatar {
+  width: 80px; height: 80px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, $lime 0%, $bronze 100%);
+  display: grid;
+  place-items: center;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  color: $bg-page;
+  overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+.avatarTitle { font-family: $font-family-display; font-size: $font-size-lg; color: $text-primary; font-weight: $font-weight-medium; }
+.avatarDesc { font-size: $font-size-sm; color: $text-muted; margin: 4px 0 $spacing-3; }
+.avatarBtn {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid $border-strong;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: $text-primary;
+  cursor: pointer;
+  border-radius: $border-radius-sm;
+  &:hover { border-color: $lime; color: $lime-soft; }
+}
+
+.form {}
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-4;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
+}
+.formActions {
+  margin-top: $spacing-6;
+  display: flex;
+  gap: $spacing-4;
+  align-items: center;
+}
+.toast {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $lime-soft;
+  letter-spacing: 0.08em;
 }

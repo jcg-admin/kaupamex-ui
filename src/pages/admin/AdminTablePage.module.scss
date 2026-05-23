@@ -1,0 +1,172 @@
+@use '@styles/abstracts/variables' as *;
+
+.page { padding: $spacing-10 $spacing-12 $spacing-16; @media (max-width: $bp-md) { padding: $spacing-6 $content-padding-mobile; } }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: $spacing-7;
+  border-bottom: 1px solid $border-color;
+  margin-bottom: $spacing-6;
+  @media (max-width: $bp-md) { flex-direction: column; align-items: flex-start; gap: $spacing-4; }
+}
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin-top: $spacing-3;
+}
+.headerActions { display: flex; gap: $spacing-3; flex-wrap: wrap; }
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-5;
+  gap: $spacing-4;
+  @media (max-width: $bp-md) { flex-direction: column; align-items: stretch; }
+}
+.filters { display: flex; gap: 6px; }
+.filterBtn {
+  padding: 8px 14px;
+  border: 1px solid $border-medium;
+  background: transparent;
+  color: $text-secondary;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  &:hover { color: $text-primary; }
+}
+.filterBtnActive { background: $bronze; color: $bg-page; border-color: $bronze; }
+.search {
+  background: transparent;
+  border: 1px solid $border-medium;
+  border-radius: $border-radius-sm;
+  padding: 10px 14px;
+  color: $text-primary;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  min-width: 320px;
+  outline: none;
+  &:focus { border-color: $lime; }
+  &::placeholder { color: $text-muted; }
+  @media (max-width: $bp-md) { min-width: 0; width: 100%; }
+}
+
+.tableWrap {
+  border: 1px solid $border-color;
+  background: $bg-surface;
+  overflow-x: auto;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+  th, td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid $border-color;
+    white-space: nowrap;
+  }
+  th {
+    font-family: $font-family-mono;
+    font-size: 10px;
+    font-weight: $font-weight-medium;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $text-muted;
+    background: rgba(245,247,238,0.02);
+  }
+  tbody tr:hover { background: rgba($lime, 0.03); }
+  tbody tr:last-child td { border-bottom: 0; }
+}
+.thumbCol { padding: 8px 14px !important; }
+.thumb {
+  width: 44px;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, rgba($lime, 0.06), rgba($bronze, 0.08));
+  border: 1px dashed $border-medium;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+.itemName {
+  color: $text-primary;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  white-space: normal;
+  max-width: 320px;
+  &:hover { color: $lime-soft; }
+}
+.starBadge { color: $bronze; font-size: 12px; }
+.mono { font-family: $font-family-mono; color: $text-secondary; }
+.right { text-align: right; }
+.discountTag {
+  font-family: $font-family-mono;
+  font-size: 10px;
+  color: $lime-soft;
+  letter-spacing: 0.06em;
+  margin-top: 3px;
+  text-transform: uppercase;
+}
+.stockOk  { color: $text-primary; font-family: $font-family-mono; }
+.stockLow { color: $bronze; font-family: $font-family-mono; font-weight: $font-weight-medium; }
+.stockOut { color: $vino-soft; font-family: $font-family-mono; font-weight: $font-weight-medium; }
+
+.statusPill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: $border-radius-sm;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pill_lime   { background: rgba($lime, 0.15);  color: $lime-soft; }
+.pill_coral  { background: rgba($coral, 0.15); color: $coral; }
+.pill_vino   { background: rgba($vino, 0.18);  color: $vino-soft; }
+.pill_bronze { background: rgba($bronze, 0.15); color: $bronze-soft; }
+.pill_muted  { background: rgba(245,247,238,0.06); color: $text-muted; }
+
+.actions { display: flex; gap: 4px; justify-content: flex-end; }
+.actionBtn {
+  width: 30px; height: 30px;
+  background: transparent;
+  border: 1px solid $border-medium;
+  color: $text-secondary;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: $border-radius-sm;
+  text-decoration: none;
+  font-size: 13px;
+  &:hover { border-color: $bronze; color: $bronze-soft; }
+}
+.actionDelete:hover { border-color: $vino-soft; color: $vino-soft; }
+
+.loading, .empty {
+  padding: $spacing-12 !important;
+  text-align: center;
+  color: $text-muted;
+}
+
+.muted {
+  color: $text-muted;
+  font-size: $font-size-xs;
+}
+.avatarSm {
+  width: 36px; height: 36px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, $lime 0%, $bronze 100%);
+  display: grid;
+  place-items: center;
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  color: $bg-page;
+  overflow: hidden;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}

@@ -1,0 +1,90 @@
+@use '@styles/abstracts/variables' as *;
+
+.page {
+  background: $bg-page;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: $spacing-12 $content-padding-mobile;
+}
+.container {
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-3;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: $spacing-12;
+}
+.brandLogo { width: 44px; height: 44px; filter: invert(1); }
+.brandName { font-family: $font-family-display; font-size: $font-size-lg; color: $text-primary; font-weight: $font-weight-medium; line-height: 1; text-align: left; }
+.brandTag { font-family: $font-family-mono; font-size: 9.5px; color: $bronze; letter-spacing: 0.24em; text-transform: uppercase; margin-top: 4px; text-align: left; }
+
+.steps {
+  display: flex;
+  gap: $spacing-2;
+  margin-bottom: $spacing-8;
+}
+.step {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: $border-medium;
+}
+.stepActive { background: $lime; }
+
+.envelope {
+  width: 72px; height: 72px;
+  border-radius: 999px;
+  border: 1px solid $border-medium;
+  background: rgba($lime, 0.06);
+  display: grid; place-items: center;
+  margin: 0 auto $spacing-6;
+  color: $lime-soft;
+  font-size: 28px;
+}
+
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-4xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin: $spacing-3 0;
+  letter-spacing: $ls-snug;
+  @media (max-width: $bp-md) { font-size: $font-size-3xl; }
+}
+.lead {
+  font-size: $font-size-md;
+  color: $text-secondary;
+  line-height: $line-height-relaxed;
+  margin-bottom: $spacing-8;
+  strong { color: $text-primary; }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+  text-align: left;
+}
+
+.note {
+  margin-top: $spacing-6;
+  padding: $spacing-4;
+  border: 1px solid $border-color;
+  background: rgba(245,247,238,0.02);
+  font-size: $font-size-sm;
+  color: $text-muted;
+  line-height: $line-height-relaxed;
+}
+
+.footer {
+  margin-top: $spacing-10;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  a { color: $coral; }
+}
