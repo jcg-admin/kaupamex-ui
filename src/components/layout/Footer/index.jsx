@@ -5,7 +5,7 @@
  */
 
 import { Link } from 'react-router-dom';
-import logoUrl from '@assets/practica-yoruba-logo.png';
+import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './Footer.module.scss';
 
 const COLUMNS = [

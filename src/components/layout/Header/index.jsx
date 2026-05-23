@@ -19,7 +19,7 @@ import {
   selectIsSearchOpen,
 } from '@redux/selectors';
 import { toggleSearch, openModal } from '@redux/slices/uiSlice';
-import logoUrl from '@assets/practica-yoruba-logo.png';
+import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './Header.module.scss';
 
 // Navegación Yorùbà — categorías específicas de la tradición
