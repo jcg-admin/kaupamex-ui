@@ -1,16 +1,15 @@
 /**
  * HomePage — Práctica Yorùbà
- * Hero editorial + franja de info + destacados + grid de òrìsà + manifiesto + novedades + newsletter
+ * Hero editorial + franja de info + destacados + grid de òrìsà + manifiesto + newsletter
  *
  * Endpoints consumidos:
  *   GET /catalogue/?is_featured=true
- *   GET /catalogue/categories/?root=true
  */
 
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchFeaturedProducts, fetchCategories } from '@redux/slices/catalogSlice';
+import { fetchProducts } from '@redux/slices/catalogSlice';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Button } from '@components/common/primitives';
 import styles from './HomePage.module.scss';
@@ -26,11 +25,10 @@ const ORISHAS = [
 
 export default function HomePage() {
   const dispatch = useDispatch();
-  const { featured = [], isLoading } = useSelector((s) => s.catalog || {});
+  const { products = [], isLoading } = useSelector((s) => s.catalog || {});
 
   useEffect(() => {
-    dispatch(fetchFeaturedProducts());
-    dispatch(fetchCategories());
+    dispatch(fetchProducts({ is_featured: true }));
   }, [dispatch]);
 
   return (
@@ -96,7 +94,7 @@ export default function HomePage() {
           <div className={styles.productGrid}>
             {isLoading
               ? Array.from({ length: 4 }).map((_, i) => <ProductCardSkeleton key={i} />)
-              : featured.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
+              : products.slice(0, 4).map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         </div>
       </section>
