@@ -21,7 +21,7 @@ import { serializeApiError } from '@utils/serializeApiError';
 // eran 404 en produccion (audit T-101 U-04 + U-05). Single endpoint
 // alineado a InitiatePaymentSerializer (apps/payments/serializers.py:25-29).
 const PAYMENTS_INITIATE_URL = '/api/v1/payments/initiate/';
-const ADMIN_REFUND_URL      = '/api/v1/admin/payments';
+const ADMIN_REFUND_URL      = '/api/v1/payments/admin';
 
 // =============================================================================
 // Thunks
