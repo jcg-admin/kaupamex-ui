@@ -105,7 +105,10 @@ export default function AdminInventoryPage() {
           </thead>
           <tbody>
             {items.map((it) => (
-              <tr key={it.variant_id}>
+              /* H-CICLO23-06: productos sin variantes tienen variant_id=null;
+                 usar null como key React causa colisiones. Se construye una
+                 key única combinando product_id y variant_id. */
+              <tr key={it.variant_id != null ? `v-${it.variant_id}` : `p-${it.product_id}`}>
                 <td>{it.sku}</td>
                 <td>{it.product_name}</td>
                 <td>{it.stock}</td>
