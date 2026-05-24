@@ -200,7 +200,12 @@ const yorubaVariantsSlice = createSlice({
         state.actionError = action.payload;
       })
 
+      .addCase(clearVariantPrice.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
       .addCase(clearVariantPrice.fulfilled, (state, action) => {
+        state.isActioning = false;
         state.lastAction = 'price_cleared';
         const id = action.payload?.variant_id;
         if (id != null) {
@@ -208,6 +213,10 @@ const yorubaVariantsSlice = createSlice({
             v.id === id ? { ...v, price: null } : v,
           );
         }
+      })
+      .addCase(clearVariantPrice.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
       });
   },
 });
