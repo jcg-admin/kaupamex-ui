@@ -51,7 +51,7 @@ export const loginUser = createAsyncThunk(
       const response = await apiService.post(AUTH_URLS.login, { username, password });
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || 'Error al iniciar sesion');
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -95,7 +95,7 @@ export const refreshSession = createAsyncThunk(
       return response.data;
     } catch (error) {
       apiService.clearTokens();
-      return rejectWithValue(error.message || 'Refresh fallo');
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -108,7 +108,7 @@ export const registerUser = createAsyncThunk(
       const response = await apiService.post(AUTH_URLS.register, data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -123,7 +123,7 @@ export const fetchProfile = createAsyncThunk(
       const response = await apiService.get(AUTH_URLS.profile);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -254,7 +254,7 @@ export const setDefaultAddress = createAsyncThunk(
   'auth/setDefaultAddress',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.patch(ADDRESS_URL(id), { is_default: true });
+      const res = await apiService.post(`${ADDRESS_URL(id)}set-default/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

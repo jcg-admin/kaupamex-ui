@@ -98,7 +98,7 @@ export const reopenSupportTicket = createAsyncThunk(
   'supportTickets/reopen',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${TICKETS_URL}${id}/reopen/`);
+      const res = await apiService.post(`${TICKETS_URL}${id}/reopen/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

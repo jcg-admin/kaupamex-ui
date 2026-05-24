@@ -32,7 +32,7 @@ export const suspendUser = createAsyncThunk(
   'adminUsers/suspend',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${URL_BASE}${id}/suspend/`);
+      const res = await apiService.post(`${URL_BASE}${id}/suspend/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -44,7 +44,7 @@ export const reactivateUser = createAsyncThunk(
   'adminUsers/reactivate',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${URL_BASE}${id}/reactivate/`);
+      const res = await apiService.post(`${URL_BASE}${id}/reactivate/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

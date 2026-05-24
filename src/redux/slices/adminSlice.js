@@ -10,6 +10,7 @@
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const ADMIN_USERS_URL = '/api/v1/admin/users/';
 
@@ -25,7 +26,7 @@ export const fetchAdminUsers = createAsyncThunk(
       const res = await apiService.get(ADMIN_USERS_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -38,7 +39,7 @@ export const fetchAdminUser = createAsyncThunk(
       const res = await apiService.get(`${ADMIN_USERS_URL}${pk}/`);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -51,7 +52,7 @@ export const suspendUser = createAsyncThunk(
       const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/suspend/`, {});
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -64,7 +65,7 @@ export const reactivateUser = createAsyncThunk(
       const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/reactivate/`, {});
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -77,7 +78,7 @@ export const createAdminUser = createAsyncThunk(
       const res = await apiService.post(ADMIN_USERS_URL, userData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -90,7 +91,7 @@ export const resetUserPassword = createAsyncThunk(
       await apiService.post(`${ADMIN_USERS_URL}${pk}/reset-password/`, {});
       return pk;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -103,7 +104,7 @@ export const makeUserAdmin = createAsyncThunk(
       const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/make-admin/`, {});
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -120,7 +121,7 @@ export const fetchAdminMetrics = createAsyncThunk(
       const res = await apiService.get(ADMIN_METRICS_URL);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -133,7 +134,7 @@ export const fetchAdminOrders = createAsyncThunk(
       const res = await apiService.get(ADMIN_ORDERS_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -146,7 +147,7 @@ export const fetchAdminProducts = createAsyncThunk(
       const res = await apiService.get(ADMIN_PRODUCTS_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -159,7 +160,7 @@ export const deleteProduct = createAsyncThunk(
       await apiService.delete(`${ADMIN_PRODUCTS_URL}${id}/`);
       return id;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -172,7 +173,7 @@ export const toggleProductFeatured = createAsyncThunk(
       const res = await apiService.post(`${ADMIN_PRODUCTS_URL}${id}/toggle-featured/`, {});
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -189,7 +190,7 @@ export const toggleUserActive = createAsyncThunk(
       const res = await apiService.post(endpoint, {});
       return { pk, is_active: !user?.is_active, data: res.data };
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );

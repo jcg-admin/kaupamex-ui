@@ -53,7 +53,7 @@ export const deactivateProduct = createAsyncThunk(
   'products/deactivate',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${URL_BASE}${id}/deactivate/`);
+      const res = await apiService.post(`${URL_BASE}${id}/deactivate/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -66,7 +66,7 @@ export const activateProduct = createAsyncThunk(
   'products/activate',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${URL_BASE}${id}/activate/`);
+      const res = await apiService.post(`${URL_BASE}${id}/activate/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
