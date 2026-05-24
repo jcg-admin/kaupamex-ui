@@ -540,6 +540,19 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
+    // refreshSession (interceptor 401)
+    // H-CICLO21-02: si el refresh falla, limpiar el estado de auth para
+    // que la UI refleje la sesion expirada. El apiService ya llama
+    // clearTokens() y dispara 'py:unauthorized'; aqui cerramos el estado
+    // Redux para que isAuthenticated quede en false.
+    builder
+      .addCase(refreshSession.rejected, (state) => {
+        state.user            = null;
+        state.isAuthenticated = false;
+        state.isLoading       = false;
+        state.error           = null;
+      });
+
     // confirmPasswordReset (Sprint 6)
     builder
       .addCase(confirmPasswordReset.pending, (state) => {

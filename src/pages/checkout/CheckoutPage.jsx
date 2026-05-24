@@ -39,7 +39,7 @@ export default function CheckoutPage() {
     setSubmitting(true);
     try {
       const order = await dispatch(createOrder({
-        email, address, shipping_method: shipping,
+        email, address, shipping_method_id: shipping,
       })).unwrap();
 
       let checkout_url = null;

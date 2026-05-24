@@ -219,6 +219,12 @@ const adminSlice = createSlice({
     metricsError:     null,
 
     orders:           [],
+    ordersPagination: {
+      count:      0,
+      next:       null,
+      previous:   null,
+      totalPages: 0,
+    },
     isLoadingOrders:  false,
     ordersError:      null,
 
@@ -395,6 +401,9 @@ const adminSlice = createSlice({
       });
 
     // fetchAdminOrders
+    // H-CICLO21-03: la API devuelve respuesta paginada (AdminOrderPagination:
+    // 20 por pagina). Antes se descartaban count/next/previous, impidiendo
+    // navegar paginas en el panel admin.
     builder
       .addCase(fetchAdminOrders.pending, (state) => {
         state.isLoadingOrders = true;
@@ -402,7 +411,21 @@ const adminSlice = createSlice({
       })
       .addCase(fetchAdminOrders.fulfilled, (state, action) => {
         state.isLoadingOrders = false;
-        state.orders          = action.payload?.results ?? action.payload ?? [];
+        const payload = action.payload;
+        if (payload && typeof payload === 'object' && 'results' in payload) {
+          state.orders = payload.results ?? [];
+          state.ordersPagination = {
+            count:      payload.count      ?? 0,
+            next:       payload.next       ?? null,
+            previous:   payload.previous   ?? null,
+            totalPages: payload.count
+              ? Math.ceil(payload.count / 20)
+              : 0,
+          };
+        } else {
+          state.orders          = payload ?? [];
+          state.ordersPagination = { count: 0, next: null, previous: null, totalPages: 0 };
+        }
       })
       .addCase(fetchAdminOrders.rejected, (state, action) => {
         state.isLoadingOrders = false;
