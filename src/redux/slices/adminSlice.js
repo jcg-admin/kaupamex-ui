@@ -48,7 +48,7 @@ export const suspendUser = createAsyncThunk(
   'admin/suspendUser',
   async (pk, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/suspend/`);
+      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/suspend/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -61,7 +61,7 @@ export const reactivateUser = createAsyncThunk(
   'admin/reactivateUser',
   async (pk, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/reactivate/`);
+      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/reactivate/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -87,7 +87,7 @@ export const resetUserPassword = createAsyncThunk(
   'admin/resetUserPassword',
   async (pk, { rejectWithValue }) => {
     try {
-      await apiService.post(`${ADMIN_USERS_URL}${pk}/reset-password/`);
+      await apiService.post(`${ADMIN_USERS_URL}${pk}/reset-password/`, {});
       return pk;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -100,7 +100,7 @@ export const makeUserAdmin = createAsyncThunk(
   'admin/makeUserAdmin',
   async (pk, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/make-admin/`);
+      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/make-admin/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -169,7 +169,7 @@ export const toggleProductFeatured = createAsyncThunk(
   'admin/toggleProductFeatured',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_PRODUCTS_URL}${id}/toggle-featured/`);
+      const res = await apiService.post(`${ADMIN_PRODUCTS_URL}${id}/toggle-featured/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(err.message);
@@ -186,7 +186,7 @@ export const toggleUserActive = createAsyncThunk(
       const endpoint = user?.is_active
         ? `${ADMIN_USERS_URL}${pk}/suspend/`
         : `${ADMIN_USERS_URL}${pk}/reactivate/`;
-      const res = await apiService.post(endpoint);
+      const res = await apiService.post(endpoint, {});
       return { pk, is_active: !user?.is_active, data: res.data };
     } catch (err) {
       return rejectWithValue(err.message);

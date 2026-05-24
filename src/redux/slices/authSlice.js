@@ -22,7 +22,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-// ─── URL Constants ────────────────────────────────────────────────────
+// ─── URL Constants ───────────────────────────────────────────────────────
 const AUTH_URLS = {
   login:                '/api/v1/auth/login/',
   logout:               '/api/v1/auth/logout/',
@@ -41,7 +41,7 @@ const ADDRESSES_URL  = '/api/v1/auth/addresses/';
 const ADDRESS_URL    = (id) => `/api/v1/auth/addresses/${id}/`;
 const LOGOUT_ALL_URL = '/api/v1/auth/logout-all/';
 
-// ─── Thunks — Sprint 1 ────────────────────────────────────────────────────
+// ─── Thunks ─── Sprint 1 ─────────────────────────────────────────────
 
 /** Inicia sesion y obtiene tokens JWT. */
 export const loginUser = createAsyncThunk(
@@ -113,7 +113,7 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// ─── Thunks — Sprint 2 ────────────────────────────────────────────────────
+// ─── Thunks ─── Sprint 2 ─────────────────────────────────────────────
 
 /** Obtiene el perfil del comprador autenticado (UC-AUTH-05). */
 export const fetchProfile = createAsyncThunk(
@@ -136,7 +136,7 @@ export const updateProfile = createAsyncThunk(
       const response = await apiService.patch(AUTH_URLS.profile, formData);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -208,7 +208,7 @@ export const deactivateAccount = createAsyncThunk(
   }
 );
 
-// ─── Thunks — Sprint 5 (address CRUD + logout all) ────────────────────────
+// ─── Thunks ─── Sprint 5 (address CRUD + logout all) ────────────────────
 
 /** Obtiene la libreta de direcciones del usuario autenticado (UC-AUTH-07). */
 export const fetchAddresses = createAsyncThunk(
@@ -267,14 +267,14 @@ export const logoutAllSessions = createAsyncThunk(
   'auth/logoutAllSessions',
   async (_, { rejectWithValue }) => {
     try {
-      await apiService.post(LOGOUT_ALL_URL);
+      await apiService.post(LOGOUT_ALL_URL, {});
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
     }
   }
 );
 
-// ─── Thunks — Sprint 6 (password reset + avatar) ────────────────────────────
+// ─── Thunks ─── Sprint 6 (password reset + avatar) ──────────────────────
 
 /** Solicita el email de restablecimiento de contraseña (UC-AUTH-09). */
 export const requestPasswordReset = createAsyncThunk(
@@ -319,7 +319,7 @@ export const uploadAvatar = createAsyncThunk(
   }
 );
 
-// ─── Slice ────────────────────────────────────────────────────────────────────
+// ─── Slice ───────────────────────────────────────────────────────────────
 
 const authSlice = createSlice({
   name: 'auth',
