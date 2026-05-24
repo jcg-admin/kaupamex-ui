@@ -174,7 +174,12 @@ const addressesSlice = createSlice({
         state.actionError = action.payload;
       })
 
+      .addCase(setDefaultAddress.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
       .addCase(setDefaultAddress.fulfilled, (state, action) => {
+        state.isActioning = false;
         state.lastAction = 'default';
         const id = action.payload?.id;
         if (id != null) {
@@ -184,6 +189,7 @@ const addressesSlice = createSlice({
         }
       })
       .addCase(setDefaultAddress.rejected, (state, action) => {
+        state.isActioning = false;
         state.actionError = action.payload;
       });
   },
