@@ -39,9 +39,9 @@ export const previewCsv = createAsyncThunk(
 
 export const applyCsv = createAsyncThunk(
   'priceSync/applyCsv',
-  async ({ token }, { rejectWithValue }) => {
+  async ({ session_id }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(APPLY_CSV_URL, { token });
+      const res = await apiService.post(APPLY_CSV_URL, { session_id });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -51,13 +51,13 @@ export const applyCsv = createAsyncThunk(
 
 export const previewPercentage = createAsyncThunk(
   'priceSync/previewPercentage',
-  async ({ percentage, category, price_min, price_max }, { rejectWithValue }) => {
+  async ({ pct, category_id, price_min, price_max }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(PREVIEW_PERCENTAGE_URL, {
-        percentage,
-        category:  category  || undefined,
-        price_min: price_min || undefined,
-        price_max: price_max || undefined,
+        pct,
+        category_id: category_id || undefined,
+        price_min:   price_min   || undefined,
+        price_max:   price_max   || undefined,
       });
       return res.data;
     } catch (err) {
@@ -68,9 +68,9 @@ export const previewPercentage = createAsyncThunk(
 
 export const applyPercentage = createAsyncThunk(
   'priceSync/applyPercentage',
-  async ({ token }, { rejectWithValue }) => {
+  async ({ session_id }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(APPLY_PERCENTAGE_URL, { token });
+      const res = await apiService.post(APPLY_PERCENTAGE_URL, { session_id });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
