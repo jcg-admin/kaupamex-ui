@@ -289,13 +289,23 @@ export const requestPasswordReset = createAsyncThunk(
   }
 );
 
-/** Confirma la nueva contraseña con uid + token del enlace. */
+/**
+ * Confirma la nueva contraseña con el token del enlace.
+ *
+ * H-CICLO20-05: el thunk anterior enviaba { uid, token, new_password }.
+ * El API (PasswordResetConfirmSerializer) requiere new_password_confirm
+ * como campo obligatorio — su ausencia causaba 400 en cada intento de
+ * reset. uid no es usado por el serializer (el token es auto-contenido).
+ * Se mantiene uid en la firma por compatibilidad con llamadores existentes.
+ */
 export const confirmPasswordReset = createAsyncThunk(
   'auth/confirmPasswordReset',
-  async ({ uid, token, new_password }, { rejectWithValue }) => {
+  async ({ uid, token, new_password, new_password_confirm }, { rejectWithValue }) => {
     try {
       const response = await apiService.post(AUTH_URLS.passwordResetConfirm, {
-        uid, token, new_password,
+        token,
+        new_password,
+        new_password_confirm: new_password_confirm ?? new_password,
       });
       return response.data;
     } catch (err) {
