@@ -136,12 +136,17 @@ const initialState = {
 };
 
 function applyTicketUpdate(state, updated) {
+  // H-CICLO18-02: API uses ticket_id (source='pk'), not id.
+  // Using the undefined 'id' key caused all items to match
+  // (undefined === undefined) and get overwritten with partial close/reopen data.
   if (!updated) return;
-  if (state.current && state.current.id === updated.id) {
+  const updatedKey = updated.ticket_id;
+  if (updatedKey == null) return;
+  if (state.current && state.current.ticket_id === updatedKey) {
     state.current = { ...state.current, ...updated };
   }
   state.items = state.items.map((t) =>
-    t.id === updated.id ? { ...t, ...updated } : t
+    t.ticket_id === updatedKey ? { ...t, ...updated } : t
   );
 }
 
@@ -201,7 +206,8 @@ const supportTicketsSlice = createSlice({
       .addCase(createSupportTicket.fulfilled, (state, action) => {
         state.isActioning   = false;
         state.lastAction    = 'created';
-        state.lastCreatedId = action.payload?.id ?? null;
+        // H-CICLO18-02: SupportTicketCreateResponseSerializer uses ticket_id, not id.
+        state.lastCreatedId = action.payload?.ticket_id ?? null;
         state.items         = [action.payload, ...state.items];
       })
       .addCase(createSupportTicket.rejected, (state, action) => {
