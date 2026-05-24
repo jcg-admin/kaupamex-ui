@@ -138,7 +138,12 @@ class APIService {
     }
 
     // Request real al backend
+    const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
     let config = { method, url: url.toString(), headers: { ...this.headers, ...headers } };
+    if (isFormData) {
+      // Dejar que fetch establezca Content-Type con el boundary correcto.
+      delete config.headers['Content-Type'];
+    }
     // DEC-BC-07: si hay _cartToken activo, propagarlo en requests a
     // /api/v1/cart/ para mantener la sesion anonima cross-request.
     if (this._cartToken && path.includes('/api/v1/cart/')) {
@@ -156,7 +161,7 @@ class APIService {
       response = await fetch(config.url, {
         method:      config.method,
         headers:     config.headers,
-        body:        body ? JSON.stringify(body) : undefined,
+        body:        body ? (isFormData ? body : JSON.stringify(body)) : undefined,
         // DEC-AUTH-1: arquitectura Bearer, no cookies. credentials:
         // 'include' se removio (sin cookies httpOnly que enviar).
         signal:      controller.signal,
