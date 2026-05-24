@@ -29,7 +29,7 @@
 @use 'abstracts/typography';
 
 // 3. Utilidades tipográficas y clases de componente
-@use 'base/typography';
+@use 'base/typography' as base-typography;
 @use 'base/animations';
 
 // 4. Accesibilidad — :focus-visible global (WCAG AA)

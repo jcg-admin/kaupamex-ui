@@ -105,6 +105,7 @@ module.exports = (env, argv) => {
         '@context':    path.resolve(__dirname, 'src/context'),
         '@lib':        path.resolve(__dirname, 'src/lib'),
         '@facades':    path.resolve(__dirname, 'src/facades'),
+        '@assets':     path.resolve(__dirname, 'src/assets'),
       },
     },
 
@@ -124,7 +125,28 @@ module.exports = (env, argv) => {
             isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
             'css-loader',
             'postcss-loader',
-            'sass-loader',
+            {
+              loader: 'sass-loader',
+              options: {
+                sassOptions: {
+                  importers: [{
+                    findFileUrl(url) {
+                      const aliases = {
+                        '@styles': path.resolve(__dirname, 'src/styles'),
+                        '@assets': path.resolve(__dirname, 'src/assets'),
+                      };
+                      for (const [alias, dir] of Object.entries(aliases)) {
+                        if (url.startsWith(alias + '/')) {
+                          const resolved = dir + '/' + url.slice(alias.length + 1);
+                          return new URL('file://' + resolved);
+                        }
+                      }
+                      return null;
+                    },
+                  }],
+                },
+              },
+            },
           ],
         },
         {
