@@ -113,12 +113,19 @@ export const adminCancelOrder = createAsyncThunk(
   },
 );
 
-/** Lista de pedidos del comprador con filtro opcional de estado. */
+/** Lista de pedidos del comprador con filtro opcional de estado y soporte de paginación.
+ *  H-CICLO22-02: se agrega el parámetro `page` para poder navegar páginas y se
+ *  preservan count/next/previous en el estado para que la UI pueda renderizar
+ *  controles de paginación. Sin `page`, el thunk siempre retornaba la página 1
+ *  y el slice descartaba los metadatos de paginación. */
 export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
-  async ({ filter = 'all' } = {}, { rejectWithValue }) => {
+  async ({ filter = 'all', page = 1, pageSize } = {}, { rejectWithValue }) => {
     try {
-      const params = filter !== 'all' ? { status: filter } : {};
+      const params = {};
+      if (filter !== 'all') params.status = filter;
+      if (page > 1) params.page = page;
+      if (pageSize) params.page_size = pageSize;
       const res = await apiService.get(ORDERS_URL, { params });
       return res.data;
     } catch (err) {
@@ -146,6 +153,12 @@ export const fetchOrderDetail = createAsyncThunk(
 
 const initialState = {
   list:            [],
+  // H-CICLO22-02: metadatos de paginación preservados del response de la API.
+  // La API devuelve {count, next, previous, results}. Sin estos campos la UI
+  // no podía mostrar controles de paginación ni saber si hay más páginas.
+  ordersCount:     0,
+  ordersNext:      null,
+  ordersPrevious:  null,
   current:         null,
   isLoading:       false,
   isLoadingDetail: false,
@@ -183,6 +196,12 @@ const ordersSlice = createSlice({
       state.lastOrderNumber = null;
       state.lastOrder       = null;
     },
+    resetOrdersList(state) {
+      state.list           = [];
+      state.ordersCount    = 0;
+      state.ordersNext     = null;
+      state.ordersPrevious = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -215,8 +234,21 @@ const ordersSlice = createSlice({
         state.actionError = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-        const { results } = action.payload;
-        state.list      = results ?? action.payload;
+        // H-CICLO22-02: preservar metadatos de paginación del response.
+        // La API usa PageNumberPagination y devuelve {count, next, previous, results}.
+        const payload = action.payload;
+        if (payload && typeof payload === 'object' && 'results' in payload) {
+          state.list           = payload.results;
+          state.ordersCount    = payload.count    ?? 0;
+          state.ordersNext     = payload.next     ?? null;
+          state.ordersPrevious = payload.previous ?? null;
+        } else {
+          // Fallback para respuestas planas (sin paginar).
+          state.list           = Array.isArray(payload) ? payload : [];
+          state.ordersCount    = state.list.length;
+          state.ordersNext     = null;
+          state.ordersPrevious = null;
+        }
         state.isLoading = false;
       })
       .addCase(fetchOrders.rejected, (state, action) => {
@@ -239,5 +271,5 @@ const ordersSlice = createSlice({
   },
 });
 
-export const { clearOrdersActionState } = ordersSlice.actions;
+export const { clearOrdersActionState, resetOrdersList } = ordersSlice.actions;
 export default ordersSlice.reducer;

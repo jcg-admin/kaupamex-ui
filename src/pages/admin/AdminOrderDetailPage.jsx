@@ -124,7 +124,10 @@ export default function AdminOrderDetailPage() {
 
       <section aria-labelledby="customer-title" className={styles.section}>
         <h2 id="customer-title">Comprador</h2>
-        <p>{order.user?.email ?? order.guest_email ?? '—'}</p>
+        {/* H-CICLO22-04: AdminOrderSerializer expone user_email y user_username
+            como campos calculados (SerializerMethodField). El campo `user` es
+            un PK entero — order.user?.email siempre era undefined. */}
+        <p>{order.user_email ?? order.guest_email ?? '—'}</p>
       </section>
 
       <section aria-labelledby="items-title" className={styles.section}>

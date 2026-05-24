@@ -8,6 +8,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import apiService from '@services/apiService';
 import { MetaTag, Price, Button } from '@components/common/primitives';
@@ -16,6 +17,10 @@ import styles from './OrderSuccessPage.module.scss';
 export default function OrderSuccessPage() {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
+  // H-CICLO22-05: el campo `user` en OrderSerializer es un PK entero, no un
+  // objeto. order.user?.first_name y order.user?.email siempre eran undefined.
+  // El nombre y email del comprador autenticado se leen del slice auth.
+  const authUser = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     apiService.get(`/api/v1/orders/${id}/`).then(res => setOrder(res.data)).catch(() => {});
@@ -23,7 +28,7 @@ export default function OrderSuccessPage() {
 
   if (!order) return <div className={styles.loading}>Cargando…</div>;
 
-  const firstName = order.user?.first_name || '';
+  const firstName = authUser?.first_name || '';
 
   return (
     <main className={styles.page}>
@@ -36,7 +41,7 @@ export default function OrderSuccessPage() {
           </h1>
           <p className={styles.lead}>
             Tu pedido <strong>{order.order_number}</strong> está confirmado. Te enviamos
-            el comprobante y el seguimiento a <strong>{order.email || order.user?.email}</strong>.
+            el comprobante y el seguimiento a <strong>{order.guest_email || authUser?.email || ''}</strong>.
           </p>
         </header>
 
