@@ -2,7 +2,7 @@
  * PaymentReturnPage — Práctica Yorùbà
  * Pantalla intermedia mientras se verifica el pago con el gateway.
  * Polling cada 5s a /payments/{n}/status/ hasta APPROVED / FAILED.
- * Ruta: /order/:id/payment-return
+ * Ruta: /checkout/payment-return/:id
  *
  * Endpoints:
  *   GET /payments/{n}/status/
@@ -32,12 +32,14 @@ export default function PaymentReturnPage() {
       try {
         const res = await apiService.get(`/payments/${id}/status/`);
         if (cancelled) return;
-        setStatus(res.status);
-        if (res.status === 'APPROVED') {
+        // apiService returns { data, status, headers }; payment status is in data
+        const paymentStatus = res.data?.status;
+        setStatus(paymentStatus);
+        if (paymentStatus === 'APPROVED') {
           navigate(`/order/${id}/confirmation`, { replace: true });
           return;
         }
-        if (res.status === 'FAILED' || res.status === 'CANCELLED') {
+        if (paymentStatus === 'FAILED' || paymentStatus === 'CANCELLED') {
           navigate(`/order/${id}/payment-failed`, { replace: true });
           return;
         }

@@ -18,7 +18,8 @@ export default function OrderSuccessPage() {
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
-    apiService.get(`/orders/${id}/`).then(setOrder).catch(() => {});
+    // apiService returns { data, status, headers }; extract data
+    apiService.get(`/orders/${id}/`).then(res => setOrder(res.data)).catch(() => {});
   }, [id]);
 
   if (!order) return <div className={styles.loading}>Cargando…</div>;

@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { retryPayment } from '@redux/slices/paymentsSlice';
 import apiService from '@services/apiService';
 import { MetaTag, Button } from '@components/common/primitives';
@@ -29,12 +29,14 @@ const ERROR_MESSAGES = {
 export default function PaymentFailedPage() {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    apiService.get(`/orders/${id}/`).then(setOrder).catch(() => {});
-    apiService.get(`/payments/${id}/history/`).then((h) => setHistory(h || [])).catch(() => {});
+    // apiService returns { data, status, headers }; extract data
+    apiService.get(`/orders/${id}/`).then(res => setOrder(res.data)).catch(() => {});
+    apiService.get(`/payments/${id}/history/`).then(res => setHistory(res?.data || [])).catch(() => {});
   }, [id]);
 
   if (!order) return <div className={styles.loading}>Cargando…</div>;
@@ -69,10 +71,20 @@ export default function PaymentFailedPage() {
         </section>
 
         <div className={styles.actions}>
-          <Button variant="primary" size="lg" block onClick={() => dispatch(retryPayment({ order: id, gateway: 'mp' }))}>
+          <Button
+            variant="primary"
+            size="lg"
+            block
+            onClick={() => dispatch(retryPayment({ order_number: order.order_number, gateway: 'MERCADOPAGO' }))}
+          >
             Reintentar con otra tarjeta
           </Button>
-          <Button variant="secondary" size="lg" block onClick={() => dispatch(retryPayment({ order: id, gateway: 'spei' }))}>
+          <Button
+            variant="secondary"
+            size="lg"
+            block
+            onClick={() => navigate(`/checkout/payment/${id}`)}
+          >
             Cambiar a SPEI o OXXO
           </Button>
         </div>
