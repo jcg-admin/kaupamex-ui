@@ -60,7 +60,7 @@ export const deactivateVoucher = createAsyncThunk(
   'vouchers/deactivate',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_VOUCHERS_URL}${id}/deactivate/`);
+      const res = await apiService.post(`${ADMIN_VOUCHERS_URL}${id}/deactivate/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

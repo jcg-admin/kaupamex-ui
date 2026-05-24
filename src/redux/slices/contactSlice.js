@@ -50,7 +50,7 @@ export const markContactMessageRead = createAsyncThunk(
   'contact/markRead',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADMIN_CONTACT_READ_URL(id));
+      const res = await apiService.post(ADMIN_CONTACT_READ_URL(id), {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
