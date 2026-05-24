@@ -4,7 +4,7 @@
  * Ruta: /order/:id/confirmation
  *
  * Endpoints:
- *   GET /orders/{id}/
+ *   GET /api/v1/orders/{id}/
  */
 
 import { useEffect, useState } from 'react';
@@ -18,8 +18,7 @@ export default function OrderSuccessPage() {
   const [order, setOrder] = useState(null);
 
   useEffect(() => {
-    // apiService returns { data, status, headers }; extract data
-    apiService.get(`/orders/${id}/`).then(res => setOrder(res.data)).catch(() => {});
+    apiService.get(`/api/v1/orders/${id}/`).then(res => setOrder(res.data)).catch(() => {});
   }, [id]);
 
   if (!order) return <div className={styles.loading}>Cargando…</div>;

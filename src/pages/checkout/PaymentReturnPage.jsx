@@ -1,11 +1,12 @@
 /**
  * PaymentReturnPage — Práctica Yorùbà
  * Pantalla intermedia mientras se verifica el pago con el gateway.
- * Polling cada 5s a /payments/{n}/status/ hasta APPROVED / FAILED.
+ * Polling cada 5s a /api/v1/payments/{n}/status/ hasta APPROVED / FAILED.
  * Ruta: /checkout/payment-return/:id
  *
  * Endpoints:
- *   GET /payments/{n}/status/
+ *   GET /api/v1/payments/{n}/status/
+ *   Response field: payment_status (PaymentStatusSerializer)
  */
 
 import { useEffect, useState, useRef } from 'react';
@@ -30,10 +31,10 @@ export default function PaymentReturnPage() {
     async function poll(n) {
       if (cancelled) return;
       try {
-        const res = await apiService.get(`/payments/${id}/status/`);
+        const res = await apiService.get(`/api/v1/payments/${id}/status/`);
         if (cancelled) return;
-        // apiService returns { data, status, headers }; payment status is in data
-        const paymentStatus = res.data?.status;
+        // PaymentStatusSerializer returns { payment_status, order_status, ... }
+        const paymentStatus = res.data?.payment_status;
         setStatus(paymentStatus);
         if (paymentStatus === 'APPROVED') {
           navigate(`/order/${id}/confirmation`, { replace: true });
