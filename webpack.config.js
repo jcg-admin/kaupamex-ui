@@ -280,7 +280,10 @@ module.exports = (env, argv) => {
 
     performance: {
       hints: isDev ? false : 'warning',
-      maxEntrypointSize: 300000,
+      // React 18 + ReactDOM + react-router alone account for ~200 KiB min.
+      // With Redux and app bootstrap code the irreducible entrypoint is ~430 KiB
+      // when all pages are already lazy-loaded. 512 KiB guards against real bloat.
+      maxEntrypointSize: 524288,
       maxAssetSize: 250000,
       assetFilter: (name) =>
         !name.endsWith('.map') && !name.endsWith('.LICENSE.txt'),

@@ -528,7 +528,11 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: $color;
-  background: if($bg, $bg, rgba($color, 0.1));
+  @if $bg {
+    background: $bg;
+  } @else {
+    background: rgba($color, 0.1);
+  }
 
   &::before {
     content: '';

@@ -7,6 +7,8 @@
 // Tipografía: Fraunces (display) + IBM Plex Sans (UI) + IBM Plex Mono (meta)
 // ═══════════════════════════════════════════════════════════════════════
 
+@use "sass:math";
+
 // ─────────────────────────────────────────────────────────────────────
 // 1. PALETA DEL BRAZALETE — 5 tonos complementarios
 // ─────────────────────────────────────────────────────────────────────
@@ -341,7 +343,7 @@ $card-shadow:         none;
 $card-shadow-hover:   $shadow-sm;
 $card-transition:     $transition-default;
 
-$product-card-img-ratio: 4 / 5;
+$product-card-img-ratio: math.div(4, 5);
 
 // ─────────────────────────────────────────────────────────────────────
 // 18. COMPONENTES — Badges
