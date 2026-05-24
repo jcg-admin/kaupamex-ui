@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { retryPayment } from '@redux/slices/paymentsSlice';
-import { apiService } from '@services/apiService';
+import apiService from '@services/apiService';
 import { MetaTag, Button } from '@components/common/primitives';
 import styles from './PaymentFailedPage.module.scss';
 

@@ -11,7 +11,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MetaTag } from '@components/common/primitives';
-import { apiService } from '@services/apiService';
+import apiService from '@services/apiService';
 import styles from './PaymentReturnPage.module.scss';
 
 const POLL_INTERVAL = 5000;

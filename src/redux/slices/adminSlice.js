@@ -108,6 +108,92 @@ export const makeUserAdmin = createAsyncThunk(
   }
 );
 
+const ADMIN_ORDERS_URL   = '/api/v1/admin/orders/';
+const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
+const ADMIN_METRICS_URL  = '/api/v1/admin/metrics/';
+
+/** UC-ADM-01: KPIs del panel de administración */
+export const fetchAdminMetrics = createAsyncThunk(
+  'admin/fetchMetrics',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ADMIN_METRICS_URL);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+/** UC-ADM-02: Listar pedidos con filtros */
+export const fetchAdminOrders = createAsyncThunk(
+  'admin/fetchOrders',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ADMIN_ORDERS_URL, { params });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+/** UC-ADM-03: Listar productos con filtros */
+export const fetchAdminProducts = createAsyncThunk(
+  'admin/fetchProducts',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ADMIN_PRODUCTS_URL, { params });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+/** UC-ADM-04: Eliminar producto */
+export const deleteProduct = createAsyncThunk(
+  'admin/deleteProduct',
+  async (id, { rejectWithValue }) => {
+    try {
+      await apiService.delete(`${ADMIN_PRODUCTS_URL}${id}/`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+/** UC-ADM-05: Destacar / quitar destacado de un producto */
+export const toggleProductFeatured = createAsyncThunk(
+  'admin/toggleProductFeatured',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(`${ADMIN_PRODUCTS_URL}${id}/toggle-featured/`);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+/** UC-AUTH-13/14: Activar o desactivar cuenta de usuario (toggle) */
+export const toggleUserActive = createAsyncThunk(
+  'admin/toggleUserActive',
+  async (pk, { getState, rejectWithValue }) => {
+    try {
+      const user = getState().admin?.currentUser;
+      const endpoint = user?.is_active
+        ? `${ADMIN_USERS_URL}${pk}/suspend/`
+        : `${ADMIN_USERS_URL}${pk}/reactivate/`;
+      const res = await apiService.post(endpoint);
+      return { pk, is_active: !user?.is_active, data: res.data };
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 // =============================================================================
 // Slice
 // =============================================================================
@@ -126,6 +212,18 @@ const adminSlice = createSlice({
       previous:   null,
     },
     search: '',
+
+    metrics:          {},
+    isLoadingMetrics: false,
+    metricsError:     null,
+
+    orders:           [],
+    isLoadingOrders:  false,
+    ordersError:      null,
+
+    products:         [],
+    isLoadingProducts: false,
+    productsError:    null,
 
     isLoading:        false,
     isLoadingUser:    false,
@@ -276,6 +374,102 @@ const adminSlice = createSlice({
         }
       })
       .addCase(makeUserAdmin.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // fetchAdminMetrics
+    builder
+      .addCase(fetchAdminMetrics.pending, (state) => {
+        state.isLoadingMetrics = true;
+        state.metricsError     = null;
+      })
+      .addCase(fetchAdminMetrics.fulfilled, (state, action) => {
+        state.isLoadingMetrics = false;
+        state.metrics          = action.payload;
+      })
+      .addCase(fetchAdminMetrics.rejected, (state, action) => {
+        state.isLoadingMetrics = false;
+        state.metricsError     = action.payload;
+      });
+
+    // fetchAdminOrders
+    builder
+      .addCase(fetchAdminOrders.pending, (state) => {
+        state.isLoadingOrders = true;
+        state.ordersError     = null;
+      })
+      .addCase(fetchAdminOrders.fulfilled, (state, action) => {
+        state.isLoadingOrders = false;
+        state.orders          = action.payload?.results ?? action.payload ?? [];
+      })
+      .addCase(fetchAdminOrders.rejected, (state, action) => {
+        state.isLoadingOrders = false;
+        state.ordersError     = action.payload;
+      });
+
+    // fetchAdminProducts
+    builder
+      .addCase(fetchAdminProducts.pending, (state) => {
+        state.isLoadingProducts = true;
+        state.productsError     = null;
+      })
+      .addCase(fetchAdminProducts.fulfilled, (state, action) => {
+        state.isLoadingProducts = false;
+        state.products          = action.payload?.results ?? action.payload ?? [];
+      })
+      .addCase(fetchAdminProducts.rejected, (state, action) => {
+        state.isLoadingProducts = false;
+        state.productsError     = action.payload;
+      });
+
+    // deleteProduct
+    builder
+      .addCase(deleteProduct.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'deleted_product';
+        state.products    = state.products.filter((p) => p.id !== action.payload);
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // toggleProductFeatured
+    builder
+      .addCase(toggleProductFeatured.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(toggleProductFeatured.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'toggled_featured';
+        const idx = state.products.findIndex((p) => p.id === action.payload.id);
+        if (idx !== -1) state.products[idx] = action.payload;
+      })
+      .addCase(toggleProductFeatured.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // toggleUserActive
+    builder
+      .addCase(toggleUserActive.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(toggleUserActive.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = action.payload.is_active ? 'reactivated' : 'suspended';
+        if (state.currentUser) {
+          state.currentUser = { ...state.currentUser, is_active: action.payload.is_active };
+        }
+      })
+      .addCase(toggleUserActive.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       });

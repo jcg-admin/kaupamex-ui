@@ -9,7 +9,7 @@
 
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { apiService } from '@services/apiService';
+import apiService from '@services/apiService';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import styles from './OrderSuccessPage.module.scss';
 
