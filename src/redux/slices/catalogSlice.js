@@ -8,6 +8,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 // =============================================================================
 // Thunks
@@ -20,7 +21,7 @@ export const fetchProducts = createAsyncThunk(
       const res = await apiService.get('/api/v1/catalogue/', { params });
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -32,7 +33,7 @@ export const fetchProduct = createAsyncThunk(
       const res = await apiService.get(`/api/v1/catalogue/${slug}/`);
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -44,7 +45,7 @@ export const searchProducts = createAsyncThunk(
       const res = await apiService.get('/api/v1/catalogue/search/', { params });
       return { ...res.data, query: params.q };
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -58,7 +59,7 @@ export const fetchFeaturedProducts = createAsyncThunk(
       });
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -70,7 +71,7 @@ export const fetchCategories = createAsyncThunk(
       const res = await apiService.get('/api/v1/catalogue/categories/', { params });
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
