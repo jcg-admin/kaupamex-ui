@@ -5,6 +5,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const CREATE_ORDER_URL = '/api/v1/orders/checkout/';
 const PAYMENTS_URL     = '/api/v1/payments/initiate/';
@@ -20,7 +21,7 @@ export const createOrder = createAsyncThunk(
       });
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -39,7 +40,7 @@ export const initMercadoPago = createAsyncThunk(
       const res = await apiService.post(PAYMENTS_URL, payload);
       return res.data; // { payment_id, checkout_url, order_number, amount, installments }
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -55,7 +56,7 @@ export const initPayPal = createAsyncThunk(
       const res = await apiService.post(PAYMENTS_URL, { order_number, gateway: 'PAYPAL' });
       return res.data; // { payment_id, checkout_url, order_number, amount, installments }
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
