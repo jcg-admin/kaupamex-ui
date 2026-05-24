@@ -162,7 +162,12 @@ const yorubaVariantsSlice = createSlice({
         state.actionError = action.payload;
       })
 
+      .addCase(toggleVariantActive.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
       .addCase(toggleVariantActive.fulfilled, (state, action) => {
+        state.isActioning = false;
         state.lastAction = 'toggled';
         const updated = action.payload;
         if (updated?.id != null) {
@@ -172,6 +177,7 @@ const yorubaVariantsSlice = createSlice({
         }
       })
       .addCase(toggleVariantActive.rejected, (state, action) => {
+        state.isActioning = false;
         state.actionError = action.payload;
       })
 
