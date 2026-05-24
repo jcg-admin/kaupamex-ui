@@ -113,7 +113,7 @@ export default function CheckoutPage() {
             </Section>
           </div>
 
-          <CheckoutSummary items={items} totals={totals} submitting={submitting} />
+          <CheckoutSummary items={items} totals={totals} shipping={shipping} submitting={submitting} />
         </div>
       </form>
 
@@ -179,12 +179,17 @@ function AddressForm({ address, setAddress }) {
   );
 }
 
+// Shipping cost data shared between ShippingOptions and CheckoutSummary.
+// priceAmount: numeric MXN cost (0 = free). Used in the summary to show
+// the real shipping cost rather than a hardcoded "Gratis".
+export const SHIPPING_OPTIONS = [
+  { id: 'std',    t: 'Estándar resguardado', sub: 'DHL · 2 a 4 días hábiles',            priceLabel: 'GRATIS',   priceNote: 'incluido en tu pedido', priceAmount: 0,   tone: 'lime' },
+  { id: 'exp',    t: 'Expedito · 24 horas',  sub: 'DHL Express · solo CDMX y zona metro', priceLabel: '$280 MXN', priceNote: '',                      priceAmount: 280, tone: ''     },
+  { id: 'pickup', t: 'Recoger en tienda',    sub: 'Punto de recogida · L-V 10-19',       priceLabel: 'GRATIS',   priceNote: 'cita por correo',        priceAmount: 0,   tone: 'lime' },
+];
+
 function ShippingOptions({ selected, onSelect }) {
-  const opts = [
-    { id: 'std',    t: 'Estándar resguardado', sub: 'DHL · 2 a 4 días hábiles',           price: 'GRATIS', priceNote: 'incluido en tu pedido', tone: 'lime' },
-    { id: 'exp',    t: 'Expedito · 24 horas',  sub: 'DHL Express · solo CDMX y zona metro', price: '$280 MXN', priceNote: '' },
-    { id: 'pickup', t: 'Recoger en tienda',    sub: 'Punto de recogida · L-V 10-19',      price: 'GRATIS', priceNote: 'cita por correo', tone: 'lime' },
-  ];
+  const opts = SHIPPING_OPTIONS;
   return (
     <div className={styles.options}>
       {opts.map((o) => (
@@ -200,7 +205,7 @@ function ShippingOptions({ selected, onSelect }) {
             <div className={styles.optionSub}>{o.sub}</div>
           </div>
           <div className={styles.optionPrice}>
-            <span className={o.tone === 'lime' ? styles.optionPriceLime : ''}>{o.price}</span>
+            <span className={o.tone === 'lime' ? styles.optionPriceLime : ''}>{o.priceLabel}</span>
             {o.priceNote && <span className={styles.optionPriceNote}>{o.priceNote}</span>}
           </div>
         </button>
@@ -246,7 +251,20 @@ function PaymentMethods({ selected, onSelect }) {
   );
 }
 
-function CheckoutSummary({ items, totals, submitting }) {
+function CheckoutSummary({ items, totals, shipping, submitting }) {
+  // Derive shipping cost from the selected option so the summary reflects the
+  // real cost before the user confirms (H-CICLO24-03: was hardcoded "Gratis").
+  const selectedShipping = SHIPPING_OPTIONS.find((o) => o.id === shipping) || SHIPPING_OPTIONS[0];
+  const shippingCost = selectedShipping.priceAmount;
+  const shippingLabel = shippingCost > 0
+    ? `$${shippingCost.toLocaleString('es-MX')} MXN`
+    : 'Gratis';
+  const shippingTone = shippingCost > 0 ? '' : 'lime';
+  // Displayed total = cart subtotal_net + shipping cost (tax is already included
+  // in totals.total from the cart API; we add the local shipping offset).
+  const cartTotal = Number(totals.total) || 0;
+  const displayTotal = cartTotal + shippingCost;
+
   return (
     <aside className={styles.summary}>
       <div className={styles.summaryCard}>
@@ -271,11 +289,11 @@ function CheckoutSummary({ items, totals, submitting }) {
         <div className={styles.summaryTotals}>
           <SumRow label="Subtotal" value={`$${(totals.subtotal || 0).toLocaleString('es-MX')} MXN`} />
           {totals.discount > 0 && <SumRow label="Descuento" value={`−$${totals.discount.toLocaleString('es-MX')} MXN`} tone="lime" />}
-          <SumRow label="Envío" value="Gratis" tone="lime" />
+          <SumRow label="Envío" value={shippingLabel} tone={shippingTone} />
           <SumRow label="IVA incluido" value={`$${(totals.tax_included || 0).toLocaleString('es-MX')} MXN`} muted />
           <div className={styles.summaryTotalRow}>
             <span>Total</span>
-            <Price amount={totals.total || 0} size="lg" />
+            <Price amount={displayTotal} size="lg" />
           </div>
           <Button type="submit" variant="primary" block size="lg" disabled={submitting}>
             {submitting ? 'Procesando…' : 'Confirmar y pagar'}
