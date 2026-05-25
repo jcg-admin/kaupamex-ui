@@ -38,6 +38,11 @@ export default function CheckoutPage() {
   const [shipping, setShipping] = useState('std');
   const [payment, setPayment] = useState('mp');
   const [submitting, setSubmitting] = useState(false);
+  // H-CICLO46-04: el catch anterior solo llamaba console.error — el usuario
+  // nunca veía retroalimentación si createOrder o initMercadoPago/initPayPal
+  // fallaban (red, validación del API, gateway caído).  Se agrega estado de
+  // error y un banner visible en el formulario.
+  const [submitError, setSubmitError] = useState(null);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
 
@@ -63,6 +68,7 @@ export default function CheckoutPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitError(null);
     try {
       // H-CICLO32-02: shipping_method_id debe ser entero (IntegerField en la API).
       // SHIPPING_OPTIONS usa IDs de string ('std', 'exp', 'pickup') — son etiquetas
@@ -91,6 +97,11 @@ export default function CheckoutPage() {
       }
     } catch (err) {
       console.error(err);
+      const msg =
+        err?.message ||
+        err?.detail ||
+        'Ocurrió un error al procesar tu pedido. Intenta de nuevo.';
+      setSubmitError(msg);
       setSubmitting(false);
     }
   };
@@ -118,6 +129,11 @@ export default function CheckoutPage() {
       </header>
 
       <form className={styles.container} onSubmit={handleSubmit}>
+        {submitError && (
+          <p role="alert" className={styles.submitError}>
+            {submitError}
+          </p>
+        )}
         <div className={styles.layout}>
           <div className={styles.mainCol}>
             <Section n="01" title="Identificación">

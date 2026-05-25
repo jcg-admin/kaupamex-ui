@@ -2,6 +2,19 @@
 
 .page { background: $bg-page; min-height: 100vh; display: flex; flex-direction: column; }
 
+// H-CICLO46-04: banner de error al fallar createOrder / initMercadoPago / initPayPal.
+.submitError {
+  max-width: $content-max-width;
+  margin: $spacing-4 auto 0;
+  padding: $spacing-3 $spacing-5;
+  width: 100%;
+  background: $error-bg;
+  border: 1px solid $error-border;
+  border-radius: 6px;
+  color: $error-color;
+  font-size: 0.9rem;
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Mini header (sin el header del storefront)
 // ─────────────────────────────────────────────────────────────────────
