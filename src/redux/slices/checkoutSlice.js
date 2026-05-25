@@ -124,7 +124,7 @@ const checkoutSlice = createSlice({
       });
 
     builder
-      .addCase(initMercadoPago.pending,  (state) => { state.isLoading = true; })
+      .addCase(initMercadoPago.pending,  (state) => { state.isLoading = true; state.error = null; })
       .addCase(initMercadoPago.fulfilled,(state, action) => {
         state.isLoading  = false;
         state.paymentData = action.payload;
@@ -136,7 +136,7 @@ const checkoutSlice = createSlice({
       });
 
     builder
-      .addCase(initPayPal.pending,  (state) => { state.isLoading = true; })
+      .addCase(initPayPal.pending,  (state) => { state.isLoading = true; state.error = null; })
       .addCase(initPayPal.fulfilled,(state, action) => {
         state.isLoading  = false;
         state.paymentData = action.payload;
