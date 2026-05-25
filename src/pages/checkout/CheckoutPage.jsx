@@ -24,6 +24,11 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const cart = useSelector((s) => s.cart || {});
   const auth = useSelector((s) => s.auth || {});
+  // H-CICLO33-05: fetchAddresses() se despachaba pero las direcciones guardadas
+  // nunca se leían del estado Redux. El formulario siempre aparecía vacío aunque
+  // el usuario tuviera direcciones guardadas. Se lee addresses.items y se pre-rellena
+  // el formulario con la dirección por defecto (is_default=true) si existe.
+  const savedAddresses = useSelector((s) => s.addresses?.items ?? []);
   const { items = [], totals = {} } = cart;
 
   const [email, setEmail] = useState(auth.user?.email || '');
@@ -33,6 +38,25 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
+
+  // Pre-rellenar con la dirección por defecto cuando llegan las direcciones guardadas
+  useEffect(() => {
+    if (savedAddresses.length > 0 && !address.street) {
+      const defaultAddr = savedAddresses.find((a) => a.is_default) || savedAddresses[0];
+      setAddress({
+        recipient_name: defaultAddr.recipient_name || '',
+        phone:          defaultAddr.phone || '',
+        street:         defaultAddr.street || '',
+        colony:         defaultAddr.colony || '',
+        zip_code:       defaultAddr.zip_code || '',
+        city:           defaultAddr.city || '',
+        state:          defaultAddr.state || '',
+        country:        defaultAddr.country || 'MX',
+        notes:          defaultAddr.notes || '',
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [savedAddresses]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,7 +131,11 @@ export default function CheckoutPage() {
             </Section>
 
             <Section n="02" title="Dirección de envío">
-              <AddressForm address={address} setAddress={setAddress} />
+              <AddressForm
+                address={address}
+                setAddress={setAddress}
+                savedAddresses={savedAddresses}
+              />
             </Section>
 
             <Section n="03" title="Método de envío">
@@ -157,10 +185,46 @@ function Section({ n, title, children }) {
   );
 }
 
-function AddressForm({ address, setAddress }) {
+function AddressForm({ address, setAddress, savedAddresses = [] }) {
   const set = (k) => (e) => setAddress({ ...address, [k]: e.target.value });
+
+  const handleSelectSaved = (e) => {
+    const idx = Number(e.target.value);
+    if (idx === -1) { setAddress({}); return; }
+    const saved = savedAddresses[idx];
+    if (saved) {
+      setAddress({
+        recipient_name: saved.recipient_name || '',
+        phone:          saved.phone || '',
+        street:         saved.street || '',
+        colony:         saved.colony || '',
+        zip_code:       saved.zip_code || '',
+        city:           saved.city || '',
+        state:          saved.state || '',
+        country:        saved.country || 'MX',
+        notes:          saved.notes || '',
+      });
+    }
+  };
+
   return (
     <div className={styles.addressForm}>
+      {savedAddresses.length > 0 && (
+        <div className={styles.savedAddressRow}>
+          <label className={styles.savedAddressLabel}>
+            Usar dirección guardada
+            <select onChange={handleSelectSaved} className={styles.savedAddressSelect}>
+              {savedAddresses.map((a, i) => (
+                <option key={a.id ?? i} value={i}>
+                  {a.recipient_name} — {a.street}, {a.city}
+                  {a.is_default ? ' (predeterminada)' : ''}
+                </option>
+              ))}
+              <option value={-1}>+ Ingresar nueva dirección</option>
+            </select>
+          </label>
+        </div>
+      )}
       <div className={styles.formRow2}>
         <Field label="Nombre completo del destinatario" value={address.recipient_name} onChange={set('recipient_name')} required />
         <Field label="Teléfono" value={address.phone} onChange={set('phone')} required />
