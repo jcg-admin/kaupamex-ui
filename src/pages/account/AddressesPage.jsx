@@ -159,14 +159,14 @@ function AddressFormCard({ onSave, onCancel }) {
     >
       <h3 className={styles.formTitle}>Nueva dirección</h3>
       <div className={styles.formGrid}>
-        <Field label="Alias (Casa, Trabajo…)"   value={data.alias} onChange={set('alias')} required />
-        <Field label="Nombre del destinatario" value={data.recipient_name} onChange={set('recipient_name')} required />
-        <Field label="Teléfono" value={data.phone} onChange={set('phone')} required />
-        <Field label="Calle y número" value={data.street} onChange={set('street')} required />
-        <Field label="Colonia" value={data.neighborhood} onChange={set('neighborhood')} required />
-        <Field label="C.P." value={data.zip_code} onChange={set('zip_code')} required />
-        <Field label="Ciudad" value={data.city} onChange={set('city')} required />
-        <Field label="Estado" value={data.state} onChange={set('state')} required />
+        <Field label="Alias (Casa, Trabajo…)"   value={data.alias} onChange={set('alias')} required autoComplete="off" />
+        <Field label="Nombre del destinatario" value={data.recipient_name} onChange={set('recipient_name')} required autoComplete="name" />
+        <Field label="Teléfono" value={data.phone} onChange={set('phone')} required autoComplete="tel" />
+        <Field label="Calle y número" value={data.street} onChange={set('street')} required autoComplete="address-line1" />
+        <Field label="Colonia" value={data.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        <Field label="C.P." value={data.zip_code} onChange={set('zip_code')} required autoComplete="postal-code" />
+        <Field label="Ciudad" value={data.city} onChange={set('city')} required autoComplete="address-level2" />
+        <Field label="Estado" value={data.state} onChange={set('state')} required autoComplete="address-level1" />
       </div>
       <div className={styles.formActions}>
         <Button type="submit" variant="primary">Guardar dirección</Button>

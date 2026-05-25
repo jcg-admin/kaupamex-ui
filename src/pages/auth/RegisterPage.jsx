@@ -86,11 +86,11 @@ export default function RegisterPage() {
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <Field label="Nombre"   value={form.first_name} onChange={set('first_name')} error={errors.first_name} required />
-              <Field label="Apellido" value={form.last_name}  onChange={set('last_name')}  error={errors.last_name}  required />
+              <Field label="Nombre"   value={form.first_name} onChange={set('first_name')} error={errors.first_name} required autoComplete="given-name" />
+              <Field label="Apellido" value={form.last_name}  onChange={set('last_name')}  error={errors.last_name}  required autoComplete="family-name" />
             </div>
-            <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} error={errors.email} required />
-            <Field label="Nombre de usuario" value={form.username} onChange={set('username')} error={errors.username} required placeholder="manuel_ortega" />
+            <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} error={errors.email} required autoComplete="email" />
+            <Field label="Nombre de usuario" value={form.username} onChange={set('username')} error={errors.username} required placeholder="manuel_ortega" autoComplete="username" />
             <Field
               label="Contraseña"
               type="password"
@@ -99,6 +99,7 @@ export default function RegisterPage() {
               error={errors.password}
               required
               hint="· Mínimo 8 caracteres · No similar a tu usuario · No demasiado común"
+              autoComplete="new-password"
             />
 
             <label className={styles.checkboxLabel} style={{ alignItems: 'flex-start', marginTop: 4 }}>

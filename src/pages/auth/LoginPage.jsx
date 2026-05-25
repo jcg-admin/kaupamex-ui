@@ -60,6 +60,7 @@ export default function LoginPage() {
               value={creds.email}
               onChange={(e) => setCreds({ ...creds, email: e.target.value })}
               required
+              autoComplete="email"
             />
             <div className={styles.passwordField}>
               <Field
@@ -69,6 +70,7 @@ export default function LoginPage() {
                 onChange={(e) => setCreds({ ...creds, password: e.target.value })}
                 required
                 error={error}
+                autoComplete="current-password"
               />
               <Link to="/auth/recuperar" className={styles.forgotLink}>
                 ¿OLVIDASTE TU CONTRASEÑA?

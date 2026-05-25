@@ -145,6 +145,7 @@ export default function CheckoutPage() {
                 type="email"
                 required
                 hint="Te enviaremos el comprobante y el seguimiento a este correo."
+                autoComplete="email"
               />
             </Section>
 
@@ -244,18 +245,18 @@ function AddressForm({ address, setAddress, savedAddresses = [] }) {
         </div>
       )}
       <div className={styles.formRow2}>
-        <Field label="Nombre completo del destinatario" value={address.recipient_name} onChange={set('recipient_name')} required />
-        <Field label="Teléfono" value={address.phone} onChange={set('phone')} required />
+        <Field label="Nombre completo del destinatario" value={address.recipient_name} onChange={set('recipient_name')} required autoComplete="name" />
+        <Field label="Teléfono" value={address.phone} onChange={set('phone')} required autoComplete="tel" />
       </div>
-      <Field label="Calle y número" value={address.street} onChange={set('street')} required />
+      <Field label="Calle y número" value={address.street} onChange={set('street')} required autoComplete="address-line1" />
       <div className={styles.formRow3}>
-        <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required />
-        <Field label="C.P." value={address.zip_code} onChange={set('zip_code')} required />
-        <Field label="Alcaldía / Municipio" value={address.city} onChange={set('city')} required />
+        <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        <Field label="C.P." value={address.zip_code} onChange={set('zip_code')} required autoComplete="postal-code" />
+        <Field label="Alcaldía / Municipio" value={address.city} onChange={set('city')} required autoComplete="address-level2" />
       </div>
       <div className={styles.formRow2}>
-        <Field label="Estado" value={address.state} onChange={set('state')} required />
-        <Field label="País" value={address.country || 'México'} onChange={set('country')} />
+        <Field label="Estado" value={address.state} onChange={set('state')} required autoComplete="address-level1" />
+        <Field label="País" value={address.country || 'México'} onChange={set('country')} autoComplete="country" />
       </div>
       <Field
         label="Referencias para entrega (opcional)"
