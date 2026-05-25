@@ -119,15 +119,21 @@ export default function AdminInventoryPage() {
                   </span>
                 </td>
                 <td>
-                  <Link to={`/admin/inventory/${it.variant_id}/adjust`}
-                        className={styles.actionLink}>
-                    Ajustar
-                  </Link>
-                  {' · '}
-                  <Link to={`/admin/inventory/${it.variant_id}/movements`}
-                        className={styles.actionLink}>
-                    Movimientos
-                  </Link>
+                  {it.variant_id != null ? (
+                    <>
+                      <Link to={`/admin/inventory/${it.variant_id}/adjust`}
+                            className={styles.actionLink}>
+                        Ajustar
+                      </Link>
+                      {' · '}
+                      <Link to={`/admin/inventory/${it.variant_id}/movements`}
+                            className={styles.actionLink}>
+                        Movimientos
+                      </Link>
+                    </>
+                  ) : (
+                    <span className={styles.noVariant}>Sin variante</span>
+                  )}
                 </td>
               </tr>
             ))}
