@@ -98,9 +98,9 @@ export default function AdminReportTopSellersPage() {
             {results.map((row, idx) => (
               <tr key={row.product_id}>
                 <td>{idx + 1}</td>
-                <td>{row.name}</td>
+                <td>{row.product_name}</td>
                 <td>{row.sku}</td>
-                <td>{row.units}</td>
+                <td>{row.units_sold}</td>
                 <td>{row.revenue}</td>
                 <td>{row.share_pct != null ? `${row.share_pct}%` : '—'}</td>
               </tr>
