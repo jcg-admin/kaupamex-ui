@@ -7,11 +7,11 @@ import { Link } from 'react-router-dom';
 import { useAdminContactMessages } from '@hooks/domain/useContactMessages';
 import styles from './AdminContactMessagesPage.module.scss';
 
-const STATUS_LABEL = {
-  UNREAD:    'Sin leer',
-  READ:      'Leido',
-  REPLIED:   'Respondido',
-};
+function getStatusLabel(m) {
+  if (m.replied) return 'Respondido';
+  if (m.read)    return 'Leido';
+  return 'Sin leer';
+}
 
 const STATUS_OPTIONS = [
   { value: '',         label: 'Todos los estados' },
@@ -102,7 +102,7 @@ export default function AdminContactMessagesPage() {
                     <span className={styles.customerEmail}>{m.email ?? '—'}</span>
                   </div>
                 </td>
-                <td>{STATUS_LABEL[m.status] ?? m.status}</td>
+                <td>{getStatusLabel(m)}</td>
                 <td>{formatDate(m.created_at)}</td>
                 <td>
                   <Link
