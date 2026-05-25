@@ -112,7 +112,7 @@ export default function AdminNewsletterSubscribersPage() {
               <tr key={s.id}>
                 <td>{s.email}</td>
                 <td>{STATUS_LABEL[s.status] ?? s.status}</td>
-                <td>{formatDate(s.subscribed_at)}</td>
+                <td>{formatDate(s.created_at)}</td>
                 <td>
                   {s.status === 'ACTIVE' && (
                     <button
