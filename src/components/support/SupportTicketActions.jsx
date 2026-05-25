@@ -16,7 +16,7 @@ const CLOSABLE_STATUSES = new Set(['OPEN', 'IN_PROGRESS', 'AWAITING_USER', 'RESO
 
 export default function SupportTicketActions({ ticket }) {
   const dispatch = useDispatch();
-  const { isActioning } = useSelector((s) => s.supportTickets);
+  const { isActioning, actionError } = useSelector((s) => s.supportTickets);
 
   if (!ticket) return null;
 
@@ -45,6 +45,11 @@ export default function SupportTicketActions({ ticket }) {
         >
           Reabrir ticket
         </button>
+        {actionError && (
+          <p role="alert" className={styles.error}>
+            {typeof actionError === 'string' ? actionError : 'No se pudo reabrir el ticket.'}
+          </p>
+        )}
       </div>
     );
   }
@@ -60,6 +65,11 @@ export default function SupportTicketActions({ ticket }) {
         >
           Cerrar ticket
         </button>
+        {actionError && (
+          <p role="alert" className={styles.error}>
+            {typeof actionError === 'string' ? actionError : 'No se pudo cerrar el ticket.'}
+          </p>
+        )}
       </div>
     );
   }

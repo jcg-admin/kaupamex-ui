@@ -17,11 +17,14 @@ const NAV = [
 ];
 
 export default function AccountSidebar() {
-  const counters = useSelector((s) => ({
-    orders:    s.orders?.list?.length,
-    wishlist:  s.wishlist?.items?.length,
-    addresses: s.auth?.user?.addresses?.length,
-  }));
+  // Each useSelector call returns a primitive — avoids creating a new object
+  // literal on every render (which would cause AccountSidebar and all its
+  // NavLink children to re-render on any store update regardless of whether
+  // these three counters actually changed).
+  const ordersCount    = useSelector((s) => s.orders?.list?.length);
+  const wishlistCount  = useSelector((s) => s.wishlist?.items?.length);
+  const addressesCount = useSelector((s) => s.auth?.user?.addresses?.length);
+  const counters = { orders: ordersCount, wishlist: wishlistCount, addresses: addressesCount };
 
   return (
     <aside className={styles.sidebar}>

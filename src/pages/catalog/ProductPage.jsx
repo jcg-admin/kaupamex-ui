@@ -14,7 +14,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchProduct } from '@redux/slices/catalogSlice';
 import { addToCart } from '@redux/slices/cartSlice';
-import { toggleWishlist } from '@redux/slices/wishlistSlice';
+import { toggleWishlist, addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
+import { useToast } from '@context/ToastContext';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import styles from './ProductPage.module.scss';
@@ -23,6 +24,7 @@ export default function ProductPage() {
   const { slug } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { error: toastError } = useToast();
   const product = useSelector((s) => s.catalog?.currentProduct);
   const isLoading = useSelector((s) => s.catalog?.isLoading);
 
@@ -153,7 +155,14 @@ export default function ProductPage() {
                 <button
                   type="button"
                   className={styles.wishBtn}
-                  onClick={() => dispatch(toggleWishlist({ productId: product.id, variantId: variant?.id }))}
+                  onClick={async () => {
+                    const outerResult = await dispatch(toggleWishlist({ productId: product.id, variantId: variant?.id }));
+                    const innerAction = outerResult?.payload;
+                    if (innerAction && (addToWishlist.rejected.match(innerAction)
+                        || removeFromWishlist.rejected.match(innerAction))) {
+                      toastError('No se pudo actualizar la lista de deseos');
+                    }
+                  }}
                 >♡</button>
               </div>
 

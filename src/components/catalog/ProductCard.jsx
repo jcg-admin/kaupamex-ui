@@ -20,9 +20,10 @@
  *   }
  */
 
-import { Link } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { toggleWishlist } from '@redux/slices/wishlistSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleWishlist, addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
+import { useToast } from '@context/ToastContext';
 import styles from './ProductCard.module.scss';
 
 function formatPrice(amount) {
@@ -32,7 +33,10 @@ function formatPrice(amount) {
 }
 
 export default function ProductCard({ product, inWishlist = false }) {
-  const dispatch = useDispatch();
+  const dispatch        = useDispatch();
+  const navigate        = useNavigate();
+  const isAuthenticated = useSelector((s) => s.auth?.isAuthenticated);
+  const { error: toastError } = useToast();
   if (!product) return null;
 
   const {
@@ -48,10 +52,24 @@ export default function ProductCard({ product, inWishlist = false }) {
   const originalPrice = has_discount ? base_price : null;
   const displayPrice = price_with_tax || base_price;
 
-  const handleWishlist = (e) => {
+  const handleWishlist = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(toggleWishlist({ productId: id }));
+    if (!isAuthenticated) {
+      navigate('/auth/login');
+      return;
+    }
+    // toggleWishlist delegates to addToWishlist / removeFromWishlist.
+    // Those thunks update state.wishlist.actionError on failure.  We inspect
+    // the inner action's type to detect rejection without relying on
+    // toggleWishlist.rejected (which never fires because the thunk function
+    // itself does not throw or rejectWithValue).
+    const outerResult = await dispatch(toggleWishlist({ productId: id }));
+    const innerAction = outerResult?.payload;
+    if (innerAction && addToWishlist.rejected.match(innerAction)
+        || innerAction && removeFromWishlist.rejected.match(innerAction)) {
+      toastError('No se pudo actualizar la lista de deseos');
+    }
   };
 
   return (
