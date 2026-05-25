@@ -11,7 +11,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchWishlist, removeWishlistItem, moveToCart } from '@redux/slices/wishlistSlice';
+import { fetchWishlist, removeFromWishlist, moveWishlistItemToCart } from '@redux/slices/wishlistSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Price, Button, EmptyState } from '@components/common/primitives';
 import styles from './WishlistPage.module.scss';
@@ -45,7 +45,7 @@ export default function WishlistPage() {
                 </p>
               </div>
               {items.length > 0 && (
-                <Button variant="secondary" onClick={() => items.forEach(i => dispatch(moveToCart(i.id)))}>
+                <Button variant="secondary" onClick={() => items.forEach(i => dispatch(moveWishlistItemToCart({ itemId: i.id })))}>
                   Mover todo al carrito
                 </Button>
               )}
@@ -90,7 +90,7 @@ function WishItem({ item, dispatch }) {
         <button
           type="button"
           className={styles.removeBtn}
-          onClick={() => dispatch(removeWishlistItem(item.id))}
+          onClick={() => dispatch(removeFromWishlist(item.id))}
           aria-label="Quitar de deseos"
         >×</button>
       </div>
@@ -108,7 +108,7 @@ function WishItem({ item, dispatch }) {
             </span>
           )}
         </div>
-        <Button variant="primary" block size="sm" onClick={() => dispatch(moveToCart(item.id))}>
+        <Button variant="primary" block size="sm" onClick={() => dispatch(moveWishlistItemToCart({ itemId: item.id }))}>
           Mover al carrito
         </Button>
       </div>
