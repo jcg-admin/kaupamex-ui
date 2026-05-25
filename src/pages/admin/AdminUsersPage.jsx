@@ -26,16 +26,51 @@ const STATUS_FILTERS = [
   { id: 'inactive',   label: 'Inactivos' },
 ];
 
+/**
+ * Convierte los filtros locales de la UI a los parámetros que
+ * espera la API (AdminUserViewSet.get_queryset):
+ *   - role   → is_staff (bool string) o sin filtro
+ *   - status → is_active (bool string) + deactivated_reason opcional
+ *
+ * Bug H-CICLO30-01a: el código anterior enviaba `role` y `status`
+ * directamente al backend, que los ignoraba por completo porque
+ * espera `is_staff`, `is_active` y `deactivated_reason`.
+ */
+function buildApiParams({ role, status, search }) {
+  const params = {};
+  if (search) params.search = search;
+
+  // Rol → is_staff
+  if (role === 'customer') {
+    params.is_staff = 'false';
+  } else if (role === 'admin' || role === 'staff') {
+    params.is_staff = 'true';
+  }
+
+  // Estado → is_active + deactivated_reason
+  if (status === 'active') {
+    params.is_active = 'true';
+  } else if (status === 'unverified') {
+    params.is_active = 'false';
+    params.deactivated_reason = 'unverified';
+  } else if (status === 'inactive') {
+    params.is_active = 'false';
+  }
+
+  return params;
+}
+
 export default function AdminUsersPage() {
   const dispatch = useDispatch();
   const [role, setRole] = useState('all');
   const [status, setStatus] = useState('active');
   const [search, setSearch] = useState('');
   const users = useSelector((s) => s.admin?.users || []);
-  const isLoading = useSelector((s) => s.admin?.isLoadingUsers);
+  // Bug H-CICLO30-01b: isLoadingUsers no existe en el slice; la clave real es isLoading.
+  const isLoading = useSelector((s) => s.admin?.isLoading);
 
   useEffect(() => {
-    dispatch(fetchAdminUsers({ role, status, search }));
+    dispatch(fetchAdminUsers(buildApiParams({ role, status, search })));
   }, [dispatch, role, status, search]);
 
   return (
