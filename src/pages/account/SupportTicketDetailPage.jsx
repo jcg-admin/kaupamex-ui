@@ -14,16 +14,24 @@ import SupportTicketReplyForm from '@components/support/SupportTicketReplyForm';
 import SupportTicketActions  from '@components/support/SupportTicketActions';
 import styles from './SupportTicketDetailPage.module.scss';
 
+// H-CICLO36-01: enum sync con apps/support/models.py:24-29.
+// STATUS_LABEL antes mapeaba {OPEN, REPLIED, CLOSED} — "REPLIED" no existe en
+// el modelo (estados reales: IN_PROGRESS, AWAITING_USER, RESOLVED); tickets en
+// esos estados mostraban el codigo crudo en lugar de una etiqueta legible.
 const STATUS_LABEL = {
-  OPEN:    'Abierto',
-  REPLIED: 'Respondido',
-  CLOSED:  'Cerrado',
+  OPEN:           'Abierto',
+  IN_PROGRESS:    'En atención',
+  AWAITING_USER:  'Esperando respuesta',
+  RESOLVED:       'Resuelto',
+  CLOSED:         'Cerrado',
 };
 
 const STATUS_CLASS = {
-  OPEN:    'badgeOpen',
-  REPLIED: 'badgeReplied',
-  CLOSED:  'badgeClosed',
+  OPEN:           'badgeOpen',
+  IN_PROGRESS:    'badgeReplied',
+  AWAITING_USER:  'badgeReplied',
+  RESOLVED:       'badgeClosed',
+  CLOSED:         'badgeClosed',
 };
 
 function formatDateTime(iso) {

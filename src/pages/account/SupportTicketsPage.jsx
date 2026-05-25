@@ -6,16 +6,24 @@ import { Link } from 'react-router-dom';
 import { useSupportTickets } from '@hooks/domain/useSupportTickets';
 import styles from './SupportTicketsPage.module.scss';
 
+// H-CICLO36-01: enum sync con apps/support/models.py:24-29.
+// STATUS_LABEL antes mapeaba {OPEN, REPLIED, CLOSED} — "REPLIED" no existe en
+// el modelo; los estados reales IN_PROGRESS, AWAITING_USER, RESOLVED se
+// mostraban como códigos crudos en la lista de tickets del comprador.
 const STATUS_LABEL = {
-  OPEN:    'Abierto',
-  REPLIED: 'Respondido',
-  CLOSED:  'Cerrado',
+  OPEN:           'Abierto',
+  IN_PROGRESS:    'En atención',
+  AWAITING_USER:  'Esperando respuesta',
+  RESOLVED:       'Resuelto',
+  CLOSED:         'Cerrado',
 };
 
 const STATUS_CLASS = {
-  OPEN:    'badgeOpen',
-  REPLIED: 'badgeReplied',
-  CLOSED:  'badgeClosed',
+  OPEN:           'badgeOpen',
+  IN_PROGRESS:    'badgeReplied',
+  AWAITING_USER:  'badgeReplied',
+  RESOLVED:       'badgeClosed',
+  CLOSED:         'badgeClosed',
 };
 
 function formatDate(iso) {
