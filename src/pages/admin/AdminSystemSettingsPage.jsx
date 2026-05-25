@@ -20,13 +20,18 @@ import {
 } from '@redux/slices/settingsSlice';
 import styles from './AdminSystemSettingsPage.module.scss';
 
+// H-CICLO40-08: claves alineadas con SiteSettingsAdminSerializer (UC-ADM-04).
+// Claves anteriores incorrectas: contact_email (→support_email), support_phone
+// (→phone), tax_rate (→iva_rate), maintenance_mode (campo inexistente en el
+// modelo). Los campos mostraban siempre vacíos y los cambios se descartaban.
 const FIELDS = [
-  { key: 'site_name',        label: 'Nombre del sitio',         type: 'text' },
-  { key: 'contact_email',    label: 'Email de contacto',        type: 'email' },
-  { key: 'support_phone',    label: 'Telefono de soporte',      type: 'tel' },
-  { key: 'tax_rate',         label: 'Tasa de IVA (%)',          type: 'number' },
-  { key: 'currency',         label: 'Moneda',                   type: 'text' },
-  { key: 'maintenance_mode', label: 'Modo mantenimiento',       type: 'checkbox' },
+  { key: 'site_name',               label: 'Nombre del sitio',         type: 'text' },
+  { key: 'support_email',           label: 'Email de contacto',        type: 'email' },
+  { key: 'phone',                   label: 'Telefono de soporte',      type: 'tel' },
+  { key: 'iva_rate',                label: 'Tasa de IVA (%)',          type: 'number' },
+  { key: 'currency',                label: 'Moneda (ISO-4217)',        type: 'text' },
+  { key: 'free_shipping_threshold', label: 'Umbral envio gratis (MXN)', type: 'number' },
+  { key: 'min_stock_threshold',     label: 'Umbral de stock minimo',   type: 'number' },
 ];
 
 export default function AdminSystemSettingsPage() {
