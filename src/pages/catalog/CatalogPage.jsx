@@ -13,7 +13,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import {
-  fetchProducts, searchProducts, clearSearch, setPage,
+  fetchProducts, searchProducts, clearSearch, setPage, setFilter, clearFilters,
 } from '@redux/slices/catalogSlice';
 import SearchBar from '@components/catalog/SearchBar';
 import ProductCard from '@components/catalog/ProductCard';
@@ -23,22 +23,39 @@ import styles from './CatalogPage.module.scss';
 const ORISHAS = ['Yemayá','Shangó','Oshún','Obatalá','Oyá','Eleguá','Oggún','Babalú-Ayé'];
 const TYPES   = ['Eleke','Otán','Sopera','Herramienta','Bandera','Libro'];
 
+// Mapping from UI label to API ordering param
+const SORT_OPTIONS = [
+  { label: 'Recomendados',    value: '-created_at' },
+  { label: 'Precio: menor',   value: 'precio-asc'  },
+  { label: 'Precio: mayor',   value: 'precio-desc' },
+  { label: 'Recién llegados', value: 'novedad'      },
+];
+
 export default function CatalogPage() {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     products = [], searchResults = [],
     searchQuery, isLoading, isSearching,
-    error, searchError, pagination = {},
+    error, searchError, pagination = {}, filters = {},
   } = useSelector((s) => s.catalog || {});
 
   const qParam = searchParams.get('q') || '';
   const mode = qParam ? 'search' : 'listing';
 
+  // Re-fetch whenever listing filters or page change (but not in search mode)
   useEffect(() => {
     if (qParam) dispatch(searchProducts({ q: qParam }));
-    else dispatch(fetchProducts());
-  }, [dispatch, qParam]);
+    else dispatch(fetchProducts({
+      category: filters.category || undefined,
+      price_min: filters.priceMin || undefined,
+      price_max: filters.priceMax || undefined,
+      in_stock: filters.inStock || undefined,
+      ordering: filters.ordering || undefined,
+      page: pagination.page || 1,
+    }));
+  }, [dispatch, qParam, filters.category, filters.priceMin, filters.priceMax,
+      filters.inStock, filters.ordering, pagination.page]);
 
   const handleSearch = useCallback((q) => setSearchParams({ q }), [setSearchParams]);
   const handleClearSearch = useCallback(() => {
@@ -90,10 +107,15 @@ export default function CatalogPage() {
 
       <div className={styles.container}>
         <div className={styles.layout}>
-          <FilterSidebar />
+          <FilterSidebar dispatch={dispatch} />
 
           <section className={styles.results}>
-            <Toolbar count={displayItems.length} total={pagination.count} />
+            <Toolbar
+              count={displayItems.length}
+              total={pagination.count}
+              ordering={filters.ordering || '-created_at'}
+              onOrdering={(val) => dispatch(setFilter({ ordering: val }))}
+            />
 
             {loading && (
               <div className={styles.loading} aria-live="polite">
@@ -124,10 +146,10 @@ export default function CatalogPage() {
               </div>
             )}
 
-            {pagination.total_pages > 1 && (
+            {pagination.totalPages > 1 && (
               <Pagination
                 current={pagination.page}
-                total={pagination.total_pages}
+                total={pagination.totalPages}
                 onPage={(p) => dispatch(setPage(p))}
               />
             )}
@@ -138,57 +160,92 @@ export default function CatalogPage() {
   );
 }
 
-function FilterSidebar() {
+function FilterSidebar({ dispatch }) {
+  const handleClearFilters = () => dispatch(clearFilters());
   return (
     <aside className={styles.sidebar}>
-      <FilterGroup title="Òrìsà" items={ORISHAS} />
-      <FilterGroup title="Tipo de pieza" items={TYPES} />
+      <FilterGroup title="Òrìsà" items={ORISHAS} dispatch={dispatch} filterKey="category" />
+      <FilterGroup title="Tipo de pieza" items={TYPES} dispatch={dispatch} filterKey="category" />
       <FilterGroup title="Rango de precio">
-        <PriceSlider />
+        <PriceSlider dispatch={dispatch} />
       </FilterGroup>
       <FilterGroup title="Disponibilidad">
-        <Check label="Disponible inmediato" checked />
-        <Check label="Sobre pedido" />
-        <Check label="En oferta" />
+        <Check
+          label="Disponible inmediato"
+          onChange={(checked) => dispatch(setFilter({ inStock: checked }))}
+        />
       </FilterGroup>
-      <Button variant="secondary" block>Limpiar filtros</Button>
+      <Button variant="secondary" block onClick={handleClearFilters}>Limpiar filtros</Button>
     </aside>
   );
 }
-function FilterGroup({ title, items, children }) {
+function FilterGroup({ title, items, children, dispatch, filterKey }) {
   return (
     <div className={styles.filterGroup}>
       <h4 className={styles.filterTitle}>{title}</h4>
-      {items?.map((i) => <Check key={i} label={i} />)}
+      {items?.map((i) => (
+        <Check
+          key={i}
+          label={i}
+          onChange={(checked) => {
+            if (dispatch && filterKey) {
+              dispatch(setFilter({ [filterKey]: checked ? i.toLowerCase() : null }));
+            }
+          }}
+        />
+      ))}
       {children}
     </div>
   );
 }
-function Check({ label, checked = false }) {
+function Check({ label, onChange }) {
+  const [checked, setChecked] = useState(false);
+  const handleChange = (e) => {
+    setChecked(e.target.checked);
+    if (onChange) onChange(e.target.checked);
+  };
   return (
     <label className={styles.check}>
-      <input type="checkbox" defaultChecked={checked} />
+      <input type="checkbox" checked={checked} onChange={handleChange} />
       <span className={styles.checkbox} />
       <span>{label}</span>
     </label>
   );
 }
-function PriceSlider() {
+function PriceSlider({ dispatch }) {
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const apply = () => {
+    if (dispatch) dispatch(setFilter({
+      priceMin: priceMin ? Number(priceMin) : null,
+      priceMax: priceMax ? Number(priceMax) : null,
+    }));
+  };
   return (
     <div className={styles.slider}>
-      <div className={styles.sliderTrack}>
-        <div className={styles.sliderFill} />
-        <div className={styles.sliderHandle} style={{ left: '15%' }} />
-        <div className={styles.sliderHandle} style={{ left: '60%' }} />
-      </div>
-      <div className={styles.sliderLabels}>
-        <span>$580 MXN</span><span>$8,200 MXN</span>
+      <div className={styles.sliderInputs}>
+        <input
+          type="number"
+          placeholder="Mín MXN"
+          value={priceMin}
+          onChange={(e) => setPriceMin(e.target.value)}
+          onBlur={apply}
+          className={styles.sliderInput}
+        />
+        <input
+          type="number"
+          placeholder="Máx MXN"
+          value={priceMax}
+          onChange={(e) => setPriceMax(e.target.value)}
+          onBlur={apply}
+          className={styles.sliderInput}
+        />
       </div>
     </div>
   );
 }
 
-function Toolbar({ count, total }) {
+function Toolbar({ count, total, ordering, onOrdering }) {
   return (
     <div className={styles.toolbar}>
       <div className={styles.toolbarCount}>
@@ -197,11 +254,10 @@ function Toolbar({ count, total }) {
       <div className={styles.toolbarRight}>
         <label className={styles.sort}>
           <span>Ordenar:</span>
-          <select>
-            <option>Recomendados</option>
-            <option>Precio: menor</option>
-            <option>Precio: mayor</option>
-            <option>Recién llegados</option>
+          <select value={ordering} onChange={(e) => onOrdering(e.target.value)}>
+            {SORT_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
           </select>
         </label>
       </div>

@@ -23,8 +23,8 @@ export default function ProductPage() {
   const { slug } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const product = useSelector((s) => s.catalog?.current);
-  const isLoading = useSelector((s) => s.catalog?.isLoadingDetail);
+  const product = useSelector((s) => s.catalog?.currentProduct);
+  const isLoading = useSelector((s) => s.catalog?.isLoading);
 
   const [variant, setVariant] = useState(null);
   const [qty, setQty] = useState(1);

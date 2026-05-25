@@ -144,7 +144,7 @@ function ItemsBlock({ items }) {
                 {it.variant_label && <> · {it.variant_label}</>}
               </div>
             </div>
-            <Price amount={it.unit_price * it.quantity} size="md" />
+            <Price amount={Number(it.subtotal ?? it.unit_price * it.quantity)} size="md" />
           </div>
         ))}
       </div>
