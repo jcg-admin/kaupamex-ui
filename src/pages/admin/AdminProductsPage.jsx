@@ -65,7 +65,6 @@ export default function AdminProductsPage() {
               <th style={{ width: 60 }}></th>
               <th>Producto</th>
               <th>SKU</th>
-              <th>Òrìsà</th>
               <th>Categoría</th>
               <th>Precio</th>
               <th>Stock</th>
@@ -75,60 +74,68 @@ export default function AdminProductsPage() {
           </thead>
           <tbody>
             {isLoading && (
-              <tr><td colSpan={9} className={styles.loading}>Cargando productos…</td></tr>
+              <tr><td colSpan={8} className={styles.loading}>Cargando productos…</td></tr>
             )}
             {!isLoading && products.length === 0 && (
-              <tr><td colSpan={9} className={styles.empty}>Sin productos que coincidan</td></tr>
+              <tr><td colSpan={8} className={styles.empty}>Sin productos que coincidan</td></tr>
             )}
-            {!isLoading && products.map((p) => (
-              <tr key={p.id}>
-                <td className={styles.thumbCol}>
-                  <div className={styles.thumb}>
-                    {p.image_url ? <img src={p.image_url} alt="" /> : null}
-                  </div>
-                </td>
-                <td>
-                  <Link to={`/admin/productos/${p.id}`} className={styles.itemName}>
-                    {p.name}
-                    {p.is_featured && <span className={styles.starBadge}>★</span>}
-                  </Link>
-                </td>
-                <td className={styles.mono}>{p.sku}</td>
-                <td>{p.orisha_name || '—'}</td>
-                <td>{p.category_name || '—'}</td>
-                <td className={styles.right}>
-                  <Price amount={p.price_with_tax || p.base_price} size="sm" />
-                  {p.has_discount && <div className={styles.discountTag}>−{p.discount_pct}%</div>}
-                </td>
-                <td className={styles.right}>
-                  <span className={p.stock === 0 ? styles.stockOut : p.stock < 5 ? styles.stockLow : styles.stockOk}>
-                    {p.stock}
-                  </span>
-                </td>
-                <td>
-                  <span className={`${styles.statusPill} ${styles[`pill_${p.is_published ? 'lime' : 'muted'}`]}`}>
-                    {p.is_published ? 'Publicado' : 'Borrador'}
-                  </span>
-                </td>
-                <td className={styles.actions}>
-                  <button
-                    type="button"
-                    className={styles.actionBtn}
-                    onClick={() => dispatch(toggleProductFeatured(p.id))}
-                    title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
-                  >★</button>
-                  <Link to={`/admin/productos/${p.id}`} className={styles.actionBtn} title="Editar">✎</Link>
-                  <button
-                    type="button"
-                    className={`${styles.actionBtn} ${styles.actionDelete}`}
-                    onClick={() => {
-                      if (window.confirm(`¿Eliminar "${p.name}"?`)) dispatch(deleteProduct(p.id));
-                    }}
-                    title="Eliminar"
-                  >×</button>
-                </td>
-              </tr>
-            ))}
+            {!isLoading && products.map((p) => {
+              /* H-CICLO31-01: ProductAdminSerializer devuelve `images` (array de
+                 objetos con image_url) y `category` (objeto), no los campos planos
+                 `image_url`, `orisha_name`, `has_discount` ni `discount_pct`.
+                 Se extraen los valores correctos de la estructura real de la API. */
+              const coverImageUrl = p.images?.[0]?.image_url ?? null;
+              const categoryName  = p.category?.name ?? '—';
+              const discountPct   = p.discount?.pct ?? null;
+              return (
+                <tr key={p.id}>
+                  <td className={styles.thumbCol}>
+                    <div className={styles.thumb}>
+                      {coverImageUrl ? <img src={coverImageUrl} alt="" /> : null}
+                    </div>
+                  </td>
+                  <td>
+                    <Link to={`/admin/productos/${p.id}`} className={styles.itemName}>
+                      {p.name}
+                      {p.is_featured && <span className={styles.starBadge}>★</span>}
+                    </Link>
+                  </td>
+                  <td className={styles.mono}>{p.sku}</td>
+                  <td>{categoryName}</td>
+                  <td className={styles.right}>
+                    <Price amount={p.price_with_tax || p.base_price} size="sm" />
+                    {discountPct != null && <div className={styles.discountTag}>−{discountPct}%</div>}
+                  </td>
+                  <td className={styles.right}>
+                    <span className={p.stock === 0 ? styles.stockOut : p.stock < 5 ? styles.stockLow : styles.stockOk}>
+                      {p.stock}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`${styles.statusPill} ${styles[`pill_${p.is_published ? 'lime' : 'muted'}`]}`}>
+                      {p.is_published ? 'Publicado' : 'Borrador'}
+                    </span>
+                  </td>
+                  <td className={styles.actions}>
+                    <button
+                      type="button"
+                      className={styles.actionBtn}
+                      onClick={() => dispatch(toggleProductFeatured(p.id))}
+                      title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
+                    >★</button>
+                    <Link to={`/admin/productos/${p.id}`} className={styles.actionBtn} title="Editar">✎</Link>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles.actionDelete}`}
+                      onClick={() => {
+                        if (window.confirm(`¿Eliminar "${p.name}"?`)) dispatch(deleteProduct(p.id));
+                      }}
+                      title="Eliminar"
+                    >×</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
