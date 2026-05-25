@@ -11,14 +11,15 @@ import { MetaTag, Button, Price } from '@components/common/primitives';
 import styles from './AdminTablePage.module.scss';
 
 const STATUS_FILTERS = [
-  { id: 'all',            label: 'Todos' },
-  { id: 'pending',        label: 'Pendiente pago' },
-  { id: 'processing',     label: 'Procesando' },
-  { id: 'in_preparation', label: 'Preparación' },
-  { id: 'shipped',        label: 'En camino' },
-  { id: 'delivered',      label: 'Entregado' },
-  { id: 'cancelled',      label: 'Cancelado' },
-  { id: 'refunded',       label: 'Reembolsado' },
+  { id: 'all',               label: 'Todos' },
+  { id: 'PENDING',           label: 'Pendiente pago' },
+  { id: 'PROCESSING',        label: 'Procesando' },
+  { id: 'IN_PREPARATION',    label: 'Preparación' },
+  { id: 'SHIPPED',           label: 'En camino' },
+  { id: 'DELIVERED',         label: 'Entregado' },
+  { id: 'CANCELLED',         label: 'Cancelado' },
+  { id: 'CANCELLED_TIMEOUT', label: 'Cancelado (timeout)' },
+  { id: 'REFUNDED',          label: 'Reembolsado' },
 ];
 
 const STATUS_TONE = {
@@ -38,7 +39,11 @@ export default function AdminOrdersPage() {
   const orders = useSelector((s) => s.admin?.orders || []);
   const isLoading = useSelector((s) => s.admin?.isLoadingOrders);
 
-  useEffect(() => { dispatch(fetchAdminOrders({ filter, search })); }, [dispatch, filter, search]);
+  useEffect(() => {
+    const params = { search };
+    if (filter !== 'all') params.status = filter;
+    dispatch(fetchAdminOrders(params));
+  }, [dispatch, filter, search]);
 
   return (
     <div className={styles.page}>
@@ -80,15 +85,14 @@ export default function AdminOrdersPage() {
               <th>Cliente</th>
               <th>Items</th>
               <th>Total</th>
-              <th>Pago</th>
               <th>Estado</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={8} className={styles.loading}>Cargando pedidos…</td></tr>}
+            {isLoading && <tr><td colSpan={7} className={styles.loading}>Cargando pedidos…</td></tr>}
             {!isLoading && orders.length === 0 && (
-              <tr><td colSpan={8} className={styles.empty}>Sin pedidos que coincidan</td></tr>
+              <tr><td colSpan={7} className={styles.empty}>Sin pedidos que coincidan</td></tr>
             )}
             {!isLoading && orders.map((o) => (
               <tr key={o.order_number}>
@@ -101,19 +105,14 @@ export default function AdminOrdersPage() {
                   {new Date(o.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
                 <td>
-                  <div>{o.customer_name}</div>
-                  <div className={styles.muted}>{o.customer_email}</div>
+                  <div>{o.user_username ?? o.guest_email ?? '—'}</div>
+                  <div className={styles.muted}>{o.user_email ?? o.guest_email ?? ''}</div>
                 </td>
-                <td className={styles.mono}>{o.item_count}</td>
-                <td className={styles.right}><Price amount={o.total} size="sm" /></td>
-                <td>
-                  <span className={`${styles.statusPill} ${styles[`pill_${o.payment_status === 'APPROVED' ? 'lime' : o.payment_status === 'FAILED' ? 'vino' : 'muted'}`]}`}>
-                    {o.payment_status_label || o.payment_status}
-                  </span>
-                </td>
+                <td className={styles.mono}>{o.items?.length ?? 0}</td>
+                <td className={styles.right}><Price amount={o.value?.total} size="sm" /></td>
                 <td>
                   <span className={`${styles.statusPill} ${styles[`pill_${STATUS_TONE[o.status] || 'muted'}`]}`}>
-                    {o.status_label || o.status}
+                    {o.status_display || o.status}
                   </span>
                 </td>
                 <td className={styles.actions}>
