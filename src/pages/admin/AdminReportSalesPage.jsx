@@ -33,7 +33,9 @@ export default function AdminReportSalesPage() {
   const csvHref = buildReportExportUrl('sales', { ...params, format: 'csv' });
   const pdfHref = buildReportExportUrl('sales', { ...params, format: 'pdf' });
 
-  const delta = comparison?.gross_revenue_delta_pct;
+  // H-CICLO27-02: alinear claves con la respuesta real de la API.
+  // La API devuelve comparison.revenue_delta_pct, no gross_revenue_delta_pct.
+  const delta = comparison?.revenue_delta_pct;
   const deltaClass =
     delta == null ? '' :
     delta >= 0   ? styles.metricDeltaUp : styles.metricDeltaDown;
@@ -70,19 +72,15 @@ export default function AdminReportSalesPage() {
 
       <div className={styles.totals} aria-label="Totales del periodo">
         <div className={styles.metric}>
-          <span className={styles.metricLabel}>Ingreso bruto</span>
+          <span className={styles.metricLabel}>Ingresos</span>
           <span className={styles.metricValue}>
-            {totals.gross_revenue ?? '—'}
+            {totals.revenue ?? '—'}
           </span>
           {delta != null && (
             <span className={`${styles.metricDelta} ${deltaClass}`}>
               {delta >= 0 ? '+' : ''}{delta}% vs periodo anterior
             </span>
           )}
-        </div>
-        <div className={styles.metric}>
-          <span className={styles.metricLabel}>Ingreso neto</span>
-          <span className={styles.metricValue}>{totals.net_revenue ?? '—'}</span>
         </div>
         <div className={styles.metric}>
           <span className={styles.metricLabel}>Órdenes</span>
@@ -108,8 +106,8 @@ export default function AdminReportSalesPage() {
           </thead>
           <tbody>
             {series.map((row) => (
-              <tr key={row.bucket}>
-                <td>{row.bucket}</td>
+              <tr key={row.date}>
+                <td>{row.date}</td>
                 <td>{row.revenue}</td>
                 <td>{row.orders}</td>
               </tr>
@@ -132,10 +130,10 @@ export default function AdminReportSalesPage() {
           </thead>
           <tbody>
             {breakdown.map((row) => (
-              <tr key={row.method}>
-                <td>{row.method}</td>
-                <td>{row.revenue}</td>
-                <td>{row.orders}</td>
+              <tr key={row.gateway}>
+                <td>{row.gateway}</td>
+                <td>{row.amount}</td>
+                <td>{row.count}</td>
               </tr>
             ))}
           </tbody>
