@@ -259,6 +259,9 @@ const ordersSlice = createSlice({
       .addCase(fetchOrderDetail.pending, (state) => {
         state.isLoadingDetail = true;
         state.current         = null;
+        // Limpiar actionError para que un error de carga previo no contamine
+        // la vista de detalle ni los mensajes de error de mutaciones.
+        state.actionError     = null;
       })
       .addCase(fetchOrderDetail.fulfilled, (state, action) => {
         state.current         = action.payload;
