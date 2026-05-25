@@ -12,6 +12,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { fetchProduct } from '@redux/slices/catalogSlice';
 import { addToCart } from '@redux/slices/cartSlice';
 import { toggleWishlist, addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
@@ -210,17 +211,17 @@ export default function ProductPage() {
           <div className={styles.descBlocks}>
             {product.description && (
               <DescBlock title="Descripción">
-                <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.description) }} />
               </DescBlock>
             )}
             {product.ritual_meaning && (
               <DescBlock title="Significado en la religión Yorùbà">
-                <div dangerouslySetInnerHTML={{ __html: product.ritual_meaning }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.ritual_meaning) }} />
               </DescBlock>
             )}
             {product.care_instructions && (
               <DescBlock title="Cuidado y conservación">
-                <div dangerouslySetInnerHTML={{ __html: product.care_instructions }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(product.care_instructions) }} />
               </DescBlock>
             )}
             {product.specifications?.length > 0 && (

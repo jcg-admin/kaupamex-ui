@@ -22,6 +22,7 @@
 
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import DOMPurify from 'dompurify';
 import { toggleWishlist, addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
 import { useToast } from '@context/ToastContext';
 import styles from './ProductCard.module.scss';
@@ -135,7 +136,7 @@ export default function ProductCard({ product, inWishlist = false }) {
 
         <h3
           className={styles.name}
-          dangerouslySetInnerHTML={{ __html: highlighted_name || name }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(highlighted_name || name) }}
         />
 
         <div className={styles.pricing}>
