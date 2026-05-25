@@ -91,7 +91,7 @@ export default function AdminProductsPage() {
                 <tr key={p.id}>
                   <td className={styles.thumbCol}>
                     <div className={styles.thumb}>
-                      {coverImageUrl ? <img src={coverImageUrl} alt="" /> : null}
+                      {coverImageUrl ? <img src={coverImageUrl} alt="" loading="lazy" /> : null}
                     </div>
                   </td>
                   <td>

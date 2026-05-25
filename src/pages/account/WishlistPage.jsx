@@ -83,7 +83,7 @@ function WishItem({ item, dispatch }) {
     <article className={styles.wishCard}>
       <div className={styles.wishImg}>
         {item.image_url
-          ? <img src={item.image_url} alt={item.product_name} />
+          ? <img src={item.image_url} alt={item.product_name} loading="lazy" />
           : <div className={styles.wishImgPlaceholder}>{item.product_name}</div>}
         {priceChanged && <span className={`${styles.badge} ${styles.badgeLime}`}>Bajó de precio</span>}
         {lowStock && <span className={`${styles.badge} ${styles.badgeVino}`}>Última unidad</span>}
