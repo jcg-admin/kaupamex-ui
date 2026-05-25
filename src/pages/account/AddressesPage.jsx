@@ -114,7 +114,7 @@ function AddressCard({ address, onSetDefault, onDelete }) {
       <address className={styles.cardBody}>
         <strong>{address.recipient_name}</strong><br />
         {address.street}<br />
-        {address.colony}, {address.city}<br />
+        {address.neighborhood}, {address.city}<br />
         {address.zip_code} {address.state}, {address.country}<br />
         {address.phone}
       </address>
@@ -147,8 +147,8 @@ function EmptySlot() {
 function AddressFormCard({ onSave, onCancel }) {
   const [data, setData] = useState({
     alias: '', recipient_name: '', phone: '',
-    street: '', colony: '', zip_code: '',
-    city: '', state: '', country: 'México',
+    street: '', neighborhood: '', zip_code: '',
+    city: '', state: '', country: 'MX',
   });
   const set = (k) => (e) => setData({ ...data, [k]: e.target.value });
 
@@ -163,7 +163,7 @@ function AddressFormCard({ onSave, onCancel }) {
         <Field label="Nombre del destinatario" value={data.recipient_name} onChange={set('recipient_name')} required />
         <Field label="Teléfono" value={data.phone} onChange={set('phone')} required />
         <Field label="Calle y número" value={data.street} onChange={set('street')} required />
-        <Field label="Colonia" value={data.colony} onChange={set('colony')} required />
+        <Field label="Colonia" value={data.neighborhood} onChange={set('neighborhood')} required />
         <Field label="C.P." value={data.zip_code} onChange={set('zip_code')} required />
         <Field label="Ciudad" value={data.city} onChange={set('city')} required />
         <Field label="Estado" value={data.state} onChange={set('state')} required />

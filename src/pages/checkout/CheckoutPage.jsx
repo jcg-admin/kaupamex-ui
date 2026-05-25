@@ -32,7 +32,9 @@ export default function CheckoutPage() {
   const { items = [], totals = {} } = cart;
 
   const [email, setEmail] = useState(auth.user?.email || '');
-  const [address, setAddress] = useState({});
+  // H-CICLO40-06: country debe ser código ISO alpha-2 (max 2 chars). Inicializar
+  // con 'MX' evita que el campo quede vacío y falle la validación del API.
+  const [address, setAddress] = useState({ country: 'MX' });
   const [shipping, setShipping] = useState('std');
   const [payment, setPayment] = useState('mp');
   const [submitting, setSubmitting] = useState(false);
@@ -47,7 +49,7 @@ export default function CheckoutPage() {
         recipient_name: defaultAddr.recipient_name || '',
         phone:          defaultAddr.phone || '',
         street:         defaultAddr.street || '',
-        colony:         defaultAddr.colony || '',
+        neighborhood:   defaultAddr.neighborhood || '',
         zip_code:       defaultAddr.zip_code || '',
         city:           defaultAddr.city || '',
         state:          defaultAddr.state || '',
@@ -197,7 +199,7 @@ function AddressForm({ address, setAddress, savedAddresses = [] }) {
         recipient_name: saved.recipient_name || '',
         phone:          saved.phone || '',
         street:         saved.street || '',
-        colony:         saved.colony || '',
+        neighborhood:   saved.neighborhood || '',
         zip_code:       saved.zip_code || '',
         city:           saved.city || '',
         state:          saved.state || '',
@@ -231,7 +233,7 @@ function AddressForm({ address, setAddress, savedAddresses = [] }) {
       </div>
       <Field label="Calle y número" value={address.street} onChange={set('street')} required />
       <div className={styles.formRow3}>
-        <Field label="Colonia" value={address.colony} onChange={set('colony')} required />
+        <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required />
         <Field label="C.P." value={address.zip_code} onChange={set('zip_code')} required />
         <Field label="Alcaldía / Municipio" value={address.city} onChange={set('city')} required />
       </div>

@@ -163,7 +163,7 @@ function AddressBlock({ address }) {
           <address className={styles.addressLines}>
             <strong>{address.recipient_name}</strong><br />
             {address.street}<br />
-            {address.colony}, {address.city}<br />
+            {address.neighborhood}, {address.city}<br />
             {address.zip_code} {address.state}, {address.country}<br />
             {address.phone}
           </address>

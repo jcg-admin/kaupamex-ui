@@ -105,7 +105,7 @@ export default function AdminUserDetailPage() {
                 <div className={styles.addressBody}>
                   {a.recipient_name}<br />
                   {a.street}<br />
-                  {a.colony}, {a.city}, {a.state} {a.zip_code}
+                  {a.neighborhood}, {a.city}, {a.state} {a.zip_code}
                 </div>
               </div>
             ))}

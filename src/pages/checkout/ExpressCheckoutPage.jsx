@@ -77,7 +77,7 @@ export default function ExpressCheckoutPage() {
               title={eligibility.address?.recipient_name}
               lines={[
                 eligibility.address?.street,
-                `${eligibility.address?.colony} · ${eligibility.address?.city} ${eligibility.address?.zip_code}`,
+                `${eligibility.address?.neighborhood} · ${eligibility.address?.city} ${eligibility.address?.zip_code}`,
               ]}
               onChange={() => navigate('/mi-cuenta/direcciones')}
             />

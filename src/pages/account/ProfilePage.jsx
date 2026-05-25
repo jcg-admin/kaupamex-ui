@@ -29,7 +29,16 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await dispatch(updateProfile(form));
+    // H-CICLO40-05: UpdateProfileSerializer solo acepta first_name, last_name,
+    // phone, avatar, remove_avatar. username y email no son editables en este
+    // endpoint; date_of_birth no existe en el modelo. Enviar solo los campos
+    // permitidos para evitar confusion de usuario (parecian guardarse pero la
+    // API los descartaba silenciosamente).
+    await dispatch(updateProfile({
+      first_name: form.first_name,
+      last_name:  form.last_name,
+      phone:      form.phone,
+    }));
     setSavedToast(true);
     setTimeout(() => setSavedToast(false), 2500);
   };
@@ -79,10 +88,10 @@ export default function ProfilePage() {
               <div className={styles.formGrid}>
                 <Field label="Nombre"        value={form.first_name} onChange={set('first_name')} required />
                 <Field label="Apellido"       value={form.last_name}  onChange={set('last_name')} />
-                <Field label="Nombre de usuario" value={form.username} onChange={set('username')} required />
-                <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} required hint="Cambiar el correo requiere re-verificación" />
+                {/* username y email son de solo lectura — no editables via este endpoint */}
+                <Field label="Nombre de usuario" value={user.username} readOnly hint="El usuario no se puede cambiar desde aquí" />
+                <Field label="Correo electrónico" type="email" value={user.email} readOnly hint="Cambiar el correo requiere re-verificación" />
                 <Field label="Teléfono"       value={form.phone}     onChange={set('phone')} />
-                <Field label="Fecha de nacimiento" type="date" value={form.date_of_birth} onChange={set('date_of_birth')} />
               </div>
               <div className={styles.formActions}>
                 <Button type="submit" variant="primary">Guardar cambios</Button>
