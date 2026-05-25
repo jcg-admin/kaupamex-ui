@@ -84,8 +84,9 @@ export default function AdminReviewsModerationPage() {
           <li key={r.id} className={styles.item}>
             <p className={styles.meta}>
               <strong>#{r.id}</strong>
-              {r.product?.name && (
-                <> · sobre <em>{r.product.name}</em></>
+              {/* H-CICLO36-03: AdminReviewSerializer expone product_name (no product.name) */}
+              {(r.product_name ?? r.product?.name) && (
+                <> · sobre <em>{r.product_name ?? r.product.name}</em></>
               )}
               {typeof r.rating === 'number' && (
                 <> · {r.rating} estrellas</>
