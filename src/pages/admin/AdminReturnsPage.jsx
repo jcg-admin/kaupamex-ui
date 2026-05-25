@@ -107,10 +107,12 @@ export default function AdminReturnsPage() {
                 <td>#{ret.id}</td>
                 <td>{ret.order_id}</td>
                 <td>
+                  {/* H-CICLO35-02: AdminReturnListSerializer expone user_username y user_email,
+                      no un objeto customer. ret.customer siempre undefined → mostraba '—'. */}
                   <div className={styles.customer}>
-                    <span>{ret.customer?.name ?? '—'}</span>
+                    <span>{ret.user_username ?? '—'}</span>
                     <span className={styles.customerEmail}>
-                      {ret.customer?.email ?? '—'}
+                      {ret.user_email ?? '—'}
                     </span>
                   </div>
                 </td>

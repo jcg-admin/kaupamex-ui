@@ -55,12 +55,16 @@ export default function SupportTicketsPage() {
 
       {items.length > 0 && (
         <ul className={styles.list}>
-          {items.map((ticket) => (
-            <li key={ticket.id} className={styles.item}>
-              <Link to={`/support/tickets/${ticket.id}`} className={styles.itemLink}>
+          {items.map((ticket) => {
+            // H-CICLO35-01: SupportTicketListSerializer expone ticket_id (source='pk'),
+            // no id. Usar ticket.ticket_id como clave primaria.
+            const tid = ticket.ticket_id ?? ticket.id;
+            return (
+            <li key={tid} className={styles.item}>
+              <Link to={`/support/tickets/${tid}`} className={styles.itemLink}>
                 <div className={styles.itemMain}>
                   <span className={styles.itemSubject}>{ticket.subject}</span>
-                  <span className={styles.itemId}>#{ticket.id}</span>
+                  <span className={styles.itemId}>#{tid}</span>
                 </div>
                 <div className={styles.itemMeta}>
                   <span className={styles[STATUS_CLASS[ticket.status]] || styles.badgeOpen}>
@@ -70,7 +74,8 @@ export default function SupportTicketsPage() {
                 </div>
               </Link>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </section>

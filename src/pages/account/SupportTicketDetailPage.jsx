@@ -34,7 +34,10 @@ function formatDateTime(iso) {
 }
 
 function authorLabel(reply) {
-  if (reply.author === 'admin' || reply.admin) return 'Soporte';
+  // H-CICLO35-01: SupportTicketReplySerializer.get_author devuelve 'ADMIN' (mayúsculas).
+  // Comparación insensible a mayúsculas para compatibilidad con ambos.
+  const a = (reply.author ?? '').toUpperCase();
+  if (a === 'ADMIN' || a === 'SYSTEM') return 'Soporte';
   return 'Tú';
 }
 
@@ -82,7 +85,8 @@ export default function SupportTicketDetailPage() {
             {current.subject}
           </h1>
           <p className={styles.meta}>
-            Ticket #{current.id} · Abierto el {formatDateTime(current.created_at)}
+            {/* H-CICLO35-01: SupportTicketDetailSerializer expone ticket_id, no id */}
+            Ticket #{current.ticket_id ?? current.id} · Abierto el {formatDateTime(current.created_at)}
           </p>
         </div>
         <span className={styles[STATUS_CLASS[current.status]] || styles.badgeOpen}>
@@ -116,7 +120,7 @@ export default function SupportTicketDetailPage() {
       </section>
 
       {current.status !== 'CLOSED' && (
-        <SupportTicketReplyForm ticketId={current.id} />
+        <SupportTicketReplyForm ticketId={current.ticket_id ?? current.id} />
       )}
 
       <SupportTicketActions ticket={current} />
