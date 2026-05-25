@@ -220,8 +220,7 @@ const catalogSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        const { results } = action.payload;
-        state.categories = results ?? action.payload;
+        state.categories = Array.isArray(action.payload) ? action.payload : (action.payload.results ?? []);
         state.isLoading  = false;
       })
       .addCase(fetchCategories.rejected, (state, action) => {

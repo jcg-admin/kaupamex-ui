@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchProduct } from '@redux/slices/catalogSlice';
-import { addCartItem } from '@redux/slices/cartSlice';
+import { addToCart } from '@redux/slices/cartSlice';
 import { toggleWishlist } from '@redux/slices/wishlistSlice';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Price, Button } from '@components/common/primitives';
@@ -46,9 +46,9 @@ export default function ProductPage() {
   const related = product.related_products || [];
 
   const handleAddToCart = () => {
-    dispatch(addCartItem({
-      product_id: product.id,
-      variant_id: variant?.id,
+    dispatch(addToCart({
+      productId: product.id,
+      variantId: variant?.id,
       quantity: qty,
     }));
     navigate('/carrito');

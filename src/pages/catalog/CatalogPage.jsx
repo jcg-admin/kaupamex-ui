@@ -277,11 +277,11 @@ function Pagination({ current, total, onPage }) {
       {pages.map((p, i) =>
         typeof p === 'number' ? (
           <button
-            key={i}
+            key={p}
             className={p === current ? styles.pageActive : ''}
             onClick={() => onPage(p)}
           >{p}</button>
-        ) : <span key={i} className={styles.pageEllipsis}>{p}</span>
+        ) : <span key={`ellipsis-${i}`} className={styles.pageEllipsis}>{p}</span>
       )}
       <button disabled={current === total} onClick={() => onPage(current + 1)}>Siguiente →</button>
     </div>

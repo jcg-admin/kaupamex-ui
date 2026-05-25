@@ -273,7 +273,19 @@ const cartSlice = createSlice({
         state.isActioning = false;
         state.actionError = a.payload;
       })
-      .addCase(removeVoucher.fulfilled, setCart);
+      .addCase(removeVoucher.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(removeVoucher.fulfilled, (state, action) => {
+        setCart(state, action);
+        state.isActioning = false;
+        state.lastAction  = 'voucher_removed';
+      })
+      .addCase(removeVoucher.rejected, (state, a) => {
+        state.isActioning = false;
+        state.actionError = a.payload;
+      });
 
     builder
       .addCase(saveCartForLater.pending, (state) => {

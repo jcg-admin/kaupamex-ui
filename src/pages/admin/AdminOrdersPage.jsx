@@ -36,14 +36,20 @@ export default function AdminOrdersPage() {
   const dispatch = useDispatch();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const orders = useSelector((s) => s.admin?.orders || []);
   const isLoading = useSelector((s) => s.admin?.isLoadingOrders);
 
   useEffect(() => {
-    const params = { search };
+    const timer = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    const params = { search: debouncedSearch };
     if (filter !== 'all') params.status = filter;
     dispatch(fetchAdminOrders(params));
-  }, [dispatch, filter, search]);
+  }, [dispatch, filter, debouncedSearch]);
 
   return (
     <div className={styles.page}>

@@ -45,7 +45,7 @@ export default function WishlistPage() {
                 </p>
               </div>
               {items.length > 0 && (
-                <Button variant="secondary" onClick={() => items.forEach(i => dispatch(moveWishlistItemToCart({ itemId: i.id })))}>
+                <Button variant="secondary" onClick={async () => { for (const i of items) { await dispatch(moveWishlistItemToCart({ itemId: i.id })); } }}>
                   Mover todo al carrito
                 </Button>
               )}
