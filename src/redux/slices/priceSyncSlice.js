@@ -9,9 +9,9 @@
  *   - previewPercentage:   POST /api/v1/admin/price-sync/preview-percentage/
  *   - applyPercentage:     POST /api/v1/admin/price-sync/apply-percentage/
  *
- * Cada operacion devuelve `{ rows: [{ sku, current_price, new_price,
- * diff_pct, status }], summary: { valid, invalid }, token }` cuando es
- * preview, o `{ updated, skipped }` cuando es apply. Todos los errores
+ * Cada operacion devuelve `{ session_id, preview: [{ sku, old_price,
+ * new_price, diff_pct, product_name }], valid_count, invalid_count }` cuando es
+ * preview, o `{ updated_count, message }` cuando es apply. Todos los errores
  * pasan por serializeApiError (DEC-DOC-008 — no silenciar errores).
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
@@ -51,13 +51,16 @@ export const applyCsv = createAsyncThunk(
 
 export const previewPercentage = createAsyncThunk(
   'priceSync/previewPercentage',
-  async ({ pct, category_id, price_min, price_max }, { rejectWithValue }) => {
+  // H-CICLO70-01: the thunk now matches the argument shape dispatched by
+  // AdminPriceSyncPage ({ percentage, category, price_min, price_max }) and
+  // maps them to the API field names expected by the backend (pct, category_id).
+  async ({ percentage, category, price_min, price_max }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(PREVIEW_PERCENTAGE_URL, {
-        pct,
-        category_id: category_id || undefined,
-        price_min:   price_min   || undefined,
-        price_max:   price_max   || undefined,
+        pct:         percentage,
+        category_id: category   || undefined,
+        price_min:   price_min  ?? undefined,
+        price_max:   price_max  ?? undefined,
       });
       return res.data;
     } catch (err) {
@@ -83,8 +86,8 @@ const initialState = {
   isApplying:   false,
   previewError: null,
   applyError:   null,
-  preview:      null,  // { rows, summary, token }
-  applyReport:  null,  // { updated, skipped }
+  preview:      null,  // { session_id, preview: [], valid_count, invalid_count }
+  applyReport:  null,  // { updated_count, message }
   lastAction:   null,  // 'previewed' | 'applied'
 };
 
