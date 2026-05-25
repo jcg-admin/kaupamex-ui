@@ -38,8 +38,14 @@ export default function CheckoutPage() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      // H-CICLO32-02: shipping_method_id debe ser entero (IntegerField en la API).
+      // SHIPPING_OPTIONS usa IDs de string ('std', 'exp', 'pickup') — son etiquetas
+      // de UI, no IDs de BD. Convertir a entero si es numérico, o null si no.
+      const shippingMethodId = Number.isFinite(Number(shipping)) && shipping !== ''
+        ? Number(shipping)
+        : null;
       const order = await dispatch(createOrder({
-        email, address, shipping_method_id: shipping,
+        email, address, shipping_method_id: shippingMethodId,
       })).unwrap();
 
       let checkout_url = null;

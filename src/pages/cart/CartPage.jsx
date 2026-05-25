@@ -140,7 +140,7 @@ function ItemList({ items, dispatch }) {
 function CartItem({ item, dispatch }) {
   const handleQty = (delta) => {
     const next = Math.max(1, item.quantity + delta);
-    dispatch(updateCartItem({ id: item.id, quantity: next }));
+    dispatch(updateCartItem({ itemId: item.id, quantity: next }));
   };
   const handleRemove = () => dispatch(removeCartItem(item.id));
 

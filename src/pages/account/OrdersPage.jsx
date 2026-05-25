@@ -21,14 +21,18 @@ const STATUS_FILTERS = [
   { id: 'cancelled', label: 'Cancelados' },
 ];
 
+// H-CICLO32-04: PAGADA y CANCELLED_TIMEOUT existen en el modelo pero faltaban en el mapa.
+// Sin ellos, órdenes en esos estados renderizaban "Pendiente" (fallback STATUS_TONE.PENDING).
 const STATUS_TONE = {
-  PENDING:        { tone: 'muted',  label: 'Pendiente' },
-  PROCESSING:     { tone: 'coral',  label: 'Procesando' },
-  IN_PREPARATION: { tone: 'coral',  label: 'En preparación' },
-  SHIPPED:        { tone: 'coral',  label: 'En camino' },
-  DELIVERED:      { tone: 'lime',   label: 'Entregado' },
-  CANCELLED:      { tone: 'vino',   label: 'Cancelado' },
-  REFUNDED:       { tone: 'bronze', label: 'Reembolsado' },
+  PENDING:          { tone: 'muted',  label: 'Pendiente' },
+  PROCESSING:       { tone: 'coral',  label: 'Procesando' },
+  PAGADA:           { tone: 'coral',  label: 'Pagada' },
+  IN_PREPARATION:   { tone: 'coral',  label: 'En preparación' },
+  SHIPPED:          { tone: 'coral',  label: 'En camino' },
+  DELIVERED:        { tone: 'lime',   label: 'Entregado' },
+  CANCELLED:        { tone: 'vino',   label: 'Cancelado' },
+  CANCELLED_TIMEOUT:{ tone: 'vino',   label: 'Cancelado (timeout)' },
+  REFUNDED:         { tone: 'bronze', label: 'Reembolsado' },
 };
 
 export default function OrdersPage() {
@@ -114,7 +118,7 @@ function OrderRow({ order }) {
       </div>
       <div>
         <div className={styles.rowItems}>
-          {order.item_count} {order.item_count === 1 ? 'pieza' : 'piezas'}
+          {order.items_count} {order.items_count === 1 ? 'pieza' : 'piezas'}
         </div>
         <Price amount={order.total} size="md" />
       </div>

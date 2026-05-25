@@ -82,7 +82,7 @@ export default function OrderDetailPage() {
           <div className={styles.mainCol}>
             <Timeline order={order} currentIndex={currentStatusIndex} />
             <ItemsBlock items={order.items || []} />
-            <AddressBlock address={order.shipping_address} />
+            <AddressBlock address={order.address} />
           </div>
 
           <aside className={styles.sideCol}>
@@ -183,18 +183,24 @@ function AddressBlock({ address }) {
 }
 
 function TotalsCard({ order }) {
+  // H-CICLO32-03: OrderSerializer anida los totales en order.value (OrderValueSerializer).
+  // Los campos correctos son order.value.subtotal, order.value.total, etc.
+  // order.item_count no existe en OrderSerializer — usar order.items.length.
+  const v = order.value || {};
+  const itemCount = (order.items || []).length;
+  const shippingCost = Number(v.shipping_cost) || 0;
   return (
     <div className={styles.sideCard}>
       <h3 className={styles.sideCardTitle}>Total cobrado</h3>
-      <SumRow label={`Subtotal · ${order.item_count} piezas`} value={`$${order.subtotal?.toLocaleString('es-MX')} MXN`} />
+      <SumRow label={`Subtotal · ${itemCount} piezas`} value={`$${Number(v.subtotal || 0).toLocaleString('es-MX')} MXN`} />
       {order.voucher_code && (
-        <SumRow label={`Voucher ${order.voucher_code}`} value={`−$${order.voucher_discount?.toLocaleString('es-MX')} MXN`} tone="lime" />
+        <SumRow label={`Voucher ${order.voucher_code}`} value={`−$${Number(order.voucher_discount || 0).toLocaleString('es-MX')} MXN`} tone="lime" />
       )}
-      <SumRow label="Envío" value={order.shipping_cost > 0 ? `$${order.shipping_cost.toLocaleString('es-MX')} MXN` : 'Gratis'} tone={order.shipping_cost > 0 ? 'default' : 'lime'} />
-      <SumRow label="IVA incluido" value={`$${order.tax_included?.toLocaleString('es-MX')} MXN`} muted />
+      <SumRow label="Envío" value={shippingCost > 0 ? `$${shippingCost.toLocaleString('es-MX')} MXN` : 'Gratis'} tone={shippingCost > 0 ? 'default' : 'lime'} />
+      <SumRow label="IVA incluido" value={`$${Number(v.tax || 0).toLocaleString('es-MX')} MXN`} muted />
       <div className={styles.sideCardTotal}>
         <span>Total</span>
-        <Price amount={order.total} size="lg" />
+        <Price amount={Number(v.total) || 0} size="lg" />
       </div>
     </div>
   );
