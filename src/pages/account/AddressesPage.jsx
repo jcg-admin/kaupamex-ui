@@ -22,6 +22,7 @@ const MAX_ADDRESSES = 5;
 export default function AddressesPage() {
   const dispatch = useDispatch();
   const addresses = useSelector((s) => s.auth?.user?.addresses || []);
+  const addressError = useSelector((s) => s.auth?.error ?? null);
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
@@ -75,6 +76,12 @@ export default function AddressesPage() {
               />
             )}
 
+            {addressError && (
+              <p role="alert" className={styles.errorBanner}>
+                {addressError.message ?? addressError.detail ?? 'Ocurrió un error. Intenta de nuevo.'}
+              </p>
+            )}
+
             <div className={styles.grid}>
               {slots.map((addr, i) =>
                 addr ? (
@@ -82,7 +89,10 @@ export default function AddressesPage() {
                     key={addr.id}
                     address={addr}
                     onSetDefault={() => dispatch(setDefaultAddress(addr.id))}
-                    onDelete={() => dispatch(deleteAddress(addr.id))}
+                    onDelete={() => {
+                      if (!window.confirm(`¿Eliminar la dirección "${addr.alias}"? Esta acción no se puede deshacer.`)) return;
+                      dispatch(deleteAddress(addr.id));
+                    }}
                   />
                 ) : (
                   <EmptySlot key={`empty-${i}`} />
