@@ -111,7 +111,10 @@ export const makeUserAdmin = createAsyncThunk(
 
 const ADMIN_ORDERS_URL   = '/api/v1/admin/orders/';
 const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
-const ADMIN_METRICS_URL  = '/api/v1/admin/metrics/';
+// H-CICLO95-01: /api/v1/admin/metrics/ never existed — 404 on every load.
+// The actual dashboard snapshot is served by DashboardReportView at
+// /api/v1/admin/reports/dashboard/ (build_dashboard_payload in apps/reports).
+const ADMIN_METRICS_URL  = '/api/v1/admin/reports/dashboard/';
 
 /** UC-ADM-01: KPIs del panel de administración */
 export const fetchAdminMetrics = createAsyncThunk(
@@ -386,6 +389,9 @@ const adminSlice = createSlice({
       });
 
     // fetchAdminMetrics
+    // H-CICLO95-01: normalize build_dashboard_payload shape
+    // {today:{revenue,orders}, trend, top_products, open_tickets, low_stock_alerts}
+    // to the flat keys AdminDashboardPage reads.
     builder
       .addCase(fetchAdminMetrics.pending, (state) => {
         state.isLoadingMetrics = true;
@@ -393,7 +399,53 @@ const adminSlice = createSlice({
       })
       .addCase(fetchAdminMetrics.fulfilled, (state, action) => {
         state.isLoadingMetrics = false;
-        state.metrics          = action.payload;
+        const p = action.payload || {};
+        const today = p.today || {};
+        // Normalize top_products: API returns {product_id,product_name,sku,units_sold}
+        // Page reads {id,name,orisha_name,units_sold,revenue}
+        const top_products = (p.top_products || []).map((r) => ({
+          id:          r.product_id,
+          name:        r.product_name,
+          orisha_name: r.sku,
+          units_sold:  r.units_sold,
+          revenue:     null,
+        }));
+        // Build synthetic alerts from open_tickets and low_stock_alerts counts
+        const alerts = [];
+        if (p.open_tickets > 0) {
+          alerts.push({
+            title: `${p.open_tickets} ticket${p.open_tickets > 1 ? 's' : ''} de soporte abierto${p.open_tickets > 1 ? 's' : ''}`,
+            description: 'Requieren atención del equipo.',
+            severity: 'warning',
+            action_to: '/admin/soporte',
+          });
+        }
+        if (p.low_stock_alerts > 0) {
+          alerts.push({
+            title: `${p.low_stock_alerts} alerta${p.low_stock_alerts > 1 ? 's' : ''} de stock bajo`,
+            description: 'Productos por debajo del umbral mínimo.',
+            severity: 'warning',
+            action_to: '/admin/inventario',
+          });
+        }
+        state.metrics = {
+          sales_today:    parseFloat(today.revenue || 0),
+          orders_today:   today.orders  || 0,
+          avg_ticket:     today.orders > 0
+            ? parseFloat(today.revenue || 0) / today.orders
+            : 0,
+          new_users_today:   null,
+          sales_delta_pct:   null,
+          orders_delta_pct:  null,
+          ticket_delta_pct:  null,
+          users_delta_pct:   null,
+          recent_orders:     [],
+          alerts,
+          top_products,
+          sales_by_orisha:   [],
+          // Raw payload preserved for future consumers
+          _raw: p,
+        };
       })
       .addCase(fetchAdminMetrics.rejected, (state, action) => {
         state.isLoadingMetrics = false;
