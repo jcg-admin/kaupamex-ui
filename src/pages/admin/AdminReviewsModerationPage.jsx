@@ -27,8 +27,15 @@ const REJECT_REASONS = [
 
 export default function AdminReviewsModerationPage() {
   const dispatch = useDispatch();
-  const { data: reviews = [], isLoading, isError } =
-    useAdminReviewsModeration();
+  // H-CICLO106-02: la API pagina a page_size=50 (H-CICLO90-01). Sin
+  // controles de paginacion el admin solo ve la primera pagina y no puede
+  // acceder a resenas pendientes en paginas posteriores.
+  const [page, setPage] = useState(1);
+  const { data: pageData, isLoading, isError } =
+    useAdminReviewsModeration(page);
+  const reviews = pageData?.results ?? [];
+  const hasNext = Boolean(pageData?.next);
+  const hasPrev = page > 1;
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.reviews);
   const [reasons, setReasons] = useState({});
@@ -77,6 +84,31 @@ export default function AdminReviewsModerationPage() {
 
       {!isLoading && reviews.length === 0 && (
         <p className={styles.empty}>No hay resenas pendientes de moderacion.</p>
+      )}
+
+      {/* H-CICLO106-02: controles de paginacion para navegar la cola de
+          moderacion. La API pagina a page_size=50 (H-CICLO90-01); sin estos
+          controles el admin solo ve las primeras 50 resenas pendientes. */}
+      {(hasNext || hasPrev) && (
+        <div className={styles.pagination}>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => setPage((p) => p - 1)}
+            disabled={!hasPrev || isLoading}
+          >
+            Anterior
+          </button>
+          <span>Pagina {page}</span>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasNext || isLoading}
+          >
+            Siguiente
+          </button>
+        </div>
       )}
 
       <ul className={styles.list}>

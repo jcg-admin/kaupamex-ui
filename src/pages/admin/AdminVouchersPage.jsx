@@ -30,7 +30,14 @@ function formatValue(voucher) {
 export default function AdminVouchersPage() {
   const dispatch    = useDispatch();
   const queryClient = useQueryClient();
-  const { data: items = [], isLoading, isError } = useVouchers();
+  // H-CICLO106-01: pasar page como param para que React Query re-fetche
+  // al cambiar de pagina y para que la clave del cache incluya la pagina.
+  const [page, setPage] = useState(1);
+  const { data: pageData, isLoading, isError } = useVouchers({ page });
+  const items = pageData?.results ?? [];
+  const totalCount = pageData?.count ?? 0;
+  const hasNext = Boolean(pageData?.next);
+  const hasPrev = page > 1;
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.vouchers);
   const [isCreateOpen, setCreateOpen]     = useState(false);
@@ -143,6 +150,33 @@ export default function AdminVouchersPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {/* H-CICLO106-01: controles de paginacion para navegar entre paginas
+          de cupones cuando el total supera page_size=50 del API. */}
+      {(hasNext || hasPrev) && (
+        <div className={styles.pagination}>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => setPage((p) => p - 1)}
+            disabled={!hasPrev || isLoading}
+          >
+            Anterior
+          </button>
+          <span>Pagina {page}</span>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasNext || isLoading}
+          >
+            Siguiente
+          </button>
+          {totalCount > 0 && (
+            <span className={styles.pageInfo}>{totalCount} cupones en total</span>
+          )}
+        </div>
       )}
 
       {isCreateOpen && (

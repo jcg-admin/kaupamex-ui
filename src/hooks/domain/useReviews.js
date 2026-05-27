@@ -46,13 +46,20 @@ export function useProductReviews(productId, params = {}) {
 
 /**
  * UC-REV-03: cola admin de resenas en estado PENDING_MODERATION.
+ * H-CICLO106-02: la API pagina a page_size=50 (H-CICLO90-01). El hook
+ * acepta `page` para que AdminReviewsModerationPage pueda navegar entre
+ * paginas de la cola. Retorna el objeto paginado completo (results + next).
  */
-export function useAdminReviewsModeration() {
+export function useAdminReviewsModeration(page = 1) {
   return useQuery({
-    queryKey: ADMIN_REVIEWS_MOD_KEY,
+    queryKey: [...ADMIN_REVIEWS_MOD_KEY, page],
     queryFn:  async ({ signal }) => {
-      const { data } = await apiService.get(ADMIN_MODERATION_URL, { signal });
-      return data?.results ?? (Array.isArray(data) ? data : []);
+      const { data } = await apiService.get(ADMIN_MODERATION_URL, {
+        params: { page },
+        signal,
+      });
+      if (data && typeof data === 'object' && 'results' in data) return data;
+      return { results: Array.isArray(data) ? data : [], count: 0, next: null, previous: null };
     },
   });
 }
