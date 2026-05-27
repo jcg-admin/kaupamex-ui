@@ -13,6 +13,8 @@ import styles from './AdminDashboardPage.module.scss';
 export default function AdminDashboardPage() {
   const dispatch = useDispatch();
   const m = useSelector((s) => s.admin?.metrics) || {};
+  const isLoadingMetrics = useSelector((s) => s.admin?.isLoadingMetrics);
+  const metricsError     = useSelector((s) => s.admin?.metricsError);
 
   useEffect(() => { dispatch(fetchAdminMetrics()); }, [dispatch]);
 
@@ -30,6 +32,15 @@ export default function AdminDashboardPage() {
           <Button variant="secondary">Exportar reporte</Button>
         </div>
       </header>
+
+      {isLoadingMetrics && (
+        <p className={styles.loading}>Cargando métricas…</p>
+      )}
+      {metricsError && (
+        <p role="alert" className={styles.apiError}>
+          {metricsError.message ?? 'No se pudieron cargar las métricas del panel.'}
+        </p>
+      )}
 
       {/* KPIs */}
       <section className={styles.kpis}>
