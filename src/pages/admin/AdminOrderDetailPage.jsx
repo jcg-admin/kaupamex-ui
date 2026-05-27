@@ -26,6 +26,12 @@ const STATUS_LABEL = {
   PENDING:        'Pendiente',
   PENDING_PAYMENT:'Pendiente de pago',
   PROCESSING:     'En proceso',
+  // H-CICLO109-02: PAGADA es un estado real del backend (pago confirmado,
+  // aun no en preparacion). Faltaba en STATUS_LABEL, ALLOWED_TRANSITIONS y
+  // ADMIN_CANCELLABLE, por lo que ordenes en ese estado mostraban transiciones
+  // incorrectas y el boton de cancelar no aparecia pese a que el backend
+  // lo permite (ADMIN_CANCELABLE_STATUSES incluye PAGADA).
+  PAGADA:         'Pagada',
   IN_PREPARATION: 'En preparacion',
   SHIPPED:        'Enviado',
   DELIVERED:      'Entregado',
@@ -33,14 +39,16 @@ const STATUS_LABEL = {
 };
 
 // H-ADM-002: transiciones permitidas (alineadas con admin_services).
+// H-CICLO109-02: agregado PAGADA y sus transiciones validas desde el backend.
 const ALLOWED_TRANSITIONS = {
   PENDING:        ['PROCESSING', 'CANCELLED'],
-  PROCESSING:     ['IN_PREPARATION', 'CANCELLED'],
+  PROCESSING:     ['PAGADA', 'IN_PREPARATION', 'CANCELLED'],
+  PAGADA:         ['IN_PREPARATION', 'CANCELLED'],
   IN_PREPARATION: ['SHIPPED'],
   SHIPPED:        ['DELIVERED'],
 };
 
-const ADMIN_CANCELLABLE = new Set(['PENDING', 'PROCESSING', 'IN_PREPARATION']);
+const ADMIN_CANCELLABLE = new Set(['PENDING', 'PROCESSING', 'PAGADA', 'IN_PREPARATION']);
 
 function formatCurrency(value) {
   if (value === null || value === undefined || value === '') return '—';
