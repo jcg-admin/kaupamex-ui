@@ -1,6 +1,10 @@
 /**
  * AdminInventoryPage — PracticaYoruba
  * UC-INV-01: Ver stock actual de productos
+ * H-CICLO104-06: Agregar controles de paginacion. La API de InventoryDashboardView
+ * devuelve pagination.{page,total_pages,page_size,total} pero el componente
+ * no tenia forma de navegar a paginas siguientes, limitando la vista a la
+ * primera pagina de 50 items y ocultando el resto del inventario.
  */
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -28,10 +32,14 @@ const STATUS_CLASS = {
 
 export default function AdminInventoryPage() {
   const [filters, setFilters] = useState({ status: '' });
-  const params = filters.status ? { status: filters.status } : {};
+  const [page, setPage] = useState(1);
+  const params = { ...(filters.status ? { status: filters.status } : {}), page };
   const { data, isLoading, isError } = useInventory(params);
-  const items   = data?.results ?? data?.productos ?? (Array.isArray(data) ? data : []);
-  const summary = data?.summary ?? data?.resumen ?? null;
+  const items      = data?.results ?? data?.productos ?? (Array.isArray(data) ? data : []);
+  const summary    = data?.summary ?? data?.resumen ?? null;
+  const pagination = data?.pagination ?? null;
+  const totalPages = pagination?.total_pages ?? 1;
+  const currentPage = pagination?.page ?? page;
 
   const counts = useMemo(() => ({
     normales: summary?.normal ?? 0,
@@ -70,7 +78,7 @@ export default function AdminInventoryPage() {
           <span>Estado</span>
           <select
             value={filters.status}
-            onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value }))}
+            onChange={(e) => { setFilters((p) => ({ ...p, status: e.target.value })); setPage(1); }}
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value || 'all'} value={opt.value}>{opt.label}</option>
@@ -139,6 +147,35 @@ export default function AdminInventoryPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {/* H-CICLO104-06: controles de paginacion. Sin ellos el usuario solo
+          ve la primera pagina (50 items) y no puede acceder al resto del
+          inventario cuando hay mas de 50 SKUs. */}
+      {totalPages > 1 && (
+        <div className={styles.pagination} aria-label="Paginacion de inventario">
+          <button
+            type="button"
+            className={styles.pageBtn}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+            aria-label="Pagina anterior"
+          >
+            ← Anterior
+          </button>
+          <span className={styles.pageInfo}>
+            Pagina {currentPage} de {totalPages}
+          </span>
+          <button
+            type="button"
+            className={styles.pageBtn}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+            aria-label="Pagina siguiente"
+          >
+            Siguiente →
+          </button>
+        </div>
       )}
     </section>
   );
