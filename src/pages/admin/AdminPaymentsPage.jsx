@@ -132,7 +132,7 @@ export default function AdminPaymentsPage() {
             {items.map((p) => (
               <tr key={p.id}>
                 <td>#{p.id}</td>
-                <td>{p.order_id}</td>
+                <td>{p.order_number}</td>
                 <td>{GATEWAY_LABEL[p.gateway] ?? p.gateway ?? '—'}</td>
                 <td className={styles[`status_${p.status}`] || styles.statusDefault}>
                   {STATUS_LABEL[p.status] ?? p.status}
