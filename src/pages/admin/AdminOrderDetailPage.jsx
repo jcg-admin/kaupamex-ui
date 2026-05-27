@@ -143,6 +143,23 @@ export default function AdminOrderDetailPage() {
         </ul>
       </section>
 
+      {order.address && (
+        <section aria-labelledby="address-title" className={styles.section}>
+          <h2 id="address-title">Dirección de envío</h2>
+          {/* H-CICLO76-05: AdminOrderSerializer exposes order.address via
+              OrderAddressSerializer (recipient_name, street, city, state,
+              zip_code, country).  The page was not rendering it at all,
+              leaving the admin without shipping destination information. */}
+          <address className={styles.shippingAddress}>
+            <span>{order.address.recipient_name}</span>
+            <span>{order.address.street}</span>
+            <span>{order.address.city}, {order.address.state} {order.address.zip_code}</span>
+            <span>{order.address.country}</span>
+            {order.address.phone && <span>{order.address.phone}</span>}
+          </address>
+        </section>
+      )}
+
       {order.value && (
         <section aria-labelledby="totals-title" className={styles.section}>
           <h2 id="totals-title">Totales</h2>
