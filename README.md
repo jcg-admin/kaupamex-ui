@@ -43,6 +43,24 @@ src/
 └── utils/            formatters.js (precios, fechas, SKU)
 ```
 
+## Prerequisitos
+
+**Node.js 20 LTS es requerido.** Ubuntu 24.04 instala Node 18 por defecto vía
+`apt`, que puede fallar con algunos paquetes (stylelint ≥17, webpack-bundle-analyzer).
+
+Instalar Node 20 via nvm antes de `npm install`:
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc         # o ~/.zshrc si usas zsh
+nvm install 20
+nvm use 20
+node --version           # debe ser v20.x.x
+```
+
+> WSL2: ejecutar `source ~/.bashrc` (o reabrir la terminal) después de
+> instalar nvm — el PATH no se actualiza automáticamente en la sesión actual.
+
 ## Desarrollo
 
 ```bash
