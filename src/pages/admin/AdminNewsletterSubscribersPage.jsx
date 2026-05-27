@@ -42,9 +42,11 @@ export default function AdminNewsletterSubscribersPage() {
 
   const { data, isLoading, isError } = useNewsletterSubscribers(params);
   const items = data?.results ?? (Array.isArray(data) ? data : []);
-  const total = data?.total ?? items.length;
+  // DRF PageNumberPagination returns `count`, not `total`.
+  const total = data?.count ?? items.length;
 
-  const handleUnsubscribe = (id) => {
+  const handleUnsubscribe = (id, email) => {
+    if (!window.confirm(`¿Desuscribir a ${email}? Esta acción no se puede deshacer.`)) return;
     dispatch(clearNewsletterActionState());
     dispatch(adminUnsubscribeSubscriber({ id, reason: 'SOLICITUD_MANUAL' }));
   };
@@ -118,7 +120,7 @@ export default function AdminNewsletterSubscribersPage() {
                     <button
                       type="button"
                       className={styles.secondaryBtn}
-                      onClick={() => handleUnsubscribe(s.id)}
+                      onClick={() => handleUnsubscribe(s.id, s.email)}
                       disabled={isActioning}
                     >
                       Desuscribir
