@@ -15,12 +15,18 @@ import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import { MetaTag, Price, Button, SumRow } from '@components/common/primitives';
 import styles from './OrderDetailPage.module.scss';
 
+// H-CICLO108-03: IN_DELIVERY is not a valid Order.status value in the
+// model (statuses: PENDING, PROCESSING, IN_PREPARATION, SHIPPED,
+// DELIVERED, CANCELLED, CANCELLED_TIMEOUT, REFUNDED, PAGADA).
+// The spurious step made the currentStatusIndex calculation unreliable:
+// currentStatusIndex was always -1 for DELIVERED because the DELIVERED
+// entry appeared after a non-existent IN_DELIVERY that would shift
+// indices. Removed IN_DELIVERY to align with the model's state machine.
 const TIMELINE_STEPS = [
   { id: 'PENDING',        t: 'Pedido confirmado',  detail: 'Pago aprobado' },
   { id: 'PROCESSING',     t: 'Procesando pago',    detail: 'Gateway confirmó el cargo' },
   { id: 'IN_PREPARATION', t: 'En preparación',     detail: 'Empacado y sellado' },
   { id: 'SHIPPED',        t: 'Enviado',            detail: 'Con DHL' },
-  { id: 'IN_DELIVERY',    t: 'En reparto',         detail: 'Día de la entrega' },
   { id: 'DELIVERED',      t: 'Entregado',          detail: '' },
 ];
 
@@ -105,7 +111,10 @@ function Timeline({ order, currentIndex }) {
         {TIMELINE_STEPS.map((step, i) => {
           const done = i < currentIndex;
           const active = i === currentIndex;
-          const log = (order.status_logs || []).find(l => l.status === step.id);
+          // H-CICLO108-02: OrderStatusLogSerializer exposes new_status, not
+          // status. Using l.status was always undefined so every timeline
+          // step showed "pendiente" even when status_logs was populated.
+          const log = (order.status_logs || []).find(l => l.new_status === step.id);
           return (
             <div key={step.id} className={styles.timelineRow}>
               <div className={`${styles.timelineDot} ${done ? styles.timelineDotDone : ''} ${active ? styles.timelineDotActive : ''}`} />

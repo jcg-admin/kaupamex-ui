@@ -38,9 +38,18 @@ const STATUS_TONE = {
 export default function OrdersPage() {
   const dispatch = useDispatch();
   const [filter, setFilter] = useState('all');
-  const { list = [], isLoading } = useSelector((s) => s.orders || {});
+  // H-CICLO108-04: read pagination metadata from the slice (added in
+  // H-CICLO22-02). Without a page counter and prev/next controls users
+  // could only ever see the first 10 orders — the API response has
+  // count/next/previous but the page never consumed them.
+  const [page, setPage] = useState(1);
+  const { list = [], isLoading, ordersNext, ordersPrevious, ordersCount } = useSelector((s) => s.orders || {});
 
-  useEffect(() => { dispatch(fetchOrders({ filter })); }, [dispatch, filter]);
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
+
+  useEffect(() => { dispatch(fetchOrders({ filter, page })); }, [dispatch, filter, page]);
 
   return (
     <main className={styles.page}>
@@ -86,6 +95,28 @@ export default function OrdersPage() {
             {!isLoading && list.length > 0 && (
               <div className={styles.list}>
                 {list.map((o) => <OrderRow key={o.order_number} order={o} />)}
+              </div>
+            )}
+
+            {!isLoading && ordersCount > 0 && (ordersPrevious || ordersNext) && (
+              <div className={styles.pagination}>
+                <button
+                  type="button"
+                  className={styles.pageBtn}
+                  onClick={() => setPage((p) => p - 1)}
+                  disabled={!ordersPrevious}
+                >
+                  ← Anterior
+                </button>
+                <span className={styles.pageInfo}>Página {page}</span>
+                <button
+                  type="button"
+                  className={styles.pageBtn}
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={!ordersNext}
+                >
+                  Siguiente →
+                </button>
               </div>
             )}
           </section>
