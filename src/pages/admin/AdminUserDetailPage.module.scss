@@ -1,4 +1,4 @@
-@use '@styles/abstracts/variables' as *;
+@use '@styles/abstracts' as *;
 
 .loading { padding: $spacing-20; text-align: center; color: $text-muted; }
 .page { padding: $spacing-10 $spacing-12 $spacing-16; @media (max-width: $bp-md) { padding: $spacing-6 $content-padding-mobile; } }

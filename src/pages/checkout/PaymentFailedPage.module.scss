@@ -1,4 +1,4 @@
-@use '@styles/abstracts/variables' as *;
+@use '@styles/abstracts' as *;
 
 .loading { padding: $spacing-20; text-align: center; color: $text-muted; background: $bg-page; }
 .page { background: $bg-page; min-height: 100vh; padding: $spacing-12 0; }

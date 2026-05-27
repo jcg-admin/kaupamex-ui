@@ -1,4 +1,4 @@
-@use '@styles/abstracts/variables' as *;
+@use '@styles/abstracts' as *;
 
 .page { background: $bg-page; min-height: 60vh; }
 .hero { border-bottom: 1px solid $border-color; padding: $spacing-10 0 $spacing-12; }

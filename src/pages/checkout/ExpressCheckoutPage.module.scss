@@ -1,4 +1,4 @@
-@use '@styles/abstracts/variables' as *;
+@use '@styles/abstracts' as *;
 
 .page { background: $bg-page; min-height: 60vh; }
 .container { max-width: 1100px; margin: 0 auto; padding: $spacing-12 $content-padding-desktop $spacing-24; @media (max-width: $bp-md) { padding: $spacing-8 $content-padding-mobile $spacing-16; } }
