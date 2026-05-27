@@ -7,8 +7,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const CREATE_ORDER_URL = '/api/v1/orders/checkout/';
-const PAYMENTS_URL     = '/api/v1/payments/initiate/';
+const CREATE_ORDER_URL       = '/api/v1/orders/checkout/';
+const PAYMENTS_URL           = '/api/v1/payments/initiate/';
+const ELIGIBILITY_URL        = '/api/v1/checkout/eligibility/';
+const EXPRESS_CHECKOUT_URL   = '/api/v1/checkout/express/';
 
 export const createOrder = createAsyncThunk(
   'checkout/createOrder',
@@ -61,6 +63,42 @@ export const initPayPal = createAsyncThunk(
   }
 );
 
+/**
+ * UC-ORD-01-EXT: verifica elegibilidad para checkout express.
+ * GET /api/v1/checkout/eligibility/ → { express_available, default_address, ... }
+ * H-CICLO114-03: thunk faltante — ExpressCheckoutPage lo importaba pero no
+ * existia en el slice, causando crash al montar la pagina.
+ */
+export const fetchExpressEligibility = createAsyncThunk(
+  'checkout/fetchExpressEligibility',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ELIGIBILITY_URL);
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
+
+/**
+ * UC-ORD-01-EXT: confirma el checkout express (one-click).
+ * POST /api/v1/checkout/express/ → { order_number, ... }
+ * H-CICLO114-03: thunk faltante — ExpressCheckoutPage lo importaba pero no
+ * existia en el slice, causando crash al montar la pagina.
+ */
+export const submitExpress = createAsyncThunk(
+  'checkout/submitExpress',
+  async (notes = '', { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(EXPRESS_CHECKOUT_URL, { notes });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
+
 // Pasos del checkout
 export const CHECKOUT_STEPS = {
   ADDRESS:  'address',
@@ -83,13 +121,16 @@ const checkoutSlice = createSlice({
       street: '', city: '', state: '',
       zip_code: '', country: 'MX',
     },
-    shippingMethod:  null,
-    shippingOptions: [],
-    paymentMethod:   null, // 'mercadopago' | 'paypal'
-    orderId:         null,
-    paymentData:     null, // { payment_id, checkout_url, ... } per DEC-BC-09
-    isLoading:       false,
-    error:           null,
+    shippingMethod:    null,
+    shippingOptions:   [],
+    paymentMethod:     null, // 'mercadopago' | 'paypal'
+    orderId:           null,
+    paymentData:       null, // { payment_id, checkout_url, ... } per DEC-BC-09
+    // H-CICLO114-03: express checkout state (UC-ORD-01-EXT).
+    expressEligibility: null,  // API shape: { express_available, default_address, ... }
+    expressOrder:       null,  // order returned by POST /checkout/express/
+    isLoading:         false,
+    error:             null,
   },
   reducers: {
     setStep(state, action)     { state.step = action.payload; },
@@ -148,6 +189,43 @@ const checkoutSlice = createSlice({
         state.step        = CHECKOUT_STEPS.CONFIRM;
       })
       .addCase(initPayPal.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error     = action.payload;
+      });
+
+    // H-CICLO114-03: express checkout thunks (UC-ORD-01-EXT).
+    builder
+      .addCase(fetchExpressEligibility.pending, (state) => {
+        state.isLoading = true;
+        state.error     = null;
+      })
+      .addCase(fetchExpressEligibility.fulfilled, (state, action) => {
+        state.isLoading          = false;
+        // Normalize API field: express_available → eligible for UI consumers.
+        state.expressEligibility = {
+          ...action.payload,
+          eligible: action.payload.express_available,
+          // Map default_address → address for UI template compatibility.
+          address: action.payload.default_address,
+        };
+      })
+      .addCase(fetchExpressEligibility.rejected, (state, action) => {
+        state.isLoading          = false;
+        state.error              = action.payload;
+        state.expressEligibility = { eligible: false };
+      });
+
+    builder
+      .addCase(submitExpress.pending, (state) => {
+        state.isLoading = true;
+        state.error     = null;
+      })
+      .addCase(submitExpress.fulfilled, (state, action) => {
+        state.isLoading   = false;
+        state.expressOrder = action.payload;
+        state.orderId      = action.payload.order_number;
+      })
+      .addCase(submitExpress.rejected, (state, action) => {
         state.isLoading = false;
         state.error     = action.payload;
       });
