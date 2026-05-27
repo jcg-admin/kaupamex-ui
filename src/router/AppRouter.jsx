@@ -95,6 +95,8 @@ const AdminInventoryPage             = lazy(() => import('@pages/admin/AdminInve
 const AdminInventoryImportPage       = lazy(() => import('@pages/admin/AdminInventoryImportPage'));
 const AdminInventoryMovementsPage    = lazy(() => import('@pages/admin/AdminInventoryMovementsPage'));
 const AdminInventoryAdjustPage       = lazy(() => import('@pages/admin/AdminInventoryAdjustPage'));
+// H-CICLO110-03: ajuste de stock para productos sin variante
+const AdminInventoryProductAdjustPage = lazy(() => import('@pages/admin/AdminInventoryProductAdjustPage'));
 const AdminVariantsPage              = lazy(() => import('@pages/admin/AdminVariantsPage'));
 const AdminVariantPricePage          = lazy(() => import('@pages/admin/AdminVariantPricePage'));
 const AdminNotificationComposePage   = lazy(() => import('@pages/admin/AdminNotificationComposePage'));
@@ -290,10 +292,12 @@ export default function AppRouter() {
               <Route path="admin/support"     element={<AdminSupportPage />} />
               <Route path="admin/returns"     element={<AdminReturnsPage />} />
               <Route path="admin/returns/:id" element={<AdminReturnDetailPage />} />
-              <Route path="admin/inventory"                       element={<AdminInventoryPage />} />
-              <Route path="admin/inventory/import"                element={<AdminInventoryImportPage />} />
-              <Route path="admin/inventory/:variantId/movements"  element={<AdminInventoryMovementsPage />} />
-              <Route path="admin/inventory/:variantId/adjust"     element={<AdminInventoryAdjustPage />} />
+              <Route path="admin/inventory"                                    element={<AdminInventoryPage />} />
+              <Route path="admin/inventory/import"                          element={<AdminInventoryImportPage />} />
+              <Route path="admin/inventory/:variantId/movements"            element={<AdminInventoryMovementsPage />} />
+              <Route path="admin/inventory/:variantId/adjust"               element={<AdminInventoryAdjustPage />} />
+              {/* H-CICLO110-03: ajuste para productos sin variante */}
+              <Route path="admin/inventory/product/:productId/adjust"       element={<AdminInventoryProductAdjustPage />} />
               {/* UC-CHT-03 / UC-CHT-04 — Variantes Yoruba */}
               <Route path="admin/products/:productId/variants"    element={<AdminVariantsPage />} />
               <Route path="admin/variants/:variantId/price"       element={<AdminVariantPricePage />} />

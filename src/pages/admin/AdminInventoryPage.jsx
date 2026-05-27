@@ -140,7 +140,16 @@ export default function AdminInventoryPage() {
                       </Link>
                     </>
                   ) : (
-                    <span className={styles.noVariant}>Sin variante</span>
+                    /* H-CICLO110-03: productos sin variante tienen endpoint
+                       propio /api/v1/admin/inventory/<product_pk>/adjust/.
+                       Antes se mostraba "Sin variante" sin enlace, dejando al
+                       admin sin forma de ajustar el stock desde la UI. */
+                    <Link
+                      to={`/admin/inventory/product/${it.product_id}/adjust`}
+                      className={styles.actionLink}
+                    >
+                      Ajustar
+                    </Link>
                   )}
                 </td>
               </tr>

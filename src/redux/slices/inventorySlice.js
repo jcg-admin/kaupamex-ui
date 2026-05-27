@@ -12,10 +12,12 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const STOCK_URL    = '/api/v1/admin/inventory/';
-const MOVEMENTS    = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/movements/`;
-const ADJUST       = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/adjust/`;
-const IMPORT_CSV   = '/api/v1/admin/inventory/import/';
+const STOCK_URL      = '/api/v1/admin/inventory/';
+const MOVEMENTS      = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/movements/`;
+const ADJUST         = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/adjust/`;
+// H-CICLO110-03: endpoint para productos sin variante.
+const ADJUST_PRODUCT = (productId) => `/api/v1/admin/inventory/${productId}/adjust/`;
+const IMPORT_CSV     = '/api/v1/admin/inventory/import/';
 
 // =============================================================================
 // Thunks
@@ -56,6 +58,27 @@ export const adjustStockManually = createAsyncThunk(
         new_quantity: newQuantity,
         reason,
         observations,
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/**
+ * H-CICLO110-03: UC-INV-04 para productos sin variante.
+ * Llama a POST /api/v1/admin/inventory/<productId>/adjust/ con delta en
+ * lugar de new_quantity (StockAdjustSerializer espera delta, notes, reason).
+ */
+export const adjustProductStockManually = createAsyncThunk(
+  'inventory/adjustProductStock',
+  async ({ productId, delta, reason, notes = '' }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(ADJUST_PRODUCT(productId), {
+        delta,
+        reason,
+        notes,
       });
       return res.data;
     } catch (err) {
@@ -168,6 +191,28 @@ const inventorySlice = createSlice({
         state.actionError = action.payload;
       })
 
+      // adjustProductStockManually (H-CICLO110-03)
+      .addCase(adjustProductStockManually.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(adjustProductStockManually.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'adjusted';
+        const updated = action.payload;
+        if (updated?.product_id != null) {
+          state.items = state.items.map((it) =>
+            it.product_id === updated.product_id && it.variant_id == null
+              ? { ...it, stock: updated.new_stock ?? it.stock }
+              : it,
+          );
+        }
+      })
+      .addCase(adjustProductStockManually.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      })
+
       // importProductsCsv (UC-INV-05)
       .addCase(importProductsCsv.pending, (state) => {
         state.isActioning  = true;
@@ -185,6 +230,8 @@ const inventorySlice = createSlice({
       });
   },
 });
+
+export { adjustProductStockManually };
 
 export const {
   clearInventoryActionState,
