@@ -33,8 +33,16 @@ export default function AdminCategoriesPage() {
   const dispatch    = useDispatch();
   const queryClient = useQueryClient();
   const { isActioning, actionError } = useSelector((s) => s.categories);
-  const { data, isLoading, isError } = useAdminCategories();
-  const categories = data?.results ?? [];
+  // H-CICLO105-03: backend now paginates CategoryAdminViewSet (H-CICLO104-02b).
+  // Track the current page so the UI can fetch the correct page and render
+  // prev/next controls.  Without this, only the first 20 categories are ever
+  // shown with no way to navigate to subsequent pages.
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError } = useAdminCategories({ page });
+  const categories  = data?.results ?? [];
+  const totalCount  = data?.count ?? 0;
+  const pageSize    = 20;
+  const totalPages  = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
@@ -169,37 +177,62 @@ export default function AdminCategoriesPage() {
       {isError && <p role="alert">No se pudo cargar el listado.</p>}
 
       {!isLoading && categories.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th><th>Nombre</th><th>Padre</th><th>Estado</th><th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((c) => (
-              <tr key={c.id}>
-                <td>{c.id}</td>
-                <td>{c.name}</td>
-                <td>{c.parent?.name ?? '—'}</td>
-                <td>{c.is_active === false ? 'Inactiva' : 'Activa'}</td>
-                <td>
-                  <button type="button" onClick={() => handleEdit(c)}>
-                    Editar
-                  </button>
-                  {c.is_active !== false && (
-                    <button
-                      type="button"
-                      onClick={() => handleDeactivate(c.id)}
-                      disabled={isActioning}
-                    >
-                      Desactivar
-                    </button>
-                  )}
-                </td>
+        <>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th><th>Nombre</th><th>Padre</th><th>Estado</th><th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {categories.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.id}</td>
+                  <td>{c.name}</td>
+                  <td>{c.parent?.name ?? '—'}</td>
+                  <td>{c.is_active === false ? 'Inactiva' : 'Activa'}</td>
+                  <td>
+                    <button type="button" onClick={() => handleEdit(c)}>
+                      Editar
+                    </button>
+                    {c.is_active !== false && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeactivate(c.id)}
+                        disabled={isActioning}
+                      >
+                        Desactivar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* H-CICLO105-03: pagination controls for paginated category list */}
+          {totalPages > 1 && (
+            <nav className={styles.pagination} aria-label="Paginas de categorias">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+              >
+                ← Anterior
+              </button>
+              <span className={styles.pageInfo}>
+                Pagina {page} de {totalPages} ({totalCount} categorias)
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+              >
+                Siguiente →
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </section>
   );

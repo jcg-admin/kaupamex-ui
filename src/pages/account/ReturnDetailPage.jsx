@@ -94,7 +94,10 @@ export default function ReturnDetailPage() {
             {history.map((event) => (
               <li key={event.id} className={styles.historyItem}>
                 <span className={styles.historyStatus}>
-                  {RETURN_STATUS_LABEL[event.status] ?? event.status}
+                  {/* H-CICLO105-02: ReturnHistoryEntrySerializer exposes
+                      `status_to` (not `status`). Using event.status always
+                      returned undefined, so all history badges were blank. */}
+                  {RETURN_STATUS_LABEL[event.status_to] ?? event.status_to}
                 </span>
                 <span className={styles.historyDate}>
                   {formatDateTime(event.created_at)}
