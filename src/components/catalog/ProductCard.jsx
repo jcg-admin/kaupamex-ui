@@ -1,7 +1,7 @@
 /**
  * ProductCard — Práctica Yorùbà
  * Tarjeta de producto editorial con:
- *   · imagen (aspect 4/5) — usa product.image_url o placeholder
+ *   · imagen (aspect 4/5) — usa product.cover_image_url o placeholder
  *   · tag de categoría (eleke, otán, herramienta, libro…)
  *   · tag de òrìsà (Yemayá, Shangó, Oshún…) — viene de product.orisha_name
  *   · nombre del producto
@@ -15,7 +15,7 @@
  *     base_price, price_with_tax,
  *     category_name, orisha_name,    // <- nuevos campos
  *     stock, is_featured, has_discount,
- *     image_url,                      // <- nuevo campo
+ *     cover_image_url,               // campo real del API (ProductListSerializer)
  *     highlighted_name,
  *   }
  */
@@ -45,9 +45,16 @@ export default function ProductCard({ product, inWishlist = false }) {
     base_price, price_with_tax,
     category_name, orisha_name,
     stock, is_featured, has_discount,
-    image_url,
+    // H-CICLO83-02: el API expone cover_image_url (ProductListSerializer),
+    // no image_url. El campo incorrecto causaba que ninguna imagen se
+    // mostrara en las tarjetas del catálogo (cover_image_url era undefined).
+    cover_image_url,
     highlighted_name,
   } = product;
+
+  // Alias para backward-compat: si algún caller pasa image_url directamente
+  // (e.g. WishlistPage, SearchPage) seguir funcionando sin cambios en esas vistas.
+  const image_url = cover_image_url ?? product.image_url;
 
   const isAvailable = stock > 0;
   const originalPrice = has_discount ? base_price : null;
