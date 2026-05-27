@@ -17,6 +17,7 @@ import styles from './ProfilePage.module.scss';
 export default function ProfilePage() {
   const dispatch = useDispatch();
   const user = useSelector((s) => s.auth?.user);
+  const profileError = useSelector((s) => s.auth?.error);
   const [form, setForm] = useState({});
   const [savedToast, setSavedToast] = useState(false);
 
@@ -34,13 +35,19 @@ export default function ProfilePage() {
     // endpoint; date_of_birth no existe en el modelo. Enviar solo los campos
     // permitidos para evitar confusion de usuario (parecian guardarse pero la
     // API los descartaba silenciosamente).
-    await dispatch(updateProfile({
+    const result = await dispatch(updateProfile({
       first_name: form.first_name,
       last_name:  form.last_name,
       phone:      form.phone,
     }));
-    setSavedToast(true);
-    setTimeout(() => setSavedToast(false), 2500);
+    // H-CICLO118-02: solo mostrar toast de exito si el dispatch no fue
+    // rechazado. authSlice almacena el error en state.auth.error en
+    // updateProfile.rejected; sin esta guarda el usuario veia "Cambios
+    // guardados" incluso cuando la API retornaba 400 o 500.
+    if (!result.error) {
+      setSavedToast(true);
+      setTimeout(() => setSavedToast(false), 2500);
+    }
   };
 
   const handleAvatar = (e) => {
@@ -96,6 +103,13 @@ export default function ProfilePage() {
               <div className={styles.formActions}>
                 <Button type="submit" variant="primary">Guardar cambios</Button>
                 {savedToast && <span className={styles.toast}>✓ Cambios guardados</span>}
+                {profileError && (
+                  <span className={styles.toastError} role="alert">
+                    {profileError.statusCode === 400
+                      ? 'Datos inválidos. Revisa los campos e intenta de nuevo.'
+                      : 'Error al guardar. Intenta de nuevo más tarde.'}
+                  </span>
+                )}
               </div>
             </form>
           </section>

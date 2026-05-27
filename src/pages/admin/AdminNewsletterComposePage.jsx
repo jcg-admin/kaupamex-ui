@@ -44,6 +44,8 @@ export default function AdminNewsletterComposePage() {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  const [confirmPending, setConfirmPending] = useState(false);
+
   const handleSubmit = (event) => {
     event.preventDefault();
     const validationErrors = validate(form);
@@ -51,6 +53,14 @@ export default function AdminNewsletterComposePage() {
       setErrors(validationErrors);
       return;
     }
+    // H-CICLO118-03: mostrar confirmacion antes de enviar campana masiva.
+    // Sin este paso un click accidental en "Enviar campana" dispara el
+    // broadcast a todos los suscriptores sin posibilidad de cancelar.
+    setConfirmPending(true);
+  };
+
+  const handleConfirm = () => {
+    setConfirmPending(false);
     dispatch(clearNewsletterActionState());
     dispatch(sendNewsletterBroadcast({
       subject:     form.subject.trim(),
@@ -59,6 +69,10 @@ export default function AdminNewsletterComposePage() {
       segment:     form.segment,
       scheduledAt: form.scheduledAt || null,
     }));
+  };
+
+  const handleCancelConfirm = () => {
+    setConfirmPending(false);
   };
 
   return (
@@ -145,11 +159,28 @@ export default function AdminNewsletterComposePage() {
           </p>
         )}
 
+        {confirmPending && (
+          <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" className={styles.confirmDialog}>
+            <p id="confirm-title" className={styles.confirmText}>
+              ¿Confirmas el envío de esta campaña al segmento seleccionado?
+              Esta acción no se puede deshacer.
+            </p>
+            <div className={styles.confirmActions}>
+              <button type="button" className={styles.primaryBtn} onClick={handleConfirm}>
+                Sí, enviar
+              </button>
+              <button type="button" className={styles.secondaryBtn} onClick={handleCancelConfirm}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className={styles.actions}>
           <button
             type="submit"
             className={styles.primaryBtn}
-            disabled={isActioning}
+            disabled={isActioning || confirmPending}
           >
             {isActioning ? 'Enviando…' : 'Enviar campana'}
           </button>
