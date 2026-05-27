@@ -39,6 +39,8 @@ export default function AdminOrdersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const orders = useSelector((s) => s.admin?.orders || []);
   const isLoading = useSelector((s) => s.admin?.isLoadingOrders);
+  const ordersPagination = useSelector((s) => s.admin?.ordersPagination || {});
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 400);
@@ -46,16 +48,20 @@ export default function AdminOrdersPage() {
   }, [search]);
 
   useEffect(() => {
-    const params = { search: debouncedSearch };
+    setPage(1);
+  }, [filter, debouncedSearch]);
+
+  useEffect(() => {
+    const params = { search: debouncedSearch, page };
     if (filter !== 'all') params.status = filter;
     dispatch(fetchAdminOrders(params));
-  }, [dispatch, filter, debouncedSearch]);
+  }, [dispatch, filter, debouncedSearch, page]);
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <MetaTag tone="bronze">Operación · {orders.length} pedidos</MetaTag>
+          <MetaTag tone="bronze">Operación · {ordersPagination.count ?? orders.length} pedidos</MetaTag>
           <h1 className={styles.title}>Pedidos</h1>
         </div>
         <div className={styles.headerActions}>
@@ -129,6 +135,24 @@ export default function AdminOrdersPage() {
           </tbody>
         </table>
       </div>
+
+      {ordersPagination.totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >← Anterior</button>
+          <span className={styles.pageInfo}>
+            Página {page} de {ordersPagination.totalPages}
+          </span>
+          <button
+            className={styles.pageBtn}
+            disabled={page >= ordersPagination.totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >Siguiente →</button>
+        </div>
+      )}
     </div>
   );
 }
