@@ -43,7 +43,10 @@ export default function OrdersPage() {
   // could only ever see the first 10 orders — the API response has
   // count/next/previous but the page never consumed them.
   const [page, setPage] = useState(1);
-  const { list = [], isLoading, ordersNext, ordersPrevious, ordersCount } = useSelector((s) => s.orders || {});
+  // H-CICLO117-03: leer actionError para mostrar error de red/API en lugar
+  // de renderizar silenciosamente "Aún no tienes pedidos" cuando fetchOrders
+  // falla. El slice almacena el error en actionError en el caso rejected.
+  const { list = [], isLoading, ordersNext, ordersPrevious, ordersCount, actionError } = useSelector((s) => s.orders || {});
 
   useEffect(() => {
     setPage(1);
@@ -82,7 +85,17 @@ export default function OrdersPage() {
 
             {isLoading && <div className={styles.loading}>Cargando pedidos…</div>}
 
-            {!isLoading && list.length === 0 && (
+            {/* H-CICLO117-03: mostrar error explícito cuando fetchOrders falla.
+                Sin este bloque, un error de red o de API dejaba isLoading=false
+                y list=[], renderizando el EmptyState "Aún no tienes pedidos"
+                como si el usuario simplemente no tuviera órdenes. */}
+            {!isLoading && actionError && (
+              <div className={styles.errorState}>
+                No se pudieron cargar tus pedidos. Por favor, intenta de nuevo.
+              </div>
+            )}
+
+            {!isLoading && !actionError && list.length === 0 && (
               <EmptyState
                 icon="◯"
                 title="Aún no tienes pedidos"
