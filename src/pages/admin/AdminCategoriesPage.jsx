@@ -91,6 +91,12 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDeactivate = async (id) => {
+    // H-CICLO122-01: pedir confirmacion antes de desactivar para prevenir
+    // clics accidentales. Patron consistente con AdminVouchersPage.
+    const ok = window.confirm(
+      '¿Desactivar esta categoría? Los productos asociados dejarán de mostrarse en el catálogo.',
+    );
+    if (!ok) return;
     const result = await dispatch(deactivateCategory(id));
     if (deactivateCategory.fulfilled.match(result)) {
       dispatch(clearCategoriesActionState());
