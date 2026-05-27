@@ -1,6 +1,11 @@
 /**
  * AdminContactMessagesPage — PracticaYoruba
  * UC-COM-02: bandeja admin de mensajes de contacto recibidos.
+ *
+ * H-CICLO123-01: la API pagina a 25 mensajes/página (PageNumberPagination).
+ * Sin controles de paginación el admin solo podía ver los primeros 25
+ * mensajes. Se añaden botones Anterior/Siguiente leyendo data.next /
+ * data.previous y el parámetro ?page= en los filtros.
  */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -29,12 +34,22 @@ function formatDate(iso) {
 
 export default function AdminContactMessagesPage() {
   const [filters, setFilters] = useState({ status: '', q: '' });
+  const [page, setPage] = useState(1);
   const params = {};
   if (filters.status) params.status = filters.status;
   if (filters.q)      params.q      = filters.q;
+  if (page > 1)       params.page   = page;
+
+  // Reset to page 1 whenever filters change
+  const handleFilterChange = (updater) => {
+    setFilters(updater);
+    setPage(1);
+  };
 
   const { data, isLoading, isError } = useAdminContactMessages(params);
-  const items = data?.results ?? data?.messages ?? (Array.isArray(data) ? data : []);
+  const items    = data?.results ?? data?.messages ?? (Array.isArray(data) ? data : []);
+  const hasNext  = Boolean(data?.next);
+  const hasPrev  = page > 1;
 
   return (
     <section className={styles.page} aria-labelledby="contact-inbox-title">
@@ -49,7 +64,7 @@ export default function AdminContactMessagesPage() {
           <span>Estado</span>
           <select
             value={filters.status}
-            onChange={(e) => setFilters((p) => ({ ...p, status: e.target.value }))}
+            onChange={(e) => handleFilterChange((p) => ({ ...p, status: e.target.value }))}
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -61,7 +76,7 @@ export default function AdminContactMessagesPage() {
           <input
             type="search"
             value={filters.q}
-            onChange={(e) => setFilters((p) => ({ ...p, q: e.target.value }))}
+            onChange={(e) => handleFilterChange((p) => ({ ...p, q: e.target.value }))}
             placeholder="ana@example.com"
           />
         </label>
@@ -80,42 +95,67 @@ export default function AdminContactMessagesPage() {
       )}
 
       {items.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Asunto</th>
-              <th>Remitente</th>
-              <th>Estado</th>
-              <th>Recibido</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((m) => (
-              <tr key={m.id}>
-                <td>#{m.id}</td>
-                <td>{m.subject}</td>
-                <td>
-                  <div className={styles.customer}>
-                    <span>{m.name ?? '—'}</span>
-                    <span className={styles.customerEmail}>{m.email ?? '—'}</span>
-                  </div>
-                </td>
-                <td>{getStatusLabel(m)}</td>
-                <td>{formatDate(m.created_at)}</td>
-                <td>
-                  <Link
-                    to={`/admin/contact/messages/${m.id}`}
-                    className={styles.detailLink}
-                  >
-                    Ver detalle
-                  </Link>
-                </td>
+        <>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Asunto</th>
+                <th>Remitente</th>
+                <th>Estado</th>
+                <th>Recibido</th>
+                <th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {items.map((m) => (
+                <tr key={m.id}>
+                  <td>#{m.id}</td>
+                  <td>{m.subject}</td>
+                  <td>
+                    <div className={styles.customer}>
+                      <span>{m.name ?? '—'}</span>
+                      <span className={styles.customerEmail}>{m.email ?? '—'}</span>
+                    </div>
+                  </td>
+                  <td>{getStatusLabel(m)}</td>
+                  <td>{formatDate(m.created_at)}</td>
+                  <td>
+                    <Link
+                      to={`/admin/contact/messages/${m.id}`}
+                      className={styles.detailLink}
+                    >
+                      Ver detalle
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* H-CICLO123-01: pagination controls */}
+          {(hasPrev || hasNext) && (
+            <nav className={styles.pagination} aria-label="Paginacion de mensajes">
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={!hasPrev}
+                onClick={() => setPage((p) => p - 1)}
+              >
+                Anterior
+              </button>
+              <span className={styles.pageInfo}>Página {page}</span>
+              <button
+                type="button"
+                className={styles.pageBtn}
+                disabled={!hasNext}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Siguiente
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </section>
   );
