@@ -23,6 +23,12 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState('');
   const products = useSelector((s) => s.admin?.products || []);
   const isLoading = useSelector((s) => s.admin?.isLoadingProducts);
+  // H-CICLO120-02: leer errores del slice para retroalimentar al admin.
+  // Sin estos selectores cualquier fallo del API (network, 403, 500) o
+  // un delete rechazado pasa desapercibido — la tabla simplemente no
+  // actualiza sin ningún mensaje visible.
+  const productsError = useSelector((s) => s.admin?.productsError ?? null);
+  const actionError   = useSelector((s) => s.admin?.actionError ?? null);
 
   useEffect(() => { dispatch(fetchAdminProducts({ filter, search })); }, [dispatch, filter, search]);
 
@@ -57,6 +63,17 @@ export default function AdminProductsPage() {
           className={styles.search}
         />
       </div>
+
+      {productsError && (
+        <p role="alert" className={styles.errorBanner}>
+          {productsError?.detail ?? productsError?.message ?? 'Error al cargar productos. Intenta de nuevo.'}
+        </p>
+      )}
+      {actionError && (
+        <p role="alert" className={styles.errorBanner}>
+          {actionError?.detail ?? actionError?.message ?? 'La operación falló. Intenta de nuevo.'}
+        </p>
+      )}
 
       <div className={styles.tableWrap}>
         <table className={styles.table}>
