@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchAdminUsers } from '@redux/slices/adminSlice';
+import { fetchAdminUsers, setPage } from '@redux/slices/adminSlice';
 import { MetaTag, Button } from '@components/common/primitives';
 import styles from './AdminTablePage.module.scss';
 
@@ -68,16 +68,20 @@ export default function AdminUsersPage() {
   const users = useSelector((s) => s.admin?.users || []);
   // Bug H-CICLO30-01b: isLoadingUsers no existe en el slice; la clave real es isLoading.
   const isLoading = useSelector((s) => s.admin?.isLoading);
+  const pagination = useSelector((s) => s.admin?.pagination || {});
+  const currentPage = pagination.page || 1;
+  const totalPages  = pagination.totalPages || 0;
+  const totalCount  = pagination.count || 0;
 
   useEffect(() => {
-    dispatch(fetchAdminUsers(buildApiParams({ role, status, search })));
-  }, [dispatch, role, status, search]);
+    dispatch(fetchAdminUsers({ ...buildApiParams({ role, status, search }), page: currentPage }));
+  }, [dispatch, role, status, search, currentPage]);
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <MetaTag tone="bronze">Comunidad · {users.length} usuarios</MetaTag>
+          <MetaTag tone="bronze">Comunidad · {totalCount || users.length} usuarios</MetaTag>
           <h1 className={styles.title}>Usuarios</h1>
         </div>
         <div className={styles.headerActions}>
@@ -175,6 +179,32 @@ export default function AdminUsersPage() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => dispatch(setPage(currentPage - 1))}
+          >
+            ← Anterior
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              className={p === currentPage ? styles.pageActive : ''}
+              onClick={() => dispatch(setPage(p))}
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => dispatch(setPage(currentPage + 1))}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
