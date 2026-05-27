@@ -231,8 +231,6 @@ const inventorySlice = createSlice({
   },
 });
 
-export { adjustProductStockManually };
-
 export const {
   clearInventoryActionState,
   clearImportReport,

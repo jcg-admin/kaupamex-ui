@@ -9,9 +9,9 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { login } from '@redux/slices/authSlice';
+import { loginUser } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
-import logoUrl from '@assets/practica-yoruba-logo.png';
+import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './LoginPage.module.scss';
 
 export default function LoginPage() {
@@ -29,7 +29,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await dispatch(login(creds)).unwrap();
+      await dispatch(loginUser(creds)).unwrap();
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError('Correo o contraseña incorrectos.');

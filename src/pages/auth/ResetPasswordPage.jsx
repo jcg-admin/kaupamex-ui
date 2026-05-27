@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { confirmPasswordReset } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
-import logoUrl from '@assets/practica-yoruba-logo.png';
+import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './AuthSimplePage.module.scss';
 
 export default function ResetPasswordPage() {
