@@ -16,16 +16,12 @@
   --c-lime-shadow: #4A6200;  /* Verde oscuro · fondos */
   --c-lime-tint:   #C8E060;  /* Verde claro · highlights */
   --c-lime-cream:  #EEF4D0;  /* Verde casi blanco */
-
   --c-vino:        #7A1E1E;  /* Rojo vino · COMPLEMENTARIO · 35% */
   --c-vino-soft:   #9A4040;  /* Vino rebajado · variante suave */
-
   --c-bronze:      #B89840;  /* Dorado bronce mate · separador · 12% */
   --c-bronze-soft: #C8AA60;  /* Dorado bronce rebajado */
-
   --c-coral:       #D86030;  /* Naranja coral · puente · 5% */
   --c-coral-soft:  #E2855A;  /* Coral suavizado */
-
   --c-rust:        #A07820;  /* Dorado oxidado · cierre · 3% */
 
   /* --- Base (tonos del sistema Natural vivo) --- */
@@ -94,4 +90,19 @@
   /* --- Anchos --- */
   --container:      1280px;
   --container-wide: 1440px;
+
+  /* --- Semantic aliases (informational / account pages) --- */
+  --color-surface:        #fff;
+  --color-text:           #111;
+  --color-text-secondary: #555;
+  --color-border:         #e5e5e5;
+  --color-accent:         #7c3aed;
+  --color-muted:          #888;
+  --color-primary:        #2563eb;
+  --color-surface-muted:  #f4f4f4;
+  --color-warning:        #f5a623;
+  --color-warning-bg:     #fff8e1;
+  --color-danger:         #b3261e;
+  --color-danger-strong:  #8a1d18;
+  --color-danger-bg:      #fdecea;
 }

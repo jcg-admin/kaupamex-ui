@@ -1,7 +1,7 @@
 .page {
   min-height: 60vh;
   padding-block: var(--space-8, 3rem) var(--space-12, 5rem);
-  background: var(--color-surface, #fff);
+  background: var(--color-surface);
 }
 
 .inner {
@@ -12,7 +12,7 @@
 
 .breadcrumb {
   font-size: 0.8125rem;
-  color: var(--color-muted, #888);
+  color: var(--color-muted);
   margin-bottom: var(--space-5, 2rem);
 
   a {
@@ -29,10 +29,10 @@
   font-size: clamp(1.5rem, 4vw, 2.25rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--color-text, #111);
+  color: var(--color-text);
   margin-bottom: var(--space-6, 2.5rem);
   padding-bottom: var(--space-4, 1.5rem);
-  border-bottom: 1px solid var(--color-border, #e5e5e5);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .body {
@@ -50,28 +50,28 @@
 .heading {
   font-size: 1.0625rem;
   font-weight: 600;
-  color: var(--color-text, #111);
+  color: var(--color-text);
 }
 
 .para {
   font-size: 0.9375rem;
   line-height: 1.75;
-  color: var(--color-text-secondary, #444);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .footer {
   margin-top: var(--space-8, 3rem);
   padding-top: var(--space-5, 2rem);
-  border-top: 1px solid var(--color-border, #e5e5e5);
+  border-top: 1px solid var(--color-border);
 }
 
 .backLink {
   font-size: 0.875rem;
-  color: var(--color-muted, #888);
+  color: var(--color-muted);
   text-decoration: none;
 
-  &:hover { color: var(--color-text, #111); }
+  &:hover { color: var(--color-text); }
 }
 
 .notFound {
@@ -85,5 +85,5 @@
   padding: var(--space-8, 3rem);
 
   h1 { font-size: 1.5rem; }
-  a { color: var(--color-accent, #7c3aed); }
+  a { color: var(--color-accent); }
 }

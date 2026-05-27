@@ -51,7 +51,6 @@
 .step { padding: $spacing-5 $spacing-4; border-right: 1px solid $border-medium; &:last-child { border-right: 0; } }
 .step_done { background: rgba($lime, 0.06); }
 .step_active { background: rgba($bronze, 0.06); }
-.step_pending {}
 .stepN { font-family: $font-family-mono; font-size: $font-size-xs; letter-spacing: 0.14em; margin-bottom: 6px; }
 .step_done    .stepN { color: $lime-soft; }
 .step_active  .stepN { color: $bronze; }
