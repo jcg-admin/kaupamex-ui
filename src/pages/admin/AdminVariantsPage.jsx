@@ -23,7 +23,11 @@ const TYPE_OPTIONS = ['Tamano', 'Presentacion', 'Material'];
 export default function AdminVariantsPage() {
   const { productId } = useParams();
   const dispatch = useDispatch();
-  const { adminVariants, isLoading, isActioning, actionError } =
+  // H-CICLO121-02: read `error` (load failure) in addition to `actionError`
+  // (mutation failure). yorubaVariantsSlice:146-148 writes state.error when
+  // fetchAdminVariants is rejected, but AdminVariantsPage never consumed it,
+  // silently showing "No hay variantes configuradas" on 401/500/network errors.
+  const { adminVariants, isLoading, isActioning, actionError, error: loadError } =
     useSelector((s) => s.yorubaVariants);
 
   const [variantType, setVariantType] = useState('Tamano');
@@ -125,7 +129,13 @@ export default function AdminVariantsPage() {
       {/* Listado de variantes */}
       {isLoading && <p className={styles.loading}>Cargando variantes…</p>}
 
-      {!isLoading && adminVariants.length === 0 && (
+      {loadError && !isLoading && (
+        <p role="alert" className={styles.error}>
+          {typeof loadError === 'string' ? loadError : 'No se pudieron cargar las variantes.'}
+        </p>
+      )}
+
+      {!isLoading && !loadError && adminVariants.length === 0 && (
         <p className={styles.empty}>No hay variantes configuradas para este producto.</p>
       )}
 
