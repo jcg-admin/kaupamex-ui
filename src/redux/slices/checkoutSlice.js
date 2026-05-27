@@ -73,10 +73,15 @@ const checkoutSlice = createSlice({
   name: 'checkout',
   initialState: {
     step:            CHECKOUT_STEPS.ADDRESS,
+    // H-CICLO78-05: field names aligned to OrderAddressInputSerializer contract.
+    // Previous names (first_name/last_name/postal_code) did not match the API
+    // fields (recipient_name/zip_code) and would cause silent validation errors
+    // if any consumer dispatched setAddress() and built a checkout payload from
+    // this slice state.
     address: {
-      first_name: '', last_name: '', email: '', phone: '',
-      street: '', number: '', city: '', state: '',
-      postal_code: '', country: 'MX',
+      recipient_name: '', email: '', phone: '',
+      street: '', city: '', state: '',
+      zip_code: '', country: 'MX',
     },
     shippingMethod:  null,
     shippingOptions: [],
