@@ -172,6 +172,32 @@ export default function AdminOrderDetailPage() {
         </section>
       )}
 
+      {/* H-CICLO101-API-01: render state-transition audit trail.
+          AdminOrderSerializer now exposes status_logs (previous_status,
+          new_status, notes, changed_by_username, created_at). The list
+          is reversed so the most recent entry appears first. */}
+      {(order.status_logs ?? []).length > 0 && (
+        <section aria-labelledby="history-title" className={styles.section}>
+          <h2 id="history-title">Historial de estado</h2>
+          <ol className={styles.history}>
+            {[...(order.status_logs ?? [])].reverse().map((log) => (
+              <li key={log.id} className={styles.historyEntry}>
+                <span className={styles.historyTransition}>
+                  {log.previous_status} &rarr; {log.new_status}
+                </span>
+                {log.notes && (
+                  <span className={styles.historyNotes}> — {log.notes}</span>
+                )}
+                <span className={styles.historyMeta}>
+                  {' '}({log.changed_by_username ?? 'Sistema'},{' '}
+                  {formatDate(log.created_at)})
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
       {allowed.length > 0 && (
         <section aria-labelledby="transition-title" className={styles.section}>
           <h2 id="transition-title">Cambiar estado</h2>
