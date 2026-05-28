@@ -40,21 +40,22 @@ export default function CatalogPage() {
     error, searchError, pagination = {}, filters = {},
   } = useSelector((s) => s.catalog || {});
 
-  const qParam = searchParams.get('q') || '';
+  const qParam  = searchParams.get('q')   || '';
+  const catParam = searchParams.get('cat') || '';
   const mode = qParam ? 'search' : 'listing';
 
   // Re-fetch whenever listing filters or page change (but not in search mode)
   useEffect(() => {
     if (qParam) dispatch(searchProducts({ q: qParam }));
     else dispatch(fetchProducts({
-      category: filters.category || undefined,
+      category: catParam || filters.category || undefined,
       price_min: filters.priceMin || undefined,
       price_max: filters.priceMax || undefined,
       in_stock: filters.inStock || undefined,
       ordering: filters.ordering || undefined,
       page: pagination.page || 1,
     }));
-  }, [dispatch, qParam, filters.category, filters.priceMin, filters.priceMax,
+  }, [dispatch, qParam, catParam, filters.category, filters.priceMin, filters.priceMax,
       filters.inStock, filters.ordering, pagination.page]);
 
   const handleSearch = useCallback((q) => setSearchParams({ q }), [setSearchParams]);
