@@ -16,6 +16,7 @@ import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
 const PUBLIC_CREATE_URL          = (productId) => `/api/v1/products/${productId}/reviews/`;
+const REVIEW_IMAGES_URL          = (productId, reviewId) => `/api/v1/products/${productId}/reviews/${reviewId}/images/`;
 const ADMIN_MODERATE_APPROVE_URL = (id) => `/api/v1/admin/reviews/${id}/approve/`;
 const ADMIN_MODERATE_REJECT_URL  = (id) => `/api/v1/admin/reviews/${id}/reject/`;
 
@@ -36,6 +37,34 @@ export const submitProductReview = createAsyncThunk(
       };
       const res = await apiService.post(PUBLIC_CREATE_URL(productId), payload);
       return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/**
+ * UC-REV-02 cap6: upload images for a review the author just created.
+ * Accepts an array of File objects (max 3). Each image is POSTed
+ * individually as multipart/form-data to the review images endpoint.
+ * Returns an array of created image objects.
+ */
+export const uploadReviewImages = createAsyncThunk(
+  'reviews/uploadImages',
+  async ({ productId, reviewId, images }, { rejectWithValue }) => {
+    try {
+      const results = [];
+      for (const file of images) {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await apiService.post(
+          REVIEW_IMAGES_URL(productId, reviewId),
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } },
+        );
+        results.push(res.data);
+      }
+      return results;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
     }
@@ -75,10 +104,13 @@ export const rejectProductReview = createAsyncThunk(
 // =============================================================================
 
 const initialState = {
-  isActioning:    false,
-  actionError:    null,
-  lastAction:     null, // 'submitted' | 'approved' | 'rejected'
-  lastSubmittedId: null,
+  isActioning:      false,
+  actionError:      null,
+  lastAction:       null, // 'submitted' | 'approved' | 'rejected'
+  lastSubmittedId:  null,
+  isUploadingImages: false,
+  imageUploadError:  null,
+  uploadedImages:    [],
 };
 
 const reviewsSlice = createSlice({
@@ -86,9 +118,11 @@ const reviewsSlice = createSlice({
   initialState,
   reducers: {
     clearReviewsActionState(state) {
-      state.actionError     = null;
-      state.lastAction      = null;
-      state.lastSubmittedId = null;
+      state.actionError       = null;
+      state.lastAction        = null;
+      state.lastSubmittedId   = null;
+      state.imageUploadError  = null;
+      state.uploadedImages    = [];
     },
   },
   extraReducers: (builder) => {
@@ -105,6 +139,19 @@ const reviewsSlice = createSlice({
       .addCase(submitProductReview.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
+      })
+
+      .addCase(uploadReviewImages.pending, (state) => {
+        state.isUploadingImages = true;
+        state.imageUploadError  = null;
+      })
+      .addCase(uploadReviewImages.fulfilled, (state, action) => {
+        state.isUploadingImages = false;
+        state.uploadedImages    = action.payload;
+      })
+      .addCase(uploadReviewImages.rejected, (state, action) => {
+        state.isUploadingImages = false;
+        state.imageUploadError  = action.payload;
       })
 
       .addCase(approveProductReview.pending, (state) => {

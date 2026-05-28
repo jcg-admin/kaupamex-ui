@@ -1,40 +1,84 @@
 /**
  * ProductReviewCreatePage — PracticaYoruba
  * UC-REV-01: el comprador deja una resena del producto comprado.
+ * UC-REV-02 cap6: adjunta hasta 3 fotos a la resena.
  *
- * Captura calificacion (1-5), titulo y texto. POSTea a
- * `/api/v1/products/:productId/reviews/` con `order_id` para que el
- * backend verifique que el comprador recibio el producto en esa orden
- * (PRE-01) y que no existe resena previa (PRE-02).
+ * Captura calificacion (1-5), titulo, texto y hasta 3 imagenes.
+ * Paso 1: POST a `/api/v1/products/:productId/reviews/` con order_id.
+ * Paso 2 (opcional): por cada imagen seleccionada, POST multipart a
+ *   `/api/v1/products/:productId/reviews/:reviewId/images/`.
  *
- * No silencia errores (DEC-DOC-008): cada error de validacion del
- * formulario se renderiza visiblemente; los errores del API caen en
- * `actionError` propagados por `reviewsSlice` via `serializeApiError`.
+ * No silencia errores (DEC-DOC-008): cada error de validacion se
+ * renderiza visiblemente; errores del API via `serializeApiError`.
  */
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   submitProductReview,
+  uploadReviewImages,
   clearReviewsActionState,
 } from '@redux/slices/reviewsSlice';
 import styles from './ProductReviewCreatePage.module.scss';
 
-const TITLE_MIN  = 5;
-const TITLE_MAX  = 100;
-const BODY_MIN   = 20;
-const BODY_MAX   = 2000;
+const TITLE_MIN   = 5;
+const TITLE_MAX   = 100;
+const BODY_MIN    = 20;
+const BODY_MAX    = 2000;
+const MAX_IMAGES  = 3;
 
 export default function ProductReviewCreatePage() {
   const { orderId, productId } = useParams();
   const dispatch = useDispatch();
-  const { isActioning, actionError, lastAction } =
-    useSelector((s) => s.reviews);
+  const {
+    isActioning, actionError, lastAction, lastSubmittedId,
+    isUploadingImages, imageUploadError,
+  } = useSelector((s) => s.reviews);
 
-  const [rating, setRating] = useState(5);
-  const [title,  setTitle]  = useState('');
-  const [body,   setBody]   = useState('');
-  const [error,  setError]  = useState('');
+  const [rating,       setRating]       = useState(5);
+  const [title,        setTitle]        = useState('');
+  const [body,         setBody]         = useState('');
+  const [error,        setError]        = useState('');
+  const [images,       setImages]       = useState([]);   // File[]
+  const [previews,     setPreviews]     = useState([]);   // object-URL strings
+  const [imagesError,  setImagesError]  = useState('');
+  const fileInputRef = useRef(null);
+
+  // Revoke object URLs when images change to avoid memory leaks.
+  useEffect(() => {
+    return () => previews.forEach((url) => URL.revokeObjectURL(url));
+  }, [previews]);
+
+  // After review is created (lastAction === 'submitted'), upload images.
+  useEffect(() => {
+    if (lastAction === 'submitted' && lastSubmittedId && images.length > 0) {
+      dispatch(uploadReviewImages({
+        productId: Number(productId),
+        reviewId:  lastSubmittedId,
+        images,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastAction, lastSubmittedId]);
+
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > MAX_IMAGES) {
+      setImagesError(`Maximo ${MAX_IMAGES} imagenes por resena.`);
+      e.target.value = '';
+      return;
+    }
+    setImagesError('');
+    setImages(files);
+    setPreviews(files.map((f) => URL.createObjectURL(f)));
+  };
+
+  const removeImage = (index) => {
+    URL.revokeObjectURL(previews[index]);
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -62,7 +106,9 @@ export default function ProductReviewCreatePage() {
     }));
   };
 
-  if (lastAction === 'submitted') {
+  // Show success only after images are done uploading (or if there are none).
+  const uploadDone = !isUploadingImages;
+  if (lastAction === 'submitted' && uploadDone) {
     return (
       <section className={styles.page} aria-labelledby="review-success-title">
         <h1 id="review-success-title" className={styles.title}>
@@ -72,9 +118,16 @@ export default function ProductReviewCreatePage() {
           Gracias por tu opinion. Tu resena sera revisada antes de
           publicarse para garantizar la calidad del contenido.
         </p>
+        {imageUploadError && (
+          <p role="alert" className={styles.error}>
+            La resena fue enviada, pero hubo un error al subir las fotos.
+          </p>
+        )}
       </section>
     );
   }
+
+  const isBusy = isActioning || isUploadingImages;
 
   return (
     <section className={styles.page} aria-labelledby="review-title">
@@ -126,6 +179,46 @@ export default function ProductReviewCreatePage() {
           {error && <span className={styles.fieldError}>{error}</span>}
         </div>
 
+        {/* UC-REV-02 cap6 — image upload */}
+        <div className={styles.field}>
+          <label htmlFor="review-images">
+            Fotos del producto (opcional, maximo {MAX_IMAGES})
+          </label>
+          <input
+            ref={fileInputRef}
+            id="review-images"
+            type="file"
+            accept="image/*"
+            multiple
+            className={styles.fileInput}
+            onChange={handleImagesChange}
+          />
+          {imagesError && (
+            <span className={styles.fieldError}>{imagesError}</span>
+          )}
+          {previews.length > 0 && (
+            <ul className={styles.previewList} aria-label="Fotos seleccionadas">
+              {previews.map((src, idx) => (
+                <li key={src} className={styles.previewItem}>
+                  <img
+                    src={src}
+                    alt={`Vista previa ${idx + 1}`}
+                    className={styles.previewThumb}
+                  />
+                  <button
+                    type="button"
+                    className={styles.removeImageBtn}
+                    onClick={() => removeImage(idx)}
+                    aria-label={`Eliminar foto ${idx + 1}`}
+                  >
+                    &times;
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         {actionError && (
           <p role="alert" className={styles.error}>
             {actionError.message || 'No se pudo enviar la resena.'}
@@ -136,9 +229,13 @@ export default function ProductReviewCreatePage() {
           <button
             type="submit"
             className={styles.primaryBtn}
-            disabled={isActioning}
+            disabled={isBusy}
           >
-            {isActioning ? 'Enviando…' : 'Enviar resena'}
+            {isActioning
+              ? 'Enviando…'
+              : isUploadingImages
+                ? 'Subiendo fotos…'
+                : 'Enviar resena'}
           </button>
         </div>
       </form>
