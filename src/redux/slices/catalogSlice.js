@@ -105,10 +105,11 @@ const catalogSlice = createSlice({
       inStock:   false,
       ordering:  '-created_at',
     },
-    isLoading:   false,
-    isSearching: false,
-    error:       null,
-    searchError: null,
+    isLoading:      false,
+    isSearching:    false,
+    error:          null,
+    categoriesError: null,
+    searchError:    null,
   },
 
   reducers: {
@@ -154,6 +155,7 @@ const catalogSlice = createSlice({
           ? Math.ceil(count / state.pagination.pageSize)
           : 0;
         state.isLoading = false;
+        state.error     = null;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.isLoading = false;
@@ -220,12 +222,15 @@ const catalogSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.categories = Array.isArray(action.payload) ? action.payload : (action.payload.results ?? []);
-        state.isLoading  = false;
+        state.categories     = Array.isArray(action.payload) ? action.payload : (action.payload.results ?? []);
+        state.isLoading      = false;
+        state.categoriesError = null;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error     = action.payload;
+        state.isLoading      = false;
+        state.categoriesError = action.payload;
+        // state.error is intentionally NOT set here — categories failure
+        // must not trigger the product loading error banner.
       });
   },
 });

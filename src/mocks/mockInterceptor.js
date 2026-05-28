@@ -162,7 +162,8 @@ class MockInterceptor {
   // ═══════ CATÁLOGO ═══════
 
   _productList(url) {
-    const params = new URL('http://mock' + url.split('?')[1] ? `?${url.split('?')[1]}` : '').searchParams;
+    const qString = url.split('?')[1];
+    const params  = new URL('http://mock' + (qString ? `?${qString}` : '')).searchParams;
     const page   = parseInt(params.get('page') || 1);
     const items  = this._generateProducts(20);
     return this._ok({ count: 143, results: items, next: page < 7 ? `?page=${page+1}` : null });
