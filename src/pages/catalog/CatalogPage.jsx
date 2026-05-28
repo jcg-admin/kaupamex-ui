@@ -13,15 +13,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import {
-  fetchProducts, searchProducts, clearSearch, setPage, setFilter, clearFilters,
+  fetchProducts, fetchCategories, searchProducts, clearSearch, setPage, setFilter, clearFilters,
 } from '@redux/slices/catalogSlice';
 import SearchBar from '@components/catalog/SearchBar';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Button, EmptyState } from '@components/common/primitives';
 import styles from './CatalogPage.module.scss';
-
-const ORISHAS = ['Yemayá','Shangó','Oshún','Obatalá','Oyá','Eleguá','Oggún','Babalú-Ayé'];
-const TYPES   = ['Eleke','Otán','Sopera','Herramienta','Bandera','Libro'];
 
 // Mapping from UI label to API ordering param
 const SORT_OPTIONS = [
@@ -37,12 +34,14 @@ export default function CatalogPage() {
   const {
     products = [], searchResults = [],
     searchQuery, isLoading, isSearching,
-    error, searchError, pagination = {}, filters = {},
+    error, searchError, pagination = {}, filters = {}, categories = [],
   } = useSelector((s) => s.catalog || {});
 
   const qParam  = searchParams.get('q')   || '';
   const catParam = searchParams.get('cat') || '';
   const mode = qParam ? 'search' : 'listing';
+
+  useEffect(() => { dispatch(fetchCategories()); }, [dispatch]);
 
   // Re-fetch whenever listing filters or page change (but not in search mode)
   useEffect(() => {
@@ -108,7 +107,7 @@ export default function CatalogPage() {
 
       <div className={styles.container}>
         <div className={styles.layout}>
-          <FilterSidebar dispatch={dispatch} />
+          <FilterSidebar dispatch={dispatch} categories={categories} />
 
           <section className={styles.results}>
             <Toolbar
@@ -161,12 +160,19 @@ export default function CatalogPage() {
   );
 }
 
-function FilterSidebar({ dispatch }) {
+function FilterSidebar({ dispatch, categories }) {
   const handleClearFilters = () => dispatch(clearFilters());
   return (
     <aside className={styles.sidebar}>
-      <FilterGroup title="Òrìsà" items={ORISHAS} dispatch={dispatch} filterKey="category" />
-      <FilterGroup title="Tipo de pieza" items={TYPES} dispatch={dispatch} filterKey="category" />
+      <FilterGroup title="Categoría">
+        {categories.map((cat) => (
+          <Check
+            key={cat.slug}
+            label={cat.name}
+            onChange={(checked) => dispatch(setFilter({ category: checked ? cat.slug : null }))}
+          />
+        ))}
+      </FilterGroup>
       <FilterGroup title="Rango de precio">
         <PriceSlider dispatch={dispatch} />
       </FilterGroup>
