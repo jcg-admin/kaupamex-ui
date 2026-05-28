@@ -146,6 +146,9 @@ export default function AppRouter() {
           <Route element={<StorefrontLayout />}>
             <Route index element={<HomePage />} />
             <Route path="catalog" element={<CatalogPage />} />
+            {/* Alias en español — todos los links públicos usan /catalogo */}
+            <Route path="catalogo" element={<CatalogPage />} />
+            <Route path="catalogo/:slug" element={<ProductPage />} />
             {/* UC-CAT-08 — Arbol publico de categorias */}
             <Route path="categories" element={<CategoryListPage />} />
             {/* UC-CAT-03 + UC-CAT-03-EXT — Resultados de busqueda */}
