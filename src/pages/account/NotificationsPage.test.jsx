@@ -114,6 +114,7 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/notifications/1/read/',
+        {},
       );
     });
   });
@@ -125,7 +126,7 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
     const btn = await screen.findByRole('button', { name: /Marcar todas las notificaciones como leídas/i });
     fireEvent.click(btn);
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith('/api/v1/notifications/read-all/');
+      expect(apiService.post).toHaveBeenCalledWith('/api/v1/notifications/read-all/', {});
     });
   });
 });

@@ -1,9 +1,19 @@
 /**
  * Tests — ProfilePage
  * UC-AUTH-05 / UC-AUTH-06 / Sprint 2
+ *
+ * H-CICLO-PROFILE-01: el componente fue rediseñado como formulario directo
+ * (sin toggle read/edit). El heading es "Tu perfil", el formulario muestra
+ * Nombre, Apellido, Nombre de usuario (read-only), Correo electrónico
+ * (read-only) y Teléfono. Cuando !user → return null (sin texto de loading).
  */
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+jest.mock('@services/apiService', () => ({
+  __esModule: true,
+  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
+}));
+
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
@@ -32,65 +42,38 @@ const renderPage = (user = MOCK_USER) =>
     </Provider>
   );
 
+afterEach(() => jest.clearAllMocks());
+
 describe('ProfilePage', () => {
 
-  it('muestra el titulo Mi perfil', () => {
+  it('muestra el titulo Tu perfil', () => {
     renderPage();
-    expect(screen.getByRole('heading', { name: /mi perfil/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /tu perfil/i })).toBeInTheDocument();
   });
 
-  it('muestra el nombre del usuario', () => {
+  it('muestra el campo nombre con el valor del usuario', () => {
     renderPage();
-    expect(screen.getByText('Demo')).toBeInTheDocument();
+    // Field "Nombre" con valor "Demo"
+    expect(screen.getByDisplayValue('Demo')).toBeInTheDocument();
   });
 
-  it('muestra el email del usuario', () => {
+  it('muestra el email del usuario como campo de solo lectura', () => {
     renderPage();
-    expect(screen.getByText('demo@test.mx')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('demo@test.mx')).toBeInTheDocument();
   });
 
-  it('muestra la barra de completitud con el porcentaje correcto', () => {
+  it('muestra el boton Guardar cambios', () => {
     renderPage();
-    expect(screen.getByText(/60%/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /guardar cambios/i })).toBeInTheDocument();
   });
 
-  it('muestra los pending_fields como sugerencia', () => {
+  it('no muestra el boton Editar perfil (diseno directo sin toggle)', () => {
     renderPage();
-    expect(screen.getByText(/completa tu perfil/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /editar perfil/i })).not.toBeInTheDocument();
   });
 
-  it('no muestra pending_fields cuando completeness es 100', () => {
-    const completeUser = { ...MOCK_USER, profile_completeness: 100, pending_fields: [] };
-    renderPage(completeUser);
-    expect(screen.queryByText(/completa tu perfil/i)).not.toBeInTheDocument();
-  });
-
-  it('muestra el boton de editar perfil', () => {
-    renderPage();
-    expect(screen.getByRole('button', { name: /editar perfil/i })).toBeInTheDocument();
-  });
-
-  it('al hacer click en Editar muestra el formulario de edicion', async () => {
-    renderPage();
-    fireEvent.click(screen.getByRole('button', { name: /editar perfil/i }));
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /guardar cambios/i })).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /cancelar/i })).toBeInTheDocument();
-    });
-  });
-
-  it('Cancelar vuelve al modo lectura', async () => {
-    renderPage();
-    fireEvent.click(screen.getByRole('button', { name: /editar perfil/i }));
-    await waitFor(() => screen.getByRole('button', { name: /cancelar/i }));
-    fireEvent.click(screen.getByRole('button', { name: /cancelar/i }));
-    await waitFor(() => {
-      expect(screen.getByRole('button', { name: /editar perfil/i })).toBeInTheDocument();
-    });
-  });
-
-  it('muestra el indicador de carga cuando user es null y isLoading es true', () => {
-    render(
+  it('no renderiza nada cuando user es null', () => {
+    const { container } = render(
       <Provider store={configureStore({
         reducer: { auth: authReducer },
         preloadedState: { auth: { user: null, isAuthenticated: false, isLoading: true, error: null } },
@@ -98,6 +81,6 @@ describe('ProfilePage', () => {
         <MemoryRouter><ProfilePage /></MemoryRouter>
       </Provider>
     );
-    expect(screen.getByText(/cargando perfil/i)).toBeInTheDocument();
+    expect(container.firstChild).toBeNull();
   });
 });

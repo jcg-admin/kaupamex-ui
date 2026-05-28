@@ -16,19 +16,19 @@ import AdminReportSalesPage from './AdminReportSalesPage';
 
 const RESPONSE = {
   totals: {
-    gross_revenue: '12500.00',
-    net_revenue:   '11800.00',
-    orders:        25,
+    revenue:        '12500.00',
+    net_revenue:    '11800.00',
+    orders:         25,
     average_ticket: '500.00',
   },
-  comparison: { gross_revenue_delta_pct: 12.5 },
+  comparison: { revenue_delta_pct: 12.5 },
   series:     [
-    { bucket: '2026-05-01', revenue: '1000.00', orders: 3 },
-    { bucket: '2026-05-02', revenue: '1500.00', orders: 4 },
+    { date: '2026-05-01', revenue: '1000.00', orders: 3 },
+    { date: '2026-05-02', revenue: '1500.00', orders: 4 },
   ],
   payment_breakdown: [
-    { method: 'MERCADOPAGO', revenue: '8000.00', orders: 18 },
-    { method: 'PAYPAL',      revenue: '4500.00', orders: 7  },
+    { gateway: 'MERCADOPAGO', amount: '8000.00', count: 18 },
+    { gateway: 'PAYPAL',      amount: '4500.00', count: 7  },
   ],
 };
 
@@ -61,7 +61,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
   it('cambia los parametros al cambiar el periodo', async () => {
     apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminReportSalesPage />));
-    await screen.findByText(/12500\.00/);
+    await screen.findByText(/12500/);
     fireEvent.change(
       screen.getByRole('combobox', { name: /Periodo/i }),
       { target: { value: 'week' } },
@@ -77,7 +77,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
   it('renderiza los totales del periodo', async () => {
     apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminReportSalesPage />));
-    await screen.findByText(/12500\.00/);
+    await screen.findByText(/12500/);
     const totalsPanel = screen.getByLabelText(/Totales del periodo/i);
     expect(totalsPanel).toHaveTextContent('12500.00');
     expect(totalsPanel).toHaveTextContent(/25/);
@@ -86,6 +86,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
   it('renderiza la tabla de serie temporal', async () => {
     apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminReportSalesPage />));
+    // series rows use the `date` field from the response
     expect(await screen.findByText('2026-05-01')).toBeInTheDocument();
     expect(screen.getByText('2026-05-02')).toBeInTheDocument();
   });
@@ -93,6 +94,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
   it('renderiza el desglose por metodo de pago', async () => {
     apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminReportSalesPage />));
+    // payment_breakdown rows use the `gateway` field from the response
     expect(await screen.findByText('MERCADOPAGO')).toBeInTheDocument();
     expect(screen.getByText('PAYPAL')).toBeInTheDocument();
   });
@@ -107,7 +109,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
   it('el enlace de exportar lleva el periodo seleccionado', async () => {
     apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminReportSalesPage />));
-    await screen.findByText(/12500\.00/);
+    await screen.findByText(/12500/);
     fireEvent.change(
       screen.getByRole('combobox', { name: /Periodo/i }),
       { target: { value: 'year' } },

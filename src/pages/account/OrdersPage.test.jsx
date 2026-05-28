@@ -2,7 +2,9 @@
  * Tests — OrdersPage (UC-ORD-03)
  */
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
+import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
@@ -11,15 +13,21 @@ jest.mock('@services/apiService', () => ({
 }));
 
 import apiService from '@services/apiService';
+import ordersReducer from '@redux/slices/ordersSlice';
 import OrdersPage from './OrdersPage';
+
+const makeStore = () =>
+  configureStore({ reducer: { orders: ordersReducer } });
 
 const makeClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
 const wrap = (ui) => (
-  <QueryClientProvider client={makeClient()}>
-    <MemoryRouter>{ui}</MemoryRouter>
-  </QueryClientProvider>
+  <Provider store={makeStore()}>
+    <QueryClientProvider client={makeClient()}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>
+  </Provider>
 );
 
 const ORDERS = [
@@ -53,23 +61,28 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
   it('muestra el estado de cada pedido en espanol', async () => {
     apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
     render(wrap(<OrdersPage />));
+    // Component uses STATUS_TONE map: PENDING='Pendiente', SHIPPED='En camino', CANCELLED='Cancelado'
     expect(await screen.findByText('Pendiente')).toBeInTheDocument();
-    expect(screen.getByText('Enviado')).toBeInTheDocument();
+    expect(screen.getByText('En camino')).toBeInTheDocument();
     expect(screen.getByText('Cancelado')).toBeInTheDocument();
   });
 
   it('enlaza al detalle de cada orden', async () => {
     apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
     render(wrap(<OrdersPage />));
-    const link = await screen.findByRole('link', { name: /PY-2026-000001/ });
-    expect(link).toHaveAttribute('href', '/account/orders/PY-2026-000001');
+    // Component links to /mi-cuenta/pedidos/{order_number}
+    await screen.findByText('PY-2026-000001');
+    const links = screen.getAllByRole('link');
+    const orderLink = links.find((l) => l.getAttribute('href') === '/mi-cuenta/pedidos/PY-2026-000001');
+    expect(orderLink).toBeTruthy();
   });
 
   it('muestra estado vacio cuando no hay pedidos', async () => {
     apiService.get.mockResolvedValue({ data: { results: [], count: 0 } });
     render(wrap(<OrdersPage />));
+    // Component renders "Aún no tienes pedidos" when list is empty
     expect(
-      await screen.findByText(/No tienes pedidos registrados/i)
+      await screen.findByText(/Aún no tienes pedidos/i)
     ).toBeInTheDocument();
   });
 

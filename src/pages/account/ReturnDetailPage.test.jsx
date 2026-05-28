@@ -39,12 +39,12 @@ const RETURN_OK = {
   id: 77,
   order_id: 'ORD-001',
   status: 'APPROVED',
-  reason: 'PRODUCTO_DANADO',
+  reason: 'DAMAGED_PRODUCT',
   description: 'Producto llegó dañado',
   created_at: '2026-05-10T10:00:00Z',
   history: [
-    { id: 1, status: 'PENDING_REVIEW', created_at: '2026-05-10T10:00:00Z' },
-    { id: 2, status: 'APPROVED',           created_at: '2026-05-11T10:00:00Z' },
+    { id: 1, status_to: 'PENDING_REVIEW', created_at: '2026-05-10T10:00:00Z' },
+    { id: 2, status_to: 'APPROVED',       created_at: '2026-05-11T10:00:00Z' },
   ],
   refund: { status: 'PENDING_REVIEW', amount: 1250 },
 };

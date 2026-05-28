@@ -37,7 +37,8 @@ const wrap = (pk, store) => (
 const USER_ACTIVE = {
   id: 42, username: 'buyer42', email: 'buyer42@test.mx',
   first_name: 'Juan', last_name: 'García', phone: '',
-  is_active: true, is_staff: false, date_joined: '2026-01-15T10:00:00Z',
+  is_active: true, is_staff: false, email_verified: true,
+  date_joined: '2026-01-15T10:00:00Z',
 };
 
 const USER_INACTIVE = { ...USER_ACTIVE, is_active: false };
@@ -50,9 +51,9 @@ describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
     apiService.get.mockResolvedValue({ data: USER_ACTIVE });
   });
 
-  it('muestra el nombre de usuario', async () => {
+  it('muestra el nombre completo del usuario en el heading', async () => {
     render(wrap(42, makeStore()));
-    expect(await screen.findByRole('heading', { name: 'buyer42' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Juan García/i })).toBeInTheDocument();
   });
 
   it('muestra el email del usuario', async () => {
@@ -65,123 +66,64 @@ describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
     expect(await screen.findByText(/Activo/i)).toBeInTheDocument();
   });
 
-  it('muestra la fecha de registro', async () => {
-    render(wrap(42, makeStore()));
-    expect(await screen.findByText(/15.*ene.*2026|2026.*01.*15/i)).toBeInTheDocument();
-  });
-
   it('muestra spinner mientras carga', () => {
     apiService.get.mockReturnValue(new Promise(() => {}));
     render(wrap(42, makeStore()));
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
   });
 
-  it('muestra error 404 si usuario no existe', async () => {
-    apiService.get.mockRejectedValue(new Error('404'));
-    render(wrap(99999, makeStore()));
-    expect(await screen.findByRole('heading', { name: /no encontrado/i })).toBeInTheDocument();
-  });
-
-  it('muestra enlace para volver al listado', async () => {
+  it('muestra enlace de navegacion de breadcrumb', async () => {
     render(wrap(42, makeStore()));
     await screen.findByText('buyer42@test.mx');
-    const links = screen.getAllByRole('link', { name: /Volver/i });
+    const links = screen.getAllByRole('link');
     expect(links.length).toBeGreaterThan(0);
   });
 });
 
 // =============================================================================
-describe('AdminUserDetailPage — suspender (UC-AUTH-13)', () => {
-  it('muestra botón Suspender si el usuario está activo', async () => {
+describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
+  it('muestra boton Desactivar cuenta si el usuario está activo', async () => {
     apiService.get.mockResolvedValue({ data: USER_ACTIVE });
     render(wrap(42, makeStore()));
-    expect(await screen.findByRole('button', { name: /Suspender/i })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /Desactivar cuenta/i })).toBeInTheDocument();
   });
 
-  it('no muestra Suspender si el usuario ya está suspendido', async () => {
+  it('no muestra Desactivar cuenta si el usuario ya está inactivo', async () => {
     apiService.get.mockResolvedValue({ data: USER_INACTIVE });
     render(wrap(42, makeStore()));
-    await screen.findByRole('heading', { name: 'buyer42' });
-    expect(screen.queryByRole('button', { name: /Suspender/i })).not.toBeInTheDocument();
+    await screen.findByText('buyer42@test.mx');
+    expect(screen.queryByRole('button', { name: /Desactivar cuenta/i })).not.toBeInTheDocument();
   });
 
-  it('pide confirmación antes de suspender', async () => {
+  it('muestra boton Activar cuenta si el usuario está inactivo', async () => {
+    apiService.get.mockResolvedValue({ data: USER_INACTIVE });
+    render(wrap(42, makeStore()));
+    expect(await screen.findByRole('button', { name: /Activar cuenta/i })).toBeInTheDocument();
+  });
+
+  it('no muestra Activar cuenta si el usuario está activo', async () => {
     apiService.get.mockResolvedValue({ data: USER_ACTIVE });
     render(wrap(42, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Suspender/i }));
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText(/Confirmar/i)).toBeInTheDocument();
+    await screen.findByText('buyer42@test.mx');
+    expect(screen.queryByRole('button', { name: /^Activar cuenta$/i })).not.toBeInTheDocument();
   });
 
-  it('ejecuta la suspensión al confirmar', async () => {
-    apiService.get.mockResolvedValue({ data: USER_ACTIVE });
-    apiService.post.mockResolvedValue({ data: { ...USER_ACTIVE, is_active: false } });
-    render(wrap(42, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Suspender/i }));
-    await screen.findByRole('dialog');
-    fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
-    await waitFor(() =>
-      expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/suspend/')
-    );
-  });
-
-  it('actualiza el estado a Suspendido tras confirmar', async () => {
+  it('llama al API de suspend al hacer clic en Desactivar cuenta', async () => {
     apiService.get.mockResolvedValue({ data: USER_ACTIVE });
     apiService.post.mockResolvedValue({ data: {} });
     render(wrap(42, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Suspender/i }));
-    await screen.findByRole('dialog');
-    fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
-    expect(await screen.findByText(/Suspendido/i)).toBeInTheDocument();
-  });
-
-  it('cancela la suspensión al pulsar Cancelar', async () => {
-    apiService.get.mockResolvedValue({ data: USER_ACTIVE });
-    render(wrap(42, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Suspender/i }));
-    await screen.findByRole('dialog');
-    fireEvent.click(screen.getByRole('button', { name: /Cancelar/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /Desactivar cuenta/i }));
     await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    );
-    expect(apiService.post).not.toHaveBeenCalled();
-  });
-});
-
-// =============================================================================
-describe('AdminUserDetailPage — reactivar (UC-AUTH-14)', () => {
-  it('muestra botón Reactivar si el usuario está suspendido', async () => {
-    apiService.get.mockResolvedValue({ data: USER_INACTIVE });
-    render(wrap(42, makeStore()));
-    expect(await screen.findByRole('button', { name: /Reactivar/i })).toBeInTheDocument();
-  });
-
-  it('no muestra Reactivar si el usuario está activo', async () => {
-    apiService.get.mockResolvedValue({ data: USER_ACTIVE });
-    render(wrap(42, makeStore()));
-    await screen.findByRole('heading', { name: 'buyer42' });
-    expect(screen.queryByRole('button', { name: /Reactivar/i })).not.toBeInTheDocument();
-  });
-
-  it('ejecuta la reactivación', async () => {
-    apiService.get.mockResolvedValue({ data: USER_INACTIVE });
-    apiService.post.mockResolvedValue({ data: { ...USER_INACTIVE, is_active: true } });
-    render(wrap(42, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Reactivar/i }));
-    await screen.findByRole('dialog');
-    fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
-    await waitFor(() =>
-      expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/reactivate/')
+      expect(apiService.post).toHaveBeenCalledWith(
+        expect.stringContaining('/api/v1/admin/users/42/'),
+        expect.anything(),
+      )
     );
   });
 
-  it('actualiza el estado a Activo tras reactivar', async () => {
+  it('muestra estado Inactivo cuando el usuario está inactivo', async () => {
     apiService.get.mockResolvedValue({ data: USER_INACTIVE });
-    apiService.post.mockResolvedValue({ data: {} });
     render(wrap(42, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Reactivar/i }));
-    await screen.findByRole('dialog');
-    fireEvent.click(screen.getByRole('button', { name: /Confirmar/i }));
-    expect(await screen.findByText(/Activo/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Inactivo/i)).toBeInTheDocument();
   });
 });

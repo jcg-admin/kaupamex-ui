@@ -163,7 +163,7 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
     apiService.post.mockResolvedValue({ data: {} });
     const store = makeStore();
     await store.dispatch(suspendUser(42));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/suspend/');
+    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/suspend/', {});
   });
 });
 
@@ -184,7 +184,7 @@ describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
     apiService.post.mockResolvedValue({ data: {} });
     const store = makeStore();
     await store.dispatch(reactivateUser(42));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/reactivate/');
+    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/reactivate/', {});
   });
 });
 

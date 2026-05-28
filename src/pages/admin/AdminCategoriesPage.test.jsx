@@ -86,6 +86,8 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
     apiService.post.mockResolvedValue({ data: { ok: true } });
 
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
+
     render(wrap());
     await screen.findByRole('cell', { name: 'Collares' });
 
@@ -95,7 +97,10 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/admin/categories/1/deactivate/',
+        expect.anything(),
       );
     });
+
+    confirmSpy.mockRestore();
   });
 });

@@ -155,6 +155,7 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/admin/product-discounts/1/deactivate/'),
+        expect.anything(),
       );
     });
 

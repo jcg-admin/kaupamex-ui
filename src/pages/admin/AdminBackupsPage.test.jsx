@@ -56,6 +56,7 @@ describe('AdminBackupsPage (UC-ADM-05)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/admin/backups/trigger/',
+        expect.anything(),
       );
     });
   });

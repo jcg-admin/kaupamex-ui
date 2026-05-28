@@ -24,9 +24,9 @@ const wrap = (ui) => (
 
 const RESPONSE = {
   results: [
-    { id: 1, order_id: 'ORD-1', status: 'APPROVED', gateway: 'mercadopago', amount: 1000, currency: 'MXN', created_at: '2026-05-10T12:00:00Z' },
-    { id: 2, order_id: 'ORD-2', status: 'REJECTED', gateway: 'paypal',      amount: 500,  currency: 'MXN', created_at: '2026-05-09T12:00:00Z', error_code: 'CARD_DECLINED' },
-    { id: 3, order_id: 'ORD-3', status: 'REFUNDED', gateway: 'mercadopago', amount: 300,  currency: 'MXN', created_at: '2026-05-08T12:00:00Z', is_refund: true },
+    { id: 1, order_number: 'ORD-1', status: 'APPROVED', gateway: 'mercadopago', amount: 1000, currency: 'MXN', created_at: '2026-05-10T12:00:00Z' },
+    { id: 2, order_number: 'ORD-2', status: 'REJECTED', gateway: 'paypal',      amount: 500,  currency: 'MXN', created_at: '2026-05-09T12:00:00Z', error_code: 'CARD_DECLINED' },
+    { id: 3, order_number: 'ORD-3', status: 'REFUNDED', gateway: 'mercadopago', amount: 300,  currency: 'MXN', created_at: '2026-05-08T12:00:00Z', is_refund: true },
   ],
   count: 3,
   totals: { approved: 1000, refunded: 300, net: 700 },

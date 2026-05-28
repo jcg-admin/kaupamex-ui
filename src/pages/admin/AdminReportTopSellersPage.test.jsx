@@ -16,8 +16,8 @@ import AdminReportTopSellersPage from './AdminReportTopSellersPage';
 
 const RESPONSE = {
   results: [
-    { product_id: 1, name: 'Falda Yoruba',   sku: 'FAL-001', units: 50, revenue: '5000.00', share_pct: 40 },
-    { product_id: 2, name: 'Camisa Africana', sku: 'CAM-002', units: 30, revenue: '3000.00', share_pct: 24 },
+    { product_id: 1, product_name: 'Falda Yoruba',   sku: 'FAL-001', units_sold: 50, revenue: '5000.00', share_pct: 40 },
+    { product_id: 2, product_name: 'Camisa Africana', sku: 'CAM-002', units_sold: 30, revenue: '3000.00', share_pct: 24 },
   ],
   inactive_no_sales_pct: 18.5,
 };

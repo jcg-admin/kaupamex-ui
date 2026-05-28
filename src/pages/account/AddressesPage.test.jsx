@@ -16,27 +16,38 @@ jest.mock('@services/apiService', () => ({
 }));
 
 import apiService from '@services/apiService';
-import addressesReducer from '../../redux/slices/addressesSlice';
+import authReducer from '../../redux/slices/authSlice';
 import AddressesPage from './AddressesPage';
 
 const ADDR_1 = {
-  id: 1, recipient: 'Demo Yoruba', street: 'Av. Reforma', exterior_number: '42',
-  interior_number: '', neighborhood: 'Centro', city: 'CDMX', state: 'CDMX',
-  postal_code: '06000', country: 'MX', phone: '5551234567',
+  id: 1, alias: 'Casa', recipient_name: 'Demo Yoruba', street: 'Av. Reforma',
+  neighborhood: 'Centro', city: 'CDMX', state: 'CDMX',
+  zip_code: '06000', country: 'MX', phone: '5551234567',
   is_default: true,
 };
 const ADDR_2 = {
-  ...ADDR_1, id: 2, recipient: 'Otra Persona',
+  ...ADDR_1, id: 2, alias: 'Trabajo', recipient_name: 'Otra Persona',
   street: 'Calle 5', is_default: false,
 };
 
-const makeStore = () =>
-  configureStore({ reducer: { addresses: addressesReducer } });
+const makeStore = (addresses = []) =>
+  configureStore({
+    reducer: { auth: authReducer },
+    preloadedState: {
+      auth: {
+        user: { id: 1, email: 'test@test.com', addresses },
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      },
+    },
+  });
 
-const renderPage = () => {
+const renderPage = (addresses = []) => {
+  apiService.get.mockResolvedValue({ data: { results: addresses } });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <Provider store={makeStore()}>
+    <Provider store={makeStore(addresses)}>
       <QueryClientProvider client={client}>
         <MemoryRouter>
           <AddressesPage />
@@ -46,96 +57,98 @@ const renderPage = () => {
   );
 };
 
+beforeEach(() => {
+  apiService.get.mockResolvedValue({ data: { results: [] } });
+});
+
 afterEach(() => jest.clearAllMocks());
 
 describe('AddressesPage (UC-AUTH-07)', () => {
   it('muestra titulo y lista de direcciones', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [ADDR_1, ADDR_2] } });
-    renderPage();
+    renderPage([ADDR_1, ADDR_2]);
     expect(
-      await screen.findByRole('heading', { name: /direcciones de envio/i }),
+      await screen.findByRole('heading', { name: /mis direcciones/i }),
     ).toBeInTheDocument();
-    expect(await screen.findByText('Demo Yoruba')).toBeInTheDocument();
+    expect(screen.getByText('Demo Yoruba')).toBeInTheDocument();
     expect(screen.getByText('Otra Persona')).toBeInTheDocument();
   });
 
   it('marca la direccion predeterminada con badge', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [ADDR_1, ADDR_2] } });
-    renderPage();
+    renderPage([ADDR_1, ADDR_2]);
     await screen.findByText('Demo Yoruba');
-    // El badge "Predeterminada" no es boton; existe solo en la primera direccion
+    // El badge "Predeterminada" existe solo en la primera direccion
     const matches = screen.getAllByText(/predeterminada/i);
     expect(matches.length).toBeGreaterThan(0);
     // Y la segunda direccion tiene boton para hacerla predeterminada
     expect(
-      screen.getByRole('button', { name: /hacer predeterminada otra persona/i }),
+      screen.getByRole('button', { name: /hacer predeterminada/i }),
     ).toBeInTheDocument();
   });
 
-  it('muestra estado vacio cuando no hay direcciones', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
-    renderPage();
-    expect(
-      await screen.findByText(/no tienes direcciones guardadas/i),
-    ).toBeInTheDocument();
+  it('muestra slots vacios cuando no hay direcciones', async () => {
+    renderPage([]);
+    // Empty slots show "slot libre"
+    const emptySlots = await screen.findAllByText(/slot libre/i);
+    expect(emptySlots.length).toBeGreaterThan(0);
   });
 
   it('Happy Path: agregar nueva direccion llama POST con campos', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
     apiService.post.mockResolvedValue({ data: { id: 99, ...ADDR_1 } });
-    renderPage();
-    await screen.findByText(/no tienes direcciones/i);
-    fireEvent.click(screen.getByRole('button', { name: /agregar direccion/i }));
+    renderPage([]);
+    // Click "Añadir dirección" button
+    fireEvent.click(screen.getByRole('button', { name: /añadir dirección/i }));
 
-    fireEvent.change(screen.getByLabelText(/destinatario/i),
-      { target: { value: 'Demo Yoruba', name: 'recipient' } });
-    fireEvent.change(screen.getByLabelText(/^calle/i),
-      { target: { value: 'Av. Reforma', name: 'street' } });
-    fireEvent.change(screen.getByLabelText(/numero exterior/i),
-      { target: { value: '42', name: 'exterior_number' } });
+    fireEvent.change(screen.getByLabelText(/alias/i),
+      { target: { value: 'Casa' } });
+    fireEvent.change(screen.getByLabelText(/nombre del destinatario/i),
+      { target: { value: 'Demo Yoruba' } });
+    fireEvent.change(screen.getByLabelText(/teléfono/i),
+      { target: { value: '5551234567' } });
+    fireEvent.change(screen.getByLabelText(/calle y número/i),
+      { target: { value: 'Av. Reforma' } });
     fireEvent.change(screen.getByLabelText(/colonia/i),
-      { target: { value: 'Centro', name: 'neighborhood' } });
-    fireEvent.change(screen.getByLabelText(/^ciudad/i),
-      { target: { value: 'CDMX', name: 'city' } });
-    fireEvent.change(screen.getByLabelText(/^estado/i),
-      { target: { value: 'CDMX', name: 'state' } });
-    fireEvent.change(screen.getByLabelText(/codigo postal/i),
-      { target: { value: '06000', name: 'postal_code' } });
-    fireEvent.change(screen.getByLabelText(/telefono/i),
-      { target: { value: '5551234567', name: 'phone' } });
+      { target: { value: 'Centro' } });
+    fireEvent.change(screen.getByLabelText(/c\.p\./i),
+      { target: { value: '06000' } });
+    fireEvent.change(screen.getByLabelText(/ciudad/i),
+      { target: { value: 'CDMX' } });
+    fireEvent.change(screen.getByLabelText(/estado/i),
+      { target: { value: 'CDMX' } });
 
-    fireEvent.click(screen.getByRole('button', { name: /guardar direccion/i }));
+    fireEvent.click(screen.getByRole('button', { name: /guardar dirección/i }));
 
     await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
       '/api/v1/auth/addresses/',
       expect.objectContaining({
-        recipient: 'Demo Yoruba', street: 'Av. Reforma',
-        exterior_number: '42', neighborhood: 'Centro',
-        city: 'CDMX', state: 'CDMX', postal_code: '06000',
-        phone: '5551234567', country: 'MX',
+        alias: 'Casa',
+        recipient_name: 'Demo Yoruba',
+        phone: '5551234567',
+        street: 'Av. Reforma',
+        neighborhood: 'Centro',
+        zip_code: '06000',
+        city: 'CDMX',
+        state: 'CDMX',
+        country: 'MX',
       }),
     ));
   });
 
   it('valida campos obligatorios al enviar formulario', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
-    renderPage();
-    await screen.findByText(/no tienes direcciones/i);
-    fireEvent.click(screen.getByRole('button', { name: /agregar direccion/i }));
-    fireEvent.click(screen.getByRole('button', { name: /guardar direccion/i }));
-    await waitFor(() => {
-      expect(screen.getByText(/destinatario.+obligatorio/i)).toBeInTheDocument();
-    });
+    renderPage([]);
+    fireEvent.click(screen.getByRole('button', { name: /añadir dirección/i }));
+    fireEvent.click(screen.getByRole('button', { name: /guardar dirección/i }));
+    // HTML5 validation prevents submission; post not called
     expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('Alt B: eliminar direccion llama DELETE', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [ADDR_2] } });
     apiService.delete.mockResolvedValue({});
-    renderPage();
+    // window.confirm must return true for delete to proceed
+    window.confirm = jest.fn(() => true);
+    renderPage([ADDR_2]);
     await screen.findByText('Otra Persona');
     fireEvent.click(
-      screen.getByRole('button', { name: /eliminar direccion otra persona/i }),
+      screen.getByRole('button', { name: /eliminar/i }),
     );
     await waitFor(() => expect(apiService.delete).toHaveBeenCalledWith(
       '/api/v1/auth/addresses/2/',
@@ -143,12 +156,11 @@ describe('AddressesPage (UC-AUTH-07)', () => {
   });
 
   it('Alt C: marcar predeterminada llama set-default', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [ADDR_1, ADDR_2] } });
     apiService.post.mockResolvedValue({ data: {} });
-    renderPage();
+    renderPage([ADDR_1, ADDR_2]);
     await screen.findByText('Otra Persona');
     fireEvent.click(
-      screen.getByRole('button', { name: /hacer predeterminada otra persona/i }),
+      screen.getByRole('button', { name: /hacer predeterminada/i }),
     );
     await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
       '/api/v1/auth/addresses/2/set-default/',

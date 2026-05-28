@@ -46,8 +46,9 @@ describe('AdminContactMessagesPage (UC-COM-02)', () => {
     apiService.get.mockResolvedValue({
       data: {
         results: [
-          { id: 1, name: 'Ana',  email: 'ana@x.com', subject: 'Consulta uno', status: 'UNREAD',    created_at: '2026-05-01T10:00:00Z' },
-          { id: 2, name: 'Bob',  email: 'bob@x.com', subject: 'Consulta dos', status: 'REPLIED',   created_at: '2026-05-02T10:00:00Z' },
+          // H-CICLO-COM-02: getStatusLabel usa m.replied / m.read (booleans), no m.status.
+          { id: 1, name: 'Ana',  email: 'ana@x.com', subject: 'Consulta uno', read: false, replied: false, created_at: '2026-05-01T10:00:00Z' },
+          { id: 2, name: 'Bob',  email: 'bob@x.com', subject: 'Consulta dos', read: true,  replied: true,  created_at: '2026-05-02T10:00:00Z' },
         ],
       },
     });

@@ -111,6 +111,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/support/tickets/7/reopen/'),
+        {},
       );
     });
 

@@ -16,11 +16,11 @@ import AdminReportCustomersRfmPage from './AdminReportCustomersRfmPage';
 
 const RESPONSE = {
   results: [
-    { customer_id: 1, email: 'vip@example.com',  name: 'Cliente VIP',    segment: 'CHAMPIONS', recency: 3,   frequency: 12, monetary: '5400.00' },
-    { customer_id: 2, email: 'new@example.com',  name: 'Cliente Nuevo',  segment: 'RECENT',    recency: 5,   frequency: 1,  monetary: '120.00'  },
-    { customer_id: 3, email: 'lost@example.com', name: 'Ocasional',      segment: 'OCCASIONAL',recency: 200, frequency: 1,  monetary: '80.00'   },
+    { user_id: 1, email: 'vip@example.com',  segment: 'CHAMPIONS', recency_days: 3,   frequency: 12, monetary: '5400.00' },
+    { user_id: 2, email: 'new@example.com',  segment: 'RECENT',    recency_days: 5,   frequency: 1,  monetary: '120.00'  },
+    { user_id: 3, email: 'lost@example.com', segment: 'OCCASIONAL',recency_days: 200, frequency: 1,  monetary: '80.00'   },
   ],
-  totals: { new_count: 1, returning_count: 2 },
+  totals: { customer_count: 3, total_monetary: '5600.00' },
 };
 
 const wrap = (ui) => {
@@ -82,8 +82,8 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
     render(wrap(<AdminReportCustomersRfmPage />));
     await screen.findByText('vip@example.com');
     const totals = screen.getByLabelText(/Totales de clientes/i);
-    expect(totals).toHaveTextContent(/Nuevos/i);
-    expect(totals).toHaveTextContent(/Recurrentes/i);
+    expect(totals).toHaveTextContent(/Clientes/i);
+    expect(totals).toHaveTextContent(/Monetario/i);
   });
 
   it('tiene boton de exportar', async () => {
@@ -93,7 +93,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
   });
 
   it('estado vacio cuando no hay clientes', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], totals: { new_count: 0, returning_count: 0 } } });
+    apiService.get.mockResolvedValue({ data: { results: [], totals: { customer_count: 0, total_monetary: '0.00' } } });
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByText(/Sin clientes en el periodo/i)).toBeInTheDocument();
   });

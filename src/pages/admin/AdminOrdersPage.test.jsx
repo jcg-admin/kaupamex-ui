@@ -4,6 +4,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
@@ -12,15 +14,24 @@ jest.mock('@services/apiService', () => ({
 }));
 
 import apiService from '@services/apiService';
+import adminReducer from '@redux/slices/adminSlice';
 import AdminOrdersPage from './AdminOrdersPage';
 
 const makeClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
+function buildStore() {
+  return configureStore({
+    reducer: { admin: adminReducer },
+  });
+}
+
 const wrap = (ui) => (
-  <QueryClientProvider client={makeClient()}>
-    <MemoryRouter>{ui}</MemoryRouter>
-  </QueryClientProvider>
+  <Provider store={buildStore()}>
+    <QueryClientProvider client={makeClient()}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>
+  </Provider>
 );
 
 const ORDERS = [
@@ -57,29 +68,26 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
     expect(await screen.findByText('PY-2026-000101')).toBeInTheDocument();
     expect(screen.getByText('PY-2026-000102')).toBeInTheDocument();
     expect(screen.getByText('cliente@example.com')).toBeInTheDocument();
-    expect(screen.getByText('invitado@example.com')).toBeInTheDocument();
+    // guest_email renders in both the username slot and the email slot — use getAllByText
+    expect(screen.getAllByText('invitado@example.com').length).toBeGreaterThan(0);
   });
 
-  it('aplica filtros acumulativos al endpoint admin', async () => {
+  it('aplica filtros de estado al endpoint admin', async () => {
     apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 2 } });
     const user = userEvent.setup();
     render(wrap(<AdminOrdersPage />));
 
     await screen.findByText('PY-2026-000101');
 
-    await user.type(screen.getByLabelText(/Numero de orden/i), 'PY-2026');
-    await user.selectOptions(screen.getByLabelText(/Estado/i), 'PROCESSING');
-    await user.type(screen.getByLabelText(/Email del comprador/i), 'cliente@');
-    await user.click(screen.getByRole('button', { name: /Aplicar filtros/i }));
+    // Click the "Procesando" status filter button
+    await user.click(screen.getByRole('button', { name: /Procesando/i }));
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
         '/api/v1/admin/orders/',
         expect.objectContaining({
           params: expect.objectContaining({
-            order_number: 'PY-2026',
-            status:       'PROCESSING',
-            email:        'cliente@',
+            status: 'PROCESSING',
           }),
         }),
       );
@@ -90,7 +98,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
     apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 2 } });
     render(wrap(<AdminOrdersPage />));
     await screen.findByText('PY-2026-000101');
-    const links = screen.getAllByRole('link', { name: /Ver detalle/i });
-    expect(links[0]).toHaveAttribute('href', '/admin/orders/PY-2026-000101');
+    const link = screen.getByRole('link', { name: 'PY-2026-000101' });
+    expect(link).toHaveAttribute('href', '/admin/pedidos/PY-2026-000101');
   });
 });

@@ -25,8 +25,8 @@ const RESPONSE = {
     { bucket: '2026-05-18', revenue: '800.00' },
   ],
   top_products: [
-    { product_id: 1, name: 'Falda Yoruba',   units: 18 },
-    { product_id: 2, name: 'Camisa Africana', units: 12 },
+    { product_id: 1, product_name: 'Falda Yoruba',   units_sold: 18 },
+    { product_id: 2, product_name: 'Camisa Africana', units_sold: 12 },
   ],
   open_tickets:     4,
   low_stock_alerts: 2,
@@ -58,7 +58,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
     await screen.findByText(/850\.00/);
     const todayPanel = screen.getByLabelText(/KPIs del día/i);
     expect(todayPanel).toHaveTextContent(/9/);
-    expect(todayPanel).toHaveTextContent(/3/);
+    expect(todayPanel).toHaveTextContent(/850\.00/);
   });
 
   it('muestra el numero de tickets abiertos', async () => {
@@ -92,7 +92,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
       .toHaveAttribute('href', '/admin/reports/sales');
     expect(screen.getByRole('link', { name: /Ver top sellers/i }))
       .toHaveAttribute('href', '/admin/reports/top-sellers');
-    expect(screen.getByRole('link', { name: /Ver clientes/i }))
+    expect(screen.getByRole('link', { name: /Ver clientes \(RFM\)/i }))
       .toHaveAttribute('href', '/admin/reports/customers-rfm');
   });
 

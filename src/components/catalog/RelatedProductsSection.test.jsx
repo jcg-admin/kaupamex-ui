@@ -1,8 +1,14 @@
 /**
  * Tests — RelatedProductsSection (UC-CAT-07).
+ *
+ * RelatedProductsSection renders ProductCard components which use Redux
+ * (useDispatch, useSelector for auth and wishlist).
+ * A Redux Provider is required.
  */
 import { render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
+import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
@@ -14,27 +20,38 @@ jest.mock('@services/apiService', () => ({
 }));
 
 import apiService from '@services/apiService';
+import cartReducer from '@redux/slices/cartSlice';
 import RelatedProductsSection from './RelatedProductsSection';
+
+const makeStore = () =>
+  configureStore({
+    reducer: {
+      cart: cartReducer,
+      auth: (state = { isAuthenticated: false }) => state,
+    },
+  });
 
 const P1 = {
   id: 11, name: 'Pulsera Yemaya', slug: 'pulsera-yemaya',
   sku: 'PUY-001', base_price: 200, price_with_tax: 232, stock: 5,
-  category_name: 'Pulseras',
+  category_name: 'Pulseras', highlighted_name: 'Pulsera Yemaya',
 };
 const P2 = {
   id: 12, name: 'Collar Oshun', slug: 'collar-oshun',
   sku: 'COO-001', base_price: 300, price_with_tax: 348, stock: 1,
-  category_name: 'Collares',
+  category_name: 'Collares', highlighted_name: 'Collar Oshun',
 };
 
 const renderSection = (slug = 'producto-base') => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter>
-        <RelatedProductsSection slug={slug} />
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <Provider store={makeStore()}>
+      <QueryClientProvider client={client}>
+        <MemoryRouter>
+          <RelatedProductsSection slug={slug} />
+        </MemoryRouter>
+      </QueryClientProvider>
+    </Provider>,
   );
 };
 

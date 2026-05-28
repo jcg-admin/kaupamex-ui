@@ -120,6 +120,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/logistics/guides/700/confirm-delivery/',
+        {},
       );
     });
   });

@@ -81,7 +81,7 @@ describe('cartSlice (UC-CART-01)', () => {
     const store = makeStore();
     await store.dispatch(syncCartOnLogin());
 
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/cart/sync/', {});
+    expect(apiService.post).toHaveBeenCalledWith('/api/v1/cart/merge/', {});
     const state = store.getState().cart;
     expect(state.items).toHaveLength(2);
     expect(state.lastAction).toBe('synced');

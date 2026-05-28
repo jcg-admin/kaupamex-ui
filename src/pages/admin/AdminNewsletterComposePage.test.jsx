@@ -55,6 +55,8 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
     fireEvent.change(screen.getByLabelText(/Contenido en texto plano/i),
       { target: { value: 'Hola' } });
     fireEvent.click(screen.getByRole('button', { name: /Enviar campa[nñ]a/i }));
+    // H-CICLO118-03: componente muestra dialogo de confirmacion antes de despachar
+    fireEvent.click(await screen.findByRole('button', { name: /S[ií], enviar/i }));
 
     await waitFor(() => {
       // T-117 D-04 (iter 19): canon API
@@ -86,6 +88,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
     fireEvent.change(screen.getByLabelText(/Contenido en texto plano/i),
       { target: { value: 'x' } });
     fireEvent.click(screen.getByRole('button', { name: /Enviar campa[nñ]a/i }));
+    fireEvent.click(await screen.findByRole('button', { name: /S[ií], enviar/i }));
 
     expect(
       await screen.findByText(/120 destinatarios/i),

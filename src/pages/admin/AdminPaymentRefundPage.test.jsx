@@ -38,7 +38,7 @@ const APPROVED_PAYMENT = {
   gateway: 'mercadopago',
   amount: 1500,
   currency: 'MXN',
-  order_id: 'ORD-88',
+  order_number: 'ORD-88',
 };
 
 afterEach(() => jest.clearAllMocks());
@@ -69,7 +69,7 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/payments/501/refund/',
+        '/api/v1/payments/admin/501/refund/',
         { amount: 500, reason: 'Reembolso de cortesia por incidente' }
       );
     });

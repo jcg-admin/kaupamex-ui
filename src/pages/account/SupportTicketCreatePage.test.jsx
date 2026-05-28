@@ -85,7 +85,7 @@ describe('SupportTicketCreatePage (UC-SUPP-01)', () => {
 
   it('muestra confirmacion con el numero de ticket creado', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 99, subject: 'Asunto', status: 'OPEN' },
+      data: { ticket_id: 99, id: 99, subject: 'Asunto', status: 'OPEN' },
     });
 
     render(wrap(<SupportTicketCreatePage />, makeStore()));

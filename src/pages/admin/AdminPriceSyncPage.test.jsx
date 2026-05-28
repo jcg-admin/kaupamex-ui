@@ -15,13 +15,15 @@ import apiService from '@services/apiService';
 import priceSyncReducer from '../../redux/slices/priceSyncSlice';
 import AdminPriceSyncPage from './AdminPriceSyncPage';
 
+// H-CICLO70-01: API shape es { session_id, preview: [...], valid_count, invalid_count }
 const PREVIEW = {
-  rows: [
-    { sku: 'SKU-1', current_price: 100, new_price: 110, diff_pct: 10, status: 'valido' },
-    { sku: 'SKU-2', current_price: 200, new_price: 0,   diff_pct: -100, status: 'invalido' },
+  session_id:    'preview-session-abc',
+  preview: [
+    { sku: 'SKU-1', old_price: 100, new_price: 110, diff_pct: 10,   product_name: 'Collar 1' },
+    { sku: 'SKU-2', old_price: 200, new_price: 0,   diff_pct: -100, product_name: 'Collar 2' },
   ],
-  summary: { valid: 1, invalid: 1 },
-  token: 'preview-token-abc',
+  valid_count:   1,
+  invalid_count: 1,
 };
 
 const makeStore = () =>
@@ -77,20 +79,23 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     await waitFor(() =>
       expect(apiService.post).toHaveBeenLastCalledWith(
         '/api/v1/admin/price-sync/apply-csv/',
-        { token: 'preview-token-abc' },
+        { session_id: 'preview-session-abc' },
       ),
     );
     expect(await screen.findByRole('status')).toHaveTextContent(/precios actualizados/i);
   });
 
-  it('marca con clase de invalido las filas con status=invalido (EX-02)', async () => {
+  it('muestra conteo de filas invalidas en el resumen (EX-02)', async () => {
+    // H-CICLO70-01: el componente muestra el conteo via invalid_count en el
+    // resumen; no renderiza la columna "status" por fila (filas del preview
+    // son siempre validas en la nueva API).
     apiService.post.mockResolvedValueOnce({ data: PREVIEW });
     renderPage();
     const csv = new File(['x'], 'x.csv', { type: 'text/csv' });
     fireEvent.change(screen.getByLabelText(/archivo csv/i), { target: { files: [csv] } });
     fireEvent.click(screen.getByRole('button', { name: /generar vista previa/i }));
     await screen.findByText('SKU-2');
-    expect(screen.getByText('invalido')).toBeInTheDocument();
+    expect(screen.getByText(/invalidas/i)).toBeInTheDocument();
   });
 
   it('porcentaje: envia percentage + filtros al backend (Alt A)', async () => {
@@ -105,7 +110,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/admin/price-sync/preview-percentage/',
         expect.objectContaining({
-          percentage: 5, category: 'collares', price_min: 100,
+          pct: 5, category_id: 'collares', price_min: 100,
         }),
       ),
     );

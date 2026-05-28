@@ -42,14 +42,15 @@ afterEach(() => jest.clearAllMocks());
 
 describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
   it('muestra el contenido del mensaje cargado', async () => {
+    // H-CICLO-COM-01: el campo es "body" no "message" en el serializer.
     apiService.get.mockResolvedValue({
       data: {
         id: 7,
         name: 'Ana',
         email: 'ana@example.com',
         subject: 'Consulta sobre el producto X',
-        message: 'Hola, queria saber sobre el envio.',
-        status: 'UNREAD',
+        body: 'Hola, queria saber sobre el envio.',
+        read: false, replied: false,
         created_at: '2026-05-01T10:00:00Z',
       },
     });
@@ -60,9 +61,12 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
   });
 
   it('requiere texto antes de enviar la respuesta', async () => {
+    // read: true evita que useEffect dispare markContactMessageRead (que
+    // pondria isActioning=true y deshabilitaria el boton de envio).
     apiService.get.mockResolvedValue({
-      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', message: 'Texto', status: 'READ', created_at: '2026-05-01T10:00:00Z' },
+      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z' },
     });
+    apiService.post.mockResolvedValue({ data: {} });
     render(wrap());
     await screen.findByText(/Hola/i);
 
@@ -73,7 +77,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
 
   it('al enviar, hace POST a /api/v1/admin/contact/messages/<id>/reply/', async () => {
     apiService.get.mockResolvedValue({
-      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', message: 'Texto', status: 'READ', created_at: '2026-05-01T10:00:00Z' },
+      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z' },
     });
     apiService.post.mockResolvedValue({ data: { id: 7, status: 'REPLIED' } });
     render(wrap());
@@ -98,7 +102,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
 
   it('muestra mensaje de exito tras responder', async () => {
     apiService.get.mockResolvedValue({
-      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', message: 'Texto', status: 'READ', created_at: '2026-05-01T10:00:00Z' },
+      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z' },
     });
     apiService.post.mockResolvedValue({ data: { id: 7, status: 'REPLIED' } });
     render(wrap());

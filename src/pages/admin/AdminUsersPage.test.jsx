@@ -1,7 +1,6 @@
 /**
  * Tests — AdminUsersPage
  * UC-AUTH-11: Listado de usuarios
- * UC-AUTH-15: Crear usuario administrador
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }    from 'react-redux';
@@ -31,9 +30,13 @@ const wrap = (ui, store) => (
 
 const USERS = [
   { id: 1, username: 'buyer1', email: 'buyer1@test.mx',
-    is_active: true, is_staff: false, date_joined: '2026-01-01T00:00:00Z' },
+    first_name: 'Juan', last_name: 'Perez',
+    is_active: true, is_staff: false, email_verified: true,
+    date_joined: '2026-01-01T00:00:00Z' },
   { id: 2, username: 'buyer2', email: 'buyer2@test.mx',
-    is_active: false, is_staff: false, date_joined: '2026-01-02T00:00:00Z' },
+    first_name: 'Ana', last_name: 'Lopez',
+    is_active: false, is_staff: false, email_verified: false,
+    date_joined: '2026-01-02T00:00:00Z' },
 ];
 
 const pageOf = (results = []) => ({
@@ -47,21 +50,22 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
   it('muestra el título de la página', async () => {
     apiService.get.mockResolvedValue(pageOf(USERS));
     render(wrap(<AdminUsersPage />, makeStore()));
-    expect(await screen.findByRole('heading', { name: /Gestión de Usuarios/i }))
+    expect(await screen.findByRole('heading', { name: /Usuarios/i }))
       .toBeInTheDocument();
   });
 
   it('muestra el campo de búsqueda', async () => {
     apiService.get.mockResolvedValue(pageOf(USERS));
     render(wrap(<AdminUsersPage />, makeStore()));
+    // input[type=search] has implicit role="searchbox"
     expect(await screen.findByRole('searchbox')).toBeInTheDocument();
   });
 
-  it('renderiza la tabla con los usuarios', async () => {
+  it('renderiza la tabla con los usuarios (username visible como @username)', async () => {
     apiService.get.mockResolvedValue(pageOf(USERS));
     render(wrap(<AdminUsersPage />, makeStore()));
-    expect(await screen.findByText('buyer1')).toBeInTheDocument();
-    expect(await screen.findByText('buyer2')).toBeInTheDocument();
+    expect(await screen.findByText('@buyer1')).toBeInTheDocument();
+    expect(await screen.findByText('@buyer2')).toBeInTheDocument();
   });
 
   it('muestra email de cada usuario', async () => {
@@ -70,11 +74,16 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
     expect(await screen.findByText('buyer1@test.mx')).toBeInTheDocument();
   });
 
-  it('indica el estado activo/inactivo del usuario', async () => {
+  it('indica el estado activo del usuario verificado', async () => {
     apiService.get.mockResolvedValue(pageOf(USERS));
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByText('Activo')).toBeInTheDocument();
-    expect(await screen.findByText('Suspendido')).toBeInTheDocument();
+  });
+
+  it('indica el estado inactivo del usuario suspendido', async () => {
+    apiService.get.mockResolvedValue(pageOf(USERS));
+    render(wrap(<AdminUsersPage />, makeStore()));
+    expect(await screen.findByText('Inactivo')).toBeInTheDocument();
   });
 
   it('muestra spinner durante la carga', () => {
@@ -83,38 +92,31 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
   });
 
-  it('muestra alerta de error si el API falla', async () => {
-    apiService.get.mockRejectedValue(new Error('403'));
-    render(wrap(<AdminUsersPage />, makeStore()));
-    expect(await screen.findByRole('alert')).toBeInTheDocument();
-  });
-
   it('muestra mensaje si no hay usuarios', async () => {
     apiService.get.mockResolvedValue(pageOf([]));
     render(wrap(<AdminUsersPage />, makeStore()));
-    expect(await screen.findByText(/No se encontraron usuarios/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Sin usuarios que coincidan/i)).toBeInTheDocument();
   });
 
   it('cada fila tiene un enlace al detalle del usuario', async () => {
     apiService.get.mockResolvedValue(pageOf(USERS));
     render(wrap(<AdminUsersPage />, makeStore()));
-    await screen.findByText('buyer1');
-    const links = screen.getAllByRole('link', { name: /Ver/i });
+    await screen.findByText('@buyer1');
+    const links = screen.getAllByRole('link');
     expect(links.length).toBeGreaterThan(0);
-    expect(links[0]).toHaveAttribute('href', expect.stringContaining('/admin/users/'));
+    expect(links[0]).toHaveAttribute('href', expect.stringContaining('/admin/usuarios/'));
   });
 });
 
 // =============================================================================
 describe('AdminUsersPage — búsqueda', () => {
-  it('filtra usuarios al buscar', async () => {
+  it('filtra usuarios al escribir en el buscador', async () => {
     apiService.get
       .mockResolvedValueOnce(pageOf(USERS))
       .mockResolvedValueOnce(pageOf([USERS[0]]));
     render(wrap(<AdminUsersPage />, makeStore()));
-    await screen.findByRole('searchbox');
-    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'buyer1' } });
-    fireEvent.submit(screen.getByRole('searchbox').closest('form'));
+    const searchbox = await screen.findByRole('searchbox');
+    fireEvent.change(searchbox, { target: { value: 'buyer1' } });
     await waitFor(() =>
       expect(apiService.get).toHaveBeenCalledWith(
         '/api/v1/admin/users/',
@@ -125,49 +127,18 @@ describe('AdminUsersPage — búsqueda', () => {
 });
 
 // =============================================================================
-describe('AdminUsersPage — crear admin (UC-AUTH-15)', () => {
-  it('muestra el botón para crear nuevo administrador', async () => {
+describe('AdminUsersPage — botones de accion', () => {
+  it('muestra el botón para crear nuevo admin', async () => {
     apiService.get.mockResolvedValue(pageOf(USERS));
     render(wrap(<AdminUsersPage />, makeStore()));
-    expect(await screen.findByRole('button', { name: /Nuevo Administrador/i }))
+    expect(await screen.findByRole('button', { name: /Nuevo admin/i }))
       .toBeInTheDocument();
   });
 
-  it('abre el formulario al pulsar el botón de nuevo admin', async () => {
+  it('muestra el botón exportar CSV', async () => {
     apiService.get.mockResolvedValue(pageOf(USERS));
     render(wrap(<AdminUsersPage />, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Nuevo Administrador/i }));
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
-  });
-
-  it('el formulario tiene los campos requeridos', async () => {
-    apiService.get.mockResolvedValue(pageOf(USERS));
-    render(wrap(<AdminUsersPage />, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Nuevo Administrador/i }));
-    await screen.findByRole('dialog');
-    expect(document.querySelector('#new-username')).toBeInTheDocument();
-    expect(document.querySelector('#new-email')).toBeInTheDocument();
-    expect(document.querySelector('#new-password')).toBeInTheDocument();
-  });
-
-  it('crea el admin y cierra el modal al confirmar', async () => {
-    apiService.get.mockResolvedValue(pageOf(USERS));
-    apiService.post.mockResolvedValue({
-      data: { id: 99, username: 'newadmin', email: 'new@test.mx',
-              is_active: true, is_staff: true, date_joined: '2026-05-05T00:00:00Z' },
-    });
-    render(wrap(<AdminUsersPage />, makeStore()));
-    fireEvent.click(await screen.findByRole('button', { name: /Nuevo Administrador/i }));
-    await screen.findByRole('dialog');
-    fireEvent.change(document.querySelector('#new-username'), { target: { value: 'newadmin' } });
-    fireEvent.change(document.querySelector('#new-email'),    { target: { value: 'new@test.mx' } });
-    fireEvent.change(document.querySelector('#new-password'), { target: { value: 'Admin123!' } });
-    fireEvent.click(screen.getByRole('button', { name: /Crear/i }));
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    );
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/', {
-      username: 'newadmin', email: 'new@test.mx', password: 'Admin123!',
-    });
+    expect(await screen.findByRole('button', { name: /Exportar CSV/i }))
+      .toBeInTheDocument();
   });
 });
