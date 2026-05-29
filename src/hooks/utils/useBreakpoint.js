@@ -246,8 +246,4 @@ export function useBreakpointContext() {
   return context;
 }
 
-// ============================================================================
-// EXPORTAR TODO
-// ============================================================================
-
 export default useBreakpoint;
