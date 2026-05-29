@@ -10,18 +10,8 @@
  */
 import { useParams } from 'react-router-dom';
 import { useProductReviews } from '@hooks/domain/useReviews';
+import ReviewItem from '@components/catalog/ReviewItem';
 import styles from './ProductReviewsListPage.module.scss';
-
-function StarRating({ value }) {
-  const rounded = Math.max(0, Math.min(5, Math.round(value)));
-  const filled  = '★'.repeat(rounded);
-  const empty   = '☆'.repeat(5 - rounded);
-  return (
-    <span aria-label={`Calificacion ${value}/5`} className={styles.rating}>
-      {filled}{empty}
-    </span>
-  );
-}
 
 export default function ProductReviewsListPage() {
   const { productId } = useParams();
@@ -29,6 +19,8 @@ export default function ProductReviewsListPage() {
   const reviews = data?.items ?? [];
   const average = data?.average_rating ?? null;
   const total   = data?.total_reviews ?? 0;
+
+  const avgRounded = Math.max(0, Math.min(5, Math.round(Number(average))));
 
   return (
     <section className={styles.page} aria-labelledby="reviews-title">
@@ -50,7 +42,12 @@ export default function ProductReviewsListPage() {
           <span className={styles.average}>
             {Number(average).toFixed(1)}
           </span>
-          <StarRating value={Number(average)} />
+          <span
+            aria-label={`${Number(average).toFixed(1)} de 5`}
+            className={styles.summaryStars}
+          >
+            {'★'.repeat(avgRounded)}{'☆'.repeat(5 - avgRounded)}
+          </span>
           <span className={styles.total}>
             {total} {total === 1 ? 'resena' : 'resenas'}
           </span>
@@ -67,26 +64,8 @@ export default function ProductReviewsListPage() {
       {reviews.length > 0 && (
         <ul className={styles.list}>
           {reviews.map((r) => (
-            <li key={r.id} className={styles.item}>
-              <StarRating value={r.rating} />
-              <p className={styles.itemTitle}>{r.title}</p>
-              <p className={styles.itemBody}>{r.body}</p>
-              {r.images?.length > 0 && (
-                <ul className={styles.imageGallery} aria-label="fotos de la resena">
-                  {r.images.map((img) => (
-                    <li key={img.id}>
-                      <a href={img.image} target="_blank" rel="noopener noreferrer">
-                        <img
-                          src={img.image}
-                          alt="foto de resena"
-                          className={styles.thumbnail}
-                          loading="lazy"
-                        />
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            <li key={r.id}>
+              <ReviewItem review={r} />
             </li>
           ))}
         </ul>

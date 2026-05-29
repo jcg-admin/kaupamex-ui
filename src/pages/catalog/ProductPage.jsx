@@ -16,8 +16,10 @@ import DOMPurify from 'dompurify';
 import { fetchProduct } from '@redux/slices/catalogSlice';
 import { addToCart } from '@redux/slices/cartSlice';
 import { toggleWishlist, addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
+import { useProductReviews } from '@hooks/domain/useReviews';
 import { useToast } from '@context/ToastContext';
 import ProductCard from '@components/catalog/ProductCard';
+import ReviewItem from '@components/catalog/ReviewItem';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import styles from './ProductPage.module.scss';
 
@@ -32,6 +34,11 @@ export default function ProductPage() {
   const [variant, setVariant] = useState(null);
   const [qty, setQty] = useState(1);
   const [activeImg, setActiveImg] = useState(0);
+
+  const { data: reviewsData } = useProductReviews(product?.id, { page_size: 3 });
+  const previewReviews = reviewsData?.items ?? [];
+  const reviewsAvg     = reviewsData?.average_rating ?? 0;
+  const reviewsTotal   = reviewsData?.total_reviews ?? 0;
 
   useEffect(() => { dispatch(fetchProduct(slug)); }, [dispatch, slug]);
   useEffect(() => {
@@ -239,6 +246,48 @@ export default function ProductPage() {
           </div>
         </div>
       </section>
+
+      {/* Reviews preview */}
+      {reviewsTotal > 0 && (
+        <section className={styles.reviewsSection} aria-labelledby="reviews-preview-title">
+          <div className={styles.reviewsInner}>
+            <header className={styles.reviewsHeader}>
+              <div>
+                <MetaTag tone="bronze">Opiniones de compradores</MetaTag>
+                <h2 id="reviews-preview-title" className={styles.reviewsTitle}>
+                  Reseñas del producto
+                </h2>
+                <div className={styles.reviewsSummary}>
+                  <span className={styles.reviewsAvg}>{Number(reviewsAvg).toFixed(1)}</span>
+                  <span
+                    aria-label={`${Number(reviewsAvg).toFixed(1)} de 5`}
+                    className={styles.reviewsStars}
+                  >
+                    {'★'.repeat(Math.round(Number(reviewsAvg)))}
+                    {'☆'.repeat(5 - Math.round(Number(reviewsAvg)))}
+                  </span>
+                  <span className={styles.reviewsCount}>
+                    {reviewsTotal} {reviewsTotal === 1 ? 'reseña' : 'reseñas'}
+                  </span>
+                </div>
+              </div>
+              <Link
+                to={`/catalog/${product.id}/reviews`}
+                className={styles.reviewsMore}
+              >
+                Ver todas las reseñas →
+              </Link>
+            </header>
+            <ul className={styles.reviewsList}>
+              {previewReviews.map((r) => (
+                <li key={r.id}>
+                  <ReviewItem review={r} />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* Related */}
       {related.length > 0 && (
