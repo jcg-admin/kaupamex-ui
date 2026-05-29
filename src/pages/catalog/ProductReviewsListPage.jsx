@@ -71,6 +71,22 @@ export default function ProductReviewsListPage() {
               <StarRating value={r.rating} />
               <p className={styles.itemTitle}>{r.title}</p>
               <p className={styles.itemBody}>{r.body}</p>
+              {r.images?.length > 0 && (
+                <ul className={styles.imageGallery} aria-label="fotos de la resena">
+                  {r.images.map((img) => (
+                    <li key={img.id}>
+                      <a href={img.image} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={img.image}
+                          alt="foto de resena"
+                          className={styles.thumbnail}
+                          loading="lazy"
+                        />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
