@@ -62,7 +62,7 @@ export default function AdminProductEditPage() {
     description:       product.description ?? '',
     base_price:        product.base_price ?? '',
     stock:             product.stock ?? '',
-    category_id:       product.category?.id ?? product.category_id ?? '',
+    category_id:       product.categories?.[0]?.id ?? '',
     status:            product.status ?? (product.is_active ? 'PUBLICADO' : 'BORRADOR'),
   };
 

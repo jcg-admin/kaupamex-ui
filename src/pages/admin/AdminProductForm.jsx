@@ -79,7 +79,7 @@ export default function AdminProductForm({
       description: fields.description.trim(),
       base_price: Number(fields.base_price),
       stock: Number(fields.stock),
-      category_id: Number(fields.category_id),
+      category_ids: [Number(fields.category_id)],
       status: fields.status,
     };
     if (fields.sku.trim()) payload.sku = fields.sku.trim();
