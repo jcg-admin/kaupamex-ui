@@ -1,224 +1,184 @@
 /**
- * AdminUserDetailPage — PracticaYoruba
- * UC-AUTH-12: Ver perfil de usuario (Admin)
- * UC-AUTH-13: Suspender cuenta
- * UC-AUTH-14: Reactivar cuenta
+ * AdminUserDetailPage — Práctica Yorùbà (re-skin)
+ * Detalle de un usuario con datos personales, pedidos, direcciones y acciones admin.
  */
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router-dom';
 import {
-  fetchAdminUser, suspendUser, reactivateUser,
-  clearCurrentUser, clearActionState,
+  fetchAdminUser, toggleUserActive, resetUserPassword, makeUserAdmin,
 } from '@redux/slices/adminSlice';
+import { MetaTag, Price, Button } from '@components/common/primitives';
 import styles from './AdminUserDetailPage.module.scss';
 
-// =============================================================================
-// Modal de confirmación reutilizable
-// =============================================================================
+export default function AdminUserDetailPage() {
+  const { pk } = useParams();
+  const dispatch = useDispatch();
+  const user = useSelector((s) => s.admin?.currentUser);
+  const isLoading = useSelector((s) => s.admin?.isLoadingUser);
 
-function ConfirmModal({ title, message, onConfirm, onCancel, isLoading }) {
+  useEffect(() => { dispatch(fetchAdminUser(pk)); }, [dispatch, pk]);
+
+  if (isLoading || !user) {
+    return <div className={styles.loading}>Cargando usuario…</div>;
+  }
+
+  const initials = `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase();
+
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className={styles.modalOverlay}
-      onClick={(e) => e.target === e.currentTarget && onCancel()}
-    >
-      <div className={styles.modal}>
-        <h2 className={styles.modalTitle}>{title}</h2>
-        <p className={styles.modalMessage}>{message}</p>
-        <div className={styles.modalActions}>
-          <button
-            type="button"
-            className={styles.btnSecondary}
-            onClick={onCancel}
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className={styles.btnDanger}
-            onClick={onConfirm}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Procesando…' : 'Confirmar'}
-          </button>
+    <div className={styles.page}>
+      <nav className={styles.breadcrumb}>
+        <Link to="/admin">Admin</Link><span>/</span>
+        <Link to="/admin/usuarios">Usuarios</Link><span>/</span>
+        <span className={styles.bcCurrent}>{user.first_name} {user.last_name}</span>
+      </nav>
+
+      <header className={styles.hero}>
+        <div className={styles.avatar}>
+          {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
         </div>
+        <div className={styles.heroInfo}>
+          <MetaTag tone="bronze">@{user.username} · ID #{user.id}</MetaTag>
+          <h1 className={styles.heroTitle}>{user.first_name} {user.last_name}</h1>
+          <div className={styles.heroMeta}>
+            {user.email} · Cliente desde {new Date(user.date_joined).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}
+          </div>
+          <div className={styles.statusRow}>
+            <span className={`${styles.statusPill} ${styles[`pill_${user.is_admin ? 'bronze' : user.is_staff ? 'coral' : 'muted'}`]}`}>
+              {user.is_admin ? 'Admin' : user.is_staff ? 'Staff' : 'Comprador'}
+            </span>
+            <span className={`${styles.statusPill} ${styles[`pill_${user.is_active ? (user.email_verified ? 'lime' : 'bronze') : 'vino'}`]}`}>
+              {!user.is_active ? 'Inactivo' : !user.email_verified ? 'Sin verificar' : 'Activo'}
+            </span>
+          </div>
+        </div>
+        <div className={styles.heroActions}>
+          <Button variant="secondary" onClick={() => dispatch(resetUserPassword(user.id))}>
+            Forzar reset de contraseña
+          </Button>
+          <Button
+            variant={user.is_active ? 'secondary' : 'primary'}
+            onClick={() => dispatch(toggleUserActive(user.id))}
+          >
+            {user.is_active ? 'Desactivar cuenta' : 'Activar cuenta'}
+          </Button>
+        </div>
+      </header>
+
+      <div className={styles.grid}>
+        {/* Stats */}
+        <section className={styles.statsCard}>
+          <Stat label="Pedidos totales" value={user.order_count || 0} />
+          <Stat label="Pedidos entregados" value={user.delivered_count || 0} tone="lime" />
+          <Stat label="Pedidos cancelados" value={user.cancelled_count || 0} tone="vino" />
+          <Stat label="Total gastado" value={`$${(user.lifetime_value || 0).toLocaleString('es-MX')}`} tone="bronze" />
+        </section>
+
+        {/* Personal data */}
+        <section className={styles.card}>
+          <header className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Datos personales</h2>
+          </header>
+          <dl className={styles.dataList}>
+            <DataRow k="Nombre"            v={`${user.first_name} ${user.last_name}`} />
+            <DataRow k="Usuario"           v={`@${user.username}`} />
+            <DataRow k="Correo"            v={user.email} />
+            <DataRow k="Teléfono"          v={user.phone || '—'} />
+            <DataRow k="Fecha de nacimiento" v={user.date_of_birth || '—'} />
+            <DataRow k="Última conexión"    v={user.last_login ? new Date(user.last_login).toLocaleString('es-MX') : '—'} />
+          </dl>
+        </section>
+
+        {/* Addresses */}
+        <section className={styles.card}>
+          <header className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Direcciones ({user.addresses?.length || 0}/5)</h2>
+          </header>
+          <div className={styles.addresses}>
+            {(user.addresses || []).map((a) => (
+              <div key={a.id} className={`${styles.address} ${a.is_default ? styles.addressDefault : ''}`}>
+                <div className={styles.addressAlias}>
+                  {a.alias}
+                  {a.is_default && <MetaTag tone="lime">Predeterminada</MetaTag>}
+                </div>
+                <div className={styles.addressBody}>
+                  {a.recipient_name}<br />
+                  {a.street}<br />
+                  {a.neighborhood}, {a.city}, {a.state} {a.zip_code}
+                </div>
+              </div>
+            ))}
+            {(!user.addresses || user.addresses.length === 0) && (
+              <div className={styles.empty}>Sin direcciones registradas</div>
+            )}
+          </div>
+        </section>
+
+        {/* Recent orders */}
+        <section className={styles.card} style={{ gridColumn: '1 / -1' }}>
+          <header className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>Pedidos recientes</h2>
+            <Link to={`/admin/pedidos?user=${user.id}`} className={styles.cardLink}>
+              Ver todos →
+            </Link>
+          </header>
+          <table className={styles.ordersTable}>
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Fecha</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(user.recent_orders || []).map((o) => (
+                <tr key={o.order_number}>
+                  <td><Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link></td>
+                  <td>{new Date(o.created_at).toLocaleDateString('es-MX')}</td>
+                  <td>{o.item_count}</td>
+                  <td><Price amount={o.total} size="sm" /></td>
+                  <td>
+                    <span className={`${styles.statusPill} ${styles[`pill_${o.tone || 'muted'}`]}`}>
+                      {o.status_label}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {(!user.recent_orders || user.recent_orders.length === 0) && (
+                <tr><td colSpan={5} className={styles.empty}>Sin pedidos</td></tr>
+              )}
+            </tbody>
+          </table>
+        </section>
       </div>
     </div>
   );
 }
 
-// =============================================================================
-// Página principal
-// =============================================================================
-
-export default function AdminUserDetailPage() {
-  const { pk }   = useParams();
-  const dispatch = useDispatch();
-
-  const { currentUser: user, isLoadingUser, userError, isActioning, actionError } =
-    useSelector((s) => s.admin);
-
-  const [confirmAction, setConfirmAction] = useState(null); // 'suspend' | 'reactivate' | null
-
-  useEffect(() => {
-    dispatch(fetchAdminUser(pk));
-    return () => {
-      dispatch(clearCurrentUser());
-      dispatch(clearActionState());
-    };
-  }, [dispatch, pk]);
-
-  const handleConfirm = async () => {
-    if (confirmAction === 'suspend') {
-      const result = await dispatch(suspendUser(pk));
-      if (suspendUser.fulfilled.match(result)) setConfirmAction(null);
-    } else if (confirmAction === 'reactivate') {
-      const result = await dispatch(reactivateUser(pk));
-      if (reactivateUser.fulfilled.match(result)) setConfirmAction(null);
-    }
-  };
-
-  // --- Estados de carga / error ---
-
-  if (isLoadingUser) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.spinner} />
-        <p>Cargando perfil…</p>
-      </div>
-    );
-  }
-
-  if (userError || (!isLoadingUser && !user)) {
-    return (
-      <div className={styles.notFound}>
-        <h1>Usuario no encontrado</h1>
-        <p>El usuario solicitado no existe o no tienes acceso.</p>
-        <Link to="/admin/users" className={styles.btnSecondary}>
-          Volver al listado
-        </Link>
-      </div>
-    );
-  }
-
-  if (!user) return null;
-
-  const isActive = user.is_active;
-
+function Stat({ label, value, tone = 'default' }) {
+  const toneClass = {
+    default: '',
+    lime:    styles.statLime,
+    coral:   styles.statCoral,
+    vino:    styles.statVino,
+    bronze:  styles.statBronze,
+  }[tone];
   return (
-    <main className={styles.page}>
-      {/* Navegación */}
-      <nav className={styles.breadcrumb} aria-label="Navegación">
-        <Link to="/admin/users" className={styles.backLink}>
-          Volver al listado de usuarios
-        </Link>
-      </nav>
+    <div className={styles.stat}>
+      <div className={styles.statLabel}>{label}</div>
+      <div className={`${styles.statValue} ${toneClass}`}>{value}</div>
+    </div>
+  );
+}
 
-      {/* Cabecera */}
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>{user.username}</h1>
-          <p className={styles.subtitle}>ID #{user.id}</p>
-        </div>
-
-        <div className={styles.actions}>
-          {isActive ? (
-            <button
-              type="button"
-              className={styles.btnDanger}
-              onClick={() => setConfirmAction('suspend')}
-              disabled={isActioning}
-            >
-              Suspender
-            </button>
-          ) : (
-            <button
-              type="button"
-              className={styles.btnSuccess}
-              onClick={() => setConfirmAction('reactivate')}
-              disabled={isActioning}
-            >
-              Reactivar
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* Error de acción */}
-      {actionError && (
-        <div className={styles.actionError} role="alert">{actionError}</div>
-      )}
-
-      {/* Perfil */}
-      <div className={styles.card}>
-        <h2 className={styles.cardTitle}>Información de la cuenta</h2>
-
-        <dl className={styles.details}>
-          <div className={styles.detailRow}>
-            <dt>Estado</dt>
-            <dd>
-              <span className={isActive ? styles.badgeActive : styles.badgeSuspended}>
-                {isActive ? 'Activo' : 'Suspendido'}
-              </span>
-            </dd>
-          </div>
-          <div className={styles.detailRow}>
-            <dt>Tipo</dt>
-            <dd>
-              <span className={user.is_staff ? styles.badgeAdmin : styles.badgeUser}>
-                {user.is_staff ? 'Administrador' : 'Comprador'}
-              </span>
-            </dd>
-          </div>
-          <div className={styles.detailRow}>
-            <dt>Usuario</dt>
-            <dd>{user.username}</dd>
-          </div>
-          <div className={styles.detailRow}>
-            <dt>Email</dt>
-            <dd>{user.email}</dd>
-          </div>
-          {(user.first_name || user.last_name) && (
-            <div className={styles.detailRow}>
-              <dt>Nombre completo</dt>
-              <dd>{[user.first_name, user.last_name].filter(Boolean).join(' ')}</dd>
-            </div>
-          )}
-          {user.phone && (
-            <div className={styles.detailRow}>
-              <dt>Teléfono</dt>
-              <dd>{user.phone}</dd>
-            </div>
-          )}
-          <div className={styles.detailRow}>
-            <dt>Fecha de registro</dt>
-            <dd>
-              {new Date(user.date_joined).toLocaleDateString('es-MX', {
-                day: '2-digit', month: 'long', year: 'numeric',
-              })}
-            </dd>
-          </div>
-        </dl>
-      </div>
-
-      {/* Modal de confirmación */}
-      {confirmAction && (
-        <ConfirmModal
-          title={confirmAction === 'suspend' ? 'Suspender cuenta' : 'Reactivar cuenta'}
-          message={
-            confirmAction === 'suspend'
-              ? `¿Confirmas que deseas suspender la cuenta de "${user.username}"? El usuario perderá acceso inmediatamente.`
-              : `¿Confirmas que deseas reactivar la cuenta de "${user.username}"?`
-          }
-          onConfirm={handleConfirm}
-          onCancel={() => setConfirmAction(null)}
-          isLoading={isActioning}
-        />
-      )}
-    </main>
+function DataRow({ k, v }) {
+  return (
+    <div className={styles.dataRow}>
+      <dt>{k}</dt>
+      <dd>{v}</dd>
+    </div>
   );
 }

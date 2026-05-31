@@ -8,6 +8,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 // =============================================================================
 // Thunks
@@ -20,7 +21,7 @@ export const fetchProducts = createAsyncThunk(
       const res = await apiService.get('/api/v1/catalogue/', { params });
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -32,7 +33,7 @@ export const fetchProduct = createAsyncThunk(
       const res = await apiService.get(`/api/v1/catalogue/${slug}/`);
       return res.data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -44,7 +45,33 @@ export const searchProducts = createAsyncThunk(
       const res = await apiService.get('/api/v1/catalogue/search/', { params });
       return { ...res.data, query: params.q };
     } catch (error) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
+
+export const fetchFeaturedProducts = createAsyncThunk(
+  'catalog/fetchFeaturedProducts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get('/api/v1/catalogue/', {
+        params: { is_featured: true, page_size: 8 },
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
+
+export const fetchCategories = createAsyncThunk(
+  'catalog/fetchCategories',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get('/api/v1/catalogue/categories/', { params });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
     }
   }
 );
@@ -61,6 +88,8 @@ const catalogSlice = createSlice({
     searchResults:   [],
     searchQuery:     '',
     activeFilters:   {},
+    featured:        [],
+    categories:      [],
     pagination: {
       count:      0,
       page:       1,
@@ -76,10 +105,11 @@ const catalogSlice = createSlice({
       inStock:   false,
       ordering:  '-created_at',
     },
-    isLoading:   false,
-    isSearching: false,
-    error:       null,
-    searchError: null,
+    isLoading:      false,
+    isSearching:    false,
+    error:          null,
+    categoriesError: null,
+    searchError:    null,
   },
 
   reducers: {
@@ -125,6 +155,7 @@ const catalogSlice = createSlice({
           ? Math.ceil(count / state.pagination.pageSize)
           : 0;
         state.isLoading = false;
+        state.error     = null;
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.isLoading = false;
@@ -167,6 +198,39 @@ const catalogSlice = createSlice({
       .addCase(searchProducts.rejected, (state, action) => {
         state.isSearching = false;
         state.searchError = action.payload;
+      });
+
+    // fetchFeaturedProducts
+    builder
+      .addCase(fetchFeaturedProducts.pending, (state) => {
+        state.isLoading = true;
+        state.error     = null;
+      })
+      .addCase(fetchFeaturedProducts.fulfilled, (state, action) => {
+        const { results } = action.payload;
+        state.featured  = results ?? action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchFeaturedProducts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error     = action.payload;
+      });
+
+    // fetchCategories
+    builder
+      .addCase(fetchCategories.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.categories     = Array.isArray(action.payload) ? action.payload : (action.payload.results ?? []);
+        state.isLoading      = false;
+        state.categoriesError = null;
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.isLoading      = false;
+        state.categoriesError = action.payload;
+        // state.error is intentionally NOT set here — categories failure
+        // must not trigger the product loading error banner.
       });
   },
 });

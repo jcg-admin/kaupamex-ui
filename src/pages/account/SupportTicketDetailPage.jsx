@@ -14,16 +14,24 @@ import SupportTicketReplyForm from '@components/support/SupportTicketReplyForm';
 import SupportTicketActions  from '@components/support/SupportTicketActions';
 import styles from './SupportTicketDetailPage.module.scss';
 
+// H-CICLO36-01: enum sync con apps/support/models.py:24-29.
+// STATUS_LABEL antes mapeaba {OPEN, REPLIED, CLOSED} — "REPLIED" no existe en
+// el modelo (estados reales: IN_PROGRESS, AWAITING_USER, RESOLVED); tickets en
+// esos estados mostraban el codigo crudo en lugar de una etiqueta legible.
 const STATUS_LABEL = {
-  OPEN:    'Abierto',
-  REPLIED: 'Respondido',
-  CLOSED:  'Cerrado',
+  OPEN:           'Abierto',
+  IN_PROGRESS:    'En atención',
+  AWAITING_USER:  'Esperando respuesta',
+  RESOLVED:       'Resuelto',
+  CLOSED:         'Cerrado',
 };
 
 const STATUS_CLASS = {
-  OPEN:    'badgeOpen',
-  REPLIED: 'badgeReplied',
-  CLOSED:  'badgeClosed',
+  OPEN:           'badgeOpen',
+  IN_PROGRESS:    'badgeReplied',
+  AWAITING_USER:  'badgeReplied',
+  RESOLVED:       'badgeClosed',
+  CLOSED:         'badgeClosed',
 };
 
 function formatDateTime(iso) {
@@ -34,7 +42,10 @@ function formatDateTime(iso) {
 }
 
 function authorLabel(reply) {
-  if (reply.author === 'admin' || reply.admin) return 'Soporte';
+  // H-CICLO35-01: SupportTicketReplySerializer.get_author devuelve 'ADMIN' (mayúsculas).
+  // Comparación insensible a mayúsculas para compatibilidad con ambos.
+  const a = (reply.author ?? '').toUpperCase();
+  if (a === 'ADMIN' || a === 'SYSTEM') return 'Soporte';
   return 'Tú';
 }
 
@@ -82,7 +93,8 @@ export default function SupportTicketDetailPage() {
             {current.subject}
           </h1>
           <p className={styles.meta}>
-            Ticket #{current.id} · Abierto el {formatDateTime(current.created_at)}
+            {/* H-CICLO35-01: SupportTicketDetailSerializer expone ticket_id, no id */}
+            Ticket #{current.ticket_id ?? current.id} · Abierto el {formatDateTime(current.created_at)}
           </p>
         </div>
         <span className={styles[STATUS_CLASS[current.status]] || styles.badgeOpen}>
@@ -116,7 +128,7 @@ export default function SupportTicketDetailPage() {
       </section>
 
       {current.status !== 'CLOSED' && (
-        <SupportTicketReplyForm ticketId={current.id} />
+        <SupportTicketReplyForm ticketId={current.ticket_id ?? current.id} />
       )}
 
       <SupportTicketActions ticket={current} />

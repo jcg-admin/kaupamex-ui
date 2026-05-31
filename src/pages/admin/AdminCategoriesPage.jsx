@@ -23,14 +23,26 @@ import {
 } from '@redux/slices/categoriesSlice';
 import styles from './AdminCategoriesPage.module.scss';
 
-const EMPTY_FORM = { name: '', description: '', parent_id: '', icon_url: '' };
+// H-CICLO92-02: se elimina icon_url del formulario. El campo era enviado al
+// endpoint PATCH /api/v1/admin/categories/:id/ como JSON, pero CategoryAdminSerializer
+// expone `image` (ImageField, requiere multipart) y nunca tuvo campo icon_url.
+// El valor era silenciosamente descartado por DRF en cada submit, sin efecto.
+const EMPTY_FORM = { name: '', description: '', parent_id: '' };
 
 export default function AdminCategoriesPage() {
   const dispatch    = useDispatch();
   const queryClient = useQueryClient();
   const { isActioning, actionError } = useSelector((s) => s.categories);
-  const { data, isLoading, isError } = useAdminCategories();
-  const categories = data?.results ?? [];
+  // H-CICLO105-03: backend now paginates CategoryAdminViewSet (H-CICLO104-02b).
+  // Track the current page so the UI can fetch the correct page and render
+  // prev/next controls.  Without this, only the first 20 categories are ever
+  // shown with no way to navigate to subsequent pages.
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError } = useAdminCategories({ page });
+  const categories  = data?.results ?? [];
+  const totalCount  = data?.count ?? 0;
+  const pageSize    = 20;
+  const totalPages  = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
@@ -50,7 +62,6 @@ export default function AdminCategoriesPage() {
       name:        cat.name ?? '',
       description: cat.description ?? '',
       parent_id:   cat.parent_id ?? cat.parent?.id ?? '',
-      icon_url:    cat.icon_url ?? '',
     });
     setErrors({});
   };
@@ -61,9 +72,8 @@ export default function AdminCategoriesPage() {
     if (!form.name.trim()) v.name = 'El nombre es obligatorio.';
     if (Object.keys(v).length) { setErrors(v); return; }
     const payload = {
-      name: form.name.trim(),
+      name:        form.name.trim(),
       description: form.description.trim() || null,
-      icon_url:    form.icon_url.trim() || null,
       parent_id:   form.parent_id ? Number(form.parent_id) : null,
     };
     const action  = editingId
@@ -81,6 +91,12 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDeactivate = async (id) => {
+    // H-CICLO122-01: pedir confirmacion antes de desactivar para prevenir
+    // clics accidentales. Patron consistente con AdminVouchersPage.
+    const ok = window.confirm(
+      '¿Desactivar esta categoría? Los productos asociados dejarán de mostrarse en el catálogo.',
+    );
+    if (!ok) return;
     const result = await dispatch(deactivateCategory(id));
     if (deactivateCategory.fulfilled.match(result)) {
       dispatch(clearCategoriesActionState());
@@ -145,18 +161,6 @@ export default function AdminCategoriesPage() {
           </select>
         </div>
 
-        <div className={styles.field}>
-          <label htmlFor="cat-icon">URL de icono (opcional)</label>
-          <input
-            id="cat-icon"
-            name="icon_url"
-            type="url"
-            value={form.icon_url}
-            onChange={handleChange}
-            autoComplete="off"
-          />
-        </div>
-
         {actionError && (
           <p role="alert" className={styles.apiError}>
             {actionError.message ?? 'No se pudo guardar la categoria.'}
@@ -179,37 +183,62 @@ export default function AdminCategoriesPage() {
       {isError && <p role="alert">No se pudo cargar el listado.</p>}
 
       {!isLoading && categories.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th><th>Nombre</th><th>Padre</th><th>Estado</th><th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((c) => (
-              <tr key={c.id}>
-                <td>{c.id}</td>
-                <td>{c.name}</td>
-                <td>{c.parent?.name ?? '—'}</td>
-                <td>{c.is_active === false ? 'Inactiva' : 'Activa'}</td>
-                <td>
-                  <button type="button" onClick={() => handleEdit(c)}>
-                    Editar
-                  </button>
-                  {c.is_active !== false && (
-                    <button
-                      type="button"
-                      onClick={() => handleDeactivate(c.id)}
-                      disabled={isActioning}
-                    >
-                      Desactivar
-                    </button>
-                  )}
-                </td>
+        <>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th><th>Nombre</th><th>Padre</th><th>Estado</th><th>Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {categories.map((c) => (
+                <tr key={c.id}>
+                  <td>{c.id}</td>
+                  <td>{c.name}</td>
+                  <td>{c.parent?.name ?? '—'}</td>
+                  <td>{c.is_active === false ? 'Inactiva' : 'Activa'}</td>
+                  <td>
+                    <button type="button" onClick={() => handleEdit(c)}>
+                      Editar
+                    </button>
+                    {c.is_active !== false && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeactivate(c.id)}
+                        disabled={isActioning}
+                      >
+                        Desactivar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* H-CICLO105-03: pagination controls for paginated category list */}
+          {totalPages > 1 && (
+            <nav className={styles.pagination} aria-label="Paginas de categorias">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+              >
+                ← Anterior
+              </button>
+              <span className={styles.pageInfo}>
+                Pagina {page} de {totalPages} ({totalCount} categorias)
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+              >
+                Siguiente →
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </section>
   );

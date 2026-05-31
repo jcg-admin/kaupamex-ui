@@ -81,7 +81,7 @@ describe('cartSlice (UC-CART-01)', () => {
     const store = makeStore();
     await store.dispatch(syncCartOnLogin());
 
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/cart/sync/', {});
+    expect(apiService.post).toHaveBeenCalledWith('/api/v1/cart/merge/', {});
     const state = store.getState().cart;
     expect(state.items).toHaveLength(2);
     expect(state.lastAction).toBe('synced');
@@ -110,5 +110,63 @@ describe('cartSlice (UC-CART-01)', () => {
     const state = store.getState().cart;
     expect(state.actionError).toBeNull();
     expect(state.lastAction).toBeNull();
+  });
+
+  // T-202 — DEC-BC-02: UI usa totals del backend, sin calcular localmente.
+  it('totals_from_backend: mapea payload.totals al estado sin recalcular', async () => {
+    apiService.post.mockResolvedValue({
+      data: {
+        items: [{ id: 1, product_id: 10, name: 'P', price: 1000, quantity: 1 }],
+        voucher: null,
+        totals: { subtotal: 1000, discount: 0, tax: 100, total: 1100 },
+      },
+    });
+    const store = makeStore();
+    await store.dispatch(addToCart({ productId: 10, variantId: null, quantity: 1 }));
+    const { totals } = store.getState().cart;
+    expect(totals.subtotal).toBe(1000);
+    expect(totals.tax).toBe(100);
+    expect(totals.total).toBe(1100);
+    expect(totals.discount).toBe(0);
+  });
+
+  it('totals_from_backend: dos respuestas con distinta tasa reflejan la ultima', async () => {
+    const store = makeStore();
+    apiService.post.mockResolvedValueOnce({
+      data: {
+        items: [{ id: 1 }],
+        voucher: null,
+        totals: { subtotal: 100, discount: 0, tax: 10, total: 110 },
+      },
+    });
+    await store.dispatch(addToCart({ productId: 1, variantId: null, quantity: 1 }));
+    expect(store.getState().cart.totals.tax).toBe(10);
+
+    apiService.post.mockResolvedValueOnce({
+      data: {
+        items: [{ id: 1 }],
+        voucher: null,
+        totals: { subtotal: 100, discount: 0, tax: 16, total: 116 },
+      },
+    });
+    await store.dispatch(addToCart({ productId: 1, variantId: null, quantity: 1 }));
+    expect(store.getState().cart.totals.tax).toBe(16);
+    expect(store.getState().cart.totals.total).toBe(116);
+  });
+
+  // T-309 — DEC-BC-08: items persisten en estado tras addToCart exitoso.
+  it('cart_item_added_state_persists: items.length > 0 tras addToCart exitoso', async () => {
+    apiService.post.mockResolvedValue({
+      data: {
+        items: [{ id: 1, product_id: 5, name: 'Pulcera', price: 250, quantity: 1 }],
+        voucher: null,
+        totals: { subtotal: 250, discount: 0, tax: 0, total: 250 },
+      },
+    });
+    const store = makeStore();
+    await store.dispatch(addToCart({ productId: 5, variantId: null, quantity: 1 }));
+    const state = store.getState().cart;
+    expect(state.items.length).toBeGreaterThan(0);
+    expect(state.lastAction).toBe('added');
   });
 });

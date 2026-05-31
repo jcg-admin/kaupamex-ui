@@ -12,11 +12,12 @@ import { createVoucher } from '@redux/slices/vouchersSlice';
 import styles from './VoucherCreateForm.module.scss';
 
 const INITIAL_FIELDS = {
-  code:     '',
-  type:     'PERCENT',
-  value:    '',
-  max_uses: '',
-  ends_at:  '',
+  code:         '',
+  voucher_type: 'PERCENTAGE',
+  value:        '',
+  max_uses:     '',
+  valid_from:   '',
+  valid_until:  '',
 };
 
 function validate(fields) {
@@ -24,17 +25,23 @@ function validate(fields) {
   if (!fields.code.trim()) {
     errors.code = 'El codigo es obligatorio.';
   }
+  if (!fields.valid_from) {
+    errors.valid_from = 'La fecha de inicio es obligatoria.';
+  }
   const numericValue = Number(fields.value);
   if (fields.value === '' || Number.isNaN(numericValue)) {
     errors.value = 'El valor es obligatorio.';
-  } else if (fields.type === 'PERCENT') {
+  } else if (fields.voucher_type === 'PERCENTAGE') {
     if (numericValue <= 0 || numericValue > 100) {
       errors.value = 'El porcentaje debe estar entre 0 y 100.';
     }
-  } else if (fields.type === 'FIXED') {
+  } else if (fields.voucher_type === 'FIXED') {
     if (numericValue <= 0) {
       errors.value = 'El monto debe ser mayor a 0.';
     }
+  }
+  if (fields.valid_from && fields.valid_until && fields.valid_until <= fields.valid_from) {
+    errors.valid_until = 'La fecha fin debe ser posterior a la fecha de inicio.';
   }
   return errors;
 }
@@ -62,12 +69,17 @@ export default function VoucherCreateForm({ onClose }) {
     }
 
     const payload = {
-      code:     fields.code.trim().toUpperCase(),
-      type:     fields.type,
-      value:    Number(fields.value),
-      max_uses: fields.max_uses === '' ? null : Number(fields.max_uses),
-      ends_at:  fields.ends_at || null,
+      code:         fields.code.trim().toUpperCase(),
+      voucher_type: fields.voucher_type,
+      max_uses:     fields.max_uses === '' ? null : Number(fields.max_uses),
+      valid_from:   fields.valid_from ? new Date(fields.valid_from).toISOString() : undefined,
+      valid_until:  fields.valid_until ? new Date(fields.valid_until).toISOString() : null,
     };
+    if (fields.voucher_type === 'PERCENTAGE') {
+      payload.discount_pct = Number(fields.value);
+    } else if (fields.voucher_type === 'FIXED') {
+      payload.discount_value = Number(fields.value);
+    }
 
     const result = await dispatch(createVoucher(payload));
     if (createVoucher.fulfilled.match(result)) {
@@ -115,12 +127,13 @@ export default function VoucherCreateForm({ onClose }) {
             <label htmlFor="voucher-type">Tipo</label>
             <select
               id="voucher-type"
-              name="type"
-              value={fields.type}
+              name="voucher_type"
+              value={fields.voucher_type}
               onChange={handleChange}
             >
-              <option value="PERCENT">Porcentaje</option>
+              <option value="PERCENTAGE">Porcentaje</option>
               <option value="FIXED">Monto fijo</option>
+              <option value="FREE_SHIPPING">Envio gratis</option>
             </select>
           </div>
 
@@ -151,14 +164,29 @@ export default function VoucherCreateForm({ onClose }) {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="voucher-ends-at">Fecha fin (opcional)</label>
+            <label htmlFor="voucher-valid-from">Vigente desde *</label>
             <input
-              id="voucher-ends-at"
-              name="ends_at"
+              id="voucher-valid-from"
+              name="valid_from"
               type="date"
-              value={fields.ends_at}
+              value={fields.valid_from}
               onChange={handleChange}
+              aria-invalid={Boolean(errors.valid_from)}
             />
+            {errors.valid_from && <span className={styles.error}>{errors.valid_from}</span>}
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="voucher-valid-until">Vigente hasta (opcional)</label>
+            <input
+              id="voucher-valid-until"
+              name="valid_until"
+              type="date"
+              value={fields.valid_until}
+              onChange={handleChange}
+              aria-invalid={Boolean(errors.valid_until)}
+            />
+            {errors.valid_until && <span className={styles.error}>{errors.valid_until}</span>}
           </div>
 
           {actionError && (

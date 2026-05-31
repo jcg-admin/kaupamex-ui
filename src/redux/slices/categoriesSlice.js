@@ -43,7 +43,7 @@ export const deactivateCategory = createAsyncThunk(
   'categories/deactivate',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${URL_BASE}${id}/deactivate/`);
+      const res = await apiService.post(`${URL_BASE}${id}/deactivate/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

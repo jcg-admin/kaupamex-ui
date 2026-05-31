@@ -1,291 +1,187 @@
 /**
- * AddressesPage — PracticaYoruba
- * UC-AUTH-07: Libreta de direcciones de envio del comprador.
+ * AddressesPage — Práctica Yorùbà
+ * CRUD de direcciones (max 5).
  *
- * Lecturas via useAddresses (React Query); mutaciones via addressesSlice
- * (canonical D-010) preservando lastAction.
+ * Endpoints:
+ *   GET / POST   /auth/addresses/
+ *   GET / PATCH / DELETE  /auth/addresses/{id}/
  */
-import { useCallback, useState } from 'react';
+
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAddresses, ADDRESSES_KEY } from '@hooks/domain/useAddresses';
 import {
-  createAddress,
-  updateAddress,
-  deleteAddress,
-  setDefaultAddress,
-  clearAddressesActionState,
-} from '@redux/slices/addressesSlice';
+  fetchAddresses, createAddress, deleteAddress, setDefaultAddress,
+} from '@redux/slices/authSlice';
+import AccountSidebar from '@components/account/AccountSidebar';
+import { MetaTag, Button, Field } from '@components/common/primitives';
 import styles from './AddressesPage.module.scss';
 
-const REQUIRED_FIELDS = [
-  'recipient', 'street', 'exterior_number',
-  'neighborhood', 'city', 'state', 'postal_code', 'phone',
-];
-
-const LABELS = {
-  recipient:       'Destinatario',
-  street:          'Calle',
-  exterior_number: 'Numero exterior',
-  interior_number: 'Numero interior (opcional)',
-  neighborhood:    'Colonia',
-  city:            'Ciudad',
-  state:           'Estado',
-  postal_code:     'Codigo postal',
-  phone:           'Telefono de contacto',
-};
-
-const EMPTY_FORM = {
-  recipient: '', street: '', exterior_number: '',
-  interior_number: '', neighborhood: '', city: '',
-  state: '', postal_code: '', phone: '', country: 'MX',
-};
-
-function AddressForm({ initial = EMPTY_FORM, isEditing, onSubmit, onCancel, isActioning, apiError }) {
-  const [fields, setFields] = useState(initial);
-  const [errors, setErrors] = useState({});
-
-  const handleChange = (ev) => {
-    setFields((p) => ({ ...p, [ev.target.name]: ev.target.value }));
-    if (errors[ev.target.name]) {
-      setErrors((p) => ({ ...p, [ev.target.name]: '' }));
-    }
-  };
-
-  const handleSubmit = (ev) => {
-    ev.preventDefault();
-    const e = {};
-    REQUIRED_FIELDS.forEach((k) => {
-      if (!fields[k]?.trim()) e[k] = `${LABELS[k]} es obligatorio.`;
-    });
-    if (Object.keys(e).length > 0) { setErrors(e); return; }
-    onSubmit(fields);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} noValidate className={styles.form}>
-      <h2 className={styles.formTitle}>
-        {isEditing ? 'Editar direccion' : 'Nueva direccion'}
-      </h2>
-
-      {Object.keys(LABELS).map((key) => (
-        <div key={key} className={styles.field}>
-          <label htmlFor={`addr-${key}`}>{LABELS[key]}</label>
-          <input
-            id={`addr-${key}`}
-            type={key === 'phone' ? 'tel' : 'text'}
-            name={key}
-            value={fields[key]}
-            onChange={handleChange}
-            aria-invalid={!!errors[key]}
-          />
-          {errors[key] && (
-            <span className={styles.fieldError}>{errors[key]}</span>
-          )}
-          {apiError?.validationErrors?.[key]?.[0] && (
-            <span className={styles.fieldError}>
-              {apiError.validationErrors[key][0]}
-            </span>
-          )}
-        </div>
-      ))}
-
-      {apiError?.code === 'OUT_OF_DELIVERY_ZONE' && (
-        <p className={styles.zoneError} role="alert">
-          Esa zona no esta disponible para envio. Cubrimos Mexico
-          continental.
-        </p>
-      )}
-
-      <div className={styles.formActions}>
-        <button type="submit" className={styles.btnPrimary} disabled={isActioning}>
-          {isActioning ? 'Guardando...' : 'Guardar direccion'}
-        </button>
-        <button type="button" className={styles.btnSecondary} onClick={onCancel}>
-          Cancelar
-        </button>
-      </div>
-    </form>
-  );
-}
+const MAX_ADDRESSES = 5;
 
 export default function AddressesPage() {
-  const dispatch    = useDispatch();
-  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
+  const addresses = useSelector((s) => s.auth?.user?.addresses || []);
+  const addressError = useSelector((s) => s.auth?.error ?? null);
+  const [showForm, setShowForm] = useState(false);
 
-  const { data: addresses = [], isLoading } = useAddresses();
-  const isActioning = useSelector((s) => s.addresses?.isActioning);
-  const actionError = useSelector((s) => s.addresses?.actionError);
-  const lastAction  = useSelector((s) => s.addresses?.lastAction);
+  useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
 
-  const [editing, setEditing] = useState(null); // null | 'new' | id
-
-  const invalidate = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ADDRESSES_KEY });
-  }, [queryClient]);
-
-  const openForm = (idOrNew) => {
-    dispatch(clearAddressesActionState());
-    setEditing(idOrNew);
-  };
-
-  const closeForm = () => {
-    dispatch(clearAddressesActionState());
-    setEditing(null);
-  };
-
-  const handleCreate = async (payload) => {
-    const result = await dispatch(createAddress(payload));
-    if (createAddress.fulfilled.match(result)) {
-      invalidate();
-      setEditing(null);
-    }
-  };
-
-  const handleUpdate = async (id, payload) => {
-    const result = await dispatch(updateAddress({ id, payload }));
-    if (updateAddress.fulfilled.match(result)) {
-      invalidate();
-      setEditing(null);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    dispatch(clearAddressesActionState());
-    const result = await dispatch(deleteAddress(id));
-    if (deleteAddress.fulfilled.match(result)) invalidate();
-  };
-
-  const handleSetDefault = async (id) => {
-    dispatch(clearAddressesActionState());
-    const result = await dispatch(setDefaultAddress(id));
-    if (setDefaultAddress.fulfilled.match(result)) invalidate();
-  };
+  const capacity = addresses.length;
+  const slots = Array.from({ length: MAX_ADDRESSES }, (_, i) => addresses[i] || null);
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Direcciones de envio</h1>
-        <p className={styles.subtitle}>
-          Guarda tus direcciones para agilizar el checkout.
-        </p>
-      </header>
+      <div className={styles.container}>
+        <nav className={styles.breadcrumb}>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
+          <span>/</span>
+          <span className={styles.bcCurrent}>Direcciones</span>
+        </nav>
 
-      {lastAction === 'deleted' && !actionError && (
-        <p className={styles.success} role="status">
-          Direccion eliminada.
-        </p>
-      )}
+        <div className={styles.layout}>
+          <AccountSidebar />
 
-      {actionError && editing === null && (
-        <p className={styles.error} role="alert">
-          {actionError.message || 'No se pudo completar la accion.'}
-        </p>
-      )}
+          <section>
+            <header className={styles.header}>
+              <div>
+                <MetaTag tone="bronze">{capacity} de {MAX_ADDRESSES} direcciones · capacidad máxima</MetaTag>
+                <h1 className={styles.title}>Mis direcciones</h1>
+              </div>
+              <Button
+                variant="primary"
+                onClick={() => setShowForm(true)}
+                disabled={capacity >= MAX_ADDRESSES}
+              >
+                + Añadir dirección
+              </Button>
+            </header>
 
-      {isLoading && (
-        <div className={styles.loading} aria-live="polite">
-          <p>Cargando direcciones...</p>
-        </div>
-      )}
-
-      {!isLoading && addresses.length === 0 && editing !== 'new' && (
-        <p className={styles.empty}>
-          No tienes direcciones guardadas. Agrega una para empezar.
-        </p>
-      )}
-
-      {editing === 'new' && (
-        <AddressForm
-          onSubmit={handleCreate}
-          onCancel={closeForm}
-          isActioning={isActioning}
-          apiError={actionError}
-        />
-      )}
-
-      {!isLoading && addresses.length > 0 && editing !== 'new' && (
-        <ul className={styles.list}>
-          {addresses.map((addr) => (
-            <li key={addr.id} className={styles.item}>
-              {editing === addr.id ? (
-                <AddressForm
-                  initial={addr}
-                  isEditing
-                  onSubmit={(payload) => handleUpdate(addr.id, payload)}
-                  onCancel={closeForm}
-                  isActioning={isActioning}
-                  apiError={actionError}
+            <div className={styles.capacityBar}>
+              {slots.map((_, i) => (
+                <div
+                  key={i}
+                  className={`${styles.capSlot} ${i < capacity ? styles.capSlotFilled : ''}`}
                 />
-              ) : (
-                <>
-                  <div className={styles.info}>
-                    <p className={styles.recipient}>
-                      {addr.recipient}
-                      {addr.is_default && (
-                        <span className={styles.badge}>Predeterminada</span>
-                      )}
-                    </p>
-                    <p className={styles.line}>
-                      {[addr.street, addr.exterior_number, addr.interior_number]
-                        .filter(Boolean).join(' ')}
-                    </p>
-                    <p className={styles.line}>
-                      {addr.neighborhood}, {addr.city}, {addr.state},{' '}
-                      {addr.postal_code}
-                    </p>
-                    <p className={styles.line}>Tel. {addr.phone}</p>
-                  </div>
-                  <div className={styles.actions}>
-                    <button
-                      type="button"
-                      className={styles.btnSecondary}
-                      onClick={() => openForm(addr.id)}
-                    >
-                      Editar
-                    </button>
-                    {!addr.is_default && (
-                      <button
-                        type="button"
-                        className={styles.btnSecondary}
-                        onClick={() => handleSetDefault(addr.id)}
-                        aria-label={`Hacer predeterminada ${addr.recipient}`}
-                      >
-                        Hacer predeterminada
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className={styles.btnDanger}
-                      onClick={() => handleDelete(addr.id)}
-                      aria-label={`Eliminar direccion ${addr.recipient}`}
-                      disabled={isActioning}
-                    >
-                      Eliminar
-                    </button>
-                  </div>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
+              ))}
+            </div>
 
-      {!isLoading && editing === null && (
-        <div className={styles.footer}>
-          <button
-            type="button"
-            className={styles.btnPrimary}
-            onClick={() => openForm('new')}
-          >
-            Agregar direccion
-          </button>
-          <Link to="/account" className={styles.cancelLink}>
-            Volver a la cuenta
-          </Link>
+            {showForm && capacity < MAX_ADDRESSES && (
+              <AddressFormCard
+                onSave={async (data) => {
+                  await dispatch(createAddress(data));
+                  setShowForm(false);
+                }}
+                onCancel={() => setShowForm(false)}
+              />
+            )}
+
+            {addressError && (
+              <p role="alert" className={styles.errorBanner}>
+                {addressError.message ?? addressError.detail ?? 'Ocurrió un error. Intenta de nuevo.'}
+              </p>
+            )}
+
+            <div className={styles.grid}>
+              {slots.map((addr, i) =>
+                addr ? (
+                  <AddressCard
+                    key={addr.id}
+                    address={addr}
+                    onSetDefault={() => dispatch(setDefaultAddress(addr.id))}
+                    onDelete={() => {
+                      if (!window.confirm(`¿Eliminar la dirección "${addr.alias}"? Esta acción no se puede deshacer.`)) return;
+                      dispatch(deleteAddress(addr.id));
+                    }}
+                  />
+                ) : (
+                  <EmptySlot key={`empty-${i}`} />
+                )
+              )}
+            </div>
+
+            <div className={styles.note}>
+              <span className={styles.noteIcon}>i</span>
+              <div>
+                Por reglas de la casa, puedes tener hasta <strong>{MAX_ADDRESSES} direcciones</strong> guardadas.
+                Cuando llegues al límite, elimina una vieja antes de añadir otra.
+              </div>
+            </div>
+          </section>
         </div>
-      )}
+      </div>
     </main>
+  );
+}
+
+function AddressCard({ address, onSetDefault, onDelete }) {
+  return (
+    <article className={`${styles.card} ${address.is_default ? styles.cardDefault : ''}`}>
+      <header className={styles.cardHeader}>
+        <h3 className={styles.cardAlias}>{address.alias}</h3>
+        {address.is_default && <MetaTag tone="lime">Predeterminada</MetaTag>}
+      </header>
+      <address className={styles.cardBody}>
+        <strong>{address.recipient_name}</strong><br />
+        {address.street}<br />
+        {address.neighborhood}, {address.city}<br />
+        {address.zip_code} {address.state}, {address.country}<br />
+        {address.phone}
+      </address>
+      <footer className={styles.cardFooter}>
+        <button type="button" className={`${styles.cardAction} ${styles.cardActionEdit}`}>EDITAR</button>
+        {!address.is_default && (
+          <button type="button" className={`${styles.cardAction} ${styles.cardActionDefault}`} onClick={onSetDefault}>
+            HACER PREDETERMINADA
+          </button>
+        )}
+        {!address.is_default && (
+          <button type="button" className={`${styles.cardAction} ${styles.cardActionDelete}`} onClick={onDelete}>
+            ELIMINAR
+          </button>
+        )}
+      </footer>
+    </article>
+  );
+}
+
+function EmptySlot() {
+  return (
+    <article className={styles.emptySlot}>
+      <span className={styles.emptyPlus}>+</span>
+      <span>slot libre</span>
+    </article>
+  );
+}
+
+function AddressFormCard({ onSave, onCancel }) {
+  const [data, setData] = useState({
+    alias: '', recipient_name: '', phone: '',
+    street: '', neighborhood: '', zip_code: '',
+    city: '', state: '', country: 'MX',
+  });
+  const set = (k) => (e) => setData({ ...data, [k]: e.target.value });
+
+  return (
+    <form
+      className={styles.formCard}
+      onSubmit={(e) => { e.preventDefault(); onSave(data); }}
+    >
+      <h3 className={styles.formTitle}>Nueva dirección</h3>
+      <div className={styles.formGrid}>
+        <Field label="Alias (Casa, Trabajo…)"   value={data.alias} onChange={set('alias')} required autoComplete="off" />
+        <Field label="Nombre del destinatario" value={data.recipient_name} onChange={set('recipient_name')} required autoComplete="name" />
+        <Field label="Teléfono" value={data.phone} onChange={set('phone')} required autoComplete="tel" />
+        <Field label="Calle y número" value={data.street} onChange={set('street')} required autoComplete="address-line1" />
+        <Field label="Colonia" value={data.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        <Field label="C.P." value={data.zip_code} onChange={set('zip_code')} required autoComplete="postal-code" />
+        <Field label="Ciudad" value={data.city} onChange={set('city')} required autoComplete="address-level2" />
+        <Field label="Estado" value={data.state} onChange={set('state')} required autoComplete="address-level1" />
+      </div>
+      <div className={styles.formActions}>
+        <Button type="submit" variant="primary">Guardar dirección</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>Cancelar</Button>
+      </div>
+    </form>
   );
 }

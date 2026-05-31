@@ -27,6 +27,7 @@ module.exports = {
     '^@router/(.*)$':    '<rootDir>/src/router/$1',
     '^@config/(.*)$':    '<rootDir>/src/config/$1',
     '^@layouts/(.*)$':   '<rootDir>/src/layouts/$1',
+    '^@context/ToastContext$': '<rootDir>/src/context/__mocks__/ToastContext.jsx',
     '^@context/(.*)$':   '<rootDir>/src/context/$1',
     '^@lib/(.*)$':       '<rootDir>/src/lib/$1',
     '^@facades/(.*)$':   '<rootDir>/src/facades/$1',

@@ -1,153 +1,132 @@
 /**
- * RegisterPage — PracticaYoruba
- * Registro de comprador (UC-AUTH-01).
+ * RegisterPage — Práctica Yorùbà
+ * Crear cuenta · verifica email después.
  *
- * Sprint 1 (completado en Sprint 2):
- *   - Con PY_AUTH_SOURCE=mock simula el registro y muestra confirmacion.
- *   - Con PY_AUTH_SOURCE=real llama a POST /api/v1/auth/register/.
+ * Endpoints:
+ *   POST /auth/register/
  */
 
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '@redux/slices/authSlice';
-import { selectAuthLoading, selectAuthError } from '@redux/selectors';
-import styles from './RegisterPage.module.scss';
-
-const USE_MOCK = process.env.PY_AUTH_SOURCE === 'mock';
+import { Button, Field, MetaTag } from '@components/common/primitives';
+import logoUrl from '@assets/practica-yoruba-logo.svg';
+import styles from '../auth/LoginPage.module.scss';
 
 export default function RegisterPage() {
-  const dispatch  = useDispatch();
-  const isLoading = useSelector(selectAuthLoading);
-  const authError = useSelector(selectAuthError);
-
-  const [fields, setFields]    = useState({
-    username: '', email: '', password: '', password_confirm: '',
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    first_name: '', last_name: '', email: '', username: '', password: '', terms: false,
   });
-  const [errors, setErrors]    = useState({});
-  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
-  const validate = () => {
-    const e = {};
-    if (fields.username.trim().length < 3)
-      e.username = 'El usuario debe tener al menos 3 caracteres.';
-    if (!fields.email.includes('@'))
-      e.email = 'Ingresa un email valido.';
-    if (fields.password.length < 8)
-      e.password = 'La contrasena debe tener al menos 8 caracteres.';
-    if (fields.password !== fields.password_confirm)
-      e.password_confirm = 'Las contrasenas no coinciden.';
-    return e;
-  };
-
-  const handleChange = (e) => {
-    setFields(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    if (errors[e.target.name]) setErrors(prev => ({ ...prev, [e.target.name]: '' }));
-  };
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validation = validate();
-    if (Object.keys(validation).length) { setErrors(validation); return; }
-
-    if (USE_MOCK) {
-      setSubmitted(true);
+    setErrors({});
+    if (!form.terms) {
+      setErrors({ terms: 'Debes aceptar los términos.' });
       return;
     }
-
-    const result = await dispatch(registerUser(fields));
-    if (registerUser.fulfilled.match(result)) setSubmitted(true);
+    setLoading(true);
+    try {
+      await dispatch(registerUser(form)).unwrap();
+      navigate('/auth/verificar-correo', { state: { email: form.email } });
+    } catch (err) {
+      setErrors(err.fields || { _form: 'No se pudo crear la cuenta.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (submitted) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.card}>
-          <h1 className={styles.title}>Revisa tu email</h1>
-          <p>
-            Enviamos un enlace de activacion a <strong>{fields.email || 'tu correo'}</strong>.
-            Activa tu cuenta para iniciar sesion.
-          </p>
-          <Link to="/auth/login" className={styles.submitButton}>
-            Ir al inicio de sesion
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Crear cuenta</h1>
-        <p className={styles.subtitle}>
-          Crea tu cuenta en PracticaYoruba
-        </p>
+    <main className={styles.page}>
+      <section className={styles.heroCol}>
+        <Link to="/" className={styles.heroBrand}>
+          <img src={logoUrl} alt="" className={styles.heroLogo} />
+          <div>
+            <div className={styles.heroName}>Práctica Yorùbà</div>
+            <div className={styles.heroTag}>Ifá · Òrìsà · Olódùmarè</div>
+          </div>
+        </Link>
+        <div className={styles.heroBody}>
+          <MetaTag tone="bronze">Para los que practican</MetaTag>
+          <h1 className={styles.heroTitle}>Abre tu cuenta <em>en la casa</em>.</h1>
+          <p className={styles.heroLead}>
+            Te enviaremos un correo para verificar tu dirección. Sin compartir tus datos.
+            Tu privacidad es nuestra responsabilidad.
+          </p>
+          <ul className={styles.perks}>
+            <li className={styles.perk}><span className={styles.perkDot}>·</span>Acceso al calendario del santoral</li>
+            <li className={styles.perk}><span className={styles.perkDot}>·</span>Lista de deseos persistente</li>
+            <li className={styles.perk}><span className={styles.perkDot}>·</span>Checkout más rápido la próxima vez</li>
+            <li className={styles.perk}><span className={styles.perkDot}>·</span>Historial de pedidos completo</li>
+          </ul>
+        </div>
+        <div className={styles.heroFootnote}>Sin spam · puedes cancelar tu cuenta cuando quieras</div>
+        <div className={styles.deco1} aria-hidden="true" />
+        <div className={styles.deco2} aria-hidden="true" />
+      </section>
 
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <div className={styles.field}>
-            <label htmlFor="username">Nombre de usuario</label>
-            <input
-              id="username" name="username" type="text"
-              autoComplete="username"
-              value={fields.username} onChange={handleChange}
-              aria-invalid={!!errors.username}
-            />
-            {errors.username && <span className={styles.error}>{errors.username}</span>}
+      <section className={styles.formCol}>
+        <div className={styles.formWrap}>
+          <div className={styles.tabs}>
+            <Link to="/auth/login" className={styles.tab}>Iniciar sesión</Link>
+            <span className={`${styles.tab} ${styles.tabActive}`}>Crear cuenta</span>
           </div>
 
-          <div className={styles.field}>
-            <label htmlFor="email">Email</label>
-            <input
-              id="email" name="email" type="email"
-              autoComplete="email"
-              value={fields.email} onChange={handleChange}
-              aria-invalid={!!errors.email}
-            />
-            {errors.email && <span className={styles.error}>{errors.email}</span>}
-          </div>
+          <h2 className={styles.title}>Crear cuenta</h2>
+          <p className={styles.lead}>
+            Te enviaremos un correo para verificar tu dirección.
+          </p>
 
-          <div className={styles.field}>
-            <label htmlFor="password">Contrasena</label>
-            <input
-              id="password" name="password" type="password"
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Field label="Nombre"   value={form.first_name} onChange={set('first_name')} error={errors.first_name} required autoComplete="given-name" />
+              <Field label="Apellido" value={form.last_name}  onChange={set('last_name')}  error={errors.last_name}  required autoComplete="family-name" />
+            </div>
+            <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} error={errors.email} required autoComplete="email" />
+            <Field label="Nombre de usuario" value={form.username} onChange={set('username')} error={errors.username} required placeholder="manuel_ortega" autoComplete="username" />
+            <Field
+              label="Contraseña"
+              type="password"
+              value={form.password}
+              onChange={set('password')}
+              error={errors.password}
+              required
+              hint="· Mínimo 8 caracteres · No similar a tu usuario · No demasiado común"
               autoComplete="new-password"
-              value={fields.password} onChange={handleChange}
-              aria-invalid={!!errors.password}
             />
-            {errors.password && <span className={styles.error}>{errors.password}</span>}
-          </div>
 
-          <div className={styles.field}>
-            <label htmlFor="password_confirm">Confirmar contrasena</label>
-            <input
-              id="password_confirm" name="password_confirm" type="password"
-              autoComplete="new-password"
-              value={fields.password_confirm} onChange={handleChange}
-              aria-invalid={!!errors.password_confirm}
-            />
-            {errors.password_confirm && (
-              <span className={styles.error}>{errors.password_confirm}</span>
-            )}
-          </div>
+            <label className={styles.checkboxLabel} style={{ alignItems: 'flex-start', marginTop: 4 }}>
+              <input
+                type="checkbox"
+                checked={form.terms}
+                onChange={(e) => setForm({ ...form, terms: e.target.checked })}
+              />
+              <span className={styles.checkbox} style={{ marginTop: 2 }} />
+              <span>
+                Acepto los <Link to="/info/terminos">términos</Link> y el{' '}
+                <Link to="/info/privacidad">aviso de privacidad</Link>.
+              </span>
+            </label>
+            {errors.terms && <div style={{ color: 'var(--c-vino-soft)', fontSize: 12 }}>{errors.terms}</div>}
+            {errors._form && <div style={{ color: 'var(--c-vino-soft)', fontSize: 13 }}>{errors._form}</div>}
 
-          {authError && !USE_MOCK && (
-            <p className={styles.globalError} role="alert">{authError}</p>
-          )}
+            <Button type="submit" variant="primary" block size="lg" disabled={loading}>
+              {loading ? 'Creando…' : 'Crear mi cuenta'}
+            </Button>
 
-          <button type="submit" className={styles.submitButton} disabled={isLoading}>
-            {isLoading ? 'Creando cuenta...' : 'Crear cuenta'}
-          </button>
-        </form>
-
-        <p className={styles.links}>
-          <Link to="/auth/login">Ya tengo cuenta</Link>
-        </p>
-
-        {USE_MOCK && (
-          <p className={styles.mockBadge}>Modo mock activo</p>
-        )}
-      </div>
-    </div>
+            <div className={styles.footer}>
+              ¿Ya tienes cuenta? <Link to="/auth/login">Inicia sesión →</Link>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
   );
 }

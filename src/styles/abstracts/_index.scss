@@ -1,3 +1,5 @@
 // Abstracts barrel — importar en cualquier módulo SCSS que necesite variables/mixins
+// tokens primero: emite :root{} antes que cualquier regla dependiente
+@forward 'tokens';
 @forward 'variables';
 @forward 'mixins';

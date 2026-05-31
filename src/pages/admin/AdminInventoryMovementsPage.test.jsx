@@ -37,12 +37,14 @@ const wrap = (store) => (
   </Provider>
 );
 
+// H-CICLO36-02: StockMovementSerializer expone movement_type (no "type").
+// El valor de ajuste manual es ADJUSTMENT (no MANUAL).
 const MOVEMENTS = [
-  { id: 1, type: 'SALE',         delta: -2, stock_after: 8,
+  { id: 1, movement_type: 'SALE',         delta: -2, stock_after: 8,
     reference: 'ORD-100', created_at: '2026-05-01T10:00:00Z' },
-  { id: 2, type: 'CANCELLATION', delta:  2, stock_after: 10,
+  { id: 2, movement_type: 'CANCELLATION', delta:  2, stock_after: 10,
     reference: 'ORD-100', created_at: '2026-05-02T10:00:00Z' },
-  { id: 3, type: 'MANUAL',       delta: -1, stock_after: 9,
+  { id: 3, movement_type: 'ADJUSTMENT',   delta: -1, stock_after: 9,
     reference: 'ADMIN:5', reason: 'MERMA',
     created_at: '2026-05-03T10:00:00Z' },
 ];

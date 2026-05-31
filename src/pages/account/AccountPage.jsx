@@ -1,77 +1,136 @@
 /**
- * AccountPage — PracticaYoruba
- * Hub de la cuenta del comprador. Muestra resumen y navegacion
- * a las secciones de perfil, direcciones y ordenes.
- *
- * Sprint 2:
- *   - Con PY_PROFILE_SOURCE=mock usa datos del MockRegistry.
- *   - Con PY_PROFILE_SOURCE=real usa GET /api/v1/auth/profile/.
+ * AccountPage — Práctica Yorùbà
+ * Dashboard de cuenta: avatar, completitud de perfil, accesos rápidos,
+ * últimos pedidos.
  */
 
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchProfile } from '@redux/slices/authSlice';
-import { selectUser, selectAuthLoading } from '@redux/selectors';
-import { loadMock } from '@mocks/registry';
+import { fetchOrders } from '@redux/slices/ordersSlice';
+import AccountSidebar from '@components/account/AccountSidebar';
+import { MetaTag, Button, Price } from '@components/common/primitives';
 import styles from './AccountPage.module.scss';
 
-const USE_MOCK = process.env.PY_PROFILE_SOURCE === 'mock';
-
-const NAV_ITEMS = [
-  { to: '/account/profile',   label: 'Mi perfil',          desc: 'Datos personales y avatar' },
-  { to: '/account/addresses', label: 'Mis direcciones',     desc: 'Direcciones de envio guardadas' },
-  { to: '/account/orders',    label: 'Mis pedidos',         desc: 'Historial y estado de ordenes' },
-  { to: '/account/wishlist',  label: 'Lista de deseos',     desc: 'Productos que te interesan' },
-  { to: '/account/password',  label: 'Cambiar contrasena',  desc: 'Seguridad de la cuenta' },
-];
-
 export default function AccountPage() {
-  const dispatch  = useDispatch();
-  const user      = useSelector(selectUser);
-  const isLoading = useSelector(selectAuthLoading);
+  const dispatch = useDispatch();
+  const user = useSelector((s) => s.auth?.user);
+  const orders = useSelector((s) => s.orders?.list || []);
 
   useEffect(() => {
-    if (USE_MOCK) {
-      const mockProfile = loadMock('profile');
-      dispatch({ type: 'auth/fetchProfile/fulfilled', payload: mockProfile });
-    } else {
-      dispatch(fetchProfile());
-    }
+    dispatch(fetchProfile());
+    dispatch(fetchOrders({ limit: 3 }));
   }, [dispatch]);
 
-  if (isLoading && !user) {
-    return <div className={styles.page}><p>Cargando cuenta...</p></div>;
-  }
-
-  const greeting = user?.first_name ? `Hola, ${user.first_name}` : 'Mi cuenta';
+  if (!user) return null;
+  const completeness = user.profile_completeness ?? 0;
+  const initials = `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase();
 
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>{greeting}</h1>
-        {user?.email && <p className={styles.email}>{user.email}</p>}
-        {user?.profile_completeness !== undefined && user.profile_completeness < 100 && (
-          <p className={styles.completeness}>
-            Perfil completado al {user.profile_completeness}%
-            {' — '}
-            <Link to="/account/profile">Completar ahora</Link>
-          </p>
-        )}
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <header className={styles.hero}>
+          <div className={styles.avatar}>
+            {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
+          </div>
+          <div className={styles.heroText}>
+            <MetaTag tone="bronze">
+              Cuenta creada en {new Date(user.date_joined).getFullYear()}
+            </MetaTag>
+            <h1 className={styles.heroTitle}>
+              Hola, {user.first_name}
+            </h1>
+            <div className={styles.heroMeta}>
+              {user.email} · {orders.length} {orders.length === 1 ? 'pedido' : 'pedidos'}
+            </div>
+          </div>
+        </header>
+
+        <div className={styles.layout}>
+          <AccountSidebar />
+
+          <section>
+            {completeness < 100 && (
+              <div className={styles.completeness}>
+                <div>
+                  <MetaTag tone="bronze">Completa tu perfil</MetaTag>
+                  <h3 className={styles.completenessTitle}>
+                    Tu perfil está al {completeness}%
+                    {user.pending_fields?.length > 0 && ` · falta ${user.pending_fields[0]}`}
+                  </h3>
+                  <div className={styles.completenessBar}>
+                    <div style={{ width: `${completeness}%` }} />
+                  </div>
+                  <div className={styles.completenessDesc}>
+                    {user.pending_fields?.length > 0
+                      ? `Solo te falta agregar ${user.pending_fields.join(', ')} para completar.`
+                      : 'Casi terminas.'}
+                  </div>
+                </div>
+                <Link to="/mi-cuenta/perfil">
+                  <Button variant="primary">Completar perfil</Button>
+                </Link>
+              </div>
+            )}
+
+            <section className={styles.recentOrders}>
+              <header className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>Pedidos recientes</h2>
+                <Link to="/mi-cuenta/pedidos" className={styles.sectionLink}>
+                  Ver todos →
+                </Link>
+              </header>
+
+              {orders.length === 0 ? (
+                <div className={styles.empty}>
+                  <p>Aún no tienes pedidos.</p>
+                  <Link to="/catalogo">
+                    <Button variant="secondary">Ir al catálogo</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className={styles.orderList}>
+                  {orders.slice(0, 3).map((o) => (
+                    <article key={o.order_number} className={styles.orderCard}>
+                      <div>
+                        <div className={styles.orderMeta}>
+                          {new Date(o.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+                        </div>
+                        <div className={styles.orderNumber}>{o.order_number}</div>
+                      </div>
+                      <div className={styles.orderStatus}>
+                        <span className={styles.statusDot} />
+                        {o.status_label || o.status}
+                      </div>
+                      <Price amount={o.total} size="md" />
+                      <Link to={`/mi-cuenta/pedidos/${o.order_number}`}>
+                        <Button variant="secondary" size="sm">Detalle</Button>
+                      </Link>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <div className={styles.quickGrid}>
+              <QuickCard to="/mi-cuenta/favoritos"   t="Lista de deseos"   d="Tus piezas guardadas" />
+              <QuickCard to="/mi-cuenta/direcciones" t="Mis direcciones"   d="Hasta 5 ubicaciones" />
+              <QuickCard to="/mi-cuenta/seguridad"   t="Seguridad"          d="Contraseña y sesiones" />
+            </div>
+          </section>
+        </div>
       </div>
+    </main>
+  );
+}
 
-      <nav className={styles.nav}>
-        {NAV_ITEMS.map(({ to, label, desc }) => (
-          <Link key={to} to={to} className={styles.navItem}>
-            <span className={styles.navLabel}>{label}</span>
-            <span className={styles.navDesc}>{desc}</span>
-          </Link>
-        ))}
-      </nav>
-
-      {USE_MOCK && (
-        <p className={styles.mockBadge}>Modo mock activo (PY_PROFILE_SOURCE=mock)</p>
-      )}
-    </div>
+function QuickCard({ to, t, d }) {
+  return (
+    <Link to={to} className={styles.quickCard}>
+      <h4>{t}</h4>
+      <p>{d}</p>
+      <span className={styles.quickArrow}>→</span>
+    </Link>
   );
 }

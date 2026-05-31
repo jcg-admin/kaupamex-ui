@@ -9,19 +9,22 @@
  *   UC-ORD-07 — Transicion de estado (admin)
  *   UC-ORD-08 — Cancelar orden (admin)
  *
- * Lecturas (listado, detalle, dashboard) viven en
- * `src/hooks/domain/useOrders.js` via React Query.
+ * Lecturas (listado, detalle):
+ *   fetchOrders      — GET /api/v1/orders/?status={filter}
+ *   fetchOrderDetail — GET /api/v1/orders/{order_number}/
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const CHECKOUT_URL              = '/api/v1/checkout/';
+const CHECKOUT_URL              = '/api/v1/orders/checkout/';
 const CANCEL_URL                = (orderNumber) => `/api/v1/orders/${orderNumber}/cancel/`;
 const ADDRESS_URL               = (orderNumber) => `/api/v1/orders/${orderNumber}/address/`;
 const SHIPPING_URL              = (orderNumber) => `/api/v1/orders/${orderNumber}/shipping/`;
 const ADMIN_STATUS_URL          = (orderNumber) => `/api/v1/admin/orders/${orderNumber}/status/`;
 const ADMIN_CANCEL_URL          = (orderNumber) => `/api/v1/admin/orders/${orderNumber}/cancel/`;
+const ORDERS_URL                = '/api/v1/orders/';
+const ORDER_DETAIL_URL          = (orderNumber) => `/api/v1/orders/${orderNumber}/`;
 
 // =============================================================================
 // Thunks
@@ -110,11 +113,55 @@ export const adminCancelOrder = createAsyncThunk(
   },
 );
 
+/** Lista de pedidos del comprador con filtro opcional de estado y soporte de paginación.
+ *  H-CICLO22-02: se agrega el parámetro `page` para poder navegar páginas y se
+ *  preservan count/next/previous en el estado para que la UI pueda renderizar
+ *  controles de paginación. Sin `page`, el thunk siempre retornaba la página 1
+ *  y el slice descartaba los metadatos de paginación. */
+export const fetchOrders = createAsyncThunk(
+  'orders/fetchOrders',
+  async ({ filter = 'all', page = 1, pageSize } = {}, { rejectWithValue }) => {
+    try {
+      const params = {};
+      if (filter !== 'all') params.status = filter;
+      if (page > 1) params.page = page;
+      if (pageSize) params.page_size = pageSize;
+      const res = await apiService.get(ORDERS_URL, { params });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** Detalle de una orden por numero de orden. */
+export const fetchOrderDetail = createAsyncThunk(
+  'orders/fetchOrderDetail',
+  async (orderNumber, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ORDER_DETAIL_URL(orderNumber));
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
 // =============================================================================
 // Slice
 // =============================================================================
 
 const initialState = {
+  list:            [],
+  // H-CICLO22-02: metadatos de paginación preservados del response de la API.
+  // La API devuelve {count, next, previous, results}. Sin estos campos la UI
+  // no podía mostrar controles de paginación ni saber si hay más páginas.
+  ordersCount:     0,
+  ordersNext:      null,
+  ordersPrevious:  null,
+  current:         null,
+  isLoading:       false,
+  isLoadingDetail: false,
   isActioning:     false,
   actionError:     null,
   lastAction:      null, // 'checkout' | 'cancelled' | 'address_updated' | 'shipping_updated' | 'admin_transitioned' | 'admin_cancelled'
@@ -149,6 +196,12 @@ const ordersSlice = createSlice({
       state.lastOrderNumber = null;
       state.lastOrder       = null;
     },
+    resetOrdersList(state) {
+      state.list           = [];
+      state.ordersCount    = 0;
+      state.ordersNext     = null;
+      state.ordersPrevious = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -174,9 +227,52 @@ const ordersSlice = createSlice({
 
       .addCase(adminCancelOrder.pending,   handlePending)
       .addCase(adminCancelOrder.fulfilled, makeFulfilled('admin_cancelled'))
-      .addCase(adminCancelOrder.rejected,  handleRejected);
+      .addCase(adminCancelOrder.rejected,  handleRejected)
+
+      .addCase(fetchOrders.pending, (state) => {
+        state.isLoading  = true;
+        state.actionError = null;
+      })
+      .addCase(fetchOrders.fulfilled, (state, action) => {
+        // H-CICLO22-02: preservar metadatos de paginación del response.
+        // La API usa PageNumberPagination y devuelve {count, next, previous, results}.
+        const payload = action.payload;
+        if (payload && typeof payload === 'object' && 'results' in payload) {
+          state.list           = payload.results;
+          state.ordersCount    = payload.count    ?? 0;
+          state.ordersNext     = payload.next     ?? null;
+          state.ordersPrevious = payload.previous ?? null;
+        } else {
+          // Fallback para respuestas planas (sin paginar).
+          state.list           = Array.isArray(payload) ? payload : [];
+          state.ordersCount    = state.list.length;
+          state.ordersNext     = null;
+          state.ordersPrevious = null;
+        }
+        state.isLoading = false;
+      })
+      .addCase(fetchOrders.rejected, (state, action) => {
+        state.isLoading  = false;
+        state.actionError = action.payload;
+      })
+
+      .addCase(fetchOrderDetail.pending, (state) => {
+        state.isLoadingDetail = true;
+        state.current         = null;
+        // Limpiar actionError para que un error de carga previo no contamine
+        // la vista de detalle ni los mensajes de error de mutaciones.
+        state.actionError     = null;
+      })
+      .addCase(fetchOrderDetail.fulfilled, (state, action) => {
+        state.current         = action.payload;
+        state.isLoadingDetail = false;
+      })
+      .addCase(fetchOrderDetail.rejected, (state, action) => {
+        state.isLoadingDetail = false;
+        state.actionError     = action.payload;
+      });
   },
 });
 
-export const { clearOrdersActionState } = ordersSlice.actions;
+export const { clearOrdersActionState, resetOrdersList } = ordersSlice.actions;
 export default ordersSlice.reducer;

@@ -1,117 +1,174 @@
+// ═══════════════════════════════════════════════════════════════════════
+// ProductCard — Práctica Yorùbà
+// ═══════════════════════════════════════════════════════════════════════
 @use '@styles/abstracts' as *;
 
 .card {
-  @include flex-column;
-  background:    $white;
-  border:        1px solid $border-color;
-  border-radius: $radius-lg;
-  overflow:      hidden;
-  text-decoration: none;
-  color:         inherit;
-  transition:    box-shadow 0.2s ease, transform 0.2s ease;
-  position:      relative;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  padding-bottom: $spacing-5;
+  border-bottom: 1px solid $border-color;
+  transition: $transition-colors;
 
   &:hover {
-    box-shadow: $shadow-md;
-    transform:  translateY(-2px);
+    .image,
+    .imagePlaceholder { transform: scale(1.02); }
+    .name { color: $text-primary; }
   }
 }
 
-.badge {
-  position:    absolute;
-  top:         12px;
-  left:        12px;
-  background:  $primary-color;
-  color:       $white;
-  font-size:   $font-size-xs;
-  font-weight: 600;
-  padding:     3px 8px;
-  border-radius: $radius-sm;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  z-index: 1;
+.imageLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
 }
 
 .imageArea {
-  width:            100%;
-  aspect-ratio:     1 / 1;
-  background:       $bg-subtle;
-  border-bottom:    1px solid $border-color;
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: rgba($lime, 0.04);
+  overflow: hidden;
+}
+
+.image,
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform $transition-slower;
 }
 
 .imagePlaceholder {
-  @include flex-column-center;
-  width:  100%;
-  height: 100%;
-  gap:    8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,
+    rgba($lime, 0.04) 0%,
+    rgba($bronze, 0.06) 100%);
+  border: 1px dashed $border-medium;
 }
-
-.sku {
-  font-size:   $font-size-xs;
-  color:       $text-muted;
+.placeholderSku {
   font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.08em;
 }
 
-.info {
-  @include flex-column;
-  padding: 16px;
-  gap:     6px;
-  flex:    1;
-}
-
-.category {
-  font-size:      $font-size-xs;
-  color:          $text-muted;
+// Badges
+.badge {
+  position: absolute;
+  top: $spacing-3;
+  left: $spacing-3;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight:    500;
+  padding: 4px 10px;
+  border-radius: $border-radius-sm;
+  z-index: 1;
 }
+.badgeFeatured {
+  background: $bronze;
+  color: $bg-page;
+}
+.badgeOffer {
+  background: $lime;
+  color: $bg-page;
+}
+.badgeOut {
+  background: $vino;
+  color: $text-primary;
+  top: $spacing-3;
+  right: $spacing-3;
+  left: auto;
+}
+
+// Wishlist button
+.wishBtn {
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3;
+  width: 32px;
+  height: 32px;
+  border-radius: $border-radius-full;
+  background: rgba($bg-page, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid $border-medium;
+  color: $text-secondary;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: $transition-default;
+
+  &:hover {
+    color: $vino-soft;
+    border-color: $vino-soft;
+  }
+}
+.wishBtnActive {
+  color: $vino-soft;
+  border-color: $vino-soft;
+  background: rgba($vino, 0.18);
+
+  svg { fill: currentColor; }
+}
+
+// Info
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+.tags {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: $spacing-3;
+}
+.tag {
+  font-family: $font-family-mono;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.tagCategory { color: $bronze; }
+.tagOrisha   { color: $coral; }
 
 .name {
   font-family: $font-family-display;
-  font-size:   $font-size-md;
-  color:       $text-primary;
-  font-weight: 600;
-  line-height: 1.35;
-  margin:      0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  line-height: 1.25;
+  color: $text-primary;
+  margin: 0;
+  transition: $transition-colors;
 
-  mark {
-    background: $primary-50;
-    color:      $primary-dark;
-    border-radius: 2px;
-    padding:    0 2px;
+  // highlight from search results
+  :global(mark) {
+    background: rgba($lime, 0.25);
+    color: $text-primary;
+    padding: 0 2px;
   }
 }
 
 .pricing {
-  @include flex-start;
-  gap:        6px;
-  margin-top: 4px;
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-3;
+  margin-top: auto;
 }
-
 .price {
-  font-size:   $font-size-lg;
-  font-weight: 700;
-  color:       $text-primary;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  letter-spacing: $ls-snug;
 }
-
-.priceLabel {
-  font-size: $font-size-xs;
-  color:     $text-muted;
-}
-
-.footer {
-  margin-top: 8px;
-}
-
-.inStock {
-  font-size:  $font-size-xs;
-  color:      $in-stock-color;
-  font-weight: 500;
-}
-
-.outOfStock {
-  font-size:  $font-size-xs;
-  color:      $out-of-stock-color;
-  font-weight: 500;
+.priceWas {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  text-decoration: line-through;
 }

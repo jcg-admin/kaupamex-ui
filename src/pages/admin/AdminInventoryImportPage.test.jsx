@@ -99,7 +99,7 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Importar/i }));
 
     expect(
-      await screen.findByText(/ENCABEZADO_CSV_INVALIDO/i),
+      await screen.findByText(/CSV_HEADER_INVALID/i),
     ).toBeInTheDocument();
   });
 

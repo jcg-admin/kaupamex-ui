@@ -26,6 +26,12 @@ const STATUS_LABEL = {
   PENDING:        'Pendiente',
   PENDING_PAYMENT:'Pendiente de pago',
   PROCESSING:     'En proceso',
+  // H-CICLO109-02: PAGADA es un estado real del backend (pago confirmado,
+  // aun no en preparacion). Faltaba en STATUS_LABEL, ALLOWED_TRANSITIONS y
+  // ADMIN_CANCELLABLE, por lo que ordenes en ese estado mostraban transiciones
+  // incorrectas y el boton de cancelar no aparecia pese a que el backend
+  // lo permite (ADMIN_CANCELABLE_STATUSES incluye PAGADA).
+  PAGADA:         'Pagada',
   IN_PREPARATION: 'En preparacion',
   SHIPPED:        'Enviado',
   DELIVERED:      'Entregado',
@@ -33,14 +39,16 @@ const STATUS_LABEL = {
 };
 
 // H-ADM-002: transiciones permitidas (alineadas con admin_services).
+// H-CICLO109-02: agregado PAGADA y sus transiciones validas desde el backend.
 const ALLOWED_TRANSITIONS = {
   PENDING:        ['PROCESSING', 'CANCELLED'],
-  PROCESSING:     ['IN_PREPARATION', 'CANCELLED'],
+  PROCESSING:     ['PAGADA', 'IN_PREPARATION', 'CANCELLED'],
+  PAGADA:         ['IN_PREPARATION', 'CANCELLED'],
   IN_PREPARATION: ['SHIPPED'],
   SHIPPED:        ['DELIVERED'],
 };
 
-const ADMIN_CANCELLABLE = new Set(['PENDING', 'PROCESSING', 'IN_PREPARATION']);
+const ADMIN_CANCELLABLE = new Set(['PENDING', 'PROCESSING', 'PAGADA', 'IN_PREPARATION']);
 
 function formatCurrency(value) {
   if (value === null || value === undefined || value === '') return '—';
@@ -124,7 +132,10 @@ export default function AdminOrderDetailPage() {
 
       <section aria-labelledby="customer-title" className={styles.section}>
         <h2 id="customer-title">Comprador</h2>
-        <p>{order.user?.email ?? order.guest_email ?? '—'}</p>
+        {/* H-CICLO22-04: AdminOrderSerializer expone user_email y user_username
+            como campos calculados (SerializerMethodField). El campo `user` es
+            un PK entero — order.user?.email siempre era undefined. */}
+        <p>{order.user_email ?? order.guest_email ?? '—'}</p>
       </section>
 
       <section aria-labelledby="items-title" className={styles.section}>
@@ -140,6 +151,23 @@ export default function AdminOrderDetailPage() {
         </ul>
       </section>
 
+      {order.address && (
+        <section aria-labelledby="address-title" className={styles.section}>
+          <h2 id="address-title">Dirección de envío</h2>
+          {/* H-CICLO76-05: AdminOrderSerializer exposes order.address via
+              OrderAddressSerializer (recipient_name, street, city, state,
+              zip_code, country).  The page was not rendering it at all,
+              leaving the admin without shipping destination information. */}
+          <address className={styles.shippingAddress}>
+            <span>{order.address.recipient_name}</span>
+            <span>{order.address.street}</span>
+            <span>{order.address.city}, {order.address.state} {order.address.zip_code}</span>
+            <span>{order.address.country}</span>
+            {order.address.phone && <span>{order.address.phone}</span>}
+          </address>
+        </section>
+      )}
+
       {order.value && (
         <section aria-labelledby="totals-title" className={styles.section}>
           <h2 id="totals-title">Totales</h2>
@@ -149,6 +177,32 @@ export default function AdminOrderDetailPage() {
             <dt>Envio</dt><dd>{formatCurrency(order.value.shipping_cost)}</dd>
             <dt>Total</dt><dd className={styles.total}>{formatCurrency(order.value.total)}</dd>
           </dl>
+        </section>
+      )}
+
+      {/* H-CICLO101-API-01: render state-transition audit trail.
+          AdminOrderSerializer now exposes status_logs (previous_status,
+          new_status, notes, changed_by_username, created_at). The list
+          is reversed so the most recent entry appears first. */}
+      {(order.status_logs ?? []).length > 0 && (
+        <section aria-labelledby="history-title" className={styles.section}>
+          <h2 id="history-title">Historial de estado</h2>
+          <ol className={styles.history}>
+            {[...(order.status_logs ?? [])].reverse().map((log) => (
+              <li key={log.id} className={styles.historyEntry}>
+                <span className={styles.historyTransition}>
+                  {log.previous_status} &rarr; {log.new_status}
+                </span>
+                {log.notes && (
+                  <span className={styles.historyNotes}> — {log.notes}</span>
+                )}
+                <span className={styles.historyMeta}>
+                  {' '}({log.changed_by_username ?? 'Sistema'},{' '}
+                  {formatDate(log.created_at)})
+                </span>
+              </li>
+            ))}
+          </ol>
         </section>
       )}
 

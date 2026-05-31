@@ -1,0 +1,70 @@
+@use '@styles/abstracts' as *;
+
+.item {
+  background:    $bg-surface;
+  border:        1px solid $border-color;
+  border-radius: 8px;
+  padding:       0.85rem 1rem;
+}
+
+.itemMeta {
+  display:       flex;
+  align-items:   center;
+  gap:           0.6rem;
+  flex-wrap:     wrap;
+  margin-bottom: 0.35rem;
+}
+
+.rating {
+  color:       $amber-500;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.author {
+  font-size:   $font-size-sm;
+  color:       $text-secondary;
+  font-weight: 500;
+}
+
+.date {
+  font-size:      $font-size-xs;
+  color:          $text-muted;
+  font-family:    $font-family-mono;
+  letter-spacing: 0.04em;
+  margin-left:    auto;
+}
+
+.itemTitle {
+  font-weight: 600;
+  font-size:   $font-size-base;
+  margin:      0 0 0.4rem;
+}
+
+.itemBody {
+  font-size:   $font-size-sm;
+  color:       $gray-700;
+  line-height: $line-height-relaxed;
+  margin:      0;
+}
+
+.imageGallery {
+  list-style: none;
+  padding:    0;
+  margin:     0.75rem 0 0;
+  display:    flex;
+  flex-wrap:  wrap;
+  gap:        0.5rem;
+}
+
+.thumbnail {
+  width:         80px;
+  height:        80px;
+  object-fit:    cover;
+  border-radius: 4px;
+  border:        1px solid $gray-200;
+  display:       block;
+  transition:    opacity 0.15s;
+
+  &:hover { opacity: 0.85; }
+}

@@ -96,7 +96,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
       { target: { value: '0' } });
     fireEvent.click(screen.getByRole('button', { name: /Aplicar ajuste/i }));
     expect(
-      await screen.findByText(/STOCK_NEGATIVO_NO_PERMITIDO/i),
+      await screen.findByText(/NEGATIVE_STOCK_NOT_ALLOWED/i),
     ).toBeInTheDocument();
   });
 

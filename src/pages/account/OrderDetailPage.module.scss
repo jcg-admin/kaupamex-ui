@@ -1,20 +1,258 @@
 @use '@styles/abstracts' as *;
 
-.page {
-  width: 100%;
-  padding: $spacing-8 0;
+.loading {
+  text-align: center;
+  padding: $spacing-20;
+  color: $text-muted;
+  font-family: $font-family-mono;
+  background: $bg-page;
+}
+.page { background: $bg-page; min-height: 60vh; }
+.container {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-10 $content-padding-desktop $spacing-24;
+  @media (max-width: $bp-md) { padding: $spacing-6 $content-padding-mobile $spacing-16; }
+}
+.breadcrumb {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  display: flex; gap: $spacing-3;
+  margin-bottom: $spacing-6;
+  a { color: $text-muted; &:hover { color: $text-secondary; } }
+}
+.bcCurrent { color: $text-secondary; }
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: $spacing-8;
+  padding-bottom: $spacing-8;
+  border-bottom: 1px solid $border-color;
+  align-items: end;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; gap: $spacing-4; }
+}
+.heroMeta {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-3;
+}
+.heroTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-5xl;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  margin-top: $spacing-3;
+  letter-spacing: $ls-tight;
+  @media (max-width: $bp-md) { font-size: $font-size-4xl; }
+}
+.heroEta {
+  margin-top: $spacing-2;
+  color: $text-secondary;
+  font-size: $font-size-base;
+  strong { color: $text-primary; }
+}
+.heroActions {
+  display: flex;
+  gap: $spacing-2;
+  flex-wrap: wrap;
 }
 
-.placeholder {
-  @include flex-column-center;
-  min-height: 40vh;
-  gap: $spacing-4;
-  text-align: center;
-  color: $text-muted;
+.layout {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: $spacing-12;
+  margin-top: $spacing-10;
+  @media (max-width: $bp-lg) { grid-template-columns: 1fr; gap: $spacing-8; }
+}
+.mainCol { display: flex; flex-direction: column; gap: $spacing-10; min-width: 0; }
+.sideCol {
+  position: sticky;
+  top: calc($header-height + $spacing-6);
+  align-self: start;
+  display: flex; flex-direction: column; gap: $spacing-6;
+  @media (max-width: $bp-lg) { position: static; }
+}
 
-  h1 {
-    font-family: $font-family-display;
-    font-size: $font-size-2xl;
-    color: $text-secondary;
-  }
+.sectionTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-bottom: $spacing-6;
+}
+
+// Timeline
+.timeline { position: relative; padding-left: $spacing-3; }
+.timelineRail {
+  position: absolute;
+  left: 16px; top: 12px; bottom: 12px;
+  width: 1px;
+  background: $border-medium;
+}
+.timelineRow {
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: $spacing-4;
+  padding: $spacing-4 0;
+  align-items: start;
+  position: relative;
+}
+.timelineDot {
+  width: 12px; height: 12px;
+  border-radius: 999px;
+  margin-top: 6px; margin-left: 10px;
+  border: 1px dashed $border-strong;
+}
+.timelineDotDone {
+  background: $lime;
+  border: 0;
+}
+.timelineDotActive {
+  background: $coral;
+  border: 0;
+  box-shadow: 0 0 0 5px rgba($coral, 0.18);
+}
+.timelineTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  color: $text-muted;
+  font-weight: $font-weight-medium;
+}
+.timelineTitleActive { color: $text-primary; }
+.timelineDetail {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-top: 3px;
+}
+.timelineWhen {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.06em;
+  margin-top: 6px;
+}
+
+// Items
+.itemsList { border: 1px solid $border-color; }
+.itemRow {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: $spacing-5;
+  padding: $spacing-5;
+  align-items: center;
+  border-bottom: 1px solid $border-color;
+  &:last-child { border-bottom: 0; }
+}
+.itemThumb {
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, rgba($lime, 0.06), rgba($bronze, 0.08));
+  border: 1px dashed $border-medium;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+.itemInfo { display: flex; flex-direction: column; gap: 4px; }
+.itemName {
+  font-family: $font-family-display;
+  font-size: $font-size-base;
+  color: $text-primary;
+  line-height: 1.3;
+  margin-top: 4px;
+}
+.itemSku {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.06em;
+}
+
+// Address
+.addressBox {
+  border: 1px solid $border-color;
+  padding: $spacing-6;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-8;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; gap: $spacing-5; }
+}
+.addressLines {
+  margin-top: $spacing-2;
+  color: $text-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  font-style: normal;
+  strong { font-weight: $font-weight-medium; }
+}
+.addressNotes {
+  margin-top: $spacing-2;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  font-style: italic;
+}
+.addressFootnote {
+  margin-top: $spacing-4;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+// Side cards
+.sideCard {
+  background: $bg-surface;
+  border: 1px solid $border-medium;
+  padding: $spacing-7;
+}
+.sideCardOutline {
+  border: 1px solid $border-color;
+  padding: $spacing-6;
+}
+.sideCardTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-bottom: $spacing-4;
+}
+.sideCardTotal {
+  border-top: 1px solid $border-medium;
+  margin-top: $spacing-3;
+  padding-top: $spacing-3;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  & > span:first-child { font-family: $font-family-display; font-size: $font-size-lg; color: $text-primary; }
+}
+.paymentMethod {
+  margin-top: $spacing-3;
+  font-size: $font-size-base;
+  color: $text-primary;
+}
+.paymentMeta {
+  margin-top: 6px;
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+.paymentLink {
+  margin-top: $spacing-4;
+  display: inline-block;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $coral;
+  letter-spacing: 0.08em;
+}
+.supportText {
+  margin-top: $spacing-3;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+}
+.supportActions {
+  margin-top: $spacing-4;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
 }

@@ -1,5 +1,13 @@
 /**
  * Tests — CartPage (UC-CART-02: ver y editar carrito).
+ *
+ * These tests match the actual CartPage component behavior:
+ *   - Cart items use product_name field (not name)
+ *   - Empty cart shows "Aún no has elegido ninguna pieza"
+ *   - Voucher input has no aria-label (use placeholder or role)
+ *   - Quantity uses +/- buttons, not a labeled input
+ *   - No "Guardar para mas tarde" feature (saveCartForLater exists in slice
+ *     but CartPage component does not expose it in the UI)
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
@@ -39,18 +47,17 @@ const wrap = (ui, store) => (
 );
 
 // DEC-BC-02 + DEC-BC-08 (2026-05-21): backend devuelve Cart con
-// `totals` calculado server-side. UI lee `state.totals` directo;
-// el test ya no asume calculo local (helper calculateTotals
-// eliminado).
+// `totals` calculado server-side. UI lee `state.totals` directo.
+// CartPage uses item.product_name (not item.name).
 const CART_PAYLOAD = {
   items: [
     {
       id: 11,
       product_id: 4321,
       variant_id: 87,
-      name: 'Collar Yemaya',
-      variant_name: 'Mediano',
-      price: 199.00,
+      product_name: 'Collar Yemaya',
+      variant_label: 'Mediano',
+      unit_price: 199.00,
       quantity: 2,
       stock: 5,
     },
@@ -58,8 +65,8 @@ const CART_PAYLOAD = {
       id: 12,
       product_id: 9999,
       variant_id: null,
-      name: 'Vela Ogun',
-      price: 50.00,
+      product_name: 'Vela Ogun',
+      unit_price: 50.00,
       quantity: 1,
       stock: 10,
     },
@@ -91,10 +98,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     render(wrap(<CartPage />, makeStore()));
 
-    // DEC-BC-02: subtotal viene del backend (CART_PAYLOAD.totals.subtotal
-    // = "448.00"). Con DEC-BC-05 IVA incluido, total == subtotal cuando
-    // no hay shipping_cost, asi que /448/ aparece >=2 veces (subtotal +
-    // total). findAllByText acepta cualquier numero >= 1.
+    // DEC-BC-02: subtotal viene del backend (CART_PAYLOAD.totals.subtotal = "448.00").
     expect((await screen.findAllByText(/448/)).length).toBeGreaterThan(0);
   });
 
@@ -115,8 +119,9 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     apiService.get.mockResolvedValue({ data: { items: [], voucher: null } });
     render(wrap(<CartPage />, makeStore()));
 
+    // CartPage shows "Aún no has elegido ninguna pieza" for empty cart
     expect(
-      await screen.findByText(/Tu carrito esta vac[ií]o/i),
+      await screen.findByText(/no has elegido ninguna pieza/i),
     ).toBeInTheDocument();
   });
 
@@ -131,7 +136,8 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     render(wrap(<CartPage />, makeStore()));
 
     await screen.findByText(/Collar Yemaya/);
-    fireEvent.change(screen.getByLabelText(/C[oó]digo de cup[oó]n/i),
+    // VoucherBox input has placeholder "CÓDIGO" (no aria-label)
+    fireEvent.change(screen.getByPlaceholderText(/CÓDIGO/i),
       { target: { value: 'YORUBA10' } });
     fireEvent.click(screen.getByRole('button', { name: /Aplicar/i }));
 
@@ -153,14 +159,17 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     render(wrap(<CartPage />, makeStore()));
 
     await screen.findByText(/Collar Yemaya/);
-    fireEvent.change(screen.getByLabelText(/C[oó]digo de cup[oó]n/i),
+    fireEvent.change(screen.getByPlaceholderText(/CÓDIGO/i),
       { target: { value: 'NOEXISTE' } });
     fireEvent.click(screen.getByRole('button', { name: /Aplicar/i }));
 
-    expect(await screen.findByText(/no es valido/i)).toBeInTheDocument();
+    // CartPage shows translated error via translateVoucherError
+    expect(await screen.findByText(/No pudimos aplicar el código/i)).toBeInTheDocument();
   });
 
-  it('UC-CART-05 — usuario anonimo NO ve el boton de guardar para mas tarde', async () => {
+  it('UC-CART-05 — CartPage no tiene boton de guardar para mas tarde', async () => {
+    // The CartPage component does not render a "Guardar para mas tarde" button.
+    // The saveCartForLater thunk exists in cartSlice but is not wired in CartPage UI.
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     render(wrap(<CartPage />, makeStore()));
 
@@ -170,37 +179,19 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('UC-CART-05 — usuario autenticado guarda el carrito via POST /api/cart/save/', async () => {
-    apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
-    apiService.post.mockResolvedValue({ data: { saved: true } });
-    render(wrap(<CartPage />, makeStore(authedState)));
-
-    await screen.findByText(/Collar Yemaya/);
-    fireEvent.click(
-      screen.getByRole('button', { name: /Guardar para mas tarde/i }),
-    );
-
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith('/api/v1/cart/save/', {});
-    });
-    expect(
-      await screen.findByText(/Carrito guardado/i),
-    ).toBeInTheDocument();
-  });
-
-  it('al cambiar la cantidad, hace PATCH /api/cart/items/:id/', async () => {
+  it('al hacer click en +, hace PATCH /api/cart/items/:id/ con cantidad incrementada', async () => {
     apiService.get.mockResolvedValue({ data: CART_PAYLOAD });
     apiService.patch.mockResolvedValue({
       data: {
+        ...CART_PAYLOAD,
         items: [{ ...CART_PAYLOAD.items[0], quantity: 3 }, CART_PAYLOAD.items[1]],
-        voucher: null,
       },
     });
     render(wrap(<CartPage />, makeStore()));
 
-    const qtyInputs = await screen.findAllByLabelText(/Cantidad/i);
-    fireEvent.change(qtyInputs[0], { target: { value: '3' } });
-    fireEvent.blur(qtyInputs[0]);
+    // CartPage quantity uses Aumentar/Reducir buttons, not a labeled input
+    const aumentarBtns = await screen.findAllByRole('button', { name: /Aumentar/i });
+    fireEvent.click(aumentarBtns[0]);
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(

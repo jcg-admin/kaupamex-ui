@@ -6,6 +6,7 @@
 import { Suspense } from 'react';
 import { AppProviders } from './AppProviders';
 import { AppRouter } from '@router';
+import ErrorBoundary from '@components/shared/ErrorBoundary';
 import '@styles/main.scss';
 
 function LoadingFallback() {
@@ -30,9 +31,15 @@ function LoadingFallback() {
 export default function App() {
   return (
     <AppProviders>
-      <Suspense fallback={<LoadingFallback />}>
-        <AppRouter />
-      </Suspense>
+      {/* H-CICLO26-04: ErrorBoundary en la raíz del árbol de componentes para
+          que un error de renderizado en cualquier página no derrumbe toda la
+          aplicación. Sin este wrapper, React desmonta el árbol completo ante
+          cualquier excepción no capturada durante el render. */}
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingFallback />}>
+          <AppRouter />
+        </Suspense>
+      </ErrorBoundary>
     </AppProviders>
   );
 }

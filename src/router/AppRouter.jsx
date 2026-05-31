@@ -25,6 +25,9 @@ const CartPage        = lazy(() => import('@pages/cart/CartPage'));
 const CheckoutPage    = lazy(() => import('@pages/checkout/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('@pages/checkout/OrderSuccessPage'));
 const PaymentSelectionPage = lazy(() => import('@pages/checkout/PaymentSelectionPage'));
+const PaymentReturnPage   = lazy(() => import('@pages/checkout/PaymentReturnPage'));
+const PaymentFailedPage   = lazy(() => import('@pages/checkout/PaymentFailedPage'));
+const ExpressCheckoutPage = lazy(() => import('@pages/checkout/ExpressCheckoutPage'));
 
 // Lazy pages — Comms publicas (contacto, newsletter, preguntas)
 const ContactPage               = lazy(() => import('@pages/ContactPage'));
@@ -33,6 +36,10 @@ const NewsletterUnsubscribePage = lazy(() => import('@pages/NewsletterUnsubscrib
 const ProductQuestionAskPage    = lazy(() => import('@pages/catalog/ProductQuestionAskPage'));
 const ProductQuestionsListPage  = lazy(() => import('@pages/catalog/ProductQuestionsListPage'));
 const ProductReviewsListPage    = lazy(() => import('@pages/catalog/ProductReviewsListPage'));
+
+// Lazy pages — Paginas informativas y ayuda (UC-INF-01)
+const InfoPage = lazy(() => import('@pages/info/InfoPage'));
+const HelpPage = lazy(() => import('@pages/help/HelpPage'));
 
 // Lazy pages — Auth
 const LoginPage       = lazy(() => import('@pages/auth/LoginPage'));
@@ -50,6 +57,7 @@ const ProfilePage     = lazy(() => import('@pages/account/ProfilePage'));
 const ChangePasswordPage = lazy(() => import('@pages/account/ChangePasswordPage'));
 const DeactivateAccountPage = lazy(() => import('@pages/account/DeactivateAccountPage'));
 const AddressesPage      = lazy(() => import('@pages/account/AddressesPage'));
+const SecurityPage        = lazy(() => import('@pages/account/SecurityPage'));
 // UC-SRCH-03 — Historial personal de busquedas
 const SearchHistoryPage  = lazy(() => import('@pages/account/SearchHistoryPage'));
 
@@ -87,6 +95,8 @@ const AdminInventoryPage             = lazy(() => import('@pages/admin/AdminInve
 const AdminInventoryImportPage       = lazy(() => import('@pages/admin/AdminInventoryImportPage'));
 const AdminInventoryMovementsPage    = lazy(() => import('@pages/admin/AdminInventoryMovementsPage'));
 const AdminInventoryAdjustPage       = lazy(() => import('@pages/admin/AdminInventoryAdjustPage'));
+// H-CICLO110-03: ajuste de stock para productos sin variante
+const AdminInventoryProductAdjustPage = lazy(() => import('@pages/admin/AdminInventoryProductAdjustPage'));
 const AdminVariantsPage              = lazy(() => import('@pages/admin/AdminVariantsPage'));
 const AdminVariantPricePage          = lazy(() => import('@pages/admin/AdminVariantPricePage'));
 const AdminNotificationComposePage   = lazy(() => import('@pages/admin/AdminNotificationComposePage'));
@@ -132,10 +142,13 @@ export default function AppRouter() {
       <UnauthorizedListener />
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* ─── Tienda pública ─── */}
+          {/* --- Tienda publica --- */}
           <Route element={<StorefrontLayout />}>
             <Route index element={<HomePage />} />
             <Route path="catalog" element={<CatalogPage />} />
+            {/* Alias en español — todos los links públicos usan /catalogo */}
+            <Route path="catalogo" element={<CatalogPage />} />
+            <Route path="catalogo/:slug" element={<ProductPage />} />
             {/* UC-CAT-08 — Arbol publico de categorias */}
             <Route path="categories" element={<CategoryListPage />} />
             {/* UC-CAT-03 + UC-CAT-03-EXT — Resultados de busqueda */}
@@ -154,9 +167,13 @@ export default function AppRouter() {
             <Route path="catalog/:productId/questions" element={<ProductQuestionsListPage />} />
             {/* UC-REV-02 — Listado publico de resenas aprobadas */}
             <Route path="catalog/:productId/reviews" element={<ProductReviewsListPage />} />
+            {/* UC-INF-01 — Paginas informativas estaticas (terminos, privacidad, envios, etc.) */}
+            <Route path="info/:slug" element={<InfoPage />} />
+            {/* Centro de ayuda */}
+            <Route path="help" element={<HelpPage />} />
           </Route>
 
-          {/* ─── Auth ─── */}
+          {/* --- Auth --- */}
           <Route path="auth">
             <Route path="login"                    element={<LoginPage />} />
             <Route path="register"                 element={<RegisterPage />} />
@@ -166,21 +183,38 @@ export default function AppRouter() {
             <Route path="verify-email"             element={<VerifyEmailPage />} />
           </Route>
 
-          {/* ─── Checkout ─── */}
+          {/* --- Checkout: requiere autenticacion --- */}
           {/*
-           * UC-ORD-01 permite invitado: el endpoint POST /api/v1/checkout/
-           * acepta carrito anonimo + datos de contacto + direccion sin JWT.
-           * Por eso /checkout y la confirmacion quedan publicas; la
-           * seleccion de gateway tambien (necesaria para invitados).
+           * Directiva activa: "forzamos login antes, no podemos comprar
+           * si no esta registrado." /checkout y /checkout/payment/:id
+           * requieren sesion activa via ProtectedRoute.
+           * ProtectedRoute preserva la ruta en state.from para redirigir
+           * al usuario de vuelta al checkout tras el login.
            */}
-          <Route element={<StorefrontLayout />}>
-            <Route path="checkout" element={<CheckoutPage />} />
-            {/* UC-PAY-01 / UC-PAY-02 — Seleccion de gateway de pago */}
-            <Route path="checkout/payment/:orderId" element={<PaymentSelectionPage />} />
-            <Route path="order/:id/confirmation" element={<OrderSuccessPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<StorefrontLayout />}>
+              <Route path="checkout" element={<CheckoutPage />} />
+              {/* UC-PAY-01 / UC-PAY-02 — Seleccion de gateway de pago */}
+              <Route path="checkout/payment/:orderId" element={<PaymentSelectionPage />} />
+            </Route>
           </Route>
 
-          {/* ─── Cuenta del comprador ─── */}
+          {/* --- Callbacks de gateway de pago: publicos --- */}
+          {/*
+           * payment-return, confirmation y payment-failed permanecen
+           * publicos: la sesion puede expirar mientras el usuario esta
+           * en la plataforma del proveedor (MP/PayPal) y no debe
+           * bloquearse el retorno al sitio.
+           */}
+          <Route element={<StorefrontLayout />}>
+            {/* Retorno del gateway (polling hasta APPROVED/FAILED) */}
+            <Route path="checkout/payment-return/:id" element={<PaymentReturnPage />} />
+            <Route path="order/:id/confirmation" element={<OrderSuccessPage />} />
+            {/* UC-PAY-03 — Pago rechazado: razón + reintento */}
+            <Route path="order/:id/payment-failed" element={<PaymentFailedPage />} />
+          </Route>
+
+          {/* --- Cuenta del comprador --- */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AccountLayout />}>
               <Route path="account"             element={<AccountPage />} />
@@ -194,6 +228,8 @@ export default function AppRouter() {
               <Route path="account/deactivate" element={<DeactivateAccountPage />} />
               {/* UC-AUTH-07 — Libreta de direcciones */}
               <Route path="account/addresses"   element={<AddressesPage />} />
+              {/* Seguridad: cambio de contraseña + sesiones activas */}
+              <Route path="account/security"    element={<SecurityPage />} />
               {/* UC-SRCH-03 — Historial personal de busquedas */}
               <Route path="account/search-history" element={<SearchHistoryPage />} />
               <Route path="account/returns"     element={<ReturnsPage />} />
@@ -213,10 +249,12 @@ export default function AppRouter() {
               <Route path="account/orders/:orderId/payments" element={<PaymentHistoryPage />} />
               {/* UC-PAY-08 — Reintentar pago fallido */}
               <Route path="account/orders/:orderId/payment/retry" element={<PaymentRetryPage />} />
+              {/* Express checkout — solo para clientes recurrentes */}
+              <Route path="checkout/express" element={<ExpressCheckoutPage />} />
             </Route>
           </Route>
 
-          {/* ─── Soporte (tickets del comprador) ─── */}
+          {/* --- Soporte (tickets del comprador) --- */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AccountLayout />}>
               <Route path="support/tickets"      element={<SupportTicketsPage />} />
@@ -225,7 +263,7 @@ export default function AppRouter() {
             </Route>
           </Route>
 
-          {/* ─── Admin ─── */}
+          {/* --- Admin --- */}
           <Route element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
               <Route path="admin"             element={<AdminDashboardPage />} />
@@ -257,10 +295,12 @@ export default function AppRouter() {
               <Route path="admin/support"     element={<AdminSupportPage />} />
               <Route path="admin/returns"     element={<AdminReturnsPage />} />
               <Route path="admin/returns/:id" element={<AdminReturnDetailPage />} />
-              <Route path="admin/inventory"                       element={<AdminInventoryPage />} />
-              <Route path="admin/inventory/import"                element={<AdminInventoryImportPage />} />
-              <Route path="admin/inventory/:variantId/movements"  element={<AdminInventoryMovementsPage />} />
-              <Route path="admin/inventory/:variantId/adjust"     element={<AdminInventoryAdjustPage />} />
+              <Route path="admin/inventory"                                    element={<AdminInventoryPage />} />
+              <Route path="admin/inventory/import"                          element={<AdminInventoryImportPage />} />
+              <Route path="admin/inventory/:variantId/movements"            element={<AdminInventoryMovementsPage />} />
+              <Route path="admin/inventory/:variantId/adjust"               element={<AdminInventoryAdjustPage />} />
+              {/* H-CICLO110-03: ajuste para productos sin variante */}
+              <Route path="admin/inventory/product/:productId/adjust"       element={<AdminInventoryProductAdjustPage />} />
               {/* UC-CHT-03 / UC-CHT-04 — Variantes Yoruba */}
               <Route path="admin/products/:productId/variants"    element={<AdminVariantsPage />} />
               <Route path="admin/variants/:variantId/price"       element={<AdminVariantPricePage />} />
@@ -300,7 +340,7 @@ export default function AppRouter() {
             </Route>
           </Route>
 
-          {/* ─── Fallbacks ─── */}
+          {/* --- Fallbacks --- */}
           <Route path="404" element={<NotFoundPage />} />
           <Route path="*"   element={<Navigate to="/404" replace />} />
         </Routes>

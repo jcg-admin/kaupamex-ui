@@ -132,15 +132,21 @@ export default function AdminPaymentsPage() {
             {items.map((p) => (
               <tr key={p.id}>
                 <td>#{p.id}</td>
-                <td>{p.order_id}</td>
+                <td>{p.order_number}</td>
                 <td>{GATEWAY_LABEL[p.gateway] ?? p.gateway ?? '—'}</td>
                 <td className={styles[`status_${p.status}`] || styles.statusDefault}>
                   {STATUS_LABEL[p.status] ?? p.status}
                 </td>
-                <td>{formatCurrency(p.amount, p.currency)}</td>
-                <td>{formatDate(p.created_at || p.paid_at)}</td>
+                {/* AdminPaymentSerializer exposes amount (no currency field —
+                    model stores MXN only). Always default to 'MXN'. */}
+                <td>{formatCurrency(p.amount)}</td>
+                <td>{formatDate(p.created_at)}</td>
                 <td>
-                  {p.status === 'APPROVED' && !p.is_refund && (
+                  {/* AdminPaymentSerializer has no is_refund field.
+                      Use status===REFUNDED as the guard: an APPROVED payment
+                      that has been refunded transitions to REFUNDED, so only
+                      payments that are still APPROVED can be refunded. */}
+                  {p.status === 'APPROVED' && (
                     <Link to={`/admin/payments/${p.id}/refund`} className={styles.refundLink}>
                       Procesar reembolso
                     </Link>

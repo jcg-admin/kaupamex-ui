@@ -1,308 +1,253 @@
 /**
- * OrderDetailPage — PracticaYoruba
- * UC-ORD-02: Detalle de una orden propia.
+ * OrderDetailPage — Práctica Yorùbà
+ * Detalle de un pedido con timeline + items + dirección + totales.
  *
- * Habilita acciones del comprador:
- *   - Cancelar (UC-ORD-04) si el estado es cancelable
- *   - Editar direccion (UC-ORD-05) si es editable
- *   - Cambiar metodo de envio (UC-ORD-06) si es editable
- *
- * Lectura: useCustomerOrder (React Query).
- * Mutaciones: ordersSlice via Redux.
+ * Endpoints:
+ *   GET /{order_number}/
+ *   POST /{order_number}/cancel/
+ *   POST /payments/{n}/refund/
  */
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCustomerOrder, ORDERS_DETAIL_KEY, ORDERS_LIST_KEY } from '@hooks/domain/useOrders';
-import {
-  cancelOrder,
-  updateOrderAddress,
-  updateOrderShipping,
-  clearOrdersActionState,
-} from '@redux/slices/ordersSlice';
+import { Link, useParams } from 'react-router-dom';
+import { fetchOrderDetail } from '@redux/slices/ordersSlice';
+import { MetaTag, Price, Button, SumRow } from '@components/common/primitives';
 import styles from './OrderDetailPage.module.scss';
 
-const STATUS_LABEL = {
-  PENDING:         'Pendiente',
-  PENDING_PAYMENT: 'Pendiente de pago',
-  PROCESSING:      'En proceso',
-  IN_PREPARATION:  'En preparacion',
-  SHIPPED:         'Enviado',
-  DELIVERED:       'Entregado',
-  CANCELLED:       'Cancelado',
-};
+// H-CICLO108-03: IN_DELIVERY is not a valid Order.status value in the
+// model (statuses: PENDING, PROCESSING, IN_PREPARATION, SHIPPED,
+// DELIVERED, CANCELLED, CANCELLED_TIMEOUT, REFUNDED, PAGADA).
+// The spurious step made the currentStatusIndex calculation unreliable:
+// currentStatusIndex was always -1 for DELIVERED because the DELIVERED
+// entry appeared after a non-existent IN_DELIVERY that would shift
+// indices. Removed IN_DELIVERY to align with the model's state machine.
+const TIMELINE_STEPS = [
+  { id: 'PENDING',        t: 'Pedido confirmado',  detail: 'Pago aprobado' },
+  { id: 'PROCESSING',     t: 'Procesando pago',    detail: 'Gateway confirmó el cargo' },
+  { id: 'IN_PREPARATION', t: 'En preparación',     detail: 'Empacado y sellado' },
+  { id: 'SHIPPED',        t: 'Enviado',            detail: 'Con DHL' },
+  { id: 'DELIVERED',      t: 'Entregado',          detail: '' },
+];
 
-const CANCELLABLE_BY_CUSTOMER = new Set(['PENDING', 'PENDING_PAYMENT', 'PROCESSING']);
-const EDITABLE_BY_CUSTOMER    = new Set(['PENDING', 'PENDING_PAYMENT', 'PROCESSING', 'IN_PREPARATION']);
-
-function formatCurrency(value) {
-  if (value === null || value === undefined || value === '') return '—';
-  const num = typeof value === 'number' ? value : Number(value);
-  if (Number.isNaN(num)) return value;
-  return num.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
-}
-
-function formatDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('es-MX');
-}
-
-const EMPTY_ADDRESS = {
-  recipient_name: '', street: '', city: '', state: '',
-  zip_code: '', country: 'MX', phone: '',
-};
+const STATUS_ORDER = TIMELINE_STEPS.map(s => s.id);
 
 export default function OrderDetailPage() {
-  const { id: orderNumber } = useParams();
-  const dispatch    = useDispatch();
-  const queryClient = useQueryClient();
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const order = useSelector((s) => s.orders?.current);
+  const isLoading = useSelector((s) => s.orders?.isLoadingDetail);
 
-  const { data: order, isLoading, isError } = useCustomerOrder(orderNumber);
-  const { isActioning, actionError, lastAction } = useSelector((s) => s.orders);
+  useEffect(() => { dispatch(fetchOrderDetail(id)); }, [dispatch, id]);
 
-  const [showCancel,   setShowCancel]   = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
-
-  const [showAddress, setShowAddress] = useState(false);
-  const [address,     setAddress]     = useState(EMPTY_ADDRESS);
-
-  const [showShipping, setShowShipping] = useState(false);
-  const [shippingId,   setShippingId]   = useState('');
-
-  useEffect(() => {
-    if (!order?.address) return;
-    setAddress({
-      recipient_name: order.address.recipient_name ?? '',
-      street:         order.address.street ?? '',
-      city:           order.address.city ?? '',
-      state:          order.address.state ?? '',
-      zip_code:       order.address.zip_code ?? '',
-      country:        order.address.country ?? 'MX',
-      phone:          order.address.phone ?? '',
-    });
-  }, [order]);
-
-  useEffect(() => {
-    if (lastAction === 'cancelled' || lastAction === 'address_updated' || lastAction === 'shipping_updated') {
-      queryClient.invalidateQueries({ queryKey: [...ORDERS_DETAIL_KEY, orderNumber] });
-      queryClient.invalidateQueries({ queryKey: ORDERS_LIST_KEY });
-      setShowCancel(false);
-      setShowAddress(false);
-      setShowShipping(false);
-      setCancelReason('');
-      setShippingId('');
-      dispatch(clearOrdersActionState());
-    }
-  }, [lastAction, dispatch, queryClient, orderNumber]);
-
-  if (isLoading) return <p>Cargando pedido…</p>;
-  if (isError || !order) {
-    return (
-      <section className={styles.page}>
-        <p role="alert" className={styles.error}>
-          No se pudo cargar el pedido.{' '}
-          <Link to="/account/orders">Volver a mis pedidos</Link>
-        </p>
-      </section>
-    );
+  if (isLoading || !order) {
+    return <main className={styles.loading}>Cargando pedido…</main>;
   }
 
-  const statusLabel = STATUS_LABEL[order.status] ?? order.status_display ?? order.status;
-  const canCancel   = CANCELLABLE_BY_CUSTOMER.has(order.status);
-  const canEdit     = EDITABLE_BY_CUSTOMER.has(order.status);
-
-  const submitCancel = (e) => {
-    e.preventDefault();
-    dispatch(cancelOrder({ orderNumber, reason: cancelReason }));
-  };
-  const submitAddress = (e) => {
-    e.preventDefault();
-    dispatch(updateOrderAddress({ orderNumber, address }));
-  };
-  const submitShipping = (e) => {
-    e.preventDefault();
-    dispatch(updateOrderShipping({ orderNumber, shippingMethodId: Number(shippingId) }));
-  };
+  const currentStatusIndex = STATUS_ORDER.indexOf(order.status);
 
   return (
-    <section className={styles.page} aria-labelledby="order-title">
-      <header className={styles.header}>
-        <h1 id="order-title" className={styles.title}>
-          Pedido {order.order_number}
-        </h1>
-        <p className={styles.meta}>
-          <span className={styles.status}>{statusLabel}</span>
-          <span className={styles.date}>{formatDate(order.created_at)}</span>
-        </p>
-      </header>
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <nav className={styles.breadcrumb}>
+          <Link to="/mi-cuenta">Mi cuenta</Link><span>/</span>
+          <Link to="/mi-cuenta/pedidos">Mis pedidos</Link><span>/</span>
+          <span className={styles.bcCurrent}>{order.order_number}</span>
+        </nav>
 
-      <section aria-labelledby="items-title" className={styles.section}>
-        <h2 id="items-title">Articulos</h2>
-        <ul className={styles.items}>
-          {(order.items ?? []).map((item) => (
-            <li key={item.id} className={styles.itemRow}>
-              <span className={styles.itemName}>
-                {item.product_name}
-                {item.variant_label ? ` — ${item.variant_label}` : ''}
-              </span>
-              <span className={styles.itemQty}>x{item.quantity}</span>
-              <span className={styles.itemPrice}>{formatCurrency(item.subtotal)}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+        {/* Hero */}
+        <header className={styles.hero}>
+          <div>
+            <div className={styles.heroMeta}>
+              <MetaTag tone="bronze">Pedido · {new Date(order.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</MetaTag>
+              <span>·</span>
+              <MetaTag tone="coral">{order.status_label || order.status}</MetaTag>
+            </div>
+            <h1 className={styles.heroTitle}>{order.order_number}</h1>
+            {order.eta && (
+              <p className={styles.heroEta}>
+                Entrega estimada: <strong>{order.eta}</strong>
+              </p>
+            )}
+          </div>
+          <div className={styles.heroActions}>
+            {order.invoice_url && (
+              <a href={order.invoice_url} target="_blank" rel="noopener noreferrer">
+                <Button variant="secondary" size="sm">Descargar factura</Button>
+              </a>
+            )}
+            {order.tracking_url && (
+              <a href={order.tracking_url} target="_blank" rel="noopener noreferrer">
+                <Button variant="primary" size="sm">Rastrear ↗</Button>
+              </a>
+            )}
+          </div>
+        </header>
 
-      <section aria-labelledby="totals-title" className={styles.section}>
-        <h2 id="totals-title">Totales</h2>
-        {order.value && (
-          <dl className={styles.totals}>
-            <dt>Subtotal</dt><dd>{formatCurrency(order.value.subtotal)}</dd>
-            <dt>Descuento</dt><dd>{formatCurrency(order.value.discount)}</dd>
-            <dt>IVA</dt><dd>{formatCurrency(order.value.tax)}</dd>
-            <dt>Envio</dt><dd>{formatCurrency(order.value.shipping_cost)}</dd>
-            <dt>Total</dt><dd className={styles.total}>{formatCurrency(order.value.total)}</dd>
-          </dl>
-        )}
-      </section>
+        <div className={styles.layout}>
+          <div className={styles.mainCol}>
+            <Timeline order={order} currentIndex={currentStatusIndex} />
+            <ItemsBlock items={order.items || []} />
+            <AddressBlock address={order.address} />
+          </div>
 
-      <section aria-labelledby="addr-title" className={styles.section}>
-        <h2 id="addr-title">Direccion de entrega</h2>
-        {order.address ? (
-          <address className={styles.address}>
-            {order.address.recipient_name}<br />
-            {order.address.street}<br />
-            {order.address.city}, {order.address.state} {order.address.zip_code}<br />
-            {order.address.country}
-          </address>
-        ) : <p>—</p>}
-        {canEdit && (
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={() => setShowAddress((v) => !v)}
-          >
-            {showAddress ? 'Cancelar edicion' : 'Editar direccion'}
-          </button>
-        )}
-        {showAddress && (
-          <form onSubmit={submitAddress} className={styles.form} aria-label="Editar direccion">
-            <label>Destinatario
-              <input
-                value={address.recipient_name}
-                onChange={(e) => setAddress({ ...address, recipient_name: e.target.value })}
-                required
-              />
-            </label>
-            <label>Calle
-              <input
-                value={address.street}
-                onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                required
-              />
-            </label>
-            <label>Ciudad
-              <input
-                value={address.city}
-                onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                required
-              />
-            </label>
-            <label>Estado
-              <input
-                value={address.state}
-                onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                required
-              />
-            </label>
-            <label>Codigo postal
-              <input
-                value={address.zip_code}
-                onChange={(e) => setAddress({ ...address, zip_code: e.target.value })}
-                required
-              />
-            </label>
-            <label>Telefono
-              <input
-                value={address.phone}
-                onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-              />
-            </label>
-            <button type="submit" className={styles.primaryBtn} disabled={isActioning}>
-              Guardar direccion
-            </button>
-          </form>
-        )}
-      </section>
+          <aside className={styles.sideCol}>
+            <TotalsCard order={order} />
+            <PaymentCard payment={order.payment} />
+            <SupportCard order={order} />
+          </aside>
+        </div>
+      </div>
+    </main>
+  );
+}
 
-      <section aria-labelledby="ship-title" className={styles.section}>
-        <h2 id="ship-title">Metodo de envio</h2>
-        <p>{order.shipping_method_name ?? '—'}</p>
-        {canEdit && (
-          <button
-            type="button"
-            className={styles.secondaryBtn}
-            onClick={() => setShowShipping((v) => !v)}
-          >
-            {showShipping ? 'Cancelar cambio' : 'Cambiar metodo de envio'}
-          </button>
-        )}
-        {showShipping && (
-          <form onSubmit={submitShipping} className={styles.form} aria-label="Cambiar metodo de envio">
-            <label>ID del nuevo metodo de envio
-              <input
-                type="number"
-                min="1"
-                value={shippingId}
-                onChange={(e) => setShippingId(e.target.value)}
-                required
-              />
-            </label>
-            <button
-              type="submit"
-              className={styles.primaryBtn}
-              disabled={isActioning || !shippingId}
-            >
-              Aplicar cambio
-            </button>
-          </form>
-        )}
-      </section>
-
-      {canCancel && (
-        <section aria-labelledby="cancel-title" className={styles.section}>
-          <h2 id="cancel-title">Cancelar pedido</h2>
-          <button
-            type="button"
-            className={styles.dangerBtn}
-            onClick={() => setShowCancel((v) => !v)}
-          >
-            {showCancel ? 'No, mantener pedido' : 'Cancelar este pedido'}
-          </button>
-          {showCancel && (
-            <form onSubmit={submitCancel} className={styles.form} aria-label="Cancelar pedido">
-              <label>Motivo (opcional)
-                <textarea
-                  value={cancelReason}
-                  onChange={(e) => setCancelReason(e.target.value)}
-                  rows={3}
-                />
-              </label>
-              <button type="submit" className={styles.dangerBtn} disabled={isActioning}>
-                Confirmar cancelacion
-              </button>
-            </form>
-          )}
-        </section>
-      )}
-
-      {actionError && (
-        <p role="alert" className={styles.error}>
-          {actionError.message ?? 'Ocurrio un error al ejecutar la accion.'}
-        </p>
-      )}
+function Timeline({ order, currentIndex }) {
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>Seguimiento del envío</h2>
+      <div className={styles.timeline}>
+        <div className={styles.timelineRail} />
+        {TIMELINE_STEPS.map((step, i) => {
+          const done = i < currentIndex;
+          const active = i === currentIndex;
+          // H-CICLO108-02: OrderStatusLogSerializer exposes new_status, not
+          // status. Using l.status was always undefined so every timeline
+          // step showed "pendiente" even when status_logs was populated.
+          const log = (order.status_logs || []).find(l => l.new_status === step.id);
+          return (
+            <div key={step.id} className={styles.timelineRow}>
+              <div className={`${styles.timelineDot} ${done ? styles.timelineDotDone : ''} ${active ? styles.timelineDotActive : ''}`} />
+              <div>
+                <div className={`${styles.timelineTitle} ${(done || active) ? styles.timelineTitleActive : ''}`}>
+                  {step.t}
+                </div>
+                {step.detail && <div className={styles.timelineDetail}>{step.detail}</div>}
+              </div>
+              <div className={styles.timelineWhen}>
+                {log ? new Date(log.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) : 'pendiente'}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </section>
+  );
+}
+
+function ItemsBlock({ items }) {
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>Piezas en este pedido</h2>
+      <div className={styles.itemsList}>
+        {items.map((it, i) => (
+          <div key={i} className={styles.itemRow}>
+            <div className={styles.itemThumb}>
+              {it.image_url ? <img src={it.image_url} alt={it.product_name} /> : null}
+            </div>
+            <div className={styles.itemInfo}>
+              {it.orisha_name && <MetaTag tone="coral">{it.orisha_name}</MetaTag>}
+              <div className={styles.itemName}>{it.product_name}</div>
+              <div className={styles.itemSku}>
+                SKU · {it.sku} · Cantidad {it.quantity}
+                {it.variant_label && <> · {it.variant_label}</>}
+              </div>
+            </div>
+            <Price amount={Number(it.subtotal ?? it.unit_price * it.quantity)} size="md" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function AddressBlock({ address }) {
+  if (!address) return null;
+  return (
+    <section className={styles.section}>
+      <h2 className={styles.sectionTitle}>Dirección de entrega</h2>
+      <div className={styles.addressBox}>
+        <div>
+          <MetaTag tone="bronze">Recibirá</MetaTag>
+          <address className={styles.addressLines}>
+            <strong>{address.recipient_name}</strong><br />
+            {address.street}<br />
+            {address.city}<br />
+            {address.zip_code} {address.state}, {address.country}<br />
+            {address.phone}
+          </address>
+        </div>
+        {address.notes && (
+          <div>
+            <MetaTag tone="bronze">Notas para el repartidor</MetaTag>
+            <p className={styles.addressNotes}>"{address.notes}"</p>
+            <div className={styles.addressFootnote}>
+              Esta dirección es un snapshot inmutable del pedido
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function TotalsCard({ order }) {
+  // H-CICLO32-03: OrderSerializer anida los totales en order.value (OrderValueSerializer).
+  // Los campos correctos son order.value.subtotal, order.value.total, etc.
+  // order.item_count no existe en OrderSerializer — usar order.items.length.
+  const v = order.value || {};
+  const itemCount = (order.items || []).length;
+  const shippingCost = Number(v.shipping_cost) || 0;
+  return (
+    <div className={styles.sideCard}>
+      <h3 className={styles.sideCardTitle}>Total cobrado</h3>
+      <SumRow label={`Subtotal · ${itemCount} piezas`} value={`$${Number(v.subtotal || 0).toLocaleString('es-MX')} MXN`} />
+      {order.voucher_code && (
+        <SumRow label={`Voucher ${order.voucher_code}`} value={`−$${Number(order.voucher_discount || 0).toLocaleString('es-MX')} MXN`} tone="lime" />
+      )}
+      <SumRow label="Envío" value={shippingCost > 0 ? `$${shippingCost.toLocaleString('es-MX')} MXN` : 'Gratis'} tone={shippingCost > 0 ? 'default' : 'lime'} />
+      <SumRow label="IVA incluido" value={`$${Number(v.tax || 0).toLocaleString('es-MX')} MXN`} muted />
+      <div className={styles.sideCardTotal}>
+        <span>Total</span>
+        <Price amount={Number(v.total) || 0} size="lg" />
+      </div>
+    </div>
+  );
+}
+
+function PaymentCard({ payment }) {
+  if (!payment) return null;
+  return (
+    <div className={styles.sideCardOutline}>
+      <MetaTag tone="bronze">Forma de pago</MetaTag>
+      <div className={styles.paymentMethod}>
+        {payment.gateway_label} {payment.card_last4 && `· Tarjeta •••• ${payment.card_last4}`}
+      </div>
+      <div className={styles.paymentMeta}>
+        Cobrado el {new Date(payment.captured_at).toLocaleDateString('es-MX')}
+        {payment.installments > 1 && ` · ${payment.installments} cuotas sin intereses`}
+      </div>
+      <Link to={`/mi-cuenta/pedidos/${payment.order_number}/historial-pago`} className={styles.paymentLink}>
+        VER HISTORIAL DE PAGOS →
+      </Link>
+    </div>
+  );
+}
+
+function SupportCard({ order }) {
+  const canRefund = order.status === 'DELIVERED' && !order.refund_requested;
+  return (
+    <div className={styles.sideCardOutline}>
+      <MetaTag tone="bronze">¿Hay algo con tu pedido?</MetaTag>
+      <p className={styles.supportText}>
+        Si necesitas ayuda con esta entrega o quieres solicitar reembolso, podemos atenderte.
+      </p>
+      <div className={styles.supportActions}>
+        <Button variant="secondary" block size="sm">Solicitar ayuda</Button>
+        {canRefund && (
+          <Button variant="ghost" block size="sm">Solicitar reembolso</Button>
+        )}
+      </div>
+    </div>
   );
 }

@@ -41,7 +41,7 @@ const ORDER = {
   status: 'PENDING',
   status_display: 'Pendiente',
   created_at: '2026-05-10T10:00:00Z',
-  user: { email: 'cliente@example.com' },
+  user_email: 'cliente@example.com',
   items: [
     { id: 11, product_name: 'Tambor Bata', variant_label: 'M',
       unit_price: '500.00', quantity: 1, subtotal: '500.00' },

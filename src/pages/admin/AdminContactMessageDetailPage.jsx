@@ -13,11 +13,12 @@ import {
 import { useAdminContactMessage } from '@hooks/domain/useContactMessages';
 import styles from './AdminContactMessageDetailPage.module.scss';
 
-const STATUS_LABEL = {
-  UNREAD:    'Sin leer',
-  READ:      'Leido',
-  REPLIED:   'Respondido',
-};
+function getStatusLabel(msg) {
+  if (!msg) return '—';
+  if (msg.replied) return 'Respondido';
+  if (msg.read)    return 'Leido';
+  return 'Sin leer';
+}
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -39,10 +40,10 @@ export default function AdminContactMessageDetailPage() {
 
   // Marca el mensaje como leido al abrirlo (UC-COM-02 paso 5).
   useEffect(() => {
-    if (message?.id && message?.status === 'UNREAD') {
+    if (message?.id && !message?.read) {
       dispatch(markContactMessageRead(message.id));
     }
-  }, [message?.id, message?.status, dispatch]);
+  }, [message?.id, message?.read, dispatch]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -88,14 +89,14 @@ export default function AdminContactMessageDetailPage() {
           <span>{formatDate(message.created_at)}</span>
           {' · '}
           <span className={styles.status}>
-            {STATUS_LABEL[message.status] ?? message.status}
+            {getStatusLabel(message)}
           </span>
         </p>
       </header>
 
       <article className={styles.original}>
         <h2 className={styles.sectionTitle}>Mensaje original</h2>
-        <p className={styles.body}>{message.message}</p>
+        <p className={styles.body}>{message.body}</p>
       </article>
 
       <form onSubmit={handleSubmit} noValidate className={styles.form}>

@@ -9,23 +9,28 @@ import { Link, useParams } from 'react-router-dom';
 import { useInventoryMovements } from '@hooks/domain/useInventory';
 import styles from './AdminInventoryMovementsPage.module.scss';
 
+// H-CICLO36-02: enum sync con apps/inventory/models.py:8-15.
+// StockMovementSerializer expone el campo movement_type (no "type"), y el
+// valor correcto para ajustes manuales es ADJUSTMENT (no MANUAL).
+// Antes: mv.type siempre undefined → todas las filas mostraban "—" en Tipo;
+// filtro "Ajuste manual" nunca coincidía con ningún movimiento.
 const TYPE_FILTER_OPTIONS = [
-  { value: '',             label: 'Todos los tipos' },
-  { value: 'SALE',         label: 'Venta' },
+  { value: '',            label: 'Todos los tipos' },
+  { value: 'SALE',        label: 'Venta' },
   { value: 'CANCELLATION', label: 'Cancelación' },
-  { value: 'MANUAL',       label: 'Ajuste manual' },
+  { value: 'ADJUSTMENT',  label: 'Ajuste manual' },
 ];
 
 const TYPE_LABEL = {
   SALE:         'Venta',
   CANCELLATION: 'Cancelación',
-  MANUAL:       'Ajuste manual',
+  ADJUSTMENT:   'Ajuste manual',
 };
 
 const TYPE_CLASS = {
   SALE:         'badgeSale',
   CANCELLATION: 'badgeCancel',
-  MANUAL:       'badgeManual',
+  ADJUSTMENT:   'badgeManual',
 };
 
 function formatDateTime(iso) {
@@ -46,7 +51,7 @@ export default function AdminInventoryMovementsPage() {
   const [typeFilter, setTypeFilter] = useState('');
 
   const visibleMovements = useMemo(() => (
-    typeFilter ? movements.filter((mv) => mv.type === typeFilter) : movements
+    typeFilter ? movements.filter((mv) => mv.movement_type === typeFilter) : movements
   ), [movements, typeFilter]);
 
   return (
@@ -101,8 +106,8 @@ export default function AdminInventoryMovementsPage() {
               <tr key={mv.id}>
                 <td>{formatDateTime(mv.created_at)}</td>
                 <td>
-                  <span className={styles[TYPE_CLASS[mv.type]] || styles.badgeManual}>
-                    {TYPE_LABEL[mv.type] ?? mv.type}
+                  <span className={styles[TYPE_CLASS[mv.movement_type]] || styles.badgeManual}>
+                    {TYPE_LABEL[mv.movement_type] ?? mv.movement_type}
                   </span>
                 </td>
                 <td className={mv.delta < 0 ? styles.negative : styles.positive}>

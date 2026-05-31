@@ -69,6 +69,8 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
   });
 
   it('al hacer clic en Desuscribir, hace POST al endpoint manual', async () => {
+    // handleUnsubscribe usa window.confirm; se debe mockear para que retorne true.
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
     apiService.get.mockResolvedValue({
       data: {
         results: [
@@ -89,5 +91,6 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
         expect.objectContaining({ reason: 'SOLICITUD_MANUAL' }),
       );
     });
+    confirmSpy.mockRestore();
   });
 });

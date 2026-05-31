@@ -93,10 +93,13 @@ export default function AdminReturnDetailPage() {
       <section className={styles.block} aria-label="Comprador">
         <h2 className={styles.blockTitle}>Comprador</h2>
         <p>
-          <strong>{current.customer?.name ?? '—'}</strong>
+          {/* H-CICLO97-01: AdminReturnDetailSerializer expone user_username y user_email
+              como campos planos, no un objeto customer anidado. Leer customer?.name/email
+              siempre devolvía undefined → mostraba '—' en ambos campos. */}
+          <strong>{current.user_username ?? '—'}</strong>
           <br />
           <span className={styles.customerEmail}>
-            {current.customer?.email ?? '—'}
+            {current.user_email ?? '—'}
           </span>
         </p>
       </section>

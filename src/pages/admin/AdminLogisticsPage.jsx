@@ -98,8 +98,9 @@ export default function AdminLogisticsPage() {
                   {groupA.map((o) => (
                     <tr key={o.order_id}>
                       <td>{o.order_number}</td>
-                      <td>{o.buyer_username}</td>
-                      <td>{formatDate(o.created_at)}</td>
+                      {/* H-CICLO36-03: API devuelve recipient_name/city (no buyer_username) */}
+                      <td>{o.recipient_name ?? '—'}{o.city ? ` — ${o.city}` : ''}</td>
+                      <td>{formatDate(o.estimated_delivery ?? o.created_at)}</td>
                       <td>
                         <Link
                           to={`/admin/orders/${o.order_id}`}
@@ -138,10 +139,13 @@ export default function AdminLogisticsPage() {
                   {groupB.map((g) => (
                     <tr key={g.guide_id}>
                       <td>{g.order_number}</td>
-                      <td>{g.courier_name}</td>
+                      {/* H-CICLO36-03: API devuelve courier_code (no courier_name) */}
+                      <td>{g.courier_code ?? '—'}</td>
                       <td>{g.tracking_number ?? '—'}</td>
-                      <td>{g.last_status}</td>
-                      <td>{formatDate(g.last_event_at)}</td>
+                      {/* H-CICLO36-03: API devuelve status (no last_status) */}
+                      <td>{g.status ?? '—'}</td>
+                      {/* H-CICLO36-03: la respuesta del panel no incluye last_event_at */}
+                      <td>—</td>
                       <td>
                         <button
                           type="button"

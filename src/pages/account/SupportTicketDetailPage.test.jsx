@@ -39,7 +39,7 @@ const TICKET_DETAIL = {
   id: 42,
   subject: 'Pedido tardio',
   body:    'Mi pedido lleva 10 dias sin llegar',
-  status:  'REPLIED',
+  status:  'AWAITING_USER',
   created_at: '2026-05-10T10:00:00Z',
   replies: [
     { id: 1, body: 'Hola, revisamos tu pedido.', author: 'admin',
@@ -76,7 +76,8 @@ describe('SupportTicketDetailPage (UC-SUPP-02 detalle)', () => {
   it('muestra el estado del ticket en español', async () => {
     apiService.get.mockResolvedValue({ data: TICKET_DETAIL });
     renderAt('/support/tickets/42', makeStore());
-    expect(await screen.findByText('Respondido')).toBeInTheDocument();
+    // AWAITING_USER maps to 'Esperando respuesta' in STATUS_LABEL
+    expect(await screen.findByText('Esperando respuesta')).toBeInTheDocument();
   });
 
   it('llama al endpoint con el id correcto', async () => {

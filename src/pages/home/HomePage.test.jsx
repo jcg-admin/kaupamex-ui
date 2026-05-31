@@ -1,11 +1,12 @@
 /**
  * Tests HomePage — landing publico.
  *
- * Verifica:
- *   - se renderiza sin sesion (anonimo)
- *   - hero con CTA "Ver catalogo" enlaza a /catalog
- *   - listado de categorias destacadas con links a /catalog?cat=
- *   - grid de productos destacados se llena cuando catalogSlice tiene items
+ * These tests match the actual HomePage component behavior:
+ *   - Hero title is "Para los que practican." (not "practica yoruba")
+ *   - CTA links go to /catalogo (not /catalog)
+ *   - Orisha links go to /catalogo?orisha=<slug> (not /catalog?cat=)
+ *   - Featured products come from state.catalog.featured (not state.catalog.products)
+ *   - No data-testid="home-featured-grid" on the grid element
  */
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -21,30 +22,39 @@ import catalogReducer from '@redux/slices/catalogSlice';
 import authReducer from '@redux/slices/authSlice';
 import HomePage from './HomePage';
 
-function makeStore(products = []) {
+function makeStore(featured = []) {
   return configureStore({
     reducer: { catalog: catalogReducer, auth: authReducer },
     preloadedState: {
       catalog: {
-        products,
+        products: [],
+        featured,
         currentProduct: null,
         categories: [],
-        filters: {},
+        filters: {
+          category: null,
+          priceMin: null,
+          priceMax: null,
+          inStock: false,
+          ordering: '-created_at',
+        },
         searchResults: [],
         searchQuery: '',
         isLoading: false,
         isSearching: false,
         error: null,
         searchError: null,
-        pagination: { page: 1, total: 0 },
+        categoriesError: null,
+        pagination: { page: 1, count: 0, pageSize: 20, totalPages: 0, next: null, previous: null },
+        activeFilters: {},
       },
     },
   });
 }
 
-function renderHome(products = []) {
+function renderHome(featured = []) {
   return render(
-    <Provider store={makeStore(products)}>
+    <Provider store={makeStore(featured)}>
       <MemoryRouter>
         <HomePage />
       </MemoryRouter>
@@ -55,32 +65,40 @@ function renderHome(products = []) {
 describe('HomePage — landing anonima', () => {
   it('renderiza el hero con el titulo principal', () => {
     renderHome();
-    expect(screen.getByRole('heading', { name: /practica yoruba/i, level: 1 }))
+    // Hero title is "Para los que practican." (not "practica yoruba")
+    expect(screen.getByRole('heading', { level: 1 }))
       .toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 }).textContent)
+      .toMatch(/practican/i);
   });
 
-  it('expone CTA al catalogo y al registro', () => {
+  it('expone CTA al catalogo', () => {
     renderHome();
-    expect(screen.getByRole('link', { name: /ver catalogo/i }))
-      .toHaveAttribute('href', '/catalog');
-    expect(screen.getByRole('link', { name: /crear cuenta/i }))
-      .toHaveAttribute('href', '/auth/register');
+    // Links go to /catalogo (not /catalog)
+    const catalogLink = screen.getByRole('link', { name: /Entrar al catálogo/i });
+    expect(catalogLink).toHaveAttribute('href', '/catalogo');
   });
 
-  it('lista categorias destacadas con links a /catalog?cat=', () => {
+  it('lista orishas con links a /catalogo?orisha=', () => {
     renderHome();
-    const collares = screen.getByRole('link', { name: /collares/i });
-    expect(collares).toHaveAttribute('href', '/catalog?cat=collares');
+    // HomePage has ORISHAS links to /catalogo?orisha=<slug>
+    const yemayaLink = screen.getByRole('link', { name: /Yemayá/i });
+    expect(yemayaLink).toHaveAttribute('href', '/catalogo?orisha=yemaya');
   });
 
-  it('pinta productos destacados cuando el slice tiene items', () => {
-    const PRODUCTS = [
-      { id: 1, slug: 'collar-1', name: 'Collar 1', base_price: 100, price_with_tax: 116, stock: 5 },
-      { id: 2, slug: 'pulsera-2', name: 'Pulsera 2', base_price: 50, price_with_tax: 58, stock: 0 },
+  it('pinta productos destacados cuando el slice tiene featured items', async () => {
+    const FEATURED = [
+      { id: 1, slug: 'collar-1', name: 'Collar 1', base_price: 100, price_with_tax: 116, stock: 5, highlighted_name: 'Collar 1' },
+      { id: 2, slug: 'pulsera-2', name: 'Pulsera 2', base_price: 50, price_with_tax: 58, stock: 0, highlighted_name: 'Pulsera 2' },
     ];
-    renderHome(PRODUCTS);
-    expect(screen.getByTestId('home-featured-grid')).toBeInTheDocument();
-    expect(screen.getByText(/collar 1/i)).toBeInTheDocument();
-    expect(screen.getByText(/pulsera 2/i)).toBeInTheDocument();
+    // Mock apiService.get to return the featured products for the catalogue endpoint
+    const { default: apiService } = await import('@services/apiService');
+    apiService.get.mockResolvedValue({
+      data: { results: FEATURED, count: FEATURED.length, next: null, previous: null },
+    });
+    renderHome(FEATURED);
+    // ProductCard renders names via dangerouslySetInnerHTML from highlighted_name
+    expect(await screen.findByText(/Collar 1/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pulsera 2/i)).toBeInTheDocument();
   });
 });

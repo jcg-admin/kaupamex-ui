@@ -78,8 +78,8 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/returns/'),
         expect.objectContaining({
-          order_id: 'ORD-100',
-          reason:   'DAMAGED_PRODUCT',
+          order_number: 'ORD-100',
+          reason:       'DAMAGED_PRODUCT',
         }),
       );
     });
@@ -134,7 +134,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
     await waitFor(() => expect(apiService.post).toHaveBeenCalled());
     const [, body] = apiService.post.mock.calls[0];
     expect(body).toBeInstanceOf(FormData);
-    expect(body.get('order_id')).toBe('ORD-100');
+    expect(body.get('order_number')).toBe('ORD-100');
     expect(body.get('reason')).toBe('DAMAGED_PRODUCT');
     const photoEntries = body.getAll('photos');
     expect(photoEntries).toHaveLength(2);
@@ -187,9 +187,9 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
     const [, body] = apiService.post.mock.calls[0];
     expect(body).not.toBeInstanceOf(FormData);
     expect(body).toEqual(expect.objectContaining({
-      order_id:    'ORD-100',
-      reason:      'DAMAGED_PRODUCT',
-      description: expect.any(String),
+      order_number: 'ORD-100',
+      reason:       'DAMAGED_PRODUCT',
+      description:  expect.any(String),
     }));
   });
 });

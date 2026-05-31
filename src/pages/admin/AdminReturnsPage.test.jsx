@@ -33,11 +33,11 @@ const wrap = (ui, store) => (
 
 const RETURNS = [
   { id: 200, order_id: 'ORD-A', status: 'PENDING_REVIEW', created_at: '2026-05-01T10:00:00Z',
-    customer: { id: 1, email: 'demo@test.mx', name: 'Demo Yoruba' }, reason: 'PRODUCTO_DANADO' },
+    user_email: 'demo@test.mx', user_username: 'Demo Yoruba', reason: 'PRODUCTO_DANADO' },
   { id: 201, order_id: 'ORD-B', status: 'APPROVED',           created_at: '2026-05-02T10:00:00Z',
-    customer: { id: 2, email: 'maria@test.mx', name: 'María L.' }, reason: 'NO_COINCIDE_DESCRIPCION' },
+    user_email: 'maria@test.mx', user_username: 'María L.', reason: 'NO_COINCIDE_DESCRIPCION' },
   { id: 202, order_id: 'ORD-C', status: 'INFO_REQUESTED', created_at: '2026-05-03T10:00:00Z',
-    customer: { id: 3, email: 'juan@test.mx', name: 'Juan D.' }, reason: 'OTRO' },
+    user_email: 'juan@test.mx', user_username: 'Juan D.', reason: 'OTRO' },
 ];
 
 const RESPONSE = {

@@ -17,12 +17,25 @@ export const NOTIFICATIONS_KEY              = ['notifications'];
 export const NOTIFICATIONS_UNREAD_COUNT_KEY = ['notifications', 'unread-count'];
 export const NOTIFICATION_PREFERENCES_KEY   = ['notifications', 'preferences'];
 
+/**
+ * H-CICLO88-02: la API ahora pagina la bandeja (PageNumberPagination,
+ * page_size=50, max 500 filas totales).  El hook devuelve la forma
+ * paginada completa { results, count, next, previous } para que la UI
+ * pueda mostrar un boton "Cargar mas" cuando exista pagina siguiente.
+ */
 export function useNotificationsList(params = {}) {
   return useQuery({
     queryKey: [...NOTIFICATIONS_KEY, params],
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(LIST_URL, { params, signal });
-      return data?.results ?? data?.notifications ?? data ?? [];
+      // Si la respuesta ya es paginada (tiene count + results) la devolvemos
+      // directamente.  Si es el formato legacy { results: [] } construimos
+      // un envelope compatible.
+      if (data && typeof data.count !== 'undefined') {
+        return data;
+      }
+      const results = data?.results ?? data?.notifications ?? data ?? [];
+      return { results, count: results.length, next: null, previous: null };
     },
   });
 }

@@ -21,9 +21,9 @@ const REASONS = [
 const MIN_DESCRIPTION = 20;
 
 const INITIAL = {
-  order_id:    '',
-  reason:      'DAMAGED_PRODUCT',
-  description: '',
+  order_number: '',
+  reason:       'DAMAGED_PRODUCT',
+  description:  '',
 };
 
 // UC-RET-01 Alt A: la subida de evidencias fotograficas es opcional pero
@@ -33,10 +33,10 @@ const MAX_PHOTOS         = 4;
 const MAX_PHOTO_BYTES    = 5 * 1024 * 1024;
 const ACCEPTED_MIME_HINT = 'image/*';
 
-function validate({ order_id, description }, photos) {
+function validate({ order_number, description }, photos) {
   const errors = {};
-  if (!order_id.trim()) {
-    errors.order_id = 'La orden es obligatoria.';
+  if (!order_number.trim()) {
+    errors.order_number = 'La orden es obligatoria.';
   }
   if (description.trim().length < MIN_DESCRIPTION) {
     errors.description = `La descripción debe tener al menos ${MIN_DESCRIPTION} caracteres.`;
@@ -60,7 +60,7 @@ export default function ReturnCreatePage() {
 
   const [fields, setFields] = useState(() => ({
     ...INITIAL,
-    order_id: searchParams.get('order') ?? '',
+    order_number: searchParams.get('order') ?? '',
   }));
   const [photos, setPhotos] = useState([]);
   const [errors, setErrors] = useState({});
@@ -85,9 +85,9 @@ export default function ReturnCreatePage() {
       return;
     }
     dispatch(createReturnRequest({
-      order_id:    fields.order_id.trim(),
-      reason:      fields.reason,
-      description: fields.description.trim(),
+      order_number: fields.order_number.trim(),
+      reason:       fields.reason,
+      description:  fields.description.trim(),
       photos,
     }));
   };
@@ -143,18 +143,18 @@ export default function ReturnCreatePage() {
 
       <form onSubmit={handleSubmit} noValidate className={styles.form}>
         <div className={styles.field}>
-          <label htmlFor="return-order">Orden a devolver</label>
+          <label htmlFor="return-order">Número de orden a devolver</label>
           <input
             id="return-order"
-            name="order_id"
+            name="order_number"
             type="text"
-            placeholder="Ej. ORD-12345678"
-            value={fields.order_id}
+            placeholder="Ej. PY-AB12CD34"
+            value={fields.order_number}
             onChange={handleChange}
-            aria-invalid={Boolean(errors.order_id)}
+            aria-invalid={Boolean(errors.order_number)}
           />
-          {errors.order_id && (
-            <span className={styles.error}>{errors.order_id}</span>
+          {errors.order_number && (
+            <span className={styles.error}>{errors.order_number}</span>
           )}
         </div>
 

@@ -23,37 +23,40 @@ import AdminLogisticsPage from './AdminLogisticsPage';
 // son `pending_pickup` / `in_transit`. Antes el mock usaba `group_a` /
 // `group_b` que coincidian con un bug (UI leia keys inexistentes) =
 // soft-on-tests. Test alineado a canon API.
+// H-CICLO36-03: mock alineado al shape real de LogisticsPanelView.
+// pending_pickup: {order_id, order_number, status, recipient_name, city}
+// in_transit:     {guide_id, order_number, courier_code, tracking_number, status}
 const PANEL = {
   pending_pickup: [
     {
-      order_id:   501,
-      order_number: 'ORD-0501',
-      buyer_username: 'maria.lopez',
-      created_at: '2026-05-18T10:00:00Z',
+      order_id:       501,
+      order_number:   'ORD-0501',
+      status:         'IN_PREPARATION',
+      recipient_name: 'Maria Lopez',
+      city:           'CDMX',
     },
     {
-      order_id:   502,
-      order_number: 'ORD-0502',
-      buyer_username: 'juan.perez',
-      created_at: '2026-05-18T11:30:00Z',
+      order_id:       502,
+      order_number:   'ORD-0502',
+      status:         'IN_PREPARATION',
+      recipient_name: 'Juan Perez',
+      city:           'Guadalajara',
     },
   ],
   in_transit: [
     {
       guide_id:        700,
       order_number:    'ORD-0490',
-      courier_name:    'Estafeta',
+      courier_code:    'ESTAFETA',
       tracking_number: 'EST123456',
-      last_status:     'EN_TRANSITO',
-      last_event_at:   '2026-05-19T08:00:00Z',
+      status:          'EN_TRANSITO',
     },
     {
       guide_id:        701,
       order_number:    'ORD-0491',
-      courier_name:    'DHL',
+      courier_code:    'DHL',
       tracking_number: null,
-      last_status:     'CREATED',
-      last_event_at:   '2026-05-18T20:00:00Z',
+      status:          'CREATED',
     },
   ],
 };
@@ -99,7 +102,8 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     apiService.get.mockResolvedValue({ data: PANEL });
     render(wrap());
     expect(await screen.findByText('ORD-0490')).toBeInTheDocument();
-    expect(screen.getByText('Estafeta')).toBeInTheDocument();
+    // H-CICLO36-03: la UI muestra courier_code (no courier_name)
+    expect(screen.getByText('ESTAFETA')).toBeInTheDocument();
     expect(screen.getByText('EST123456')).toBeInTheDocument();
     expect(screen.getByText('DHL')).toBeInTheDocument();
   });
@@ -116,6 +120,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/logistics/guides/700/confirm-delivery/',
+        {},
       );
     });
   });

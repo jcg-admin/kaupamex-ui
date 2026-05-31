@@ -18,13 +18,14 @@ import apiService from '@services/apiService';
 import settingsReducer from '@redux/slices/settingsSlice';
 import AdminSystemSettingsPage from './AdminSystemSettingsPage';
 
+// H-CICLO40-08: claves alineadas con SiteSettingsAdminSerializer.
+// contact_email → support_email; support_phone → phone; tax_rate → iva_rate.
 const SETTINGS = {
-  site_name: 'PracticaYoruba',
-  contact_email: 'hola@yoruba.mx',
-  support_phone: '+52 55 0000 0000',
-  tax_rate: 16,
-  currency: 'MXN',
-  maintenance_mode: false,
+  site_name:     'PracticaYoruba',
+  support_email: 'hola@yoruba.mx',
+  phone:         '+52 55 0000 0000',
+  iva_rate:      16,
+  currency:      'MXN',
 };
 
 const wrap = () => {

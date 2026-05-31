@@ -1,82 +1,174 @@
 /**
- * OrdersPage — PracticaYoruba
- * UC-ORD-03: Listado paginado de ordenes del comprador autenticado.
+ * OrdersPage — Práctica Yorùbà
+ * Lista paginada de pedidos del comprador.
  *
- * Lectura: useCustomerOrders (React Query).
+ * Endpoints:
+ *   GET /orders/?status={status}&page={n}
  */
+
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useCustomerOrders } from '@hooks/domain/useOrders';
+import { fetchOrders } from '@redux/slices/ordersSlice';
+import AccountSidebar from '@components/account/AccountSidebar';
+import { MetaTag, Price, Button, EmptyState } from '@components/common/primitives';
 import styles from './OrdersPage.module.scss';
 
-const STATUS_LABEL = {
-  PENDING:        'Pendiente',
-  PENDING_PAYMENT:'Pendiente de pago',
-  PROCESSING:     'En proceso',
-  IN_PREPARATION: 'En preparacion',
-  SHIPPED:        'Enviado',
-  DELIVERED:      'Entregado',
-  CANCELLED:      'Cancelado',
+const STATUS_FILTERS = [
+  { id: 'all',       label: 'Todos' },
+  { id: 'active',    label: 'En curso' },
+  { id: 'delivered', label: 'Entregados' },
+  { id: 'cancelled', label: 'Cancelados' },
+];
+
+// H-CICLO32-04: PAGADA y CANCELLED_TIMEOUT existen en el modelo pero faltaban en el mapa.
+// Sin ellos, órdenes en esos estados renderizaban "Pendiente" (fallback STATUS_TONE.PENDING).
+const STATUS_TONE = {
+  PENDING:          { tone: 'muted',  label: 'Pendiente' },
+  PROCESSING:       { tone: 'coral',  label: 'Procesando' },
+  PAGADA:           { tone: 'coral',  label: 'Pagada' },
+  IN_PREPARATION:   { tone: 'coral',  label: 'En preparación' },
+  SHIPPED:          { tone: 'coral',  label: 'En camino' },
+  DELIVERED:        { tone: 'lime',   label: 'Entregado' },
+  CANCELLED:        { tone: 'vino',   label: 'Cancelado' },
+  CANCELLED_TIMEOUT:{ tone: 'vino',   label: 'Cancelado (timeout)' },
+  REFUNDED:         { tone: 'bronze', label: 'Reembolsado' },
 };
 
-function formatDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('es-MX');
-}
-
-function formatCurrency(value) {
-  if (value === null || value === undefined || value === '') return '—';
-  const num = typeof value === 'number' ? value : Number(value);
-  if (Number.isNaN(num)) return value;
-  return num.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
-}
-
 export default function OrdersPage() {
-  const { data, isLoading, isError } = useCustomerOrders();
-  const orders = data?.results ?? [];
+  const dispatch = useDispatch();
+  const [filter, setFilter] = useState('all');
+  // H-CICLO108-04: read pagination metadata from the slice (added in
+  // H-CICLO22-02). Without a page counter and prev/next controls users
+  // could only ever see the first 10 orders — the API response has
+  // count/next/previous but the page never consumed them.
+  const [page, setPage] = useState(1);
+  // H-CICLO117-03: leer actionError para mostrar error de red/API en lugar
+  // de renderizar silenciosamente "Aún no tienes pedidos" cuando fetchOrders
+  // falla. El slice almacena el error en actionError en el caso rejected.
+  const { list = [], isLoading, ordersNext, ordersPrevious, ordersCount, actionError } = useSelector((s) => s.orders || {});
+
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
+
+  useEffect(() => { dispatch(fetchOrders({ filter, page })); }, [dispatch, filter, page]);
 
   return (
-    <section className={styles.page} aria-labelledby="orders-title">
-      <header className={styles.header}>
-        <h1 id="orders-title" className={styles.title}>Mis pedidos</h1>
-      </header>
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <nav className={styles.breadcrumb}>
+          <Link to="/mi-cuenta">Mi cuenta</Link>
+          <span>/</span>
+          <span className={styles.bcCurrent}>Mis pedidos</span>
+        </nav>
 
-      {isLoading && <p>Cargando pedidos…</p>}
+        <div className={styles.layout}>
+          <AccountSidebar />
 
-      {isError && (
-        <p role="alert" className={styles.error}>
-          No se pudieron cargar tus pedidos. Intenta de nuevo.
-        </p>
-      )}
+          <section>
+            <header className={styles.header}>
+              <h1 className={styles.title}>Mis pedidos</h1>
+              <div className={styles.filters}>
+                {STATUS_FILTERS.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    className={`${styles.filterBtn} ${filter === f.id ? styles.filterBtnActive : ''}`}
+                    onClick={() => setFilter(f.id)}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </header>
 
-      {!isLoading && !isError && orders.length === 0 && (
-        <p className={styles.empty}>No tienes pedidos registrados.</p>
-      )}
+            {isLoading && <div className={styles.loading}>Cargando pedidos…</div>}
 
-      {orders.length > 0 && (
-        <ul className={styles.list}>
-          {orders.map((order) => (
-            <li key={order.order_number} className={styles.item}>
-              <Link to={`/account/orders/${order.order_number}`} className={styles.itemLink}>
-                <div className={styles.itemMain}>
-                  <span className={styles.itemNumber}>{order.order_number}</span>
-                  <span className={styles.itemDate}>{formatDate(order.created_at)}</span>
-                </div>
-                <div className={styles.itemMeta}>
-                  <span className={styles.itemStatus}>
-                    {STATUS_LABEL[order.status] ?? order.status_display ?? order.status}
-                  </span>
-                  <span className={styles.itemTotal}>{formatCurrency(order.total)}</span>
-                  <span className={styles.itemCount}>
-                    {order.items_count} {order.items_count === 1 ? 'articulo' : 'articulos'}
-                  </span>
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+            {/* H-CICLO117-03: mostrar error explícito cuando fetchOrders falla.
+                Sin este bloque, un error de red o de API dejaba isLoading=false
+                y list=[], renderizando el EmptyState "Aún no tienes pedidos"
+                como si el usuario simplemente no tuviera órdenes. */}
+            {!isLoading && actionError && (
+              <div className={styles.errorState}>
+                No se pudieron cargar tus pedidos. Por favor, intenta de nuevo.
+              </div>
+            )}
+
+            {!isLoading && !actionError && list.length === 0 && (
+              <EmptyState
+                icon="◯"
+                title="Aún no tienes pedidos"
+                description="Cuando hagas tu primer pedido, lo verás aquí con todo el seguimiento."
+              >
+                <Link to="/catalogo"><Button variant="primary">Ir al catálogo</Button></Link>
+              </EmptyState>
+            )}
+
+            {!isLoading && list.length > 0 && (
+              <div className={styles.list}>
+                {list.map((o) => <OrderRow key={o.order_number} order={o} />)}
+              </div>
+            )}
+
+            {!isLoading && ordersCount > 0 && (ordersPrevious || ordersNext) && (
+              <div className={styles.pagination}>
+                <button
+                  type="button"
+                  className={styles.pageBtn}
+                  onClick={() => setPage((p) => p - 1)}
+                  disabled={!ordersPrevious}
+                >
+                  ← Anterior
+                </button>
+                <span className={styles.pageInfo}>Página {page}</span>
+                <button
+                  type="button"
+                  className={styles.pageBtn}
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={!ordersNext}
+                >
+                  Siguiente →
+                </button>
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function OrderRow({ order }) {
+  const status = STATUS_TONE[order.status] || STATUS_TONE.PENDING;
+  const isActive = ['PROCESSING','IN_PREPARATION','SHIPPED'].includes(order.status);
+
+  return (
+    <article className={`${styles.row} ${isActive ? styles.rowActive : ''}`}>
+      <div>
+        <div className={styles.rowMeta}>
+          PEDIDO · {new Date(order.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()}
+        </div>
+        <div className={styles.rowNumber}>{order.order_number}</div>
+      </div>
+      <div>
+        <div className={`${styles.rowStatus} ${styles[`tone_${status.tone}`]}`}>
+          <span className={styles.rowDot} />
+          {status.label}
+        </div>
+        <div className={styles.rowEta}>
+          {order.eta_label || `Actualizado: ${new Date(order.updated_at).toLocaleDateString('es-MX')}`}
+        </div>
+      </div>
+      <div>
+        <div className={styles.rowItems}>
+          {order.items_count} {order.items_count === 1 ? 'pieza' : 'piezas'}
+        </div>
+        <Price amount={order.total} size="md" />
+      </div>
+      <Link to={`/mi-cuenta/pedidos/${order.order_number}`}>
+        <Button variant="secondary" size="sm">Ver detalle</Button>
+      </Link>
+    </article>
   );
 }

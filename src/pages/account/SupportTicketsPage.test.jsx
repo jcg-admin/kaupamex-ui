@@ -32,9 +32,9 @@ const wrap = (ui, store) => (
 );
 
 const TICKETS = [
-  { id: 1, subject: 'Pedido tardio',     status: 'OPEN',    created_at: '2026-05-10T10:00:00Z' },
-  { id: 2, subject: 'Producto defectuoso', status: 'REPLIED', created_at: '2026-05-08T10:00:00Z' },
-  { id: 3, subject: 'Caso resuelto',     status: 'CLOSED',  created_at: '2026-05-01T10:00:00Z' },
+  { id: 1, subject: 'Pedido tardio',       status: 'OPEN',         created_at: '2026-05-10T10:00:00Z' },
+  { id: 2, subject: 'Producto defectuoso', status: 'AWAITING_USER', created_at: '2026-05-08T10:00:00Z' },
+  { id: 3, subject: 'Caso resuelto',       status: 'CLOSED',        created_at: '2026-05-01T10:00:00Z' },
 ];
 
 afterEach(() => jest.clearAllMocks());
@@ -60,7 +60,8 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
     apiService.get.mockResolvedValue({ data: { results: TICKETS } });
     render(wrap(<SupportTicketsPage />, makeStore()));
     expect(await screen.findByText('Abierto')).toBeInTheDocument();
-    expect(screen.getByText('Respondido')).toBeInTheDocument();
+    // AWAITING_USER maps to 'Esperando respuesta' in STATUS_LABEL
+    expect(screen.getByText('Esperando respuesta')).toBeInTheDocument();
     expect(screen.getByText('Cerrado')).toBeInTheDocument();
   });
 

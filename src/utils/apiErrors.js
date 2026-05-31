@@ -386,16 +386,14 @@ export function createErrorFromResponse(response, originalError = null) {
   const ErrorClass = getErrorClassByStatusCode(statusCode);
 
   if (statusCode === 422 || statusCode === 400) {
-    // Validation error with field details
-    try {
-      const data = response?.data || {};
-      return new ErrorClass(
-        data.message || 'Validation failed',
-        data.errors || {}
-      );
-    } catch {
-      return new ErrorClass();
-    }
+    const data = response?.data || {};
+    // Prefer structured detail over generic message; fall back to DRF data.message
+    const message = data.detail || data.message || 'Validation failed';
+    const errors = data.errors || {};
+    const err = new ErrorClass(message, errors);
+    // Propagate structured error_code from API (overrides class default code)
+    if (data.error_code) err.code = data.error_code;
+    return err;
   }
 
   try {

@@ -53,7 +53,7 @@ export const markNotificationAsRead = createAsyncThunk(
   'notifications/markAsRead',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(MARK_AS_READ_URL(id));
+      const res = await apiService.post(MARK_AS_READ_URL(id), {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -66,7 +66,7 @@ export const markAllNotificationsAsRead = createAsyncThunk(
   'notifications/markAllAsRead',
   async (_arg, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(MARK_ALL_AS_READ_URL);
+      const res = await apiService.post(MARK_ALL_AS_READ_URL, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

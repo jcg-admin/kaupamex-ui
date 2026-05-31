@@ -42,12 +42,25 @@ export const createVoucher = createAsyncThunk(
   }
 );
 
+/** UC-PRO-02: Editar voucher (PATCH) */
+export const updateVoucher = createAsyncThunk(
+  'vouchers/update',
+  async ({ id, ...data }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.patch(`${ADMIN_VOUCHERS_URL}${id}/`, data);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
 /** UC-PRO-03: Desactivar voucher */
 export const deactivateVoucher = createAsyncThunk(
   'vouchers/deactivate',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_VOUCHERS_URL}${id}/deactivate/`);
+      const res = await apiService.post(`${ADMIN_VOUCHERS_URL}${id}/deactivate/`, {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -67,7 +80,7 @@ const vouchersSlice = createSlice({
     isActioning:  false,
     error:        null,
     actionError:  null,
-    lastAction:   null,    // 'created' | 'deactivated'
+    lastAction:   null,    // 'created' | 'updated' | 'deactivated'
   },
 
   reducers: {
@@ -106,6 +119,25 @@ const vouchersSlice = createSlice({
         state.items       = [action.payload, ...state.items];
       })
       .addCase(createVoucher.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // updateVoucher (UC-PRO-02)
+    builder
+      .addCase(updateVoucher.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(updateVoucher.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'updated';
+        const updated = action.payload;
+        state.items   = state.items.map((v) =>
+          v.id === updated.id ? { ...v, ...updated } : v
+        );
+      })
+      .addCase(updateVoucher.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       });

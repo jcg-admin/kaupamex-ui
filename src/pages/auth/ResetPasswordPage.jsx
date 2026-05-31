@@ -1,120 +1,98 @@
 /**
- * ResetPasswordPage — PracticaYoruba
- * Restablecer contrasena con token del email (UC-AUTH-09 Fase 2).
+ * ResetPasswordPage — Práctica Yorùbà
+ * Confirmar nueva contraseña con el token del enlace.
+ *
+ * Endpoints:
+ *   POST /auth/password-reset/confirm/
  */
 
 import { useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import styles from './ResetPasswordPage.module.scss';
-
-const API_URL = '/api/v1/auth/password-reset/confirm/';
-const USE_MOCK = process.env.PY_AUTH_SOURCE === 'mock';
+import { useDispatch } from 'react-redux';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { confirmPasswordReset } from '@redux/slices/authSlice';
+import { Button, Field, MetaTag } from '@components/common/primitives';
+import logoUrl from '@assets/practica-yoruba-logo.svg';
+import styles from './AuthSimplePage.module.scss';
 
 export default function ResetPasswordPage() {
-  const [searchParams]            = useSearchParams();
-  const navigate                  = useNavigate();
-  const token                     = searchParams.get('token') || '';
-  const [fields, setFields]       = useState({ new_password: '', new_password_confirm: '' });
-  const [errors, setErrors]       = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [globalError, setGlobal]  = useState('');
-
-  const validate = () => {
-    const e = {};
-    if (fields.new_password.length < 8) e.new_password = 'Minimo 8 caracteres.';
-    if (fields.new_password !== fields.new_password_confirm)
-      e.new_password_confirm = 'Las contrasenas no coinciden.';
-    return e;
-  };
-
-  const handleChange = (e) => {
-    setFields(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    setErrors(prev => ({ ...prev, [e.target.name]: '' }));
-  };
+  const { uid, token } = useParams();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [pwd, setPwd] = useState({ next: '', confirm: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const v = validate();
-    if (Object.keys(v).length) { setErrors(v); return; }
-    if (!token) { setGlobal('El enlace es invalido o ha expirado.'); return; }
-    setIsLoading(true);
-    setGlobal('');
-
-    if (USE_MOCK) {
-      await new Promise(r => setTimeout(r, 600));
-      navigate('/auth/login', { state: { message: 'Contrasena restablecida. Inicia sesion.' } });
+    setError('');
+    if (pwd.next !== pwd.confirm) {
+      setError('Las contraseñas no coinciden.');
       return;
     }
-
+    setLoading(true);
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, ...fields }),
-      });
-      if (res.ok) {
-        navigate('/auth/login', { state: { message: 'Contrasena restablecida. Inicia sesion.' } });
-      } else {
-        const data = await res.json();
-        setGlobal(data.token || data.detail || 'El enlace es invalido o ha expirado.');
-      }
-    } catch {
-      setGlobal('Error de red. Intenta de nuevo.');
+      await dispatch(confirmPasswordReset({ uid, token, new_password: pwd.next })).unwrap();
+      navigate('/auth/login?reset=ok', { replace: true });
+    } catch (err) {
+      setError('Token inválido o expirado. Solicita un enlace nuevo.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  if (!token) {
-    return (
-      <div className={styles.page}>
-        <div className={styles.card}>
-          <h1 className={styles.title}>Enlace invalido</h1>
-          <p>Este enlace de recuperacion no es valido o ha expirado.</p>
-          <Link to="/auth/forgot-password" className={styles.backLink}>
-            Solicitar nuevo enlace
-          </Link>
+  return (
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <Link to="/" className={styles.brand}>
+          <img src={logoUrl} alt="" className={styles.brandLogo} />
+          <div>
+            <div className={styles.brandName}>Práctica Yorùbà</div>
+            <div className={styles.brandTag}>Ifá · Òrìsà · Olódùmarè</div>
+          </div>
+        </Link>
+
+        <div className={styles.steps}>
+          <div className={`${styles.step} ${styles.stepActive}`} />
+          <div className={`${styles.step} ${styles.stepActive}`} />
+        </div>
+
+        <MetaTag tone="bronze">Paso 2 de 2</MetaTag>
+        <h1 className={styles.title}>Nueva contraseña</h1>
+        <p className={styles.lead}>
+          El enlace es válido por <strong>1 hora</strong> y se invalida al usarlo.
+        </p>
+
+        <form className={styles.form} onSubmit={handleSubmit}>
+          <Field
+            label="Nueva contraseña"
+            type="password"
+            value={pwd.next}
+            onChange={(e) => setPwd({ ...pwd, next: e.target.value })}
+            required
+            placeholder="mínimo 8 caracteres"
+          />
+          <Field
+            label="Confirmar contraseña"
+            type="password"
+            value={pwd.confirm}
+            onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })}
+            required
+            error={error}
+          />
+          <div style={{ fontFamily: 'var(--f-mono)', fontSize: 11, color: 'var(--c-ink-mute)', lineHeight: 1.85 }}>
+            · Mínimo 8 caracteres &nbsp;
+            · No similar a tu correo &nbsp;
+            · Distinta a las últimas 3
+          </div>
+          <Button type="submit" variant="primary" block size="lg" disabled={loading}>
+            {loading ? 'Cambiando…' : 'Cambiar contraseña'}
+          </Button>
+        </form>
+
+        <div className={styles.footer}>
+          ¿Necesitas otro enlace? <Link to="/auth/recuperar">Volver al paso 1</Link>
         </div>
       </div>
-    );
-  }
-
-  return (
-    <div className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.title}>Nueva contrasena</h1>
-
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <div className={styles.field}>
-            <label htmlFor="new_password">Nueva contrasena</label>
-            <input
-              id="new_password" name="new_password" type="password"
-              autoComplete="new-password"
-              value={fields.new_password} onChange={handleChange}
-              aria-invalid={!!errors.new_password}
-            />
-            {errors.new_password && <span className={styles.error}>{errors.new_password}</span>}
-          </div>
-          <div className={styles.field}>
-            <label htmlFor="new_password_confirm">Confirmar contrasena</label>
-            <input
-              id="new_password_confirm" name="new_password_confirm" type="password"
-              autoComplete="new-password"
-              value={fields.new_password_confirm} onChange={handleChange}
-              aria-invalid={!!errors.new_password_confirm}
-            />
-            {errors.new_password_confirm && (
-              <span className={styles.error}>{errors.new_password_confirm}</span>
-            )}
-          </div>
-
-          {globalError && <p className={styles.globalError} role="alert">{globalError}</p>}
-
-          <button type="submit" className={styles.submitBtn} disabled={isLoading}>
-            {isLoading ? 'Guardando...' : 'Establecer nueva contrasena'}
-          </button>
-        </form>
-      </div>
-    </div>
+    </main>
   );
 }

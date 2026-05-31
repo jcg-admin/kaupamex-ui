@@ -1,33 +1,245 @@
 @use '@styles/abstracts' as *;
 
-.page {
+.page { background: $bg-page; min-height: 100vh; display: flex; flex-direction: column; }
+
+// H-CICLO46-04: banner de error al fallar createOrder / initMercadoPago / initPayPal.
+.submitError {
+  max-width: $content-max-width;
+  margin: $spacing-4 auto 0;
+  padding: $spacing-3 $spacing-5;
   width: 100%;
-  padding: $spacing-8 0;
+  background: $error-bg;
+  border: 1px solid $error-border;
+  border-radius: 6px;
+  color: $error-color;
+  font-size: 0.9rem;
 }
 
-.guestNotice {
-  background: $primary-50;
-  color: $text-primary;
-  padding: $spacing-3 $spacing-4;
-  border-radius: $border-radius-md;
-  margin: 0 0 $spacing-4;
-
-  a {
-    color: $primary-color;
-    font-weight: 500;
-  }
+// ─────────────────────────────────────────────────────────────────────
+// Mini header (sin el header del storefront)
+// ─────────────────────────────────────────────────────────────────────
+.checkoutHeader { border-bottom: 1px solid $border-color; }
+.checkoutHeaderInner {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $spacing-5 $content-padding-desktop;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-6;
+  @media (max-width: $bp-md) { flex-direction: column; gap: $spacing-3; padding: $spacing-3 $content-padding-mobile; }
 }
+.brand { display: flex; align-items: center; gap: $spacing-3; text-decoration: none; color: inherit; }
+.brandLogo { width: 40px; height: 40px; filter: invert(1); }
+.brandName { display: block; font-family: $font-family-display; font-size: $font-size-lg; color: $text-primary; font-weight: $font-weight-medium; line-height: 1; }
+.brandTag { display: block; font-family: $font-family-mono; font-size: 9px; color: $bronze; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 4px; }
+.steps {
+  display: flex;
+  gap: $spacing-6;
+  align-items: center;
+  @media (max-width: $bp-lg) { gap: $spacing-3; }
+}
+.step { display: flex; align-items: center; gap: $spacing-2; }
+.stepNum { font-family: $font-family-mono; font-size: $font-size-xs; letter-spacing: 0.1em; }
+.stepLabel { font-size: $font-size-sm; }
+.step_done    .stepNum { color: $lime-soft; }
+.step_done    .stepLabel { color: $text-secondary; }
+.step_active  .stepNum { color: $bronze; }
+.step_active  .stepLabel { color: $text-primary; font-weight: $font-weight-medium; }
+.step_pending .stepNum, .step_pending .stepLabel { color: $text-muted; }
+.secureBadge { font-family: $font-family-mono; font-size: $font-size-xs; color: $text-muted; letter-spacing: 0.08em; @media (max-width: $bp-lg) { display: none; } }
 
-.placeholder {
-  @include flex-column-center;
-  min-height: 40vh;
+// ─────────────────────────────────────────────────────────────────────
+// Layout
+// ─────────────────────────────────────────────────────────────────────
+.container {
+  max-width: $content-max-width;
+  margin: 0 auto;
+  width: 100%;
+  padding: $spacing-12 $content-padding-desktop $spacing-24;
+  flex: 1;
+  @media (max-width: $bp-md) { padding: $spacing-8 $content-padding-mobile $spacing-16; }
+}
+.layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: $spacing-12;
+  @media (max-width: $bp-lg) { grid-template-columns: 1fr; gap: $spacing-8; }
+}
+.mainCol { display: flex; flex-direction: column; gap: $spacing-10; min-width: 0; }
+
+// ─────────────────────────────────────────────────────────────────────
+// Section
+// ─────────────────────────────────────────────────────────────────────
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
   gap: $spacing-4;
-  text-align: center;
-  color: $text-muted;
-
-  h1 {
-    font-family: $font-family-display;
-    font-size: $font-size-2xl;
-    color: $text-secondary;
-  }
+  margin-bottom: $spacing-6;
+  padding-bottom: $spacing-3;
+  border-bottom: 1px solid $border-color;
 }
+.sectionNum {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $bronze;
+  letter-spacing: $ls-eyebrow;
+}
+.sectionTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Radio option cards
+// ─────────────────────────────────────────────────────────────────────
+.options { display: flex; flex-direction: column; gap: $spacing-3; }
+.optionCard {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: $spacing-4;
+  padding: $spacing-5;
+  border: 1px solid $border-medium;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  align-items: start;
+  &:hover { border-color: $border-strong; }
+}
+.optionCardWide {
+  grid-template-columns: 24px 1fr auto;
+  align-items: center;
+}
+.optionCardActive {
+  border-color: $bronze;
+  background: rgba($bronze, 0.05);
+  &:hover { border-color: $bronze; }
+}
+.radio {
+  width: 16px; height: 16px;
+  border-radius: 999px;
+  border: 1px solid $border-strong;
+  background: $bg-page;
+  margin-top: 2px;
+}
+.radioActive {
+  border: 5px solid $bronze;
+}
+.optionTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+.optionSub {
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin-top: 3px;
+}
+.optionPrice { text-align: right; }
+.optionPriceLime { color: $lime-soft; font-family: $font-family-mono; }
+.optionPriceNote { display: block; font-family: $font-family-mono; font-size: 10px; color: $text-muted; letter-spacing: 0.06em; margin-top: 2px; }
+.optionExternal { font-family: $font-family-mono; font-size: 10px; color: $text-muted; letter-spacing: 0.1em; text-transform: uppercase; }
+
+// ─────────────────────────────────────────────────────────────────────
+// Address form
+// ─────────────────────────────────────────────────────────────────────
+.addressForm { display: flex; flex-direction: column; gap: $spacing-4; }
+.formRow2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-4;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr; }
+}
+.formRow3 {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: $spacing-4;
+  @media (max-width: $bp-md) { grid-template-columns: 1fr 1fr; }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Info box
+// ─────────────────────────────────────────────────────────────────────
+.infoBox {
+  margin-top: $spacing-4;
+  padding: 14px $spacing-4;
+  background: rgba($coral, 0.04);
+  border: 1px solid $border-color;
+  font-size: $font-size-xs;
+  color: $text-secondary;
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  line-height: $line-height-relaxed;
+}
+.infoBoxIcon { color: $coral; font-family: $font-family-mono; font-size: $font-size-xs; }
+
+// ─────────────────────────────────────────────────────────────────────
+// Summary
+// ─────────────────────────────────────────────────────────────────────
+.summary { position: sticky; top: $spacing-6; align-self: start; @media (max-width: $bp-lg) { position: static; } }
+.summaryCard { background: $bg-surface; border: 1px solid $border-medium; }
+.summaryHeader { padding: $spacing-5 $spacing-7; border-bottom: 1px solid $border-color; }
+.summaryTitle { font-family: $font-family-display; font-size: $font-size-xl; font-weight: $font-weight-medium; color: $text-primary; }
+.summaryMeta { font-family: $font-family-mono; font-size: $font-size-xs; color: $text-muted; letter-spacing: 0.08em; margin-top: 4px; }
+.summaryItems { padding: $spacing-5 $spacing-7; border-bottom: 1px solid $border-color; }
+.summaryItem {
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  gap: $spacing-3;
+  padding: $spacing-3 0;
+  align-items: center;
+  border-bottom: 1px solid $border-color;
+  &:last-child { border-bottom: 0; }
+}
+.summaryItemImg {
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, rgba($lime, 0.05), rgba($bronze, 0.08));
+  border: 1px dashed $border-medium;
+  img { width: 100%; height: 100%; object-fit: cover; }
+}
+.summaryItemName { font-size: $font-size-sm; color: $text-primary; line-height: 1.3; }
+.summaryItemOrisha { font-family: $font-family-mono; font-size: 10px; color: $coral; letter-spacing: 0.08em; margin-top: 3px; }
+.summaryTotals { padding: $spacing-5 $spacing-7; }
+.summaryTotalRow {
+  border-top: 1px solid $border-medium;
+  margin-top: $spacing-4;
+  padding-top: $spacing-4;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: $spacing-5;
+  & > span:first-child { font-family: $font-family-display; font-size: $font-size-lg; color: $text-primary; }
+}
+.summaryDisclaimer {
+  margin-top: $spacing-3;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  text-align: center;
+  line-height: $line-height-relaxed;
+  a { color: $coral; }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Footer
+// ─────────────────────────────────────────────────────────────────────
+.checkoutFooter {
+  border-top: 1px solid $border-color;
+  padding: $spacing-5 $content-padding-desktop;
+  display: flex;
+  justify-content: space-between;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  width: 100%;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.footerLinks { display: flex; gap: $spacing-6; @media (max-width: $bp-md) { gap: $spacing-3; flex-wrap: wrap; justify-content: flex-end; } a { color: $text-muted; &:hover { color: $text-secondary; } } }

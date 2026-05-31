@@ -34,6 +34,12 @@
   color:       $indigo-600;
 }
 
+.summaryStars {
+  color:       $amber-500;
+  font-weight: 600;
+  font-size:   1.25rem;
+}
+
 .total {
   color:     $gray-700;
   font-size: 0.95rem;
@@ -48,35 +54,12 @@
   gap:        0.85rem;
 }
 
-.item {
-  background:    $bg-surface;
-  border:        1px solid $gray-200;
-  border-radius: 8px;
-  padding:       0.85rem 1rem;
-}
-
-.rating {
-  color:       $amber-500;
-  font-weight: 600;
-  margin:      0 0 0.25rem;
-}
-
-.itemTitle {
-  font-weight: 600;
-  margin:      0 0 0.4rem;
-}
-
-.itemBody {
-  color:    $gray-700;
-  margin:   0;
-}
-
 .empty {
-  color:     $gray-600;
+  color:      $gray-600;
   font-style: italic;
 }
 
 .error {
-  color:        $danger-strong;
-  font-weight:  500;
+  color:       $danger-strong;
+  font-weight: 500;
 }

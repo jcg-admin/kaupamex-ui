@@ -93,12 +93,14 @@ export default function AdminPaymentRefundPage() {
           Procesar reembolso
         </h1>
         <p className={styles.subtitle}>
-          Pago <strong>#{payment.id}</strong> · Orden <strong>{payment.order_id}</strong>
+          {/* AdminPaymentSerializer exposes order_number, not order_id. */}
+          Pago <strong>#{payment.id}</strong> · Orden <strong>{payment.order_number}</strong>
         </p>
       </header>
 
       <dl className={styles.detail}>
-        <div><dt>Monto cobrado</dt><dd>{formatCurrency(payment.amount, payment.currency)}</dd></div>
+        {/* AdminPaymentSerializer has no currency field; Payment model is MXN-only. */}
+        <div><dt>Monto cobrado</dt><dd>{formatCurrency(payment.amount)}</dd></div>
         <div><dt>Gateway</dt><dd>{payment.gateway === 'paypal' ? 'PayPal' : 'Mercado Pago'}</dd></div>
         <div><dt>Estado</dt><dd>{payment.status}</dd></div>
       </dl>

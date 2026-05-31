@@ -62,7 +62,7 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
         expect.stringContaining('/support/tickets/5/replies/'),
         expect.objectContaining({
           body: 'Esta es una respuesta valida con suficiente largo',
-          is_internal: false,
+          is_internal_note: false,
         }),
       );
     });
@@ -97,7 +97,7 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/support/tickets/5/replies/'),
-        expect.objectContaining({ is_internal: true }),
+        expect.objectContaining({ is_internal_note: true }),
       );
     });
   });

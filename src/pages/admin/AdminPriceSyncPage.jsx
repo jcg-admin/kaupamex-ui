@@ -79,9 +79,10 @@ export default function AdminPriceSyncPage() {
   };
 
   const handleConfirm = () => {
-    if (!preview?.token) return;
-    if (mode === 'csv') dispatch(applyCsv({ token: preview.token }));
-    else dispatch(applyPercentage({ token: preview.token }));
+    // H-CICLO70-01: API returns session_id (not token) — use preview.session_id.
+    if (!preview?.session_id) return;
+    if (mode === 'csv') dispatch(applyCsv({ session_id: preview.session_id }));
+    else dispatch(applyPercentage({ session_id: preview.session_id }));
   };
 
   const handleDownloadTemplate = () => {
@@ -89,8 +90,11 @@ export default function AdminPriceSyncPage() {
     window.location.href = '/api/v1/admin/price-sync/template.csv';
   };
 
-  const rows    = preview?.rows    ?? [];
-  const summary = preview?.summary ?? null;
+  // H-CICLO70-01: API preview shape is { session_id, preview: [...], valid_count,
+  // invalid_count } — not { rows, summary, token }.
+  const rows       = preview?.preview    ?? [];
+  const validCount = preview?.valid_count   ?? null;
+  const invalidCount = preview?.invalid_count ?? null;
 
   return (
     <section className={styles.page} aria-labelledby="price-sync-title">
@@ -227,10 +231,10 @@ export default function AdminPriceSyncPage() {
         </p>
       )}
 
-      {summary && (
+      {validCount !== null && (
         <p className={styles.summary} aria-live="polite">
-          Vista previa: <strong>{summary.valid}</strong> filas validas,{' '}
-          <strong>{summary.invalid}</strong> invalidas.
+          Vista previa: <strong>{validCount}</strong> filas validas,{' '}
+          <strong>{invalidCount ?? 0}</strong> invalidas.
         </p>
       )}
 
@@ -243,20 +247,19 @@ export default function AdminPriceSyncPage() {
                 <th>Precio actual</th>
                 <th>Nuevo precio</th>
                 <th>Diferencia %</th>
-                <th>Estado</th>
+                <th>Producto</th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r, idx) => (
-                <tr
-                  key={`${r.sku}-${idx}`}
-                  className={r.status === 'invalido' ? styles.invalidRow : ''}
-                >
+                // H-CICLO70-01: API row fields are old_price (not current_price);
+                // rows in the `preview` array are always valid — no status field.
+                <tr key={`${r.sku}-${idx}`}>
                   <td>{r.sku}</td>
-                  <td>${fmt(r.current_price)}</td>
+                  <td>${fmt(r.old_price)}</td>
                   <td>${fmt(r.new_price)}</td>
                   <td>{r.diff_pct != null ? `${fmt(r.diff_pct)}%` : '—'}</td>
-                  <td>{r.status}</td>
+                  <td>{r.product_name}</td>
                 </tr>
               ))}
             </tbody>
@@ -267,7 +270,7 @@ export default function AdminPriceSyncPage() {
               type="button"
               className={styles.primaryBtn}
               onClick={handleConfirm}
-              disabled={isApplying || !preview?.token}
+              disabled={isApplying || !preview?.session_id}
             >
               {isApplying ? 'Aplicando...' : 'Confirmar y aplicar'}
             </button>
@@ -276,9 +279,10 @@ export default function AdminPriceSyncPage() {
       )}
 
       {applyReport && (
+        // H-CICLO70-01: API apply response has updated_count (not updated/skipped).
         <p role="status" className={styles.success}>
-          Operacion completada: <strong>{applyReport.updated}</strong>{' '}
-          precios actualizados, <strong>{applyReport.skipped}</strong> omitidos.
+          Operacion completada: <strong>{applyReport.updated_count}</strong>{' '}
+          precios actualizados.
         </p>
       )}
     </section>

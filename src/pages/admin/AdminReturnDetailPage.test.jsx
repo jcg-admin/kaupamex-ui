@@ -42,7 +42,7 @@ const PENDING_RETURN = {
   reason: 'PRODUCTO_DANADO',
   description: 'Producto recibido con un golpe en el empaque',
   created_at: '2026-05-10T10:00:00Z',
-  customer: { id: 5, email: 'demo@test.mx', name: 'Demo Yoruba' },
+  user_email: 'demo@test.mx', user_username: 'Demo Yoruba',
   items: [
     { id: 1, product_name: 'Collar Oshun', quantity: 1, price: 1250 },
   ],

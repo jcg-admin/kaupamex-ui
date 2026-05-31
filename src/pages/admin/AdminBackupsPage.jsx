@@ -91,7 +91,7 @@ export default function AdminBackupsPage() {
                 <td>{b.status}</td>
                 <td>
                   {b.download_url
-                    ? <a href={b.download_url} target="_blank" rel="noreferrer">Descargar</a>
+                    ? <a href={b.download_url} target="_blank" rel="noopener noreferrer">Descargar</a>
                     : '—'}
                 </td>
               </tr>

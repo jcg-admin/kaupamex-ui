@@ -10,6 +10,7 @@
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
+import { serializeApiError } from '@utils/serializeApiError';
 
 const ADMIN_USERS_URL = '/api/v1/admin/users/';
 
@@ -25,7 +26,7 @@ export const fetchAdminUsers = createAsyncThunk(
       const res = await apiService.get(ADMIN_USERS_URL, { params });
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -38,7 +39,7 @@ export const fetchAdminUser = createAsyncThunk(
       const res = await apiService.get(`${ADMIN_USERS_URL}${pk}/`);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -48,10 +49,10 @@ export const suspendUser = createAsyncThunk(
   'admin/suspendUser',
   async (pk, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/suspend/`);
+      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/suspend/`, {});
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -61,10 +62,10 @@ export const reactivateUser = createAsyncThunk(
   'admin/reactivateUser',
   async (pk, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/reactivate/`);
+      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/reactivate/`, {});
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -77,7 +78,122 @@ export const createAdminUser = createAsyncThunk(
       const res = await apiService.post(ADMIN_USERS_URL, userData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-AUTH-16: Forzar reset de contraseña de un usuario */
+export const resetUserPassword = createAsyncThunk(
+  'admin/resetUserPassword',
+  async (pk, { rejectWithValue }) => {
+    try {
+      await apiService.post(`${ADMIN_USERS_URL}${pk}/reset-password/`, {});
+      return pk;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-AUTH-17: Promover usuario a administrador */
+export const makeUserAdmin = createAsyncThunk(
+  'admin/makeUserAdmin',
+  async (pk, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/make-admin/`, {});
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+const ADMIN_ORDERS_URL   = '/api/v1/admin/orders/';
+const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
+// H-CICLO95-01: /api/v1/admin/metrics/ never existed — 404 on every load.
+// The actual dashboard snapshot is served by DashboardReportView at
+// /api/v1/admin/reports/dashboard/ (build_dashboard_payload in apps/reports).
+const ADMIN_METRICS_URL  = '/api/v1/admin/reports/dashboard/';
+
+/** UC-ADM-01: KPIs del panel de administración */
+export const fetchAdminMetrics = createAsyncThunk(
+  'admin/fetchMetrics',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ADMIN_METRICS_URL);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-ADM-02: Listar pedidos con filtros */
+export const fetchAdminOrders = createAsyncThunk(
+  'admin/fetchOrders',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ADMIN_ORDERS_URL, { params });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-ADM-03: Listar productos con filtros */
+export const fetchAdminProducts = createAsyncThunk(
+  'admin/fetchProducts',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(ADMIN_PRODUCTS_URL, { params });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-ADM-04: Eliminar producto */
+export const deleteProduct = createAsyncThunk(
+  'admin/deleteProduct',
+  async (id, { rejectWithValue }) => {
+    try {
+      await apiService.delete(`${ADMIN_PRODUCTS_URL}${id}/`);
+      return id;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-ADM-05: Destacar / quitar destacado de un producto */
+export const toggleProductFeatured = createAsyncThunk(
+  'admin/toggleProductFeatured',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(`${ADMIN_PRODUCTS_URL}${id}/toggle-featured/`, {});
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/** UC-AUTH-13/14: Activar o desactivar cuenta de usuario (toggle) */
+export const toggleUserActive = createAsyncThunk(
+  'admin/toggleUserActive',
+  async (pk, { getState, rejectWithValue }) => {
+    try {
+      const user = getState().admin?.currentUser;
+      const endpoint = user?.is_active
+        ? `${ADMIN_USERS_URL}${pk}/suspend/`
+        : `${ADMIN_USERS_URL}${pk}/reactivate/`;
+      const res = await apiService.post(endpoint, {});
+      return { pk, is_active: !user?.is_active, data: res.data };
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
     }
   }
 );
@@ -101,13 +217,31 @@ const adminSlice = createSlice({
     },
     search: '',
 
+    metrics:          {},
+    isLoadingMetrics: false,
+    metricsError:     null,
+
+    orders:           [],
+    ordersPagination: {
+      count:      0,
+      next:       null,
+      previous:   null,
+      totalPages: 0,
+    },
+    isLoadingOrders:  false,
+    ordersError:      null,
+
+    products:         [],
+    isLoadingProducts: false,
+    productsError:    null,
+
     isLoading:        false,
     isLoadingUser:    false,
-    isActioning:      false,   // suspend / reactivate / create
+    isActioning:      false,   // suspend / reactivate / create / resetPwd / makeAdmin
     error:            null,
     userError:        null,
     actionError:      null,
-    lastAction:       null,    // 'suspended' | 'reactivated' | 'created'
+    lastAction:       null,    // 'suspended' | 'reactivated' | 'created' | 'password_reset' | 'made_admin'
   },
 
   reducers: {
@@ -217,6 +351,201 @@ const adminSlice = createSlice({
         state.pagination.count += 1;
       })
       .addCase(createAdminUser.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // resetUserPassword
+    builder
+      .addCase(resetUserPassword.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(resetUserPassword.fulfilled, (state) => {
+        state.isActioning = false;
+        state.lastAction  = 'password_reset';
+      })
+      .addCase(resetUserPassword.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // makeUserAdmin
+    builder
+      .addCase(makeUserAdmin.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(makeUserAdmin.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'made_admin';
+        if (state.currentUser) {
+          state.currentUser = { ...state.currentUser, ...action.payload };
+        }
+      })
+      .addCase(makeUserAdmin.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // fetchAdminMetrics
+    // H-CICLO95-01: normalize build_dashboard_payload shape
+    // {today:{revenue,orders}, trend, top_products, open_tickets, low_stock_alerts}
+    // to the flat keys AdminDashboardPage reads.
+    builder
+      .addCase(fetchAdminMetrics.pending, (state) => {
+        state.isLoadingMetrics = true;
+        state.metricsError     = null;
+      })
+      .addCase(fetchAdminMetrics.fulfilled, (state, action) => {
+        state.isLoadingMetrics = false;
+        const p = action.payload || {};
+        const today = p.today || {};
+        // Normalize top_products: API returns {product_id,product_name,sku,units_sold}
+        // Page reads {id,name,orisha_name,units_sold,revenue}
+        const top_products = (p.top_products || []).map((r) => ({
+          id:          r.product_id,
+          name:        r.product_name,
+          orisha_name: r.sku,
+          units_sold:  r.units_sold,
+          revenue:     null,
+        }));
+        // Build synthetic alerts from open_tickets and low_stock_alerts counts
+        const alerts = [];
+        if (p.open_tickets > 0) {
+          alerts.push({
+            title: `${p.open_tickets} ticket${p.open_tickets > 1 ? 's' : ''} de soporte abierto${p.open_tickets > 1 ? 's' : ''}`,
+            description: 'Requieren atención del equipo.',
+            severity: 'warning',
+            action_to: '/admin/soporte',
+          });
+        }
+        if (p.low_stock_alerts > 0) {
+          alerts.push({
+            title: `${p.low_stock_alerts} alerta${p.low_stock_alerts > 1 ? 's' : ''} de stock bajo`,
+            description: 'Productos por debajo del umbral mínimo.',
+            severity: 'warning',
+            action_to: '/admin/inventario',
+          });
+        }
+        state.metrics = {
+          sales_today:    parseFloat(today.revenue || 0),
+          orders_today:   today.orders  || 0,
+          avg_ticket:     today.orders > 0
+            ? parseFloat(today.revenue || 0) / today.orders
+            : 0,
+          new_users_today:   null,
+          sales_delta_pct:   null,
+          orders_delta_pct:  null,
+          ticket_delta_pct:  null,
+          users_delta_pct:   null,
+          recent_orders:     [],
+          alerts,
+          top_products,
+          sales_by_orisha:   [],
+          // Raw payload preserved for future consumers
+          _raw: p,
+        };
+      })
+      .addCase(fetchAdminMetrics.rejected, (state, action) => {
+        state.isLoadingMetrics = false;
+        state.metricsError     = action.payload;
+      });
+
+    // fetchAdminOrders
+    // H-CICLO21-03: la API devuelve respuesta paginada (AdminOrderPagination:
+    // 20 por pagina). Antes se descartaban count/next/previous, impidiendo
+    // navegar paginas en el panel admin.
+    builder
+      .addCase(fetchAdminOrders.pending, (state) => {
+        state.isLoadingOrders = true;
+        state.ordersError     = null;
+      })
+      .addCase(fetchAdminOrders.fulfilled, (state, action) => {
+        state.isLoadingOrders = false;
+        const payload = action.payload;
+        if (payload && typeof payload === 'object' && 'results' in payload) {
+          state.orders = payload.results ?? [];
+          state.ordersPagination = {
+            count:      payload.count      ?? 0,
+            next:       payload.next       ?? null,
+            previous:   payload.previous   ?? null,
+            totalPages: payload.count
+              ? Math.ceil(payload.count / 20)
+              : 0,
+          };
+        } else {
+          state.orders          = payload ?? [];
+          state.ordersPagination = { count: 0, next: null, previous: null, totalPages: 0 };
+        }
+      })
+      .addCase(fetchAdminOrders.rejected, (state, action) => {
+        state.isLoadingOrders = false;
+        state.ordersError     = action.payload;
+      });
+
+    // fetchAdminProducts
+    builder
+      .addCase(fetchAdminProducts.pending, (state) => {
+        state.isLoadingProducts = true;
+        state.productsError     = null;
+      })
+      .addCase(fetchAdminProducts.fulfilled, (state, action) => {
+        state.isLoadingProducts = false;
+        state.products          = action.payload?.results ?? action.payload ?? [];
+      })
+      .addCase(fetchAdminProducts.rejected, (state, action) => {
+        state.isLoadingProducts = false;
+        state.productsError     = action.payload;
+      });
+
+    // deleteProduct
+    builder
+      .addCase(deleteProduct.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'deleted_product';
+        state.products    = state.products.filter((p) => p.id !== action.payload);
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // toggleProductFeatured
+    builder
+      .addCase(toggleProductFeatured.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(toggleProductFeatured.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'toggled_featured';
+        const idx = state.products.findIndex((p) => p.id === action.payload.id);
+        if (idx !== -1) state.products[idx] = action.payload;
+      })
+      .addCase(toggleProductFeatured.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // toggleUserActive
+    builder
+      .addCase(toggleUserActive.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(toggleUserActive.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = action.payload.is_active ? 'reactivated' : 'suspended';
+        if (state.currentUser) {
+          state.currentUser = { ...state.currentUser, is_active: action.payload.is_active };
+        }
+      })
+      .addCase(toggleUserActive.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       });

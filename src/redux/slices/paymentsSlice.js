@@ -21,8 +21,7 @@ import { serializeApiError } from '@utils/serializeApiError';
 // eran 404 en produccion (audit T-101 U-04 + U-05). Single endpoint
 // alineado a InitiatePaymentSerializer (apps/payments/serializers.py:25-29).
 const PAYMENTS_INITIATE_URL = '/api/v1/payments/initiate/';
-const RETRY_URL             = '/api/v1/payments/retry';
-const ADMIN_REFUND_URL      = '/api/v1/admin/payments';
+const ADMIN_REFUND_URL      = '/api/v1/payments/admin';
 
 // =============================================================================
 // Thunks
@@ -75,7 +74,7 @@ export const initiatePayPalPayment = createAsyncThunk(
 
 /**
  * UC-PAY-08: reintenta el pago de una orden, permitiendo cambiar el
- * gateway.
+ * gateway. Retry = re-initiate: no hay endpoint separado.
  *
  * DEC-BC-09: contract alineado a backend. Envia `{ order_number,
  * gateway }`. Respuesta canonica `{ checkout_url, ... }`.
@@ -84,7 +83,7 @@ export const retryPayment = createAsyncThunk(
   'payments/retry',
   async ({ order_number, gateway }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(RETRY_URL, { order_number, gateway });
+      const res = await apiService.post(PAYMENTS_INITIATE_URL, { order_number, gateway });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

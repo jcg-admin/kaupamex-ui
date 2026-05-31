@@ -60,8 +60,8 @@ export default function AdminProductForm({
     else if (fields.name.trim().length < 3) e.name = 'El nombre debe tener al menos 3 caracteres.';
     if (!fields.short_description.trim()) e.short_description = 'La descripcion corta es obligatoria.';
     if (!fields.description.trim()) e.description = 'La descripcion completa es obligatoria.';
-    if (fields.base_price === '' || Number(fields.base_price) < 0)
-      e.base_price = 'El precio es obligatorio y debe ser positivo.';
+    if (fields.base_price === '' || Number(fields.base_price) <= 0)
+      e.base_price = 'El precio es obligatorio y debe ser mayor que cero.';
     if (fields.stock === '' || Number(fields.stock) < 0)
       e.stock = 'El stock es obligatorio y debe ser positivo.';
     if (!fields.category_id) e.category_id = 'La categoria es obligatoria.';
@@ -79,7 +79,7 @@ export default function AdminProductForm({
       description: fields.description.trim(),
       base_price: Number(fields.base_price),
       stock: Number(fields.stock),
-      category_id: Number(fields.category_id),
+      category_ids: [Number(fields.category_id)],
       status: fields.status,
     };
     if (fields.sku.trim()) payload.sku = fields.sku.trim();

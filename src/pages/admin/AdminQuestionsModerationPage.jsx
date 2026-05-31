@@ -78,8 +78,9 @@ export default function AdminQuestionsModerationPage() {
           <li key={q.id} className={styles.item}>
             <p className={styles.meta}>
               <strong>#{q.id}</strong>
-              {q.product?.name && (
-                <> · sobre <em>{q.product.name}</em></>
+              {/* H-CICLO36-04: AdminQuestionItemSerializer ahora expone product_name */}
+              {(q.product_name ?? q.product?.name) && (
+                <> · sobre <em>{q.product_name ?? q.product.name}</em></>
               )}
             </p>
             <p className={styles.question}>{q.body}</p>

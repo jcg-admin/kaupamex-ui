@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 import { useAdminSupportTickets } from '@hooks/domain/useSupportTickets';
 import styles from './AdminSupportPage.module.scss';
 
+const PAGE_SIZE = 20;
+
 // T-112 D-02 (alinear-ui-support-internal-notes-enum): enum sync
 // al modelo real apps/support/models.py:24-29. UI antes mapeaba
 // {OPEN, REPLIED, CLOSED} = inventado; backend define 5 estados
@@ -39,26 +41,32 @@ function formatDate(iso) {
 
 export default function AdminSupportPage() {
   const [filters, setFilters] = useState({ status: '', q: '' });
-  const params = {};
+  const [page, setLocalPage]  = useState(1);
+  const params = { page };
   if (filters.status) params.status = filters.status;
   if (filters.q)      params.q      = filters.q;
   const { data, isLoading, isError } = useAdminSupportTickets(params);
-  const items   = data?.results ?? (Array.isArray(data) ? data : []);
-  const metrics = data?.metrics ?? null;
+  const items      = data?.results ?? (Array.isArray(data) ? data : []);
+  const metrics    = data?.metrics ?? null;
+  const totalCount = data?.count   ?? 0;
+  const totalPages = totalCount ? Math.ceil(totalCount / PAGE_SIZE) : 0;
 
   const summary = useMemo(() => ({
-    open:     metrics?.open     ?? 0,
-    replied:  metrics?.replied  ?? 0,
-    closed:   metrics?.closed   ?? 0,
-    avg:      metrics?.avg_first_response_hours ?? null,
+    open:        metrics?.open          ?? 0,
+    in_progress: (metrics?.in_progress ?? 0) + (metrics?.awaiting_user ?? 0),
+    resolved:    metrics?.resolved      ?? 0,
+    closed:      metrics?.closed        ?? 0,
+    avg:         metrics?.avg_first_response_hours ?? null,
   }), [metrics]);
 
   const handleStatusChange = (event) => {
     setFilters((prev) => ({ ...prev, status: event.target.value }));
+    setLocalPage(1);
   };
 
   const handleSearchChange = (event) => {
     setFilters((prev) => ({ ...prev, q: event.target.value }));
+    setLocalPage(1);
   };
 
   return (
@@ -75,8 +83,12 @@ export default function AdminSupportPage() {
           <span className={styles.metricValue}>{summary.open}</span>
         </div>
         <div className={styles.metric}>
-          <span className={styles.metricLabel}>Respondidos</span>
-          <span className={styles.metricValue}>{summary.replied}</span>
+          <span className={styles.metricLabel}>En proceso</span>
+          <span className={styles.metricValue}>{summary.in_progress}</span>
+        </div>
+        <div className={styles.metric}>
+          <span className={styles.metricLabel}>Resueltos</span>
+          <span className={styles.metricValue}>{summary.resolved}</span>
         </div>
         <div className={styles.metric}>
           <span className={styles.metricLabel}>Cerrados</span>
@@ -137,8 +149,8 @@ export default function AdminSupportPage() {
           </thead>
           <tbody>
             {items.map((ticket) => (
-              <tr key={ticket.id}>
-                <td>#{ticket.id}</td>
+              <tr key={ticket.ticket_id}>
+                <td>#{ticket.ticket_id}</td>
                 <td>{ticket.subject}</td>
                 <td>
                   <div className={styles.customer}>
@@ -153,7 +165,7 @@ export default function AdminSupportPage() {
                 <td>{ticket.replies_count ?? 0}</td>
                 <td>
                   <Link
-                    to={`/support/tickets/${ticket.id}`}
+                    to={`/support/tickets/${ticket.ticket_id}`}
                     className={styles.detailLink}
                   >
                     Ver detalle
@@ -163,6 +175,26 @@ export default function AdminSupportPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button disabled={page === 1} onClick={() => setLocalPage(page - 1)}>
+            ← Anterior
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              className={p === page ? styles.pageActive : ''}
+              onClick={() => setLocalPage(p)}
+            >
+              {p}
+            </button>
+          ))}
+          <button disabled={page === totalPages} onClick={() => setLocalPage(page + 1)}>
+            Siguiente →
+          </button>
+        </div>
       )}
     </section>
   );

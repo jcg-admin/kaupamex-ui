@@ -83,3 +83,49 @@
   font-size: 1rem;
   margin:    1rem 0;
 }
+
+// UC-REV-02 cap6 — image upload
+.fileInput {
+  cursor: pointer;
+}
+
+.previewList {
+  display:         flex;
+  flex-wrap:       wrap;
+  gap:             0.5rem;
+  list-style:      none;
+  padding:         0;
+  margin:          0.5rem 0 0;
+}
+
+.previewItem {
+  position: relative;
+  width:    80px;
+  height:   80px;
+}
+
+.previewThumb {
+  width:         100%;
+  height:        100%;
+  object-fit:    cover;
+  border-radius: 4px;
+  border:        1px solid $gray-400;
+}
+
+.removeImageBtn {
+  position:      absolute;
+  top:           -6px;
+  right:         -6px;
+  width:         20px;
+  height:        20px;
+  background:    $danger-strong;
+  color:         $bg-surface;
+  border:        none;
+  border-radius: 50%;
+  cursor:        pointer;
+  font-size:     0.9rem;
+  line-height:   1;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+}

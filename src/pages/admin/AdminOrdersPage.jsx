@@ -1,150 +1,161 @@
 /**
- * AdminOrdersPage — PracticaYoruba
- * UC-ORD-09: Listado/filtro de ordenes para administradores.
- *
- * Filtros acumulativos (AND): order_number, status, email, date_from, date_to.
- * Lectura: useAdminOrders (React Query).
+ * AdminOrdersPage — Práctica Yorùbà
+ * Tabla de pedidos con filtros por estado y rango de fechas.
  */
-import { useState } from 'react';
+
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useAdminOrders } from '@hooks/domain/useOrders';
-import styles from './AdminOrdersPage.module.scss';
+import { fetchAdminOrders } from '@redux/slices/adminSlice';
+import { MetaTag, Button, Price } from '@components/common/primitives';
+import styles from './AdminTablePage.module.scss';
 
-const STATUS_LABEL = {
-  PENDING:        'Pendiente',
-  PENDING_PAYMENT:'Pendiente de pago',
-  PROCESSING:     'En proceso',
-  IN_PREPARATION: 'En preparacion',
-  SHIPPED:        'Enviado',
-  DELIVERED:      'Entregado',
-  CANCELLED:      'Cancelado',
-};
-
-const STATUS_OPTIONS = [
-  { value: '',              label: 'Todos' },
-  { value: 'PENDING',        label: 'Pendiente' },
-  { value: 'PROCESSING',     label: 'En proceso' },
-  { value: 'IN_PREPARATION', label: 'En preparacion' },
-  { value: 'SHIPPED',        label: 'Enviado' },
-  { value: 'DELIVERED',      label: 'Entregado' },
-  { value: 'CANCELLED',      label: 'Cancelado' },
+const STATUS_FILTERS = [
+  { id: 'all',               label: 'Todos' },
+  { id: 'PENDING',           label: 'Pendiente pago' },
+  { id: 'PROCESSING',        label: 'Procesando' },
+  { id: 'IN_PREPARATION',    label: 'Preparación' },
+  { id: 'SHIPPED',           label: 'En camino' },
+  { id: 'DELIVERED',         label: 'Entregado' },
+  { id: 'CANCELLED',         label: 'Cancelado' },
+  { id: 'CANCELLED_TIMEOUT', label: 'Cancelado (timeout)' },
+  { id: 'REFUNDED',          label: 'Reembolsado' },
 ];
 
-const EMPTY_FILTERS = {
-  order_number: '',
-  status:       '',
-  email:        '',
-  date_from:    '',
-  date_to:      '',
+const STATUS_TONE = {
+  PENDING:        'muted',
+  PROCESSING:     'coral',
+  IN_PREPARATION: 'coral',
+  SHIPPED:        'coral',
+  DELIVERED:      'lime',
+  CANCELLED:      'vino',
+  REFUNDED:       'bronze',
 };
 
-function formatDate(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString('es-MX');
-}
-
 export default function AdminOrdersPage() {
-  const [draft,   setDraft]   = useState(EMPTY_FILTERS);
-  const [applied, setApplied] = useState(EMPTY_FILTERS);
+  const dispatch = useDispatch();
+  const [filter, setFilter] = useState('all');
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const orders = useSelector((s) => s.admin?.orders || []);
+  const isLoading = useSelector((s) => s.admin?.isLoadingOrders);
+  const ordersPagination = useSelector((s) => s.admin?.ordersPagination || {});
+  const [page, setPage] = useState(1);
 
-  const apiParams = Object.fromEntries(
-    Object.entries(applied).filter(([, v]) => v),
-  );
-  const { data, isLoading, isError } = useAdminOrders(apiParams);
-  const orders = data?.results ?? [];
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 400);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const setField = (k) => (e) => setDraft({ ...draft, [k]: e.target.value });
-  const onSubmit = (e) => {
-    e.preventDefault();
-    setApplied(draft);
-  };
-  const onReset = () => {
-    setDraft(EMPTY_FILTERS);
-    setApplied(EMPTY_FILTERS);
-  };
+  useEffect(() => {
+    setPage(1);
+  }, [filter, debouncedSearch]);
+
+  useEffect(() => {
+    const params = { search: debouncedSearch, page };
+    if (filter !== 'all') params.status = filter;
+    dispatch(fetchAdminOrders(params));
+  }, [dispatch, filter, debouncedSearch, page]);
 
   return (
-    <section className={styles.page} aria-labelledby="admin-orders-title">
+    <div className={styles.page}>
       <header className={styles.header}>
-        <h1 id="admin-orders-title" className={styles.title}>Pedidos</h1>
+        <div>
+          <MetaTag tone="bronze">Operación · {ordersPagination.count ?? orders.length} pedidos</MetaTag>
+          <h1 className={styles.title}>Pedidos</h1>
+        </div>
+        <div className={styles.headerActions}>
+          <Button variant="secondary">Exportar CSV</Button>
+        </div>
       </header>
 
-      <form
-        onSubmit={onSubmit}
-        className={styles.filters}
-        aria-label="Filtros de busqueda de pedidos"
-      >
-        <label>Numero de orden
-          <input
-            value={draft.order_number}
-            onChange={setField('order_number')}
-            placeholder="PY-2026-000123"
-          />
-        </label>
-        <label>Estado
-          <select value={draft.status} onChange={setField('status')}>
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </label>
-        <label>Email del comprador
-          <input value={draft.email} onChange={setField('email')} />
-        </label>
-        <label>Desde
-          <input type="date" value={draft.date_from} onChange={setField('date_from')} />
-        </label>
-        <label>Hasta
-          <input type="date" value={draft.date_to} onChange={setField('date_to')} />
-        </label>
-        <div className={styles.actions}>
-          <button type="submit" className={styles.primaryBtn}>Aplicar filtros</button>
-          <button type="button" className={styles.secondaryBtn} onClick={onReset}>Limpiar</button>
+      <div className={styles.toolbar}>
+        <div className={styles.filters}>
+          {STATUS_FILTERS.map((s) => (
+            <button
+              key={s.id}
+              className={`${styles.filterBtn} ${filter === s.id ? styles.filterBtnActive : ''}`}
+              onClick={() => setFilter(s.id)}
+            >{s.label}</button>
+          ))}
         </div>
-      </form>
+        <input
+          type="search"
+          placeholder="Buscar por número o cliente…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className={styles.search}
+        />
+      </div>
 
-      {isLoading && <p>Cargando pedidos…</p>}
-
-      {isError && (
-        <p role="alert" className={styles.error}>
-          No se pudieron cargar los pedidos. Intenta de nuevo.
-        </p>
-      )}
-
-      {!isLoading && !isError && orders.length === 0 && (
-        <p className={styles.empty}>No hay pedidos que coincidan con los filtros.</p>
-      )}
-
-      {orders.length > 0 && (
+      <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th scope="col">Numero</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Fecha</th>
-              <th scope="col">Total</th>
-              <th scope="col">Comprador</th>
-              <th scope="col">Acciones</th>
+              <th>Pedido</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
-              <tr key={order.order_number}>
-                <td>{order.order_number}</td>
-                <td>{STATUS_LABEL[order.status] ?? order.status_display ?? order.status}</td>
-                <td>{formatDate(order.created_at)}</td>
-                <td>{order.value?.total ?? order.total ?? '—'}</td>
-                <td>{order.user?.email ?? order.guest_email ?? '—'}</td>
+            {isLoading && <tr><td colSpan={7} className={styles.loading}>Cargando pedidos…</td></tr>}
+            {!isLoading && orders.length === 0 && (
+              <tr><td colSpan={7} className={styles.empty}>Sin pedidos que coincidan</td></tr>
+            )}
+            {!isLoading && orders.map((o) => (
+              <tr key={o.order_number}>
                 <td>
-                  <Link to={`/admin/orders/${order.order_number}`}>Ver detalle</Link>
+                  <Link to={`/admin/pedidos/${o.order_number}`} className={`${styles.itemName} ${styles.mono}`}>
+                    {o.order_number}
+                  </Link>
+                </td>
+                <td className={styles.mono}>
+                  {new Date(o.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+                </td>
+                <td>
+                  <div>{o.user_username ?? o.guest_email ?? '—'}</div>
+                  <div className={styles.muted}>{o.user_email ?? o.guest_email ?? ''}</div>
+                </td>
+                <td className={styles.mono}>{o.items?.length ?? 0}</td>
+                <td className={styles.right}><Price amount={o.value?.total} size="sm" /></td>
+                <td>
+                  <span className={`${styles.statusPill} ${styles[`pill_${STATUS_TONE[o.status] || 'muted'}`]}`}>
+                    {o.status_display || o.status}
+                  </span>
+                </td>
+                <td className={styles.actions}>
+                  <Link to={`/admin/pedidos/${o.order_number}`} className={styles.actionBtn} title="Ver">→</Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {ordersPagination.totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.pageBtn}
+            disabled={page <= 1}
+            onClick={() => setPage((p) => p - 1)}
+          >← Anterior</button>
+          <span className={styles.pageInfo}>
+            Página {page} de {ordersPagination.totalPages}
+          </span>
+          <button
+            className={styles.pageBtn}
+            disabled={page >= ordersPagination.totalPages}
+            onClick={() => setPage((p) => p + 1)}
+          >Siguiente →</button>
+        </div>
       )}
-    </section>
+    </div>
   );
 }
+
+// Cosmetic local style: muted text in table
+const _ = `.muted { color: var(--c-ink-mute, #7A7D62); font-size: 11px; }`;

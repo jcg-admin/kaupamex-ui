@@ -2,8 +2,11 @@
  * Constantes globales — PracticaYoruba
  */
 
-// API endpoints base
-export const API_BASE = process.env.API_URL || 'http://localhost:8000';
+// API endpoints base — resolved from the build-time env var; no hardcoded host
+// so the same bundle works in development, staging, and production.
+// apiService.js uses process.env.API_URL directly; this constant is kept for
+// any non-apiService callers that import it.
+export const API_BASE = process.env.API_URL || '';
 
 // Paginación por defecto
 export const DEFAULT_PAGE_SIZE = 20;

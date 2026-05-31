@@ -8,8 +8,9 @@
  * USAR SOLO EN DEVELOPMENT.
  *
  * Endpoints cubiertos:
- *   Auth:      /api/auth/*, /api/v1/auth/login/
- *   Catalog:   /api/v1/products/*, /api/v1/categories/*
+ *   Auth:      /api/auth/*, /api/v1/auth/login/, /api/v1/auth/change-password/ (D-05-08)
+ *   Addresses: /api/v1/auth/addresses/*                     (D-03-07)
+ *   Catalog:   /api/v1/catalogue/*, /api/v1/catalogue/categories/*
  *   Cart:      /api/v1/cart/*
  *   Orders:    /api/v1/orders/*
  *   Checkout:  /api/v1/payments/*
@@ -50,16 +51,31 @@ class MockInterceptor {
     if (url.includes('/api/v1/auth/register/')) return this._register(body);
     // DEC-AUM-04 (T-103 D-01-10 + D-02-10): handlers para
     // verify-email + resend-verification. UC-AUTH-10 mantenimiento.
-    if (url.match(/\/api\/v1\/auth\/verify-email\//))
+    if (url.match(/\/api\/v1\/auth\/verify-email\//)) 
       return this._verifyEmail(url);
     if (url.includes('/api/v1/auth/resend-verification/'))
       return this._resendVerification();
+    // D-05-08: handler change-password
+    if (url.includes('/api/v1/auth/change-password/') && method === 'POST')
+      return this._changePassword(body);
+
+    // ─── Direcciones (D-03-07) ───────────────────────────────────
+    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\/set-default\//) && method === 'POST')
+      return this._setDefaultAddress(url);
+    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\//) && method === 'PATCH')
+      return this._updateAddress(url, body);
+    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\//) && method === 'DELETE')
+      return this._deleteAddress(url);
+    if (url.includes('/api/v1/auth/addresses/') && method === 'POST')
+      return this._createAddress(body);
+    if (url.includes('/api/v1/auth/addresses/'))
+      return this._listAddresses();
 
     // ─── Catálogo ────────────────────────────────────────────────
-    if (url.includes('/api/v1/products/search/')) return this._searchProducts(url);
-    if (url.match(/\/api\/v1\/products\/[^/]+\//)) return this._productDetail(url);
-    if (url.includes('/api/v1/products/'))        return this._productList(url);
-    if (url.includes('/api/v1/categories/'))      return this._categories();
+    if (url.includes('/api/v1/catalogue/search/'))          return this._searchProducts(url);
+    if (url.includes('/api/v1/catalogue/categories/'))      return this._categories();
+    if (url.match(/\/api\/v1\/catalogue\/[^/]+\//))         return this._productDetail(url);
+    if (url.includes('/api/v1/catalogue/'))                 return this._productList(url);
 
     // ─── Carrito ─────────────────────────────────────────────────
     if (url.includes('/api/v1/cart/voucher/') && method === 'POST')   return this._applyVoucher(body);
@@ -128,6 +144,16 @@ class MockInterceptor {
     return this._ok({ sent: true, message: 'Correo de verificacion reenviado.' });
   }
 
+  _changePassword(body) {
+    if (!body?.current_password || !body?.new_password || !body?.new_password_confirm)
+      return this._error(400, 'Campos requeridos: current_password, new_password, new_password_confirm.');
+    if (body.new_password !== body.new_password_confirm)
+      return this._error(400, 'Las contrasenas nuevas no coinciden.');
+    if (body.current_password === 'wrong')
+      return this._error(400, 'La contrasena actual es incorrecta.');
+    return this._ok({ detail: 'Password changed successfully.' });
+  }
+
   _mockUser(id, isStaff, email = 'comprador@test.mx') {
     return { id, email, first_name: 'Demo', last_name: 'Yoruba',
              is_staff: isStaff, date_joined: new Date().toISOString() };
@@ -136,14 +162,15 @@ class MockInterceptor {
   // ═══════ CATÁLOGO ═══════
 
   _productList(url) {
-    const params = new URL('http://mock' + url.split('?')[1] ? `?${url.split('?')[1]}` : '').searchParams;
+    const qString = url.split('?')[1];
+    const params  = new URL('http://mock' + (qString ? `?${qString}` : '')).searchParams;
     const page   = parseInt(params.get('page') || 1);
     const items  = this._generateProducts(20);
     return this._ok({ count: 143, results: items, next: page < 7 ? `?page=${page+1}` : null });
   }
 
   _productDetail(url) {
-    const slug = url.split('/api/v1/products/')[1].replace(/\//g, '');
+    const slug = url.split('/api/v1/catalogue/')[1].replace(/\//g, '');
     return this._ok(this._generateProduct(slug, 1));
   }
 
@@ -298,6 +325,56 @@ class MockInterceptor {
       order_id: `PAYPAL-MOCK-${Date.now()}`,
       approve_url: 'https://sandbox.paypal.com/checkoutnow/mock',
     });
+  }
+
+  // ═══════ DIRECCIONES (D-03-07) ═══════
+
+  _addresses = [
+    { id: 1, alias: 'Casa', street: 'Calle Reforma 42', city: 'Ciudad de Mexico',
+      state: 'CDMX', postal_code: '06600', country: 'MX',
+      exterior_number: '42', interior_number: '', neighborhood: 'Juarez',
+      is_default: true },
+  ];
+
+  _listAddresses() {
+    return this._ok(this._addresses);
+  }
+
+  _createAddress(body) {
+    if (!body?.street || !body?.city || !body?.postal_code)
+      return this._error(400, 'Campos requeridos: street, city, postal_code.');
+    const addr = { id: Date.now(), is_default: this._addresses.length === 0,
+                   exterior_number: '', interior_number: '', neighborhood: '',
+                   ...body };
+    this._addresses.push(addr);
+    return { status: 201, data: addr };
+  }
+
+  _updateAddress(url, body) {
+    const id   = parseInt(url.match(/\/addresses\/(\d+)\//)?.[1]);
+    const addr = this._addresses.find(a => a.id === id);
+    if (!addr) return this._error(404, 'Direccion no encontrada.');
+    Object.assign(addr, body);
+    return this._ok(addr);
+  }
+
+  _deleteAddress(url) {
+    const id = parseInt(url.match(/\/addresses\/(\d+)\//)?.[1]);
+    const idx = this._addresses.findIndex(a => a.id === id);
+    if (idx === -1) return this._error(404, 'Direccion no encontrada.');
+    const wasDefault = this._addresses[idx].is_default;
+    this._addresses.splice(idx, 1);
+    if (wasDefault && this._addresses.length > 0)
+      this._addresses[0].is_default = true;
+    return { status: 204, data: null };
+  }
+
+  _setDefaultAddress(url) {
+    const id   = parseInt(url.match(/\/addresses\/(\d+)\//)?.[1]);
+    const addr = this._addresses.find(a => a.id === id);
+    if (!addr) return this._error(404, 'Direccion no encontrada.');
+    this._addresses.forEach(a => { a.is_default = a.id === id; });
+    return this._ok(addr);
   }
 
   // ═══════ WISHLIST ═══════

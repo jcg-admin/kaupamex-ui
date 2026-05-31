@@ -26,15 +26,21 @@ const makeWrapper = () => {
 afterEach(() => jest.clearAllMocks());
 
 describe('useNotifications hooks', () => {
-  it('useNotificationsList retorna la lista de la API', async () => {
+  it('useNotificationsList retorna la forma paginada de la API', async () => {
     apiService.get.mockResolvedValue({
-      data: { results: [{ id: 1, subject: 'Bienvenido' }] },
+      data: { results: [{ id: 1, subject: 'Bienvenido' }], count: 1, next: null, previous: null },
     });
     const { result } = renderHook(() => useNotificationsList(), {
       wrapper: makeWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toEqual([{ id: 1, subject: 'Bienvenido' }]);
+    // H-CICLO88-02: el hook devuelve el objeto paginado completo { results, count, next, previous }
+    expect(result.current.data).toEqual({
+      results: [{ id: 1, subject: 'Bienvenido' }],
+      count: 1,
+      next: null,
+      previous: null,
+    });
     expect(apiService.get).toHaveBeenCalledWith(
       '/api/v1/notifications/',
       expect.objectContaining({ params: {} }),

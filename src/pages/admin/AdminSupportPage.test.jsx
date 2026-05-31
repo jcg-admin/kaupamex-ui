@@ -32,21 +32,17 @@ const wrap = (ui, store) => (
 );
 
 const TICKETS = [
-  { id: 100, subject: 'Pedido perdido',     status: 'OPEN',    created_at: '2026-05-10T10:00:00Z',
+  { ticket_id: 100, subject: 'Pedido perdido',     status: 'OPEN',        created_at: '2026-05-10T10:00:00Z',
     customer: { id: 1, email: 'comprador@test.mx', name: 'Demo Yoruba' }, replies_count: 0 },
-  // T-112 D-02 (anti-soft-on-tests): REPLIED no es estado canon del
-  // modelo SupportTicket (canon: OPEN, IN_PROGRESS, AWAITING_USER,
-  // RESOLVED, CLOSED). Antes el test reproducia el bug de enum
-  // inventado por la UI.
-  { id: 101, subject: 'Producto defectuoso', status: 'IN_PROGRESS', created_at: '2026-05-12T10:00:00Z',
-    customer: { id: 2, email: 'maria@test.mx',     name: 'Maria Lopez' }, replies_count: 2 },
-  { id: 102, subject: 'Caso resuelto',       status: 'CLOSED',  created_at: '2026-05-05T10:00:00Z',
-    customer: { id: 3, email: 'juan@test.mx',      name: 'Juan Diaz' },   replies_count: 4 },
+  { ticket_id: 101, subject: 'Producto defectuoso', status: 'IN_PROGRESS', created_at: '2026-05-12T10:00:00Z',
+    customer: { id: 2, email: 'maria@test.mx',      name: 'Maria Lopez' }, replies_count: 2 },
+  { ticket_id: 102, subject: 'Caso resuelto',       status: 'CLOSED',      created_at: '2026-05-05T10:00:00Z',
+    customer: { id: 3, email: 'juan@test.mx',       name: 'Juan Diaz' },   replies_count: 4 },
 ];
 
 const RESPONSE = {
   results: TICKETS,
-  metrics: { open: 1, replied: 1, closed: 1, avg_first_response_hours: 3.5 },
+  metrics: { open: 1, in_progress: 1, awaiting_user: 0, resolved: 0, closed: 1 },
 };
 
 afterEach(() => jest.clearAllMocks());
@@ -79,7 +75,7 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
     apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(await screen.findByText(/Abiertos/i)).toBeInTheDocument();
-    expect(screen.getByText(/Respondidos/i)).toBeInTheDocument();
+    expect(screen.getByText(/En proceso/i)).toBeInTheDocument();
     expect(screen.getByText(/Cerrados/i)).toBeInTheDocument();
   });
 

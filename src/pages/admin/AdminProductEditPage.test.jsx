@@ -100,6 +100,7 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/admin/products/7/deactivate/',
+        expect.anything(),
       );
     });
   });

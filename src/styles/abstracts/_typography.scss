@@ -1,0 +1,113 @@
+// ═══════════════════════════════════════════════════════════════════════
+// TIPOGRAFÍA — Práctica Yorùbà
+// ═══════════════════════════════════════════════════════════════════════
+// Fraunces (display, editorial) + IBM Plex Sans (UI) + IBM Plex Mono (meta)
+// ═══════════════════════════════════════════════════════════════════════
+
+@use 'variables' as *;
+
+// ─────────────────────────────────────────────────────────────────────
+// Importar fuentes desde Google Fonts
+// (Para self-host: descarga los archivos y reemplaza con @font-face)
+// ─────────────────────────────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+// ─────────────────────────────────────────────────────────────────────
+// Base
+// ─────────────────────────────────────────────────────────────────────
+html, body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $text-secondary;
+  background: $bg-page;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Headings — Fraunces, editorial
+// ─────────────────────────────────────────────────────────────────────
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-display;
+  font-weight: $font-weight-normal;
+  color: $text-primary;
+  line-height: $line-height-tight;
+  letter-spacing: $ls-snug;
+  margin: 0;
+}
+
+h1 { font-size: $font-size-5xl; letter-spacing: $ls-tight; }
+h2 { font-size: $font-size-4xl; }
+h3 { font-size: $font-size-2xl; font-weight: $font-weight-medium; }
+h4 { font-size: $font-size-xl;  font-weight: $font-weight-medium; }
+h5 { font-size: $font-size-lg;  font-weight: $font-weight-medium; }
+h6 { font-size: $font-size-md;  font-weight: $font-weight-medium; }
+
+// Itálicas decorativas (acento dentro de un titular)
+em.accent {
+  font-style: italic;
+  color: $bronze;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Párrafos
+// ─────────────────────────────────────────────────────────────────────
+p {
+  margin: 0;
+  line-height: $line-height-relaxed;
+}
+
+a {
+  color: $text-link;
+  text-decoration: none;
+  transition: $transition-colors;
+
+  &:hover {
+    color: $text-link-hover;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Eyebrow / metadata — IBM Plex Mono, mayúsculas, tracking amplio
+// ─────────────────────────────────────────────────────────────────────
+.eyebrow,
+.meta-tag {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+  letter-spacing: $ls-eyebrow;
+  text-transform: uppercase;
+  color: $text-muted;
+}
+
+.eyebrow--bronze { color: $bronze; }
+.eyebrow--lime   { color: $lime-soft; }
+.eyebrow--coral  { color: $coral; }
+.eyebrow--vino   { color: $vino-soft; }
+
+// ─────────────────────────────────────────────────────────────────────
+// Inline elements
+// ─────────────────────────────────────────────────────────────────────
+strong, b {
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+
+code {
+  font-family: $font-family-mono;
+  font-size: 0.92em;
+  background: rgba($lime, 0.08);
+  color: $lime-soft;
+  padding: 1px 6px;
+  border-radius: $border-radius-sm;
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Reglas de selección
+// ─────────────────────────────────────────────────────────────────────
+::selection {
+  background: rgba($lime, 0.3);
+  color: $text-primary;
+}

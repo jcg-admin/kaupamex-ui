@@ -12,26 +12,41 @@ import {
 } from '@redux/slices/vouchersSlice';
 import { useVouchers, VOUCHERS_QUERY_KEY } from '@hooks/domain/useVouchers';
 import VoucherCreateForm from '@components/admin/VoucherCreateForm';
+import VoucherEditForm from '@components/admin/VoucherEditForm';
 import styles from './AdminVouchersPage.module.scss';
 
-const TYPE_LABEL = { PERCENT: 'Porcentaje', FIXED: 'Fijo' };
+const TYPE_LABEL = {
+  FIXED:        'Monto fijo',
+  PERCENTAGE:   'Porcentaje',
+  FREE_SHIPPING: 'Envio gratis',
+};
 
 function formatValue(voucher) {
-  if (voucher.type === 'PERCENT') return `${voucher.value}%`;
-  return `$${voucher.value}`;
+  if (voucher.voucher_type === 'PERCENTAGE')   return `${voucher.discount_pct}%`;
+  if (voucher.voucher_type === 'FREE_SHIPPING') return 'Envio gratis';
+  return `$${voucher.discount_value}`;
 }
 
 export default function AdminVouchersPage() {
   const dispatch    = useDispatch();
   const queryClient = useQueryClient();
-  const { data: items = [], isLoading, isError } = useVouchers();
+  // H-CICLO106-01: pasar page como param para que React Query re-fetche
+  // al cambiar de pagina y para que la clave del cache incluya la pagina.
+  const [page, setPage] = useState(1);
+  const { data: pageData, isLoading, isError } = useVouchers({ page });
+  const items = pageData?.results ?? [];
+  const totalCount = pageData?.count ?? 0;
+  const hasNext = Boolean(pageData?.next);
+  const hasPrev = page > 1;
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.vouchers);
-  const [isCreateOpen, setCreateOpen] = useState(false);
+  const [isCreateOpen, setCreateOpen]     = useState(false);
+  const [editVoucher,  setEditVoucher]    = useState(null);
 
   useEffect(() => {
-    if (lastAction === 'created' || lastAction === 'deactivated') {
+    if (lastAction === 'created' || lastAction === 'updated' || lastAction === 'deactivated') {
       setCreateOpen(false);
+      setEditVoucher(null);
       queryClient.invalidateQueries({ queryKey: VOUCHERS_QUERY_KEY });
       dispatch(clearVoucherActionState());
     }
@@ -97,10 +112,10 @@ export default function AdminVouchersPage() {
             {items.map((v) => (
               <tr key={v.id}>
                 <td>{v.code}</td>
-                <td>{TYPE_LABEL[v.type] ?? v.type}</td>
+                <td>{TYPE_LABEL[v.voucher_type] ?? v.voucher_type}</td>
                 <td>{formatValue(v)}</td>
                 <td>{v.max_uses ?? 'Sin limite'}</td>
-                <td>{v.ends_at ?? '—'}</td>
+                <td>{v.valid_until ? v.valid_until.slice(0, 10) : '—'}</td>
                 <td>
                   <span
                     className={v.is_active ? styles.badgeActive : styles.badgeInactive}
@@ -109,6 +124,15 @@ export default function AdminVouchersPage() {
                   </span>
                 </td>
                 <td>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    aria-label={`Editar ${v.code}`}
+                    onClick={() => setEditVoucher(v)}
+                    disabled={isActioning}
+                  >
+                    Editar
+                  </button>
                   {v.is_active && (
                     <button
                       type="button"
@@ -116,6 +140,7 @@ export default function AdminVouchersPage() {
                       aria-label={`Desactivar ${v.code}`}
                       onClick={() => handleDeactivate(v)}
                       disabled={isActioning}
+                      style={{ marginLeft: '0.5rem' }}
                     >
                       Desactivar
                     </button>
@@ -127,8 +152,42 @@ export default function AdminVouchersPage() {
         </table>
       )}
 
+      {/* H-CICLO106-01: controles de paginacion para navegar entre paginas
+          de cupones cuando el total supera page_size=50 del API. */}
+      {(hasNext || hasPrev) && (
+        <div className={styles.pagination}>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => setPage((p) => p - 1)}
+            disabled={!hasPrev || isLoading}
+          >
+            Anterior
+          </button>
+          <span>Pagina {page}</span>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasNext || isLoading}
+          >
+            Siguiente
+          </button>
+          {totalCount > 0 && (
+            <span className={styles.pageInfo}>{totalCount} cupones en total</span>
+          )}
+        </div>
+      )}
+
       {isCreateOpen && (
         <VoucherCreateForm onClose={() => setCreateOpen(false)} />
+      )}
+
+      {editVoucher && (
+        <VoucherEditForm
+          voucher={editVoucher}
+          onClose={() => setEditVoucher(null)}
+        />
       )}
     </section>
   );

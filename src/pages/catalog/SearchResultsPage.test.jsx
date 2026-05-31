@@ -1,8 +1,14 @@
 /**
  * Tests — SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT).
+ *
+ * SearchResultsPage renders ProductCard components which use Redux (useDispatch,
+ * useSelector). A Redux Provider is required even though the page itself
+ * does not use Redux directly.
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 jest.mock('@services/apiService', () => ({
@@ -11,7 +17,16 @@ jest.mock('@services/apiService', () => ({
 }));
 
 import apiService from '@services/apiService';
+import cartReducer from '@redux/slices/cartSlice';
 import SearchResultsPage from './SearchResultsPage';
+
+const makeStore = () =>
+  configureStore({
+    reducer: {
+      cart: cartReducer,
+      auth: (state = { isAuthenticated: false }) => state,
+    },
+  });
 
 const PRODUCT_A = {
   id: 1, name: 'Collar Oshun', slug: 'collar-oshun',
@@ -22,13 +37,15 @@ const PRODUCT_A = {
 const renderAt = (search = '?q=oshun') => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={[`/search${search}`]}>
-        <Routes>
-          <Route path="/search" element={<SearchResultsPage />} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <Provider store={makeStore()}>
+      <QueryClientProvider client={client}>
+        <MemoryRouter initialEntries={[`/search${search}`]}>
+          <Routes>
+            <Route path="/search" element={<SearchResultsPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    </Provider>,
   );
 };
 

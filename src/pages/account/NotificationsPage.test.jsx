@@ -89,7 +89,7 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
     render(wrap(<NotificationsPage />, makeStore()));
     await screen.findByText('Orden confirmada #ORD-001');
     expect(
-      screen.getByRole('button', { name: /Marcar todas como leídas/i }),
+      screen.getByRole('button', { name: /Marcar todas las notificaciones como leídas/i }),
     ).toBeInTheDocument();
   });
 
@@ -99,7 +99,7 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
     render(wrap(<NotificationsPage />, makeStore()));
     await screen.findByText('Orden confirmada #ORD-001');
     expect(
-      screen.queryByRole('button', { name: /Marcar todas como leídas/i }),
+      screen.queryByRole('button', { name: /Marcar todas las notificaciones como leídas/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -114,6 +114,7 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         '/api/v1/notifications/1/read/',
+        {},
       );
     });
   });
@@ -122,10 +123,10 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
     apiService.get.mockResolvedValue({ data: { results: NOTIFICATIONS } });
     apiService.post.mockResolvedValue({ data: {} });
     render(wrap(<NotificationsPage />, makeStore()));
-    const btn = await screen.findByRole('button', { name: /Marcar todas como leídas/i });
+    const btn = await screen.findByRole('button', { name: /Marcar todas las notificaciones como leídas/i });
     fireEvent.click(btn);
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith('/api/v1/notifications/read-all/');
+      expect(apiService.post).toHaveBeenCalledWith('/api/v1/notifications/read-all/', {});
     });
   });
 });

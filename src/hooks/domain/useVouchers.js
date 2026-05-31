@@ -25,7 +25,11 @@ export function useVouchers(params = {}) {
         params,
         signal,
       });
-      return data?.results ?? data ?? [];
+      // H-CICLO106-01: API ahora pagina (page_size=50). Retornar el objeto
+      // completo para que AdminVouchersPage pueda renderizar controles de
+      // paginacion usando data.next / data.count.
+      if (data && typeof data === 'object' && 'results' in data) return data;
+      return { results: Array.isArray(data) ? data : [], count: 0, next: null, previous: null };
     },
   });
 }

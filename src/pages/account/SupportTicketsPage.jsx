@@ -6,16 +6,24 @@ import { Link } from 'react-router-dom';
 import { useSupportTickets } from '@hooks/domain/useSupportTickets';
 import styles from './SupportTicketsPage.module.scss';
 
+// H-CICLO36-01: enum sync con apps/support/models.py:24-29.
+// STATUS_LABEL antes mapeaba {OPEN, REPLIED, CLOSED} — "REPLIED" no existe en
+// el modelo; los estados reales IN_PROGRESS, AWAITING_USER, RESOLVED se
+// mostraban como códigos crudos en la lista de tickets del comprador.
 const STATUS_LABEL = {
-  OPEN:    'Abierto',
-  REPLIED: 'Respondido',
-  CLOSED:  'Cerrado',
+  OPEN:           'Abierto',
+  IN_PROGRESS:    'En atención',
+  AWAITING_USER:  'Esperando respuesta',
+  RESOLVED:       'Resuelto',
+  CLOSED:         'Cerrado',
 };
 
 const STATUS_CLASS = {
-  OPEN:    'badgeOpen',
-  REPLIED: 'badgeReplied',
-  CLOSED:  'badgeClosed',
+  OPEN:           'badgeOpen',
+  IN_PROGRESS:    'badgeReplied',
+  AWAITING_USER:  'badgeReplied',
+  RESOLVED:       'badgeClosed',
+  CLOSED:         'badgeClosed',
 };
 
 function formatDate(iso) {
@@ -55,12 +63,16 @@ export default function SupportTicketsPage() {
 
       {items.length > 0 && (
         <ul className={styles.list}>
-          {items.map((ticket) => (
-            <li key={ticket.id} className={styles.item}>
-              <Link to={`/support/tickets/${ticket.id}`} className={styles.itemLink}>
+          {items.map((ticket) => {
+            // H-CICLO35-01: SupportTicketListSerializer expone ticket_id (source='pk'),
+            // no id. Usar ticket.ticket_id como clave primaria.
+            const tid = ticket.ticket_id ?? ticket.id;
+            return (
+            <li key={tid} className={styles.item}>
+              <Link to={`/support/tickets/${tid}`} className={styles.itemLink}>
                 <div className={styles.itemMain}>
                   <span className={styles.itemSubject}>{ticket.subject}</span>
-                  <span className={styles.itemId}>#{ticket.id}</span>
+                  <span className={styles.itemId}>#{tid}</span>
                 </div>
                 <div className={styles.itemMeta}>
                   <span className={styles[STATUS_CLASS[ticket.status]] || styles.badgeOpen}>
@@ -70,7 +82,8 @@ export default function SupportTicketsPage() {
                 </div>
               </Link>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </section>

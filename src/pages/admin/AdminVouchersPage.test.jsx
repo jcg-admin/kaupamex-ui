@@ -89,6 +89,7 @@ describe('AdminVouchersPage — desactivar (UC-PRO-03)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/admin/vouchers/1/deactivate/'),
+        expect.anything(),
       );
     });
 

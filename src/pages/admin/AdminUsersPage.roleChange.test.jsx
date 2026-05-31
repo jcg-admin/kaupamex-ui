@@ -1,9 +1,7 @@
 /**
  * Tests adicionales — AdminUsersPage (UC-ADM-01)
  *
- * Solo cubre la nueva accion de cambio de rol:
- *   POST /api/v1/admin/users/:id/role/
- *
+ * Cubre filtros de rol y estado del listado de usuarios.
  * El listado base lo cubre AdminUsersPage.test.jsx.
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -23,9 +21,13 @@ import AdminUsersPage    from './AdminUsersPage';
 
 const USERS = [
   { id: 1, username: 'comprador1', email: 'c1@yoruba.mx',
-    is_staff: false, is_active: true, date_joined: '2026-01-10T00:00:00Z' },
-  { id: 2, username: 'admin1',     email: 'a1@yoruba.mx',
-    is_staff: true,  is_active: true, date_joined: '2025-12-01T00:00:00Z' },
+    first_name: 'Carlos', last_name: 'Uno',
+    is_staff: false, is_active: true, email_verified: true,
+    date_joined: '2026-01-10T00:00:00Z' },
+  { id: 2, username: 'admin1', email: 'a1@yoruba.mx',
+    first_name: 'Admin', last_name: 'Uno',
+    is_staff: true, is_active: true, email_verified: true,
+    date_joined: '2025-12-01T00:00:00Z' },
 ];
 
 const wrap = () => {
@@ -43,42 +45,59 @@ const wrap = () => {
 
 afterEach(() => jest.clearAllMocks());
 
-describe('AdminUsersPage — UC-ADM-01 cambio de rol', () => {
-  it('expone un selector de rol por usuario', async () => {
+describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
+  it('muestra botones de filtro de rol (Todos, Compradores, Administradores)', async () => {
     apiService.get.mockResolvedValue({
       data: { results: USERS, count: USERS.length, next: null, previous: null },
     });
     render(wrap());
-    expect(
-      await screen.findByLabelText(/Cambiar rol de comprador1/i),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: /Todos/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Compradores/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Administradores/i })).toBeInTheDocument();
   });
 
-  it('envia POST /api/v1/admin/users/:id/role/ al cambiar el rol', async () => {
+  it('al hacer clic en Compradores llama a la API con is_staff=false', async () => {
     apiService.get.mockResolvedValue({
       data: { results: USERS, count: USERS.length, next: null, previous: null },
     });
-    apiService.post.mockResolvedValue({ data: { ok: true } });
-
     render(wrap());
-    const select = await screen.findByLabelText(/Cambiar rol de comprador1/i);
-    fireEvent.change(select, { target: { value: 'admin' } });
-
+    await screen.findByRole('button', { name: /Todos/i });
+    fireEvent.click(screen.getByRole('button', { name: /Compradores/i }));
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/users/1/role/',
-        { role: 'admin' },
+      expect(apiService.get).toHaveBeenCalledWith(
+        '/api/v1/admin/users/',
+        expect.objectContaining({
+          params: expect.objectContaining({ is_staff: 'false' }),
+        }),
       );
     });
   });
 
-  it('expone un filtro por rol', async () => {
+  it('al hacer clic en Administradores llama a la API con is_staff=true', async () => {
     apiService.get.mockResolvedValue({
       data: { results: USERS, count: USERS.length, next: null, previous: null },
     });
     render(wrap());
-    expect(
-      await screen.findByLabelText(/Filtrar por rol/i),
-    ).toBeInTheDocument();
+    await screen.findByRole('button', { name: /Todos/i });
+    fireEvent.click(screen.getByRole('button', { name: /Administradores/i }));
+    await waitFor(() => {
+      expect(apiService.get).toHaveBeenCalledWith(
+        '/api/v1/admin/users/',
+        expect.objectContaining({
+          params: expect.objectContaining({ is_staff: 'true' }),
+        }),
+      );
+    });
+  });
+
+  it('muestra botones de filtro de estado (Activos, Sin verificar, Inactivos)', async () => {
+    apiService.get.mockResolvedValue({
+      data: { results: USERS, count: USERS.length, next: null, previous: null },
+    });
+    render(wrap());
+    const activosButtons = await screen.findAllByRole('button', { name: /Activos/i });
+    expect(activosButtons.length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /Sin verificar/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Inactivos/i })).toBeInTheDocument();
   });
 });

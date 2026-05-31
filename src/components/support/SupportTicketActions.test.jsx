@@ -30,7 +30,7 @@ afterEach(() => jest.clearAllMocks());
 describe('SupportTicketActions (UC-SUPP-04)', () => {
   it('muestra boton de cerrar cuando el ticket esta OPEN', () => {
     render(wrap(
-      <SupportTicketActions ticket={{ id: 7, status: 'OPEN' }} />,
+      <SupportTicketActions ticket={{ ticket_id: 7, status: 'OPEN' }} />,
       makeStore(),
     ));
     expect(
@@ -38,9 +38,9 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     ).toBeInTheDocument();
   });
 
-  it('muestra boton de cerrar cuando el ticket esta REPLIED', () => {
+  it('muestra boton de cerrar cuando el ticket esta IN_PROGRESS', () => {
     render(wrap(
-      <SupportTicketActions ticket={{ id: 7, status: 'REPLIED' }} />,
+      <SupportTicketActions ticket={{ ticket_id: 7, status: 'IN_PROGRESS' }} />,
       makeStore(),
     ));
     expect(
@@ -50,7 +50,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
 
   it('muestra boton de reabrir cuando el ticket esta CLOSED', () => {
     render(wrap(
-      <SupportTicketActions ticket={{ id: 7, status: 'CLOSED' }} />,
+      <SupportTicketActions ticket={{ ticket_id: 7, status: 'CLOSED' }} />,
       makeStore(),
     ));
     expect(
@@ -68,7 +68,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
 
     render(wrap(
-      <SupportTicketActions ticket={{ id: 7, status: 'OPEN' }} />,
+      <SupportTicketActions ticket={{ ticket_id: 7, status: 'OPEN' }} />,
       makeStore(),
     ));
     fireEvent.click(screen.getByRole('button', { name: /Cerrar ticket/i }));
@@ -87,7 +87,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(wrap(
-      <SupportTicketActions ticket={{ id: 7, status: 'OPEN' }} />,
+      <SupportTicketActions ticket={{ ticket_id: 7, status: 'OPEN' }} />,
       makeStore(),
     ));
     fireEvent.click(screen.getByRole('button', { name: /Cerrar ticket/i }));
@@ -103,7 +103,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
 
     render(wrap(
-      <SupportTicketActions ticket={{ id: 7, status: 'CLOSED' }} />,
+      <SupportTicketActions ticket={{ ticket_id: 7, status: 'CLOSED' }} />,
       makeStore(),
     ));
     fireEvent.click(screen.getByRole('button', { name: /Reabrir ticket/i }));
@@ -111,6 +111,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/support/tickets/7/reopen/'),
+        {},
       );
     });
 

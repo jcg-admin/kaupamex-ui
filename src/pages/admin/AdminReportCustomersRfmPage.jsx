@@ -16,21 +16,22 @@ const PERIOD_OPTIONS = [
   { value: 'year',    label: 'Año' },
 ];
 
+// D-16: values match backend RFM labels (DEC-DOC-005 — English identifiers).
 const SEGMENT_OPTIONS = [
-  { value: '',         label: 'Todos los segmentos' },
-  { value: 'NEW',      label: 'Nuevos' },
-  { value: 'REGULAR',  label: 'Regulares' },
-  { value: 'VIP',      label: 'VIP' },
-  { value: 'AT_RISK',  label: 'En riesgo' },
-  { value: 'INACTIVE', label: 'Inactivos' },
+  { value: '',           label: 'Todos los segmentos' },
+  { value: 'CHAMPIONS',  label: 'Campeones' },
+  { value: 'LOYAL',      label: 'Leales' },
+  { value: 'RECENT',     label: 'Recientes' },
+  { value: 'AT_RISK',    label: 'En riesgo' },
+  { value: 'OCCASIONAL', label: 'Ocasionales' },
 ];
 
 const SEGMENT_LABEL = {
-  NEW:      'Nuevo',
-  REGULAR:  'Regular',
-  VIP:      'VIP',
-  AT_RISK:  'En riesgo',
-  INACTIVE: 'Inactivo',
+  CHAMPIONS:  'Campeón',
+  LOYAL:      'Leal',
+  RECENT:     'Reciente',
+  AT_RISK:    'En riesgo',
+  OCCASIONAL: 'Ocasional',
 };
 
 export default function AdminReportCustomersRfmPage() {
@@ -91,12 +92,12 @@ export default function AdminReportCustomersRfmPage() {
 
       <div className={styles.totals} aria-label="Totales de clientes">
         <div className={styles.metric}>
-          <span className={styles.metricLabel}>Nuevos</span>
-          <span className={styles.metricValue}>{totals.new_count ?? 0}</span>
+          <span className={styles.metricLabel}>Clientes</span>
+          <span className={styles.metricValue}>{totals.customer_count ?? 0}</span>
         </div>
         <div className={styles.metric}>
-          <span className={styles.metricLabel}>Recurrentes</span>
-          <span className={styles.metricValue}>{totals.returning_count ?? 0}</span>
+          <span className={styles.metricLabel}>Monetario total</span>
+          <span className={styles.metricValue}>{totals.total_monetary ?? '0.00'}</span>
         </div>
       </div>
 
@@ -106,7 +107,7 @@ export default function AdminReportCustomersRfmPage() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Cliente</th>
+              <th>ID Usuario</th>
               <th>Email</th>
               <th>Segmento</th>
               <th>Recencia (días)</th>
@@ -116,11 +117,11 @@ export default function AdminReportCustomersRfmPage() {
           </thead>
           <tbody>
             {results.map((row) => (
-              <tr key={row.customer_id}>
-                <td>{row.name ?? '—'}</td>
+              <tr key={row.user_id}>
+                <td>{row.user_id}</td>
                 <td>{row.email ?? '—'}</td>
                 <td>{SEGMENT_LABEL[row.segment] ?? row.segment}</td>
-                <td>{row.recency}</td>
+                <td>{row.recency_days}</td>
                 <td>{row.frequency}</td>
                 <td>{row.monetary}</td>
               </tr>

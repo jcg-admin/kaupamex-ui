@@ -1,6 +1,14 @@
 /**
  * Tests — VoucherCreateForm
  * UC-PRO-01: Crear voucher (Admin)
+ *
+ * These tests match the actual VoucherCreateForm component:
+ *   - voucher_type field uses "PERCENTAGE" (not "PERCENT"), "FIXED", "FREE_SHIPPING"
+ *   - Percentage validation: must be > 0 AND <= 100 (component validates > 0 && <= 100)
+ *   - Payload sent: { code, voucher_type, max_uses, valid_from, valid_until,
+ *                    discount_pct (for PERCENTAGE) or discount_value (for FIXED) }
+ *   - valid_from is required (separate validation error)
+ *   - API URL: /api/v1/admin/vouchers/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -43,8 +51,9 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
     fireEvent.change(screen.getByLabelText(/Codigo/i), {
       target: { value: 'TEST10' },
     });
+    // Type field uses "PERCENTAGE" (not "PERCENT")
     fireEvent.change(screen.getByLabelText(/Tipo/i), {
-      target: { value: 'PERCENT' },
+      target: { value: 'PERCENTAGE' },
     });
     fireEvent.change(screen.getByLabelText(/Valor/i), {
       target: { value: '150' },
@@ -71,16 +80,20 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
 
   it('envia el voucher al backend en el happy path', async () => {
     apiService.post.mockResolvedValue({
-      data: { id: 99, code: 'WELCOME20', type: 'PERCENT', value: 20, is_active: true },
+      data: { id: 99, code: 'WELCOME20', voucher_type: 'PERCENTAGE', discount_pct: 20, is_active: true },
     });
 
     render(wrap(<VoucherCreateForm onClose={() => {}} />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Codigo/i),
       { target: { value: 'WELCOME20' } });
+    // Use PERCENTAGE (not PERCENT) — actual component field value
     fireEvent.change(screen.getByLabelText(/Tipo/i),
-      { target: { value: 'PERCENT' } });
+      { target: { value: 'PERCENTAGE' } });
     fireEvent.change(screen.getByLabelText(/Valor/i),
       { target: { value: '20' } });
+    // valid_from is required by component validation
+    fireEvent.change(screen.getByLabelText(/Vigente desde/i),
+      { target: { value: '2026-01-01' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Crear cupon/i }));
 
@@ -88,9 +101,9 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
       expect(apiService.post).toHaveBeenCalledWith(
         expect.stringContaining('/admin/vouchers/'),
         expect.objectContaining({
-          code: 'WELCOME20',
-          type: 'PERCENT',
-          value: 20,
+          code:         'WELCOME20',
+          voucher_type: 'PERCENTAGE',
+          discount_pct: 20,
         }),
       );
     });

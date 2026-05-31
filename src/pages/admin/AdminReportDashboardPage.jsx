@@ -44,8 +44,12 @@ export default function AdminReportDashboardPage() {
           <span className={styles.metricValue}>{today.orders ?? 0}</span>
         </div>
         <div className={styles.metric}>
-          <span className={styles.metricLabel}>Compradores nuevos</span>
-          <span className={styles.metricValue}>{today.new_customers ?? 0}</span>
+          <span className={styles.metricLabel}>Ticket promedio</span>
+          <span className={styles.metricValue}>
+            {today.revenue && today.orders
+              ? (Number(today.revenue) / today.orders).toFixed(2)
+              : '—'}
+          </span>
         </div>
       </div>
 
@@ -74,8 +78,8 @@ export default function AdminReportDashboardPage() {
           </thead>
           <tbody>
             {trend.map((row) => (
-              <tr key={row.bucket}>
-                <td>{row.bucket}</td>
+              <tr key={row.date}>
+                <td>{row.date}</td>
                 <td>{row.revenue}</td>
               </tr>
             ))}
@@ -99,8 +103,8 @@ export default function AdminReportDashboardPage() {
             {topProducts.map((row, idx) => (
               <tr key={row.product_id}>
                 <td>{idx + 1}</td>
-                <td>{row.name}</td>
-                <td>{row.units}</td>
+                <td>{row.product_name}</td>
+                <td>{row.units_sold}</td>
               </tr>
             ))}
           </tbody>

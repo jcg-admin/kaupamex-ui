@@ -1,0 +1,108 @@
+// Design tokens — Práctica Yorùbà
+// CSS custom properties: paleta + tipografía + espaciado + radios
+// Companion to _variables.scss (SCSS compile-time vars)
+// =============================================================
+// Paleta "Natural vivo" — Armonía Complementaria
+// Verde lima dominante (45%) · Rojo vino complementario (35%) ·
+// Dorado bronce árbitro (12%) · Naranja coral puente (5%) ·
+// Dorado oxidado cierre (3%)
+// =============================================================
+
+:root {
+  /* --- Paleta principal (Natural vivo) --- */
+  --c-lime:        #8CB800;  /* Verde lima · DOMINANTE · 45% */
+  --c-lime-soft:   #A8C840;  /* Verde lima rebajado (variante suave) · hover */
+  --c-lime-deep:   #6A9000;  /* Verde profundo */
+  --c-lime-shadow: #4A6200;  /* Verde oscuro · fondos */
+  --c-lime-tint:   #C8E060;  /* Verde claro · highlights */
+  --c-lime-cream:  #EEF4D0;  /* Verde casi blanco */
+  --c-vino:        #7A1E1E;  /* Rojo vino · COMPLEMENTARIO · 35% */
+  --c-vino-soft:   #9A4040;  /* Vino rebajado · variante suave */
+  --c-bronze:      #B89840;  /* Dorado bronce mate · separador · 12% */
+  --c-bronze-soft: #C8AA60;  /* Dorado bronce rebajado */
+  --c-coral:       #D86030;  /* Naranja coral · puente · 5% */
+  --c-coral-soft:  #E2855A;  /* Coral suavizado */
+  --c-rust:        #A07820;  /* Dorado oxidado · cierre · 3% */
+
+  /* --- Base (tonos del sistema Natural vivo) --- */
+  --c-base:        #0E1400;  /* Casi negro con tinte verde · fondo principal */
+  --c-base-2:      #161D04;  /* Tono medio */
+  --c-base-3:      #1F2808;  /* Superficie elevada */
+  --c-panel-vino:  #2A1010;  /* Panel cálido tintado de vino */
+  --c-panel-lime:  #1A2008;  /* Panel tintado de lima */
+
+  /* --- Aliases (compatibilidad con componentes existentes) --- */
+  --c-forest:       var(--c-panel-lime);
+  --c-aqua:         var(--c-base-2);
+  --c-moss:         var(--c-lime);
+  --c-moss-bright:  var(--c-lime-soft);
+  --c-turq:         var(--c-coral);
+  --c-turq-bright:  var(--c-coral-soft);
+  --c-amber:        var(--c-bronze);
+  --c-amber-bright: var(--c-bronze-soft);
+  --c-rose:         var(--c-vino-soft);
+
+  /* --- Neutrales (tono off-white del PDF) --- */
+  --c-carbon:    #1A1F08;  /* gris-verde carbón · tarjetas */
+  --c-carbon-2:  #232809;
+  --c-ink:       #F5F7EE;  /* off-white de la paleta */
+  --c-ink-dim:   #B8B7A5;  /* gris cálido · cuerpo */
+  --c-ink-mute:  #7A7D62;  /* gris medio · metadata */
+  --c-ink-faint: #444838;  /* divisores fuertes */
+
+  /* --- Líneas / bordes --- */
+  --line:        rgba(245,247,238,0.08);
+  --line-2:      rgba(245,247,238,0.14);
+  --line-strong: rgba(245,247,238,0.24);
+
+  /* --- Tipografía --- */
+  --f-display: 'Fraunces', Georgia, serif;
+  --f-sans:    'IBM Plex Sans', system-ui, sans-serif;
+  --f-mono:    'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Type scale — storefront a 1440 / desktop */
+  --t-display: 56px;
+  --t-h1:      40px;
+  --t-h2:      28px;
+  --t-h3:      20px;
+  --t-h4:      16px;
+  --t-body:    15px;
+  --t-small:   13px;
+  --t-micro:   11px;
+  --t-mono:    12px;
+
+  /* --- Espaciado --- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+
+  /* --- Radios --- */
+  --r-sm: 2px;
+  --r-md: 3px;
+  --r-lg: 4px;
+
+  /* --- Anchos --- */
+  --container:      1280px;
+  --container-wide: 1440px;
+
+  /* --- Semantic aliases (informational / account pages) --- */
+  --color-surface:        #fff;
+  --color-text:           #111;
+  --color-text-secondary: #555;
+  --color-border:         #e5e5e5;
+  --color-accent:         #7c3aed;
+  --color-muted:          #888;
+  --color-primary:        #2563eb;
+  --color-surface-muted:  #f4f4f4;
+  --color-warning:        #f5a623;
+  --color-warning-bg:     #fff8e1;
+  --color-danger:         #b3261e;
+  --color-danger-strong:  #8a1d18;
+  --color-danger-bg:      #fdecea;
+}

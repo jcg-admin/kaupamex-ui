@@ -28,7 +28,7 @@ const CART_ITEMS_URL    = '/api/v1/cart/items/';
 const CART_ITEM_URL     = (id) => `/api/v1/cart/items/${id}/`;
 const CART_VOUCHER_URL  = '/api/v1/cart/voucher/';
 const CART_SAVE_URL     = '/api/v1/cart/save/';
-const CART_SYNC_URL     = '/api/v1/cart/sync/';
+const CART_SYNC_URL     = '/api/v1/cart/merge/';
 
 // ─── Thunks ───────────────────────────────────────────────────────────
 
@@ -223,17 +223,69 @@ const cartSlice = createSlice({
       });
 
     builder
-      .addCase(updateCartItem.fulfilled, setCart)
-      // DEC-BC-08: backend DELETE devuelve Cart actualizado (200);
-      // setCart sustituye el filter+recalculo local.
-      .addCase(removeCartItem.fulfilled, setCart);
-
-    builder
-      .addCase(applyVoucher.fulfilled, setCart)
-      .addCase(applyVoucher.rejected,  (state, a) => {
+      // H-CICLO47-02: updateCartItem y removeCartItem carecían de handlers
+      // .pending y .rejected — isActioning nunca se activaba y un actionError
+      // previo permanecía visible mientras el usuario actualizaba/eliminaba
+      // un item del carrito.
+      .addCase(updateCartItem.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(updateCartItem.fulfilled, (state, action) => {
+        setCart(state, action);
+        state.isActioning = false;
+        state.lastAction  = 'updated';
+      })
+      .addCase(updateCartItem.rejected, (state, a) => {
+        state.isActioning = false;
         state.actionError = a.payload;
       })
-      .addCase(removeVoucher.fulfilled, setCart);
+      // DEC-BC-08: backend DELETE devuelve Cart actualizado (200);
+      // setCart sustituye el filter+recalculo local.
+      .addCase(removeCartItem.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(removeCartItem.fulfilled, (state, action) => {
+        setCart(state, action);
+        state.isActioning = false;
+        state.lastAction  = 'removed';
+      })
+      .addCase(removeCartItem.rejected, (state, a) => {
+        state.isActioning = false;
+        state.actionError = a.payload;
+      });
+
+    builder
+      // H-CICLO47-02: applyVoucher.pending no limpiaba actionError — si una
+      // aplicación anterior fallaba, el error permanecía visible al reintentar
+      // con un cupón distinto hasta que el nuevo resultado llegaba.
+      .addCase(applyVoucher.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(applyVoucher.fulfilled, (state, action) => {
+        setCart(state, action);
+        state.isActioning = false;
+        state.lastAction  = 'voucher_applied';
+      })
+      .addCase(applyVoucher.rejected,  (state, a) => {
+        state.isActioning = false;
+        state.actionError = a.payload;
+      })
+      .addCase(removeVoucher.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(removeVoucher.fulfilled, (state, action) => {
+        setCart(state, action);
+        state.isActioning = false;
+        state.lastAction  = 'voucher_removed';
+      })
+      .addCase(removeVoucher.rejected, (state, a) => {
+        state.isActioning = false;
+        state.actionError = a.payload;
+      });
 
     builder
       .addCase(saveCartForLater.pending, (state) => {

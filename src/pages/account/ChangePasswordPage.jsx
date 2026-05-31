@@ -78,12 +78,14 @@ export default function ChangePasswordPage() {
 
   const apiMessage = (() => {
     if (!apiError) return null;
-    if (apiError.code === 'INVALID_CURRENT_PASSWORD')
+    if (apiError.code === 'CURRENT_PASSWORD_INCORRECT')
       return 'La contrasena actual es incorrecta.';
-    if (apiError.code === 'PASSWORD_TOO_WEAK')
+    if (apiError.code === 'INVALID_PASSWORD')
       return 'La nueva contrasena no cumple los requisitos de seguridad.';
-    if (apiError.code === 'PASSWORD_REPEAT')
+    if (apiError.code === 'PASSWORD_NOT_CHANGED')
       return 'La nueva contrasena debe ser distinta a la actual.';
+    if (apiError.code === 'PASSWORDS_DO_NOT_MATCH')
+      return 'Las contrasenas no coinciden.';
     return (
       apiError?.body?.detail
       || apiError?.message

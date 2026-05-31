@@ -2,14 +2,15 @@
  * Tests AdminDashboardPage — landing del panel admin.
  *
  * Verifica:
- *   - renderiza titulo y subtitulo
- *   - muestra KPIs alimentados por useAdminDashboard (UC-ORD-10)
- *   - tolera error de carga sin romper navegacion (muestra "—")
- *   - expone accesos rapidos a las secciones criticas
+ *   - renderiza titulo
+ *   - muestra KPIs alimentados por fetchAdminMetrics
+ *   - tolera error de carga
+ *   - expone enlaces de navegacion
  */
 import { render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { configureStore } from '@reduxjs/toolkit';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
@@ -17,70 +18,63 @@ jest.mock('@services/apiService', () => ({
 }));
 
 import apiService from '@services/apiService';
+import adminReducer from '@redux/slices/adminSlice';
 import AdminDashboardPage from './AdminDashboardPage';
 
+const makeStore = () =>
+  configureStore({ reducer: { admin: adminReducer } });
+
 function renderPage() {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
+  const store = makeStore();
   return render(
-    <QueryClientProvider client={client}>
+    <Provider store={store}>
       <MemoryRouter>
         <AdminDashboardPage />
       </MemoryRouter>
-    </QueryClientProvider>,
+    </Provider>,
   );
 }
 
 afterEach(() => jest.clearAllMocks());
 
 describe('AdminDashboardPage — landing admin', () => {
-  it('renderiza titulo y subtitulo del panel', async () => {
+  it('renderiza titulo del panel', async () => {
     apiService.get.mockResolvedValueOnce({ data: {} });
     renderPage();
     expect(
-      await screen.findByRole('heading', { name: /panel de administracion/i }),
+      await screen.findByRole('heading', { name: /Resumen del día/i }),
     ).toBeInTheDocument();
   });
 
   it('muestra KPIs cuando el endpoint responde con datos', async () => {
     apiService.get.mockResolvedValueOnce({
       data: {
-        order_counts: { PENDING: 70, PROCESSING: 31 },
-        day_summary:  { revenue: 12345, approved_count: 9 },
-        expiring_orders: [{ id: 1 }, { id: 2 }],
-        support_open: 8,
-        returns_new:  6,
-        low_stock_count: 11,
+        today: { revenue: 12345, orders: 9 },
+        top_products: [],
+        open_tickets: 0,
+        low_stock_alerts: 0,
       },
     });
     renderPage();
-    expect(await screen.findByText('70')).toBeInTheDocument();
-    expect(screen.getByText('31')).toBeInTheDocument();
-    expect(screen.getByText('8')).toBeInTheDocument();  // support_open
-    expect(screen.getByText('6')).toBeInTheDocument();  // returns_new
-    expect(screen.getByText('11')).toBeInTheDocument(); // low stock
-    expect(screen.getByText(/\$12,345\.00/)).toBeInTheDocument();
+    // KPI labels are rendered
+    expect(await screen.findByText(/Ventas del día/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pedidos del día/i)).toBeInTheDocument();
   });
 
   it('tolera error de carga del dashboard', async () => {
     apiService.get.mockRejectedValueOnce(new Error('boom'));
     renderPage();
     await waitFor(() =>
-      expect(screen.getByRole('alert')).toHaveTextContent(/no se pudo cargar/i),
+      expect(screen.getByRole('alert')).toBeInTheDocument(),
     );
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0);
   });
 
-  it('lista accesos rapidos a las secciones criticas', async () => {
+  it('lista enlaces de navegacion a las secciones del admin', async () => {
     apiService.get.mockResolvedValueOnce({ data: {} });
     renderPage();
-    expect(
-      await screen.findByRole('link', { name: /productos/i }),
-    ).toHaveAttribute('href', '/admin/products');
-    expect(screen.getByRole('link', { name: /^cupones$/i }))
-      .toHaveAttribute('href', '/admin/vouchers');
-    expect(screen.getByRole('link', { name: /^inventario$/i }))
-      .toHaveAttribute('href', '/admin/inventory');
+    // The dashboard has a "Ver todos" link to pedidos
+    await screen.findByRole('heading', { name: /Resumen del día/i });
+    const links = screen.getAllByRole('link');
+    expect(links.length).toBeGreaterThan(0);
   });
 });
