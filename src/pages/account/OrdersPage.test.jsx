@@ -70,10 +70,10 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
   it('enlaza al detalle de cada orden', async () => {
     apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
     render(wrap(<OrdersPage />));
-    // Component links to /mi-cuenta/pedidos/{order_number}
+    // Component links to /account/orders/{order_number}
     await screen.findByText('PY-2026-000001');
     const links = screen.getAllByRole('link');
-    const orderLink = links.find((l) => l.getAttribute('href') === '/mi-cuenta/pedidos/PY-2026-000001');
+    const orderLink = links.find((l) => l.getAttribute('href') === '/account/orders/PY-2026-000001');
     expect(orderLink).toBeTruthy();
   });
 

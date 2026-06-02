@@ -50,8 +50,8 @@ export default function OrderDetailPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/mi-cuenta">Mi cuenta</Link><span>/</span>
-          <Link to="/mi-cuenta/pedidos">Mis pedidos</Link><span>/</span>
+          <Link to="/account">Mi cuenta</Link><span>/</span>
+          <Link to="/account/orders">Mis pedidos</Link><span>/</span>
           <span className={styles.bcCurrent}>{order.order_number}</span>
         </nav>
 
@@ -227,7 +227,7 @@ function PaymentCard({ payment }) {
         Cobrado el {new Date(payment.captured_at).toLocaleDateString('es-MX')}
         {payment.installments > 1 && ` · ${payment.installments} cuotas sin intereses`}
       </div>
-      <Link to={`/mi-cuenta/pedidos/${payment.order_number}/historial-pago`} className={styles.paymentLink}>
+      <Link to={`/account/orders/${payment.order_number}/historial-pago`} className={styles.paymentLink}>
         VER HISTORIAL DE PAGOS →
       </Link>
     </div>

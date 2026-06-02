@@ -18,7 +18,7 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = location.state?.from?.pathname || '/mi-cuenta';
+  const redirectTo = location.state?.from?.pathname || '/account';
 
   const [creds, setCreds] = useState({ email: '', password: '', remember: true });
   const [error, setError] = useState('');
@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className={styles.formWrap}>
           <div className={styles.tabs}>
             <span className={`${styles.tab} ${styles.tabActive}`}>Iniciar sesión</span>
-            <Link to="/auth/registro" className={styles.tab}>Crear cuenta</Link>
+            <Link to="/auth/register" className={styles.tab}>Crear cuenta</Link>
           </div>
 
           <h2 className={styles.title}>Bienvenido de vuelta</h2>
@@ -72,7 +72,7 @@ export default function LoginPage() {
                 error={error}
                 autoComplete="current-password"
               />
-              <Link to="/auth/recuperar" className={styles.forgotLink}>
+              <Link to="/auth/forgot-password" className={styles.forgotLink}>
                 ¿OLVIDASTE TU CONTRASEÑA?
               </Link>
             </div>
@@ -101,7 +101,7 @@ export default function LoginPage() {
 
             <div className={styles.footer}>
               ¿Aún no tienes cuenta?{' '}
-              <Link to="/auth/registro">Crear una ahora →</Link>
+              <Link to="/auth/register">Crear una ahora →</Link>
             </div>
           </form>
         </div>

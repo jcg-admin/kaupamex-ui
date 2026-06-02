@@ -10,7 +10,7 @@
  *   - Variants use v.label (real contract), not v.name (legacy)
  *   - Variant disabled based on stock > 0 (not is_available field)
  *   - Breadcrumb nav has no aria-label
- *   - addToCart thunk dispatched; navigates to /carrito after add
+ *   - addToCart thunk dispatched; navigates to /cart after add
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider }       from 'react-redux';
@@ -47,7 +47,7 @@ const wrap = (slug, store, client = makeClient()) => (
       <MemoryRouter initialEntries={[`/catalog/${slug}`]}>
         <Routes>
           <Route path="/catalog/:slug" element={<ProductPage />} />
-          <Route path="/carrito" element={<div>Carrito</div>} />
+          <Route path="/cart" element={<div>Carrito</div>} />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>

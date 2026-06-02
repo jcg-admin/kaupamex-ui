@@ -61,7 +61,7 @@ export default function ProductPage() {
       variantId: variant?.id,
       quantity: qty,
     }));
-    navigate('/carrito');
+    navigate('/cart');
   };
 
   return (

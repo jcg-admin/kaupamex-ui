@@ -58,7 +58,7 @@ export default function OrdersPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/mi-cuenta">Mi cuenta</Link>
+          <Link to="/account">Mi cuenta</Link>
           <span>/</span>
           <span className={styles.bcCurrent}>Mis pedidos</span>
         </nav>
@@ -166,7 +166,7 @@ function OrderRow({ order }) {
         </div>
         <Price amount={order.total} size="md" />
       </div>
-      <Link to={`/mi-cuenta/pedidos/${order.order_number}`}>
+      <Link to={`/account/orders/${order.order_number}`}>
         <Button variant="secondary" size="sm">Ver detalle</Button>
       </Link>
     </article>

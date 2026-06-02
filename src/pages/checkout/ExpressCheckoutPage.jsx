@@ -79,7 +79,7 @@ export default function ExpressCheckoutPage() {
                 eligibility.address?.street,
                 `${eligibility.address?.neighborhood} · ${eligibility.address?.city} ${eligibility.address?.zip_code}`,
               ]}
-              onChange={() => navigate('/mi-cuenta/direcciones')}
+              onChange={() => navigate('/account/addresses')}
             />
             <ExpressCard
               eyebrow="Pagar con · Mercado Pago"

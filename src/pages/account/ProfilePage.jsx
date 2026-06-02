@@ -59,7 +59,7 @@ export default function ProfilePage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <nav className={styles.breadcrumb}>
-          <Link to="/mi-cuenta">Mi cuenta</Link>
+          <Link to="/account">Mi cuenta</Link>
           <span>/</span>
           <span className={styles.bcCurrent}>Datos personales</span>
         </nav>

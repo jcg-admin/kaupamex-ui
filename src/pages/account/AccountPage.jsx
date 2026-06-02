@@ -68,7 +68,7 @@ export default function AccountPage() {
                       : 'Casi terminas.'}
                   </div>
                 </div>
-                <Link to="/mi-cuenta/perfil">
+                <Link to="/account/profile">
                   <Button variant="primary">Completar perfil</Button>
                 </Link>
               </div>
@@ -77,7 +77,7 @@ export default function AccountPage() {
             <section className={styles.recentOrders}>
               <header className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Pedidos recientes</h2>
-                <Link to="/mi-cuenta/pedidos" className={styles.sectionLink}>
+                <Link to="/account/orders" className={styles.sectionLink}>
                   Ver todos →
                 </Link>
               </header>
@@ -104,7 +104,7 @@ export default function AccountPage() {
                         {o.status_label || o.status}
                       </div>
                       <Price amount={o.total} size="md" />
-                      <Link to={`/mi-cuenta/pedidos/${o.order_number}`}>
+                      <Link to={`/account/orders/${o.order_number}`}>
                         <Button variant="secondary" size="sm">Detalle</Button>
                       </Link>
                     </article>
@@ -114,9 +114,9 @@ export default function AccountPage() {
             </section>
 
             <div className={styles.quickGrid}>
-              <QuickCard to="/mi-cuenta/favoritos"   t="Lista de deseos"   d="Tus piezas guardadas" />
-              <QuickCard to="/mi-cuenta/direcciones" t="Mis direcciones"   d="Hasta 5 ubicaciones" />
-              <QuickCard to="/mi-cuenta/seguridad"   t="Seguridad"          d="Contraseña y sesiones" />
+              <QuickCard to="/account/wishlist"   t="Lista de deseos"   d="Tus piezas guardadas" />
+              <QuickCard to="/account/addresses" t="Mis direcciones"   d="Hasta 5 ubicaciones" />
+              <QuickCard to="/account/security"   t="Seguridad"          d="Contraseña y sesiones" />
             </div>
           </section>
         </div>
