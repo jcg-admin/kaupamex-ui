@@ -141,7 +141,7 @@ export default function CatalogPage() {
             )}
 
             {!loading && displayItems.length > 0 && (
-              <div className={styles.grid}>
+              <div className={styles.grid} data-testid="catalog-grid">
                 {displayItems.map((p) => <ProductCard key={p.id} product={p} />)}
               </div>
             )}

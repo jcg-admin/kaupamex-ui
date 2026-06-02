@@ -66,8 +66,9 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                data-testid="forgot-email"
               />
-              <Button type="submit" variant="primary" block size="lg" disabled={loading}>
+              <Button type="submit" variant="primary" block size="lg" disabled={loading} data-testid="forgot-submit">
                 {loading ? 'Enviando…' : 'Enviar enlace de recuperación'}
               </Button>
             </form>
@@ -76,7 +77,7 @@ export default function ForgotPasswordPage() {
           <>
             <div className={styles.envelope}>✉</div>
             <MetaTag tone="bronze">Casi listo</MetaTag>
-            <h1 className={styles.title}>Revisa tu correo</h1>
+            <h1 className={styles.title} data-testid="forgot-sent">Revisa tu correo</h1>
             <p className={styles.lead}>
               Si la dirección está registrada, te enviamos un enlace a{' '}
               <strong>{email}</strong>. El enlace es válido por <strong>1 hora</strong>{' '}

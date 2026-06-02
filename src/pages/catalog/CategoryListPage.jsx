@@ -95,7 +95,7 @@ export default function CategoryListPage() {
       )}
 
       {!isLoading && tree.length > 0 && (
-        <ul className={styles.tree} aria-label="Arbol de categorias">
+        <ul className={styles.tree} aria-label="Arbol de categorias" data-testid="category-tree">
           {tree.map((root) => (
             <CategoryNode key={root.id} node={root} />
           ))}

@@ -64,7 +64,7 @@ export default function WishlistPage() {
             )}
 
             {!isLoading && items.length > 0 && (
-              <div className={styles.grid}>
+              <div className={styles.grid} data-testid="wishlist-grid">
                 {items.map((it) => <WishItem key={it.id} item={it} dispatch={dispatch} />)}
               </div>
             )}

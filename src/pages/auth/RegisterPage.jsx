@@ -35,7 +35,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await dispatch(registerUser(form)).unwrap();
-      navigate('/auth/verificar-correo', { state: { email: form.email } });
+      navigate('/auth/verify-email', { state: { email: form.email } });
     } catch (err) {
       setErrors(err.fields || { _form: 'No se pudo crear la cuenta.' });
     } finally {
@@ -86,11 +86,11 @@ export default function RegisterPage() {
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              <Field label="Nombre"   value={form.first_name} onChange={set('first_name')} error={errors.first_name} required autoComplete="given-name" />
-              <Field label="Apellido" value={form.last_name}  onChange={set('last_name')}  error={errors.last_name}  required autoComplete="family-name" />
+              <Field label="Nombre"   value={form.first_name} onChange={set('first_name')} error={errors.first_name} required autoComplete="given-name"  data-testid="register-first-name" />
+              <Field label="Apellido" value={form.last_name}  onChange={set('last_name')}  error={errors.last_name}  required autoComplete="family-name" data-testid="register-last-name" />
             </div>
-            <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} error={errors.email} required autoComplete="email" />
-            <Field label="Nombre de usuario" value={form.username} onChange={set('username')} error={errors.username} required placeholder="manuel_ortega" autoComplete="username" />
+            <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} error={errors.email} required autoComplete="email" data-testid="register-email" />
+            <Field label="Nombre de usuario" value={form.username} onChange={set('username')} error={errors.username} required placeholder="manuel_ortega" autoComplete="username" data-testid="register-username" />
             <Field
               label="Contraseña"
               type="password"
@@ -100,6 +100,7 @@ export default function RegisterPage() {
               required
               hint="· Mínimo 8 caracteres · No similar a tu usuario · No demasiado común"
               autoComplete="new-password"
+              data-testid="register-password"
             />
 
             <label className={styles.checkboxLabel} style={{ alignItems: 'flex-start', marginTop: 4 }}>
@@ -107,6 +108,7 @@ export default function RegisterPage() {
                 type="checkbox"
                 checked={form.terms}
                 onChange={(e) => setForm({ ...form, terms: e.target.checked })}
+                data-testid="register-terms"
               />
               <span className={styles.checkbox} style={{ marginTop: 2 }} />
               <span>
@@ -117,7 +119,7 @@ export default function RegisterPage() {
             {errors.terms && <div style={{ color: 'var(--c-vino-soft)', fontSize: 12 }}>{errors.terms}</div>}
             {errors._form && <div style={{ color: 'var(--c-vino-soft)', fontSize: 13 }}>{errors._form}</div>}
 
-            <Button type="submit" variant="primary" block size="lg" disabled={loading}>
+            <Button type="submit" variant="primary" block size="lg" disabled={loading} data-testid="register-submit">
               {loading ? 'Creando…' : 'Crear mi cuenta'}
             </Button>
 

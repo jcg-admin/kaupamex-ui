@@ -106,7 +106,7 @@ export default function OrdersPage() {
             )}
 
             {!isLoading && list.length > 0 && (
-              <div className={styles.list}>
+              <div className={styles.list} data-testid="orders-list">
                 {list.map((o) => <OrderRow key={o.order_number} order={o} />)}
               </div>
             )}

@@ -131,7 +131,7 @@ export default function SearchResultsPage() {
             )}
 
             {!isLoading && results.length > 0 && (
-              <section aria-label="Resultados">
+              <section aria-label="Resultados" data-testid="search-results">
                 <div className={styles.grid}>
                   {results.map((p) => (
                     <ProductCard key={p.id} product={p} />
