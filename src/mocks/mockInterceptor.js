@@ -206,7 +206,7 @@ class MockInterceptor {
     return {
       id: i + 1, slug: slug || `producto-${i}`,
       name: nombres[i % nombres.length],
-      category: { id: (i % 5) + 1, name: 'Collares', slug: 'collares' },
+      categories: [{ id: (i % 5) + 1, name: 'Collares', slug: 'collares' }],
       description: 'Elaborado a mano con cuentas auténticas siguiendo la tradición Yoruba.',
       price: precios[i], original_price: i % 3 === 0 ? precios[i] * 1.3 : null,
       stock: i % 4 === 0 ? 0 : Math.floor(Math.random() * 20) + 1,

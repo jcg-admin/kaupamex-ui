@@ -21,15 +21,15 @@ const PRODUCTS = [
   { id: 1, name: 'Collar Oshun dorado', slug: 'collar-oshun-dorado',
     sku: 'OSHUN-001', base_price: '1250.00', stock: 8,
     is_active: true, is_published: true, is_featured: false,
-    category: { id: 1, name: 'Collares' }, images: [] },
+    categories: [{ id: 1, name: 'Collares' }], images: [] },
   { id: 2, name: 'Pulsera Elegua roja', slug: 'pulsera-elegua-roja',
     sku: 'ELEG-002', base_price: '480.00', stock: 0,
     is_active: false, is_published: false, is_featured: false,
-    category: { id: 2, name: 'Pulseras' }, images: [] },
+    categories: [{ id: 2, name: 'Pulseras' }], images: [] },
   { id: 3, name: 'Elekes Yemaya', slug: 'elekes-yemaya',
     sku: 'YEMA-003', base_price: '890.00', stock: 5,
     is_active: true, is_published: true, is_featured: false,
-    category: { id: 3, name: 'Elekes' }, images: [] },
+    categories: [{ id: 3, name: 'Elekes' }], images: [] },
 ];
 
 const RESPONSE_PAGE_1 = { count: 27, next: 'page=2', previous: null, results: PRODUCTS };

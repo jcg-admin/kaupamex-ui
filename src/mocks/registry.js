@@ -30,12 +30,12 @@ const MOCKS = {
   catalog: {
     data: {
       count: 6, results: [
-        { id: 1, slug: 'collar-oshun',      name: 'Collar Oshun',       price: 1250, stock: 8, category: { slug: 'collares' } },
-        { id: 2, slug: 'pulsera-elegua',    name: 'Pulsera Elegua',     price: 480,  stock: 12, category: { slug: 'pulseras' } },
-        { id: 3, slug: 'elekes-yemaya',     name: 'Elekes Yemaya',      price: 890,  stock: 0, category: { slug: 'elekes' } },
-        { id: 4, slug: 'collar-shango',     name: 'Collar Shango',      price: 1100, stock: 5, category: { slug: 'collares' } },
-        { id: 5, slug: 'ofrenda-obatala',   name: 'Ofrenda Obatalá',    price: 650,  stock: 3, category: { slug: 'ofrendas' } },
-        { id: 6, slug: 'herramienta-ogun',  name: 'Herramienta Ogun',   price: 780,  stock: 7, category: { slug: 'herramientas' } },
+        { id: 1, slug: 'collar-oshun',      name: 'Collar Oshun',       price: 1250, stock: 8, categories: [{ slug: 'collares' }] },
+        { id: 2, slug: 'pulsera-elegua',    name: 'Pulsera Elegua',     price: 480,  stock: 12, categories: [{ slug: 'pulseras' }] },
+        { id: 3, slug: 'elekes-yemaya',     name: 'Elekes Yemaya',      price: 890,  stock: 0, categories: [{ slug: 'elekes' }] },
+        { id: 4, slug: 'collar-shango',     name: 'Collar Shango',      price: 1100, stock: 5, categories: [{ slug: 'collares' }] },
+        { id: 5, slug: 'ofrenda-obatala',   name: 'Ofrenda Obatalá',    price: 650,  stock: 3, categories: [{ slug: 'ofrendas' }] },
+        { id: 6, slug: 'herramienta-ogun',  name: 'Herramienta Ogun',   price: 780,  stock: 7, categories: [{ slug: 'herramientas' }] },
       ],
     },
     validate: (d) => d && Array.isArray(d.results),

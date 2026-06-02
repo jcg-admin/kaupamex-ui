@@ -120,7 +120,8 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
     });
     const payload = apiService.post.mock.calls[0][1];
     expect(payload.name).toBe('Collar Oshun dorado');
-    expect(payload.category_id).toBe(1);
+    // UC-CAT-13: el contrato es category_ids (lista de PKs), no category_id singular.
+    expect(payload.category_ids).toEqual([1]);
   });
 
   it('muestra error 409 cuando el SKU ya existe', async () => {

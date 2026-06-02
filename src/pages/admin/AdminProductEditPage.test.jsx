@@ -28,7 +28,9 @@ const PRODUCT = {
   description: 'larga',
   base_price: '1250.00',
   stock: 8,
-  category: { id: 1, name: 'Collares' },
+  // UC-CAT-13: la API (ProductAdminSerializer) devuelve `categories` (lista de
+  // objetos), no `category` singular. EditPage hidrata desde categories[0].
+  categories: [{ id: 1, name: 'Collares' }],
   status: 'PUBLICADO',
   is_active: true,
 };

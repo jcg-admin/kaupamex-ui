@@ -98,11 +98,13 @@ export default function AdminProductsPage() {
             )}
             {!isLoading && products.map((p) => {
               /* H-CICLO31-01: ProductAdminSerializer devuelve `images` (array de
-                 objetos con image_url) y `category` (objeto), no los campos planos
-                 `image_url`, `orisha_name`, `has_discount` ni `discount_pct`.
-                 Se extraen los valores correctos de la estructura real de la API. */
+                 objetos con image_url) y `categories` (array de objetos, UC-CAT-13
+                 M2M), no los campos planos `image_url`, `orisha_name`, `has_discount`
+                 ni `discount_pct`. Se extraen los valores de la estructura real. */
               const coverImageUrl = p.images?.[0]?.image_url ?? null;
-              const categoryName  = p.category?.name ?? '—';
+              // UC-CAT-13: M2M -> la API expone `categories` (lista), no `category`
+              // singular. Leer categories[0] (o category_name si estuviera presente).
+              const categoryName  = p.categories?.[0]?.name ?? p.category_name ?? '—';
               const discountPct   = p.discount?.pct ?? null;
               return (
                 <tr key={p.id}>
