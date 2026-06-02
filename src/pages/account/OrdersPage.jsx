@@ -101,7 +101,7 @@ export default function OrdersPage() {
                 title="Aún no tienes pedidos"
                 description="Cuando hagas tu primer pedido, lo verás aquí con todo el seguimiento."
               >
-                <Link to="/catalogo"><Button variant="primary">Ir al catálogo</Button></Link>
+                <Link to="/catalog"><Button variant="primary">Ir al catálogo</Button></Link>
               </EmptyState>
             )}
 

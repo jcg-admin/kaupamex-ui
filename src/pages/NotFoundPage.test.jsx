@@ -31,15 +31,15 @@ describe('NotFoundPage', () => {
     expect(screen.getByRole('heading', { name: /esta página/i })).toBeInTheDocument();
   });
 
-  it('CTA "Ir al catalogo" apunta a /catalogo (no a /)', () => {
+  it('CTA "Ir al catalogo" apunta a /catalog (no a /)', () => {
     renderPage();
     const link = screen.getByRole('link', { name: /ir al cat[aá]logo/i });
-    expect(link).toHaveAttribute('href', '/catalogo');
+    expect(link).toHaveAttribute('href', '/catalog');
   });
 
-  it('CTA "Buscar por orisha" apunta a /catalogo?cat=por-orisha', () => {
+  it('CTA "Buscar por orisha" apunta a /catalog?cat=por-orisha', () => {
     renderPage();
     const link = screen.getByRole('link', { name: /buscar por/i });
-    expect(link).toHaveAttribute('href', '/catalogo?cat=por-orisha');
+    expect(link).toHaveAttribute('href', '/catalog?cat=por-orisha');
   });
 });

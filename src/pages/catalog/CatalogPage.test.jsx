@@ -224,8 +224,8 @@ describe('CatalogPage — ProductCard', () => {
     apiService.get.mockResolvedValue(pageOf([PRODUCTS[0]]));
     const { container } = render(wrap(<CatalogPage />, makeStore()));
     await screen.findByText('Collar Oshun');
-    // ProductCard wraps image in a Link to /catalogo/:slug
-    const link = container.querySelector('a[href="/catalogo/collar-oshun"]');
+    // ProductCard wraps image in a Link to /catalog/:slug
+    const link = container.querySelector('a[href="/catalog/collar-oshun"]');
     expect(link).toBeInTheDocument();
   });
 });

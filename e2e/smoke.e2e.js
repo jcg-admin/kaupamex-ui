@@ -28,9 +28,9 @@ test('smoke: login -> catalogo -> carrito -> checkout', async ({ page }) => {
   await expect(page).not.toHaveURL(/\/auth\/login$/); // salio del login
 
   // 2) Catalogo -> primer producto.
-  await page.goto('/catalogo');
+  await page.goto('/catalog');
   await page.getByTestId('product-card-link').first().click();
-  await expect(page).toHaveURL(/\/catalogo\/.+/);
+  await expect(page).toHaveURL(/\/catalog\/.+/);
 
   // 3) Agregar a la bolsa -> navega a /cart.
   await page.getByTestId('add-to-cart').click();

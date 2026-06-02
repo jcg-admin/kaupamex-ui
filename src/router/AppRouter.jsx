@@ -145,10 +145,10 @@ export default function AppRouter() {
           {/* --- Tienda publica --- */}
           <Route element={<StorefrontLayout />}>
             <Route index element={<HomePage />} />
+            {/* Rutas en INGLES (canonico unico) — directiva ejecutor
+                2026-06-02: todos los endpoints/rutas en ingles, como las
+                APIs. Se elimino el alias /catalogo (ver DEC). */}
             <Route path="catalog" element={<CatalogPage />} />
-            {/* Alias en español — todos los links públicos usan /catalogo */}
-            <Route path="catalogo" element={<CatalogPage />} />
-            <Route path="catalogo/:slug" element={<ProductPage />} />
             {/* UC-CAT-08 — Arbol publico de categorias */}
             <Route path="categories" element={<CategoryListPage />} />
             {/* UC-CAT-03 + UC-CAT-03-EXT — Resultados de busqueda */}

@@ -82,7 +82,7 @@ export default function ProductCard({ product, inWishlist = false }) {
 
   return (
     <article className={styles.card}>
-      <Link to={`/catalogo/${slug}`} className={styles.imageLink} data-testid="product-card-link">
+      <Link to={`/catalog/${slug}`} className={styles.imageLink} data-testid="product-card-link">
         <div className={styles.imageArea}>
           {image_url ? (
             <img

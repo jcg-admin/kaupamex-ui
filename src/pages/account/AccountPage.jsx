@@ -85,7 +85,7 @@ export default function AccountPage() {
               {orders.length === 0 ? (
                 <div className={styles.empty}>
                   <p>Aún no tienes pedidos.</p>
-                  <Link to="/catalogo">
+                  <Link to="/catalog">
                     <Button variant="secondary">Ir al catálogo</Button>
                   </Link>
                 </div>

@@ -48,8 +48,8 @@ export default function HomePage() {
               el camino del santo. Catálogo organizado por òrìsà, con envío a toda la república.
             </p>
             <div className={styles.heroCtas}>
-              <Link to="/catalogo"><Button variant="primary" size="md">Entrar al catálogo</Button></Link>
-              <Link to="/catalogo?cat=por-orisha"><Button variant="secondary" size="md">Por òrìsà</Button></Link>
+              <Link to="/catalog"><Button variant="primary" size="md">Entrar al catálogo</Button></Link>
+              <Link to="/catalog?cat=por-orisha"><Button variant="secondary" size="md">Por òrìsà</Button></Link>
             </div>
             <div className={styles.heroStats}>
               <Stat n="16" l="òrìsà principales" />
@@ -91,7 +91,7 @@ export default function HomePage() {
                 Piezas destacadas <em>esta semana</em>
               </h2>
             </div>
-            <Link to="/catalogo" className={styles.sectionLink}>Ver todas →</Link>
+            <Link to="/catalog" className={styles.sectionLink}>Ver todas →</Link>
           </header>
           <div className={styles.productGrid}>
             {isLoading
@@ -118,7 +118,7 @@ export default function HomePage() {
             {ORISHAS.map((o) => (
               <Link
                 key={o.slug}
-                to={`/catalogo?orisha=${o.slug}`}
+                to={`/catalog?orisha=${o.slug}`}
                 className={styles.orishaCard}
               >
                 <div className={styles.orishaImg}>

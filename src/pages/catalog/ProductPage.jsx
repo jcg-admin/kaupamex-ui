@@ -70,9 +70,9 @@ export default function ProductPage() {
         <div className={styles.container}>
           <nav className={styles.breadcrumb}>
             <Link to="/">Inicio</Link><span>/</span>
-            <Link to="/catalogo">Catálogo</Link><span>/</span>
-            {product.category_name && (<><Link to={`/catalogo?cat=${product.category_slug}`}>{product.category_name}</Link><span>/</span></>)}
-            {product.orisha_name && (<><Link to={`/catalogo?orisha=${product.orisha_slug}`}>{product.orisha_name}</Link><span>/</span></>)}
+            <Link to="/catalog">Catálogo</Link><span>/</span>
+            {product.category_name && (<><Link to={`/catalog?cat=${product.category_slug}`}>{product.category_name}</Link><span>/</span></>)}
+            {product.orisha_name && (<><Link to={`/catalog?orisha=${product.orisha_slug}`}>{product.orisha_name}</Link><span>/</span></>)}
             <span className={styles.bcCurrent}>{product.name}</span>
           </nav>
 

@@ -3,8 +3,8 @@
  *
  * These tests match the actual HomePage component behavior:
  *   - Hero title is "Para los que practican." (not "practica yoruba")
- *   - CTA links go to /catalogo (not /catalog)
- *   - Orisha links go to /catalogo?orisha=<slug> (not /catalog?cat=)
+ *   - CTA links go to /catalog (not /catalog)
+ *   - Orisha links go to /catalog?orisha=<slug> (not /catalog?cat=)
  *   - Featured products come from state.catalog.featured (not state.catalog.products)
  *   - No data-testid="home-featured-grid" on the grid element
  */
@@ -74,16 +74,16 @@ describe('HomePage — landing anonima', () => {
 
   it('expone CTA al catalogo', () => {
     renderHome();
-    // Links go to /catalogo (not /catalog)
+    // Links go to /catalog (not /catalog)
     const catalogLink = screen.getByRole('link', { name: /Entrar al catálogo/i });
-    expect(catalogLink).toHaveAttribute('href', '/catalogo');
+    expect(catalogLink).toHaveAttribute('href', '/catalog');
   });
 
-  it('lista orishas con links a /catalogo?orisha=', () => {
+  it('lista orishas con links a /catalog?orisha=', () => {
     renderHome();
-    // HomePage has ORISHAS links to /catalogo?orisha=<slug>
+    // HomePage has ORISHAS links to /catalog?orisha=<slug>
     const yemayaLink = screen.getByRole('link', { name: /Yemayá/i });
-    expect(yemayaLink).toHaveAttribute('href', '/catalogo?orisha=yemaya');
+    expect(yemayaLink).toHaveAttribute('href', '/catalog?orisha=yemaya');
   });
 
   it('pinta productos destacados cuando el slice tiene featured items', async () => {

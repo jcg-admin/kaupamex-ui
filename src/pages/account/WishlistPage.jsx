@@ -59,7 +59,7 @@ export default function WishlistPage() {
                 title="No tienes piezas guardadas"
                 description="Cuando encuentres una pieza que quieras pero no quieras comprar ahora, guárdala aquí."
               >
-                <Link to="/catalogo"><Button variant="primary">Ir al catálogo</Button></Link>
+                <Link to="/catalog"><Button variant="primary">Ir al catálogo</Button></Link>
               </EmptyState>
             )}
 
