@@ -28,6 +28,28 @@ levanta/siembra la BD; `develop` corre api/ui/playwright.
 
 ## Runbook (orden importa)
 
+### Un comando (recomendado)
+
+`run-full-stack-e2e.sh` orquesta las 4 capas en orden, espera a que cada
+una esté lista, siembra el usuario `qabuyer` + catálogo, corre Playwright
+y limpia api/ui al salir:
+
+```bash
+cd e-comerce-ui
+bash e2e/run-full-stack-e2e.sh                 # toda la suite
+E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh   # solo el smoke
+```
+
+Variables (defaults sensatos): `QA_BUYER_EMAIL`/`QA_BUYER_PASSWORD` (creds
+del comprador de seed, también usadas por Playwright), `PW_BASE_URL`
+(default `http://localhost:3001`, perfil dev cross-origin), `SUPERREPO`/
+`API_DIR`/`DB_DIR`/`UI_DIR` (rutas de los submódulos). El script aplica el
+gate Node 20 (L-012) y arranca MariaDB → `migrate` → `create_seed_users`
+→ `create_seed_catalog` → `runserver :8000` → `npm run dev :3001` →
+`npm run e2e`.
+
+### Pasos manuales (la versión expandida del script)
+
 ```bash
 # [deploy] BD viva + QA sembrada (por socket)
 sudo bash /srv/repos/ecom/e-comerce-db/scripts/start_db.sh
