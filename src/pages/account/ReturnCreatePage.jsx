@@ -152,6 +152,7 @@ export default function ReturnCreatePage() {
             value={fields.order_number}
             onChange={handleChange}
             aria-invalid={Boolean(errors.order_number)}
+            data-testid="return-order-number"
           />
           {errors.order_number && (
             <span className={styles.error}>{errors.order_number}</span>
@@ -222,6 +223,7 @@ export default function ReturnCreatePage() {
             type="submit"
             className={styles.primaryBtn}
             disabled={isActioning}
+            data-testid="return-submit"
           >
             {isActioning ? 'Enviando…' : 'Enviar solicitud'}
           </button>

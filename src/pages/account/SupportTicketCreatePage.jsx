@@ -121,6 +121,7 @@ export default function SupportTicketCreatePage() {
             value={fields.subject}
             onChange={handleChange}
             aria-invalid={Boolean(errors.subject)}
+            data-testid="ticket-subject"
           />
           {errors.subject && <span className={styles.error}>{errors.subject}</span>}
         </div>
@@ -177,6 +178,7 @@ export default function SupportTicketCreatePage() {
             type="submit"
             className={styles.primaryBtn}
             disabled={isActioning}
+            data-testid="ticket-submit"
           >
             {isActioning ? 'Enviando…' : 'Crear ticket'}
           </button>

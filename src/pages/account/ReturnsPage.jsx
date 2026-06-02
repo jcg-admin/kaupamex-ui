@@ -46,7 +46,7 @@ export default function ReturnsPage() {
       )}
 
       {items.length > 0 && (
-        <ul className={styles.list}>
+        <ul className={styles.list} data-testid="returns-list">
           {items.map((ret) => (
             <li key={ret.id} className={styles.item}>
               <Link to={`/account/returns/${ret.id}`} className={styles.itemLink}>

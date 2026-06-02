@@ -62,7 +62,7 @@ export default function SupportTicketsPage() {
       )}
 
       {items.length > 0 && (
-        <ul className={styles.list}>
+        <ul className={styles.list} data-testid="tickets-list">
           {items.map((ticket) => {
             // H-CICLO35-01: SupportTicketListSerializer expone ticket_id (source='pk'),
             // no id. Usar ticket.ticket_id como clave primaria.
