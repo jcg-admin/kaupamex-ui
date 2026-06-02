@@ -282,7 +282,7 @@ function CartSummary({
           <Price amount={total} size="lg" />
         </div>
 
-        <Button variant="primary" block size="lg" onClick={onCheckout}>
+        <Button variant="primary" block size="lg" onClick={onCheckout} data-testid="cart-checkout">
           Continuar al checkout →
         </Button>
         <Link to="/catalogo" className={styles.summaryBack}>

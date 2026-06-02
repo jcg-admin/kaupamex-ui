@@ -384,7 +384,7 @@ function CheckoutSummary({ items, totals, shipping, submitting }) {
             <span>Total</span>
             <Price amount={displayTotal} size="lg" />
           </div>
-          <Button type="submit" variant="primary" block size="lg" disabled={submitting}>
+          <Button type="submit" variant="primary" block size="lg" disabled={submitting} data-testid="checkout-submit">
             {submitting ? 'Procesando…' : 'Confirmar y pagar'}
           </Button>
           <div className={styles.summaryDisclaimer}>

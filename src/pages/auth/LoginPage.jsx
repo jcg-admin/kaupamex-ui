@@ -61,6 +61,7 @@ export default function LoginPage() {
               onChange={(e) => setCreds({ ...creds, email: e.target.value })}
               required
               autoComplete="email"
+              data-testid="login-email"
             />
             <div className={styles.passwordField}>
               <Field
@@ -71,6 +72,7 @@ export default function LoginPage() {
                 required
                 error={error}
                 autoComplete="current-password"
+                data-testid="login-password"
               />
               <Link to="/auth/forgot-password" className={styles.forgotLink}>
                 ¿OLVIDASTE TU CONTRASEÑA?
@@ -87,7 +89,7 @@ export default function LoginPage() {
               <span>Mantener mi sesión iniciada</span>
             </label>
 
-            <Button type="submit" variant="primary" block size="lg" disabled={loading}>
+            <Button type="submit" variant="primary" block size="lg" disabled={loading} data-testid="login-submit">
               {loading ? 'Entrando…' : 'Entrar a mi cuenta'}
             </Button>
 

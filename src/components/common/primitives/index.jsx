@@ -47,6 +47,7 @@ export function Field({
   required = false, error = null,
   hint = null,
   autoComplete,
+  ...rest
 }) {
   const Input = textarea ? 'textarea' : 'input';
   const inputProps = textarea ? { rows: 3 } : { type };
@@ -63,6 +64,7 @@ export function Field({
         className={`${styles.fieldInput} ${error ? styles.fieldInputError : ''}`}
         autoComplete={autoComplete}
         {...inputProps}
+        {...rest}
       />
       {error && <span className={styles.fieldError}>{error}</span>}
       {!error && hint && <span className={styles.fieldHint}>{hint}</span>}

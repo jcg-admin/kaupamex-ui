@@ -157,7 +157,7 @@ export default function ProductPage() {
                   <span>{qty}</span>
                   <button type="button" onClick={() => setQty(qty + 1)}>+</button>
                 </div>
-                <Button variant="primary" size="lg" onClick={handleAddToCart} disabled={!isAvailable}>
+                <Button variant="primary" size="lg" onClick={handleAddToCart} disabled={!isAvailable} data-testid="add-to-cart">
                   {isAvailable ? 'Agregar a la bolsa' : 'Sin stock'}
                 </Button>
                 <button
