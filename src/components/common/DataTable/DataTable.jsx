@@ -9,8 +9,9 @@
  *     border-bottom por fila, thead con vertical-align) → ver DataTable.module.scss.
  *   - kendo-data-query (kno-data-query) dist — pipeline process(): orderBy
  *     (comparador por campo asc/desc) → filterBy (predicado por columna) →
- *     paginación (skip/take). Aquí se reimplementa nativo con Array.sort,
- *     Array.filter y slice.
+ *     paginación (skip/take). Reimplementado nativo y extraído a
+ *     `lib/dataQuery.js` (applyFilter / applySort / applyPage); DataTable
+ *     solo consume esas funciones puras (Array.sort/filter/slice).
  *   - kno-react-grid dist — modelo de columnas { field, title, sortable } y
  *     toggle de dirección de orden por header clic.
  *   - template-ecommerce-ui/src/components/common — convención de SCSS Modules,
@@ -36,26 +37,8 @@
  */
 import { useMemo, useState, useCallback, useId } from 'react';
 import { Alert } from '../Alert/Alert';
+import { applyFilter, applySort, applyPage } from '@lib/dataQuery';
 import styles from './DataTable.module.scss';
-
-// Comparador genérico estable — equivale al orderBy de kno-data-query:
-// numeros por valor, fechas por timestamp, resto por localeCompare.
-function compareValues(a, b) {
-  if (a == null && b == null) return 0;
-  if (a == null) return -1;
-  if (b == null) return 1;
-  if (typeof a === 'number' && typeof b === 'number') return a - b;
-  const da = a instanceof Date ? a : null;
-  const db = b instanceof Date ? b : null;
-  if (da && db) return da.getTime() - db.getTime();
-  return String(a).localeCompare(String(b), 'es', { numeric: true, sensitivity: 'base' });
-}
-
-// Valor crudo de una columna para ordenar/filtrar (sin pasar por render()).
-function rawValue(row, column) {
-  if (typeof column.value === 'function') return column.value(row);
-  return row?.[column.key];
-}
 
 export default function DataTable({
   columns = [],
@@ -99,44 +82,22 @@ export default function DataTable({
     setPage(1); // filtrar reinicia a la primera página (como skip=0 en data-query)
   }, []);
 
-  // Pipeline process(): filterBy → orderBy. (Paginación se aplica después.)
-  const processed = useMemo(() => {
-    let out = rows;
-
-    // filterBy — predicado por columna (substring, case-insensitive).
-    const activeFilters = Object.entries(filters).filter(([, v]) => v && v.trim() !== '');
-    if (activeFilters.length > 0) {
-      out = out.filter((row) =>
-        activeFilters.every(([key, text]) => {
-          const col = columns.find((c) => c.key === key);
-          if (!col) return true;
-          const v = rawValue(row, col);
-          return String(v ?? '').toLowerCase().includes(text.trim().toLowerCase());
-        }),
-      );
-    }
-
-    // orderBy — comparador estable asc/desc.
-    if (sort && sort.key) {
-      const col = columns.find((c) => c.key === sort.key);
-      if (col) {
-        const factor = sort.dir === 'desc' ? -1 : 1;
-        out = [...out].sort((ra, rb) => factor * compareValues(rawValue(ra, col), rawValue(rb, col)));
-      }
-    }
-
-    return out;
-  }, [rows, columns, filters, sort]);
+  // Pipeline process(): filterBy → orderBy (lib/dataQuery, funciones puras).
+  // La paginación se aplica después con applyPage para poder calcular el
+  // total de filas antes de cortar la página visible.
+  const processed = useMemo(
+    () => applySort(applyFilter(rows, filters, columns), sort, columns),
+    [rows, columns, filters, sort],
+  );
 
   // Paginación de cliente — skip/take de data-query traducido a slice.
   const totalRows = processed.length;
   const totalPages = pageSize > 0 ? Math.max(1, Math.ceil(totalRows / pageSize)) : 1;
   const safePage = Math.min(page, totalPages);
-  const pageRows = useMemo(() => {
-    if (pageSize <= 0) return processed;
-    const start = (safePage - 1) * pageSize;
-    return processed.slice(start, start + pageSize);
-  }, [processed, pageSize, safePage]);
+  const pageRows = useMemo(
+    () => applyPage(processed, safePage, pageSize),
+    [processed, pageSize, safePage],
+  );
 
   const colCount = columns.length;
 
