@@ -26,6 +26,7 @@ import {
   useState, useCallback, useRef,
   useImperativeHandle, forwardRef, useMemo, useId,
 } from 'react';
+import { isSameDay } from '@lib/dateMath';
 import styles from './Calendar.module.scss';
 
 // ─── Helpers de calendario (equivalen a util/calendar.js) ────────────────────
@@ -37,12 +38,7 @@ function isToday(date) {
     && date.getDate() === t.getDate();
 }
 
-function isSameDay(a, b) {
-  if (!a || !b) return false;
-  return a.getFullYear() === b.getFullYear()
-    && a.getMonth() === b.getMonth()
-    && a.getDate() === b.getDate();
-}
+// isSameDay vive ahora en lib/dateMath (patrón kno-date-math isEqualDate).
 
 function isBetween(date, start, end) {
   if (!start || !end) return false;
