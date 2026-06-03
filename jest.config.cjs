@@ -12,6 +12,18 @@ module.exports = {
     '\\.(css|scss|less|sass)$': '<rootDir>/__mocks__/styleMock.js',
     '\\.(jpg|jpeg|png|gif|svg|webp)$': '<rootDir>/__mocks__/fileMock.js',
 
+    // Bare aliases (sin sub-path). Webpack resuelve `@constants` al index.js
+    // del directorio; jest necesita el mapeo explícito o el require revienta
+    // con "Cannot find module '@constants'" (H-UI-01) al importar utils que
+    // hacen `import { CURRENCY } from '@constants'`. Solo los directorios con
+    // index.js resoluble bare: constants, router, hooks, mocks. Van antes de
+    // los patrones con sub-path (son mutuamente exclusivos, pero el orden
+    // explícito documenta la intención).
+    '^@constants$':      '<rootDir>/src/constants/index.js',
+    '^@router$':         '<rootDir>/src/router/index.js',
+    '^@hooks$':          '<rootDir>/src/hooks/index.js',
+    '^@mocks$':          '<rootDir>/src/mocks/index.js',
+
     '^@/(.*)$':          '<rootDir>/src/$1',
     '^@app/(.*)$':       '<rootDir>/src/app/$1',
     '^@modules/(.*)$':   '<rootDir>/src/modules/$1',
