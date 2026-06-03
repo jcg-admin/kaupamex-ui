@@ -1,0 +1,84 @@
+@use '@styles/abstracts' as *;
+
+.panel {
+  border: 1px solid $border-color;
+  background: $bg-surface;
+  padding: $spacing-6;
+}
+
+.header { margin-bottom: $spacing-5; }
+.title {
+  font-size: $font-size-lg;
+  color: $text-primary;
+  margin: 0 0 $spacing-2;
+}
+.subtitle {
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+}
+
+.toggle {
+  display: flex;
+  gap: $spacing-3;
+  align-items: flex-start;
+  cursor: pointer;
+
+  input { margin-top: 3px; }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  strong { color: $text-primary; font-size: $font-size-md; }
+  em { color: $text-muted; font-style: normal; font-size: $font-size-sm; }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+.fieldLabel {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+}
+.fieldInput {
+  background: transparent;
+  border: 1px solid $border-color;
+  color: $text-primary;
+  padding: $spacing-3;
+  font-size: $font-size-md;
+
+  &:focus { outline: none; border-color: $lime; }
+}
+.fieldHint {
+  color: $text-muted;
+  font-size: $font-size-xs;
+}
+
+.selfNote {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  border-left: 2px solid $lime-deep;
+  padding-left: $spacing-3;
+  margin: 0;
+}
+
+.error {
+  color: $vino-soft;
+  font-size: $font-size-sm;
+  margin: 0;
+}
+.success {
+  color: $lime;
+  font-size: $font-size-sm;
+  margin: 0;
+}

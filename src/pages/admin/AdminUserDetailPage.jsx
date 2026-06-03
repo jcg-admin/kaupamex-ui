@@ -10,6 +10,7 @@ import {
   fetchAdminUser, toggleUserActive, resetUserPassword, makeUserAdmin,
 } from '@redux/slices/adminSlice';
 import { MetaTag, Price, Button } from '@components/common/primitives';
+import AdminUserPermissions from '@components/admin/AdminUserPermissions';
 import styles from './AdminUserDetailPage.module.scss';
 
 export default function AdminUserDetailPage() {
@@ -114,6 +115,11 @@ export default function AdminUserDetailPage() {
             )}
           </div>
         </section>
+
+        {/* Permisos (UC-ADM-02) */}
+        <div style={{ gridColumn: '1 / -1' }}>
+          <AdminUserPermissions user={user} />
+        </div>
 
         {/* Recent orders */}
         <section className={styles.card} style={{ gridColumn: '1 / -1' }}>

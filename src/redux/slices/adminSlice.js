@@ -109,6 +109,38 @@ export const makeUserAdmin = createAsyncThunk(
   }
 );
 
+/**
+ * UC-ADM-02: Editar permisos de un usuario (is_staff / is_superuser / groups).
+ *
+ * POST /api/v1/admin/users/:pk/permissions/ con body parcial — solo se
+ * envían las claves presentes en `changes`. La API responde el detalle
+ * completo del usuario en éxito y con clave `codigo_error` en error
+ * (INVALID_PAYLOAD, USER_NOT_FOUND, CANNOT_DEMOTE_SELF). El guard
+ * CANNOT_DEMOTE_SELF impide que un admin se quite a sí mismo is_staff /
+ * is_superuser (auto-lockout del panel).
+ *
+ * `serializeApiError` solo propaga `error_code` (canon inglés); como la API
+ * usa la clave canónica en español `codigo_error` (DEC-DOC-005), se extrae
+ * aquí del cuerpo del error y se adjunta al objeto serializado para que la
+ * UI pueda discriminar el caso self-lockout.
+ */
+export const updateUserPermissions = createAsyncThunk(
+  'admin/updateUserPermissions',
+  async ({ pk, changes }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(`${ADMIN_USERS_URL}${pk}/permissions/`, changes);
+      return res.data;
+    } catch (err) {
+      const serialized = serializeApiError(err);
+      // createErrorFromResponse expone `codigo_error` (canon) en el error.
+      // Como respaldo, `serialized.code` ya recibió ese mismo valor.
+      const codigoError = err?.codigo_error ?? serialized.code ?? null;
+      if (codigoError) serialized.codigo_error = codigoError;
+      return rejectWithValue(serialized);
+    }
+  }
+);
+
 const ADMIN_ORDERS_URL   = '/api/v1/admin/orders/';
 const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
 // H-CICLO95-01: /api/v1/admin/metrics/ never existed — 404 on every load.
@@ -528,6 +560,27 @@ const adminSlice = createSlice({
         if (idx !== -1) state.products[idx] = action.payload;
       })
       .addCase(toggleProductFeatured.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      });
+
+    // updateUserPermissions — UC-ADM-02
+    builder
+      .addCase(updateUserPermissions.pending, (state) => {
+        state.isActioning = true;
+        state.actionError = null;
+      })
+      .addCase(updateUserPermissions.fulfilled, (state, action) => {
+        state.isActioning = false;
+        state.lastAction  = 'permissions_updated';
+        // La API responde el detalle completo del usuario actualizado.
+        if (state.currentUser) {
+          state.currentUser = { ...state.currentUser, ...action.payload };
+        } else {
+          state.currentUser = action.payload;
+        }
+      })
+      .addCase(updateUserPermissions.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       });

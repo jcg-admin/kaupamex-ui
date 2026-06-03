@@ -391,8 +391,16 @@ export function createErrorFromResponse(response, originalError = null) {
     const message = data.detail || data.message || 'Validation failed';
     const errors = data.errors || {};
     const err = new ErrorClass(message, errors);
-    // Propagate structured error_code from API (overrides class default code)
-    if (data.error_code) err.code = data.error_code;
+    // Propagate structured error_code from API (overrides class default code).
+    // Canon del proyecto es `codigo_error` (DEC-DOC-005); se acepta también
+    // el alias inglés `error_code` por compatibilidad. Se conserva el valor
+    // crudo en `codigo_error` para que los consumidores puedan discriminar
+    // casos de negocio (p.ej. CANNOT_DEMOTE_SELF en UC-ADM-02).
+    const codigoError = data.codigo_error || data.error_code;
+    if (codigoError) {
+      err.code = codigoError;
+      err.codigo_error = codigoError;
+    }
     return err;
   }
 
