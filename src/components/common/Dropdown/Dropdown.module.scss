@@ -1,0 +1,65 @@
+// Dropdown — ecommerce-ui
+// Iniciativa: integrar-componentes-ui-core-js (T-301)
+@use '@styles/abstracts' as *;
+
+.wrapper  { position: relative; display: inline-block; }
+.trigger  { cursor: pointer; }
+
+.panel {
+  // La Popover API gestiona z-index (top layer) y display
+  background: $bg-elevated;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-md;
+  padding: $spacing-1 0;
+  min-width: 160px;
+
+  // Animacion con @starting-style (Chrome 117+, FF 129+, Safari 17.5+)
+  opacity: 1;
+  transition: opacity 150ms ease;
+
+  @starting-style {
+    &:popover-open { opacity: 0; }
+  }
+}
+
+.item {
+  display: block;
+  width: 100%;
+  padding: $spacing-2 $spacing-4;
+  background: none;
+  border: none;
+  text-align: left;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: background $transition-base;
+
+  &:hover:not(:disabled) { background: $bg-surface; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: -2px; }
+}
+
+.itemDisabled { opacity: 0.45; cursor: not-allowed; }
+
+.divider {
+  margin: $spacing-1 0;
+  border: none;
+  border-top: 1px solid $border-color;
+}
+
+// DropdownHeader
+.header {
+  padding: $spacing-1 $spacing-4 $spacing-2;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: $ls-eyebrow;
+  text-transform: uppercase;
+  color: $text-muted;
+  pointer-events: none;
+}
+
+// Wrapper del trigger para posicionamiento
+.triggerWrapper {
+  display: inline-flex;
+  position: relative;
+}

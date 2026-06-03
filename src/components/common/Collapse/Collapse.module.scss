@@ -1,0 +1,63 @@
+@use '@styles/abstracts' as *;
+
+.collapse {
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+
+  & + & { margin-top: $spacing-2; }
+}
+
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-3 $spacing-4;
+  cursor: pointer;
+  list-style: none;
+  background: $bg-surface;
+  color: $text-primary;
+  font-weight: $font-weight-medium;
+  user-select: none;
+
+  &::-webkit-details-marker { display: none; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: -2px; }
+
+  details[open] & .indicator { transform: rotate(90deg); }
+}
+
+.summaryText  { flex: 1; }
+
+.indicator {
+  font-size: 1rem;
+  transition: transform 200ms ease;
+  color: $text-muted;
+}
+
+.body {
+  padding: $spacing-3 $spacing-4;
+  background: $bg-elevated;
+}
+
+// Trigger programático (cuando no se usa <summary>)
+.trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: $bg-surface;
+  border: none;
+  cursor: pointer;
+  color: $text-primary;
+  font-weight: $font-weight-medium;
+  text-align: left;
+  font-size: $font-size-base;
+}
+
+// Modo horizontal
+.horizontal {
+  overflow: hidden;
+}
+
+.content { overflow: hidden; }

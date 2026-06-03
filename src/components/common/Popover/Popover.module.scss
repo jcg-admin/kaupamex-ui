@@ -1,0 +1,40 @@
+// Popover — ui-core popover.js
+@use '@styles/abstracts' as *;
+
+.triggerWrapper { display: inline-flex; cursor: pointer; }
+
+.popover {
+  background: $bg-elevated;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-md;
+  max-width: 280px;
+  z-index: $z-modal;
+  font-size: $font-size-sm;
+  overflow: hidden;
+}
+
+.arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: $bg-elevated;
+  border: 1px solid $border-color;
+  transform: rotate(45deg);
+}
+
+// .popover-header
+.header {
+  padding: $spacing-2 $spacing-3;
+  background: $bg-surface;
+  border-bottom: 1px solid $border-color;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+// .popover-body
+.body {
+  padding: $spacing-3;
+  color: $text-secondary;
+  line-height: 1.5;
+}

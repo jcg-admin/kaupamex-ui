@@ -20,7 +20,7 @@
  * @returns {{ refs: { reference, floating, setReference, setFloating },
  *             floatingStyles: object, placement: string }}
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 function computePosition(refEl, placement, offsetPx) {
   const rect = refEl.getBoundingClientRect();
@@ -68,6 +68,10 @@ export default function useFloating({
 
   const setReference = useCallback(
     (node) => {
+      // Solo reaccionar a un cambio real de nodo. Si el callback se reinvoca
+      // con el mismo nodo (re-render que reasocia el ref), NO recalcular: eso
+      // dispararia setState en cada render -> "Maximum update depth exceeded".
+      if (referenceRef.current === node) return;
       referenceRef.current = node;
       if (node) update();
     },
@@ -89,13 +93,22 @@ export default function useFloating({
     };
   }, [enabled, update]);
 
-  return {
-    refs: {
+  // refs con identidad estable: si se recrea el objeto en cada render, los
+  // consumidores que lo listan como dependencia (Dropdown/Popover) reasocian
+  // sus ref-callbacks en bucle. useMemo lo congela mientras setReference/
+  // setFloating no cambien (son estables salvo cambio de placement/offset).
+  const refs = useMemo(
+    () => ({
       reference: referenceRef,
       floating: floatingRef,
       setReference,
       setFloating,
-    },
+    }),
+    [setReference, setFloating],
+  );
+
+  return {
+    refs,
     floatingStyles,
     placement,
   };

@@ -1,0 +1,55 @@
+// Chip — ui-core chip.js
+@use '@styles/abstracts' as *;
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  padding: 2px $spacing-3;
+  border-radius: 999px;
+  border: 1px solid $border-color;
+  background: $bg-surface;
+  color: $text-secondary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: 1.6;
+  white-space: nowrap;
+  user-select: none;
+  transition: background $transition-base, border-color $transition-base, color $transition-base;
+}
+
+.chipSelectable {
+  cursor: pointer;
+  &:hover:not(.chipDisabled)  { border-color: $primary-color; color: $primary-color; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: 2px; }
+}
+
+// CLASS_NAME_ACTIVE equivalente
+.chipSelected {
+  background: color-mix(in srgb, $primary-color 15%, $bg-elevated);
+  border-color: $primary-color;
+  color: $primary-color;
+}
+
+// CLASS_NAME_DISABLED equivalente
+.chipDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.6;
+  transition: opacity $transition-base;
+  margin-left: 2px;
+
+  &:hover   { opacity: 1; }
+  &:disabled { cursor: not-allowed; }
+}

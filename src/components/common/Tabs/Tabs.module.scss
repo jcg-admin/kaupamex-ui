@@ -1,0 +1,50 @@
+@use '@styles/abstracts' as *;
+
+.tabs     { display: flex; flex-direction: column; }
+.tabList  { display: flex; border-bottom: 2px solid $border-color; gap: 0; }
+
+.tab {
+  padding: $spacing-2 $spacing-4;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: color $transition-base, border-color $transition-base;
+
+  &:hover       { color: $text-primary; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: 2px; }
+
+  &.tabActive {
+    color: $primary-color;
+    border-bottom-color: $primary-color;
+  }
+}
+
+.tabPanel       { padding-top: $spacing-4; }
+.tabPanelActive { display: block; }
+
+.tabDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.vertical {
+  flex-direction: row;
+  .tabList {
+    flex-direction: column;
+    border-bottom: none;
+    border-right: 2px solid $border-color;
+  }
+  .tab {
+    border-bottom: none;
+    border-right: 2px solid transparent;
+    margin-bottom: 0;
+    margin-right: -2px;
+    text-align: left;
+  }
+}

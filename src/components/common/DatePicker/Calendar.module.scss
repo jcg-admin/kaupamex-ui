@@ -1,0 +1,105 @@
+// Calendar — ui-core calendar.js
+@use '@styles/abstracts' as *;
+
+.calendars {
+  display: flex;
+  gap: $spacing-4;
+  user-select: none;
+}
+
+.panel {
+  min-width: 260px;
+  flex: 1;
+}
+
+// calendar-nav
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-2;
+  gap: $spacing-1;
+}
+.navPrev, .navNext {
+  display: flex;
+  gap: 2px;
+}
+.navTitle {
+  display: flex;
+  gap: $spacing-1;
+  font-weight: $font-weight-semibold;
+}
+.navBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $border-radius-sm;
+  color: $text-secondary;
+  font-size: 0.875rem;
+  transition: background $transition-base;
+  &:hover { background: $bg-surface; color: $text-primary; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: 1px; }
+}
+.navTitleBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  transition: background $transition-base;
+  &:hover { background: $bg-surface; }
+}
+
+// calendar-table
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+
+  thead th {
+    padding: $spacing-1 0;
+    text-align: center;
+    color: $text-muted;
+    font-weight: $font-weight-medium;
+    font-size: $font-size-xs;
+  }
+}
+
+// calendar-cell
+.cell {
+  padding: 2px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: $border-radius-sm;
+  transition: background $transition-base;
+
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: 1px; }
+  &:hover:not(.disabled, .rangeStart, .rangeEnd) {
+    background: $bg-surface;
+  }
+}
+.cellInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0 auto;
+  border-radius: 50%;
+  font-size: $font-size-sm;
+}
+
+// States — equivalen a las clases de ui-core
+.today .cellInner { border: 1px solid $primary-color; }
+.rangeStart .cellInner,
+.rangeEnd   .cellInner {
+  background: $primary-color;
+  color: $text-inverse;
+}
+.inRange { background: color-mix(in srgb, $primary-color 12%, $bg-elevated); }
+.adjacent { color: $text-muted; }
+.disabled { cursor: not-allowed; opacity: 0.35; }

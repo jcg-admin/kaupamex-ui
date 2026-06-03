@@ -1,0 +1,36 @@
+// DateRangePicker — ui-core date-range-picker.js
+@use '@styles/abstracts' as *;
+
+.drp     { position: relative; display: inline-block; width: 100%; max-width: 400px; }
+.inputGroup {
+  display: flex; align-items: center; gap: $spacing-1;
+  border: 1px solid $border-color; border-radius: $border-radius-md;
+  background: $bg-surface; padding: $spacing-1 $spacing-2;
+  cursor: pointer; transition: border-color $transition-base;
+  &:hover { border-color: $primary-color; }
+}
+.input {
+  flex: 1; border: none; background: transparent; font-size: $font-size-sm;
+  color: $text-primary; outline: none; cursor: pointer; min-width: 80px;
+  &::placeholder { color: $text-muted; }
+}
+.sep      { color: $text-muted; font-size: $font-size-sm; padding: 0 $spacing-1; }
+.cleaner, .indicator { color: $text-muted; font-size: 0.875rem; background: none; border: none; cursor: pointer; }
+
+.dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: $z-modal;
+  background: $bg-elevated; border: 1px solid $border-color;
+  border-radius: $border-radius-md; box-shadow: $shadow-lg;
+  padding: $spacing-4; min-width: fit-content;
+}
+.timePickers {
+  display: flex; gap: $spacing-3; margin-top: $spacing-3;
+  padding-top: $spacing-3; border-top: 1px solid $border-color;
+}
+.footer {
+  display: flex; justify-content: flex-end; gap: $spacing-2;
+  padding-top: $spacing-3; border-top: 1px solid $border-color; margin-top: $spacing-3;
+}
+.cancelBtn  { background: none; border: none; cursor: pointer; font-size: $font-size-xs; color: $text-muted; padding: $spacing-1 $spacing-2; border-radius: $border-radius-sm; &:hover { color: $text-primary; } }
+.confirmBtn { background: $primary-color; color: $text-inverse; border: none; cursor: pointer; font-size: $font-size-xs; padding: $spacing-1 $spacing-3; border-radius: $border-radius-sm; &:disabled { opacity: 0.4; cursor: not-allowed; } }
+.disabled   { opacity: 0.5; pointer-events: none; }

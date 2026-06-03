@@ -1,0 +1,117 @@
+@use '@styles/abstracts' as *;
+
+.wrapper { position: relative; }
+.label   { display: block; font-size: $font-size-sm; margin-bottom: $spacing-1; color: $text-secondary; }
+
+.input {
+  width: 100%;
+  padding: $spacing-2 $spacing-3;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  outline: none;
+  transition: border-color $transition-base;
+
+  &:focus { border-color: $primary-color; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.list {
+  background: $bg-elevated;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-md;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: $spacing-1 0;
+  list-style: none;
+  margin: 0;
+  z-index: $z-modal;
+}
+
+.option {
+  padding: $spacing-2 $spacing-3;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  transition: background $transition-base;
+
+  &:hover        { background: $bg-surface; }
+  &.optionActive { background: $bg-surface; font-weight: $font-weight-medium; }
+}
+
+.noResults {
+  padding: $spacing-3;
+  color: $text-muted;
+  font-size: $font-size-sm;
+  text-align: center;
+}
+
+// inputGroup — wrapper del campo + iconos
+.inputGroup {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  background: $bg-surface;
+  overflow: hidden;
+  transition: border-color $transition-base;
+  &:focus-within { border-color: $primary-color; }
+}
+
+// panel — dropdown de resultados (alias de list para uso externo)
+.panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: $bg-elevated;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-md;
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: $z-modal;
+}
+
+// indicator — ícono de flecha desplegable
+.indicator {
+  padding: 0 $spacing-2;
+  color: $text-muted;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: color $transition-base;
+  flex-shrink: 0;
+  &:hover { color: $text-primary; }
+}
+
+// cleaner — botón de limpiar selección
+.cleaner {
+  padding: 0 $spacing-2;
+  color: $text-muted;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: color $transition-base;
+  flex-shrink: 0;
+  &:hover { color: $text-primary; }
+}
+
+// hint — texto de ayuda debajo del campo
+.hint {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  margin-top: $spacing-1;
+  letter-spacing: 0.04em;
+}
+
+// Estados de validación
+.invalid .inputGroup { border-color: $error-color; }
+.valid   .inputGroup { border-color: $success-color; }
+
+.disabled { opacity: 0.5; pointer-events: none; }

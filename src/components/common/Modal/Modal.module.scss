@@ -1,0 +1,48 @@
+// Modal — ui-core modal.js — API completa
+@use '@styles/abstracts' as *;
+
+.dialog {
+  border: none;
+  border-radius: $border-radius-lg;
+  padding: 0;
+  background: $bg-elevated;
+  box-shadow: $shadow-lg;
+  width: min(560px, 90vw);
+  max-height: 85dvh;
+  overflow: auto;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+  }
+
+  &:focus { outline: none; }
+}
+
+// Tamaños — equivalen a .modal-sm, .modal-lg, .modal-xl de ui-core
+.size_sm { width: min(300px, 90vw); }
+.size_lg { width: min(800px, 90vw); }
+.size_xl { width: min(1140px, 90vw); }
+.size_fullscreen {
+  width: 100vw; max-width: 100vw;
+  height: 100dvh; max-height: 100dvh;
+  border-radius: 0; margin: 0;
+}
+
+// Scroll interno del contenido
+.scrollable { overflow: hidden; display: flex; flex-direction: column; }
+
+// Centrado vertical
+.centered { margin: auto; }
+
+// Animación de rebote para backdrop=static
+.staticBounce { animation: bounce 0.3s ease; }
+@keyframes bounce {
+  0%   { transform: scale(1);    }
+  30%  { transform: scale(1.02); }
+  60%  { transform: scale(0.99); }
+  100% { transform: scale(1);    }
+}

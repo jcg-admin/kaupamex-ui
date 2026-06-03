@@ -1,0 +1,127 @@
+@use '@styles/abstracts' as *;
+
+.carousel { position: relative; overflow: hidden; }
+
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba($bg-elevated, 0.9);
+  border: 1px solid $border-color;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-base + 1;
+  color: $text-primary;
+  transition: background $transition-base;
+
+  &:hover { background: $bg-elevated; }
+  &:focus-visible { outline: 2px solid $primary-color; }
+}
+
+.arrowPrev { left: $spacing-2; }
+.arrowNext { right: $spacing-2; }
+
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-2 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $border-color;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background $transition-base;
+
+  &.dotActive { background: $primary-color; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: 2px; }
+}
+
+// inner — contenedor de slides con AnimatePresence
+.inner {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+// control — botón de navegación prev/next
+.control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba($bg-elevated, 0.9);
+  border: 1px solid $border-color;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: $z-base + 1;
+  color: $text-primary;
+  transition: background $transition-base;
+  &:hover { background: $bg-elevated; }
+  &:focus-visible { outline: 2px solid $primary-color; }
+}
+.controlPrev { left: $spacing-3; }
+.controlNext { right: $spacing-3; }
+
+// indicators — contenedor de puntos de posición
+.indicators {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-3 0 $spacing-2;
+}
+
+// caption — pie de foto del slide
+.caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-3 $spacing-4;
+  background: linear-gradient(transparent, rgba($bg-page, 0.85));
+  color: $text-primary;
+  font-size: $font-size-sm;
+}
+
+// slideContent — wrapper interno de CarouselSlide
+.slideContent {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+// dark — variante de controles oscuros
+.dark {
+  .control { background: rgba($bg-page, 0.8); color: $text-primary; }
+  .dot { background: rgba($text-primary, 0.4); }
+  .dotActive { background: $text-primary; }
+}

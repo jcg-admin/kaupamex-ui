@@ -1,0 +1,26 @@
+// ChipInput — ui-core chip-input.js
+@use '@styles/abstracts' as *;
+
+.wrapper { display: flex; flex-direction: column; gap: $spacing-1; }
+.label   { font-size: $font-size-sm; color: $text-secondary; }
+
+.field {
+  display: flex; flex-wrap: wrap; align-items: center; gap: $spacing-1;
+  padding: $spacing-1 $spacing-2;
+  border: 1px solid $border-color; border-radius: $border-radius-md;
+  background: $bg-surface; cursor: text;
+  transition: border-color $transition-base; min-height: 40px;
+
+  &:focus-within { border-color: $primary-color; }
+}
+
+.input {
+  flex: 1; min-width: 80px;
+  border: none; background: transparent;
+  font-size: $font-size-sm; color: $text-primary;
+  outline: none; padding: 2px;
+  &::placeholder { color: $text-muted; }
+  &:disabled { cursor: not-allowed; }
+}
+
+.disabled { opacity: 0.5; pointer-events: none; }

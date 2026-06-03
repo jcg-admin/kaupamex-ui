@@ -1,0 +1,125 @@
+@use '@styles/abstracts' as *;
+
+.stepper { width: 100%; }
+
+.list {
+  display: flex;
+  align-items: flex-start;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+
+  &:last-child { flex: 0; }
+}
+
+.stepButton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: default;
+  text-align: left;
+  white-space: nowrap;
+}
+
+button.stepButton { cursor: pointer; &:focus-visible { outline: 2px solid $primary-color; outline-offset: 4px; } }
+
+.stepIndicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+  border: 2px solid $border-color;
+  background: $bg-surface;
+  color: $text-muted;
+  transition: all $transition-base;
+}
+
+.stepLabel {
+  display: flex;
+  flex-direction: column;
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+
+.stepDesc {
+  font-size: $font-size-xs;
+  color: $text-muted;
+}
+
+// Estados
+.step_active {
+  .stepIndicator { border-color: $primary-color; background: $primary-color; color: $text-inverse; }
+  .stepLabel     { color: $text-primary; font-weight: $font-weight-medium; }
+}
+
+.step_completed {
+  .stepIndicator { border-color: $success-color; background: $success-color; color: $text-inverse; }
+  .stepLabel     { color: $text-secondary; }
+  button.stepButton { cursor: pointer; }
+}
+
+.step_pending {
+  .stepIndicator { border-color: $border-color; }
+}
+
+.connector {
+  flex: 1;
+  height: 2px;
+  background: $border-color;
+  margin: 0 $spacing-2;
+  margin-bottom: 14px;  // alinear con el centro del indicador
+  transition: background $transition-base;
+
+  &.connectorCompleted { background: $success-color; }
+}
+
+// Contenedor de la lista de pasos
+.header {
+  margin-bottom: $spacing-6;
+}
+
+// Panel de contenido de cada paso
+.panel {
+  padding: $spacing-6 0;
+}
+
+// Wrapper individual de cada paso en la lista
+.stepWrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  position: relative;
+  &:last-child { flex: 0; }
+}
+
+// Paso deshabilitado (no-linear, fuera de alcance)
+.stepDisabled {
+  .stepButton { cursor: not-allowed; opacity: 0.45; pointer-events: none; }
+}
+
+// Orientación vertical
+.vertical {
+  .list { flex-direction: column; align-items: flex-start; gap: 0; }
+  .stepWrapper { flex-direction: column; flex: 0; width: 100%; }
+  .connector {
+    width: 2px; height: 24px; margin: 4px 0 4px 13px;
+    flex: 0;
+  }
+}
+
+.content { padding: $spacing-4 0; }
