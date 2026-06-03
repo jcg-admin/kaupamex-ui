@@ -13,6 +13,28 @@ jest.mock('@services/apiService', () => ({
   default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
 }));
 
+// DateRangePicker se mockea con un control mínimo: dos inputs de texto que
+// invocan onRangeChange con Dates. Así el test verifica el cableado de la
+// página (?from=&to=) sin depender de la interacción de dos clics del
+// Calendar real (eso ya lo cubre DateRangePicker.test.jsx).
+jest.mock('@components/common/DatePicker/DateRangePicker', () => ({
+  __esModule: true,
+  DateRangePicker: ({ onRangeChange }) => (
+    <button
+      type="button"
+      data-testid="mock-range"
+      onClick={() =>
+        onRangeChange({
+          startDate: new Date(2026, 4, 1),
+          endDate: new Date(2026, 4, 31),
+        })
+      }
+    >
+      Aplicar rango
+    </button>
+  ),
+}));
+
 import apiService from '@services/apiService';
 import adminReducer from '@redux/slices/adminSlice';
 import AdminOrdersPage from './AdminOrdersPage';
@@ -88,6 +110,28 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
         expect.objectContaining({
           params: expect.objectContaining({
             status: 'PROCESSING',
+          }),
+        }),
+      );
+    });
+  });
+
+  it('aplica el rango de fechas (from/to) al endpoint admin', async () => {
+    apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 2 } });
+    const user = userEvent.setup();
+    render(wrap(<AdminOrdersPage />));
+
+    await screen.findByText('PY-2026-000101');
+
+    await user.click(screen.getByTestId('mock-range'));
+
+    await waitFor(() => {
+      expect(apiService.get).toHaveBeenLastCalledWith(
+        '/api/v1/admin/orders/',
+        expect.objectContaining({
+          params: expect.objectContaining({
+            from: '2026-05-01',
+            to:   '2026-05-31',
           }),
         }),
       );
