@@ -99,7 +99,7 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
     store.dispatch({ type: 'inventory/fetchInventory/fulfilled',
                      payload: { results: [ITEM] } });
     await store.dispatch(adjustStockManually({
-      variantId: 10, newQuantity: 25, reason: 'CONTEO_FISICO',
+      variantId: 10, newQuantity: 25, reason: 'PHYSICAL_COUNT',
     }));
     const s = store.getState().inventory;
     expect(s.lastAction).toBe('adjusted');
@@ -113,7 +113,7 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
     });
     const store = makeStore();
     await store.dispatch(adjustStockManually({
-      variantId: 10, newQuantity: -1, reason: 'MERMA',
+      variantId: 10, newQuantity: -1, reason: 'LOSS',
     }));
     expect(store.getState().inventory.actionError).toMatchObject({
       message: 'NEGATIVE_STOCK_NOT_ALLOWED',

@@ -68,19 +68,21 @@
 # src/pages/admin/AdminProductDiscountsPage.test.jsx
 # src/pages/catalog/ProductPage.jsx
 
-# T-701..T-708 modulo 7: inventory views MIGRADO (4 codes EN).
-# T-709 PENDIENTE: data migration de StockMovement.
-# adjustment_reason (CONTEO_FISICO, MERMA, ROBO, DEVOLUCION,
-# DESCONTINUADO, OTRO -> EN). UI mantiene ES en estos files
-# para coincidir con backend pendiente migracion. Cuando T-709
-# se aplique, este bloque entero se retira.
-src/mocks/interceptors/inventory.js
-src/mocks/interceptors/inventory.test.js
-src/pages/admin/AdminInventoryAdjustPage.jsx
-src/pages/admin/AdminInventoryAdjustPage.test.jsx
-src/pages/admin/AdminInventoryImportPage.test.jsx
-src/pages/admin/AdminInventoryMovementsPage.test.jsx
-src/redux/slices/inventorySlice.test.js
+# T-701..T-709 modulo 7: inventory — MIGRADO. La data migration
+# 0007 de la api ya mapeo adjustment_reason a EN (CONTEO_FISICO ->
+# PHYSICAL_COUNT, MERMA -> LOSS, ROBO -> THEFT, DEVOLUCION ->
+# RETURN, DESCONTINUADO -> DISCONTINUED, OTRO -> OTHER) y el
+# serializer StockAdjustSerializer.ADJUSTMENT_REASONS usa la lista
+# inglesa. La UI se alineo al contrato real; bloque retirado.
+# Entries conservadas como comentario historico:
+#
+# src/mocks/interceptors/inventory.js
+# src/mocks/interceptors/inventory.test.js
+# src/pages/admin/AdminInventoryAdjustPage.jsx
+# src/pages/admin/AdminInventoryAdjustPage.test.jsx
+# src/pages/admin/AdminInventoryImportPage.test.jsx
+# src/pages/admin/AdminInventoryMovementsPage.test.jsx
+# src/redux/slices/inventorySlice.test.js
 
 # T-801..T-808 modulo 8: reviews + wishlist + variantes Yoruba
 # — MIGRADO. Entries retiradas.

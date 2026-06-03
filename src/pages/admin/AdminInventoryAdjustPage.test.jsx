@@ -40,7 +40,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
     expect(screen.getByLabelText(/Motivo/i)).toBeInTheDocument();
   });
 
-  it('motivo ofrece las opciones CONTEO_FISICO, MERMA, ROBO, DEVOLUCION, DESCONTINUADO, OTRO', () => {
+  it('motivo ofrece las opciones PHYSICAL_COUNT, LOSS, THEFT, RETURN, DISCONTINUED, OTHER', () => {
     render(wrap(makeStore()));
     const select = screen.getByLabelText(/Motivo/i);
     expect(select.querySelectorAll('option')).toHaveLength(6);
@@ -60,7 +60,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
     fireEvent.change(screen.getByLabelText(/Cantidad nueva/i),
       { target: { value: '12' } });
     fireEvent.change(screen.getByLabelText(/Motivo/i),
-      { target: { value: 'CONTEO_FISICO' } });
+      { target: { value: 'PHYSICAL_COUNT' } });
     fireEvent.click(screen.getByRole('button', { name: /Aplicar ajuste/i }));
 
     await waitFor(() => {
@@ -68,7 +68,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
         '/api/v1/admin/inventory/variants/10/adjust/',
         expect.objectContaining({
           new_quantity: 12,
-          reason: 'CONTEO_FISICO',
+          reason: 'PHYSICAL_COUNT',
         }),
       );
     });

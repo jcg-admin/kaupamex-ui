@@ -12,12 +12,12 @@ import {
 import styles from './AdminInventoryAdjustPage.module.scss';
 
 const REASON_OPTIONS = [
-  { value: 'CONTEO_FISICO', label: 'Conteo físico' },
-  { value: 'MERMA',         label: 'Merma' },
-  { value: 'ROBO',          label: 'Robo' },
-  { value: 'DEVOLUCION',    label: 'Devolución' },
-  { value: 'DESCONTINUADO', label: 'Descontinuado' },
-  { value: 'OTRO',          label: 'Otro' },
+  { value: 'PHYSICAL_COUNT', label: 'Conteo físico' },
+  { value: 'LOSS',           label: 'Merma' },
+  { value: 'THEFT',          label: 'Robo' },
+  { value: 'RETURN',         label: 'Devolución' },
+  { value: 'DISCONTINUED',   label: 'Descontinuado' },
+  { value: 'OTHER',          label: 'Otro' },
 ];
 
 export default function AdminInventoryAdjustPage() {
@@ -26,7 +26,7 @@ export default function AdminInventoryAdjustPage() {
   const { isActioning, actionError, lastAction } = useSelector((s) => s.inventory);
 
   const [newQuantity, setNewQuantity] = useState('');
-  const [reason, setReason]           = useState('CONTEO_FISICO');
+  const [reason, setReason]           = useState('PHYSICAL_COUNT');
   const [observations, setObservations] = useState('');
 
   useEffect(() => () => {

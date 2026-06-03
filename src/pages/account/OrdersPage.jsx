@@ -21,12 +21,12 @@ const STATUS_FILTERS = [
   { id: 'cancelled', label: 'Cancelados' },
 ];
 
-// H-CICLO32-04: PAGADA y CANCELLED_TIMEOUT existen en el modelo pero faltaban en el mapa.
+// H-CICLO32-04: PAID y CANCELLED_TIMEOUT existen en el modelo pero faltaban en el mapa.
 // Sin ellos, órdenes en esos estados renderizaban "Pendiente" (fallback STATUS_TONE.PENDING).
 const STATUS_TONE = {
   PENDING:          { tone: 'muted',  label: 'Pendiente' },
   PROCESSING:       { tone: 'coral',  label: 'Procesando' },
-  PAGADA:           { tone: 'coral',  label: 'Pagada' },
+  PAID:             { tone: 'coral',  label: 'Pagada' },
   IN_PREPARATION:   { tone: 'coral',  label: 'En preparación' },
   SHIPPED:          { tone: 'coral',  label: 'En camino' },
   DELIVERED:        { tone: 'lime',   label: 'Entregado' },

@@ -38,7 +38,7 @@ const state = {
   movements: {
     1: [
       { id: 1, type: 'SALE',        delta: -1, reason: 'Venta #1001', created_at: '2026-05-01T10:00:00Z' },
-      { id: 2, type: 'MANUAL',      delta:  3, reason: 'CONTEO_FISICO', created_at: '2026-05-10T12:00:00Z' },
+      { id: 2, type: 'MANUAL',      delta:  3, reason: 'PHYSICAL_COUNT', created_at: '2026-05-10T12:00:00Z' },
     ],
     2: [
       { id: 3, type: 'CANCELLATION', delta:  1, reason: 'Cancelación #1003', created_at: '2026-05-11T08:30:00Z' },
@@ -155,7 +155,7 @@ export const __resetInventoryState = () => {
   state.movements = {
     1: [
       { id: 1, type: 'SALE',   delta: -1, reason: 'Venta #1001', created_at: '2026-05-01T10:00:00Z' },
-      { id: 2, type: 'MANUAL', delta:  3, reason: 'CONTEO_FISICO', created_at: '2026-05-10T12:00:00Z' },
+      { id: 2, type: 'MANUAL', delta:  3, reason: 'PHYSICAL_COUNT', created_at: '2026-05-10T12:00:00Z' },
     ],
     2: [
       { id: 3, type: 'CANCELLATION', delta: 1, reason: 'Cancelación #1003', created_at: '2026-05-11T08:30:00Z' },

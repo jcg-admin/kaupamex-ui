@@ -45,7 +45,7 @@ const MOVEMENTS = [
   { id: 2, movement_type: 'CANCELLATION', delta:  2, stock_after: 10,
     reference: 'ORD-100', created_at: '2026-05-02T10:00:00Z' },
   { id: 3, movement_type: 'ADJUSTMENT',   delta: -1, stock_after: 9,
-    reference: 'ADMIN:5', reason: 'MERMA',
+    reference: 'ADMIN:5', reason: 'LOSS',
     created_at: '2026-05-03T10:00:00Z' },
 ];
 

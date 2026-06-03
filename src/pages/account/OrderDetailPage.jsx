@@ -17,7 +17,7 @@ import styles from './OrderDetailPage.module.scss';
 
 // H-CICLO108-03: IN_DELIVERY is not a valid Order.status value in the
 // model (statuses: PENDING, PROCESSING, IN_PREPARATION, SHIPPED,
-// DELIVERED, CANCELLED, CANCELLED_TIMEOUT, REFUNDED, PAGADA).
+// DELIVERED, CANCELLED, CANCELLED_TIMEOUT, REFUNDED, PAID).
 // The spurious step made the currentStatusIndex calculation unreliable:
 // currentStatusIndex was always -1 for DELIVERED because the DELIVERED
 // entry appeared after a non-existent IN_DELIVERY that would shift

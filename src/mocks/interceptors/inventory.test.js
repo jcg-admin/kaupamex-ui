@@ -48,7 +48,7 @@ describe('mocks/interceptors/inventory', () => {
   it('POST adjust con new_quantity valido devuelve 200 + nuevo stock', () => {
     const r = interceptInventory('/api/v1/admin/inventory/variants/1/adjust/', {
       method: 'POST',
-      body:   JSON.stringify({ new_quantity: 15, reason: 'CONTEO_FISICO' }),
+      body:   JSON.stringify({ new_quantity: 15, reason: 'PHYSICAL_COUNT' }),
     });
     expect(r.status).toBe(200);
     expect(r.data.new_stock).toBe(15);
@@ -70,7 +70,7 @@ describe('mocks/interceptors/inventory', () => {
   it('POST adjust con new_quantity negativo devuelve 409', () => {
     const r = interceptInventory('/api/v1/admin/inventory/variants/1/adjust/', {
       method: 'POST',
-      body:   JSON.stringify({ new_quantity: -1, reason: 'MERMA' }),
+      body:   JSON.stringify({ new_quantity: -1, reason: 'LOSS' }),
     });
     expect(r.status).toBe(409);
     expect(r.data.detail).toMatch(/NEGATIVE_STOCK_NOT_ALLOWED/);
