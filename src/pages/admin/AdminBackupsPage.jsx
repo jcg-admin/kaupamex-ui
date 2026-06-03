@@ -13,6 +13,7 @@ import { useBackups, BACKUPS_KEY } from '@hooks/domain/useBackups';
 import {
   triggerBackup, clearBackupsActionState,
 } from '@redux/slices/backupsSlice';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminBackupsPage.module.scss';
 
 function formatSize(bytes) {
@@ -35,6 +36,46 @@ export default function AdminBackupsPage() {
       queryClient.invalidateQueries({ queryKey: BACKUPS_KEY });
     }
   };
+
+  // Columnas DataTable (T-04): preserva las 5 columnas y el enlace de
+  // descarga de la tabla cruda. Sort de cliente sobre la pagina actual.
+  const columns = [
+    {
+      key: 'created_at',
+      header: 'Fecha',
+      sortable: true,
+      value: (b) => new Date(b.created_at).getTime(),
+      render: (b) => new Date(b.created_at).toLocaleString('es-MX'),
+    },
+    {
+      key: 'type',
+      header: 'Tipo',
+      sortable: true,
+      render: (b) => b.type ?? 'AUTO',
+    },
+    {
+      key: 'size_bytes',
+      header: 'Tamaño',
+      sortable: true,
+      value: (b) => b.size_bytes ?? 0,
+      render: (b) => formatSize(b.size_bytes),
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+    },
+    {
+      key: 'download',
+      header: 'Descarga',
+      filterable: false,
+      render: (b) => (
+        b.download_url
+          ? <a href={b.download_url} target="_blank" rel="noopener noreferrer">Descargar</a>
+          : '—'
+      ),
+    },
+  ];
 
   return (
     <section className={styles.page} aria-labelledby="backups-title">
@@ -64,41 +105,18 @@ export default function AdminBackupsPage() {
         </p>
       )}
 
-      {isLoading && <p>Cargando backups…</p>}
       {isError && <p role="alert">No se pudieron cargar los backups.</p>}
 
-      {!isLoading && backups.length === 0 && !isError && (
-        <p>Sin backups registrados.</p>
-      )}
-
-      {backups.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Tamaño</th>
-              <th>Estado</th>
-              <th>Descarga</th>
-            </tr>
-          </thead>
-          <tbody>
-            {backups.map((b) => (
-              <tr key={b.id}>
-                <td>{new Date(b.created_at).toLocaleString('es-MX')}</td>
-                <td>{b.type ?? 'AUTO'}</td>
-                <td>{formatSize(b.size_bytes)}</td>
-                <td>{b.status}</td>
-                <td>
-                  {b.download_url
-                    ? <a href={b.download_url} target="_blank" rel="noopener noreferrer">Descargar</a>
-                    : '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <DataTable
+        columns={columns}
+        rows={backups}
+        loading={isLoading}
+        loadingText="Cargando backups…"
+        emptyText="Sin backups registrados."
+        pageSize={20}
+        rowKey={(b) => b.id}
+        caption="Historial de backups"
+      />
     </section>
   );
 }
