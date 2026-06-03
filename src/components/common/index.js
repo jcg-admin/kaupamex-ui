@@ -39,6 +39,9 @@ export { default as LoadingButton } from './LoadingButton/LoadingButton';
 export { default as Chip }          from './Chip/Chip';
 export { default as ChipInput }     from './Chip/ChipInput';
 
+// ── Datos ──────────────────────────────────────────────────────────────────────
+export { default as DataTable }     from './DataTable/DataTable';
+
 // ── Fecha y hora ────────────────────────────────────────────────────────────────
 export { default as Calendar }        from './DatePicker/Calendar';
 export { default as DatePicker }      from './DatePicker/DatePicker';

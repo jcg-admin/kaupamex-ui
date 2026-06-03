@@ -9,6 +9,7 @@ import {
   clearNewsletterActionState,
 } from '@redux/slices/newsletterSlice';
 import { useNewsletterSubscribers } from '@hooks/domain/useNewsletter';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminNewsletterSubscribersPage.module.scss';
 
 const STATUS_LABEL = {
@@ -51,6 +52,41 @@ export default function AdminNewsletterSubscribersPage() {
     dispatch(adminUnsubscribeSubscriber({ id, reason: 'SOLICITUD_MANUAL' }));
   };
 
+  // Columnas para DataTable (sort + filtro de cliente sobre la página actual).
+  const columns = [
+    { key: 'email', header: 'Email', sortable: true },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+      value: (s) => STATUS_LABEL[s.status] ?? s.status,
+      render: (s) => STATUS_LABEL[s.status] ?? s.status,
+    },
+    {
+      key: 'created_at',
+      header: 'Suscripcion',
+      sortable: true,
+      render: (s) => formatDate(s.created_at),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      filterable: false,
+      render: (s) => (
+        s.status === 'ACTIVE' ? (
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            onClick={() => handleUnsubscribe(s.id, s.email)}
+            disabled={isActioning}
+          >
+            Desuscribir
+          </button>
+        ) : null
+      ),
+    },
+  ];
+
   return (
     <section className={styles.page} aria-labelledby="subscribers-title">
       <header className={styles.header}>
@@ -76,7 +112,6 @@ export default function AdminNewsletterSubscribersPage() {
         </label>
       </div>
 
-      {isLoading && <p>Cargando suscriptores…</p>}
       {isError && (
         <p role="alert" className={styles.error}>
           No se pudieron cargar los suscriptores.
@@ -95,43 +130,16 @@ export default function AdminNewsletterSubscribersPage() {
         </p>
       )}
 
-      {!isLoading && items.length === 0 && (
-        <p className={styles.empty}>No hay suscriptores para mostrar.</p>
-      )}
-
-      {items.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Estado</th>
-              <th>Suscripcion</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((s) => (
-              <tr key={s.id}>
-                <td>{s.email}</td>
-                <td>{STATUS_LABEL[s.status] ?? s.status}</td>
-                <td>{formatDate(s.created_at)}</td>
-                <td>
-                  {s.status === 'ACTIVE' && (
-                    <button
-                      type="button"
-                      className={styles.secondaryBtn}
-                      onClick={() => handleUnsubscribe(s.id, s.email)}
-                      disabled={isActioning}
-                    >
-                      Desuscribir
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <DataTable
+        columns={columns}
+        rows={items}
+        loading={isLoading}
+        loadingText="Cargando suscriptores…"
+        emptyText="No hay suscriptores para mostrar."
+        pageSize={20}
+        filterable
+        rowKey={(s) => s.id}
+      />
     </section>
   );
 }

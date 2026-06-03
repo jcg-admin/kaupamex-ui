@@ -1,0 +1,120 @@
+// DataTable — PracticaYoruba UI
+// Estructura de tabla adaptada (nativa) de ui-core-5.25.0 scss/_tables.scss:
+//   - padding de celda uniforme + border-bottom por fila (> :not(caption) > * > *)
+//   - thead con fondo tenue y vertical-align inferior
+//   - hover de fila
+// Paginación/orden: estilos propios inspirados en kno-react-grid (header sort
+// button + iconos de dirección). SCSS Modules + tokens de @styles/abstracts.
+@use '@styles/abstracts' as *;
+
+.wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+
+  th, td {
+    text-align: left;
+    padding: $spacing-2 $spacing-3;
+    border-bottom: 1px solid $border-color;
+    vertical-align: middle;
+  }
+
+  thead th {
+    background: $bg-surface;
+    font-weight: $font-weight-semibold;
+    vertical-align: bottom;
+    color: $text-primary;
+  }
+
+  tbody tr:hover {
+    background: color-mix(in srgb, $primary-color 6%, transparent);
+  }
+}
+
+.caption {
+  caption-side: top;
+  text-align: left;
+  padding: $spacing-2 $spacing-3;
+  color: $text-secondary;
+  font-size: $font-size-xs;
+}
+
+.right { text-align: right; }
+
+.sortable { padding: 0; }
+
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  width: 100%;
+  padding: $spacing-2 $spacing-3;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover { color: $primary-color; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: -2px; }
+}
+
+.sortIcon {
+  font-size: 0.7em;
+  color: $text-secondary;
+  line-height: 1;
+}
+
+.filterRow th {
+  background: $bg-surface;
+  padding-top: 0;
+}
+
+.filterInput {
+  width: 100%;
+  padding: $spacing-1 $spacing-2;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-xs;
+
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: 0; }
+}
+
+.stateCell {
+  padding: $spacing-4 $spacing-3;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-3;
+  padding: $spacing-3 0;
+}
+
+.pageStatus {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+}
+
+.pageBtn {
+  padding: $spacing-1 $spacing-3;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-sm;
+  color: $text-primary;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  transition: border-color $transition-base, color $transition-base;
+
+  &:hover:not(:disabled) { border-color: $primary-color; color: $primary-color; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid $primary-color; outline-offset: 2px; }
+}
