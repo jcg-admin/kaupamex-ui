@@ -46,6 +46,7 @@ import reviewsReducer           from './slices/reviewsSlice';
 import searchHistoryReducer     from './slices/searchHistorySlice';
 import priceSyncReducer         from './slices/priceSyncSlice';
 import addressesReducer         from './slices/addressesSlice';
+import referralReducer           from './slices/referralSlice';
 
 import {
   errorHandlingMiddleware,
@@ -85,6 +86,7 @@ const store = configureStore({
     searchHistory:    searchHistoryReducer,
     priceSync:        priceSyncReducer,
     addresses:        addressesReducer,
+    referral:         referralReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

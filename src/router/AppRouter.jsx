@@ -58,6 +58,7 @@ const ChangePasswordPage = lazy(() => import('@pages/account/ChangePasswordPage'
 const DeactivateAccountPage = lazy(() => import('@pages/account/DeactivateAccountPage'));
 const AddressesPage      = lazy(() => import('@pages/account/AddressesPage'));
 const SecurityPage        = lazy(() => import('@pages/account/SecurityPage'));
+const ReferralPage        = lazy(() => import('@pages/account/ReferralPage'));
 // UC-SRCH-03 — Historial personal de busquedas
 const SearchHistoryPage  = lazy(() => import('@pages/account/SearchHistoryPage'));
 
@@ -230,6 +231,8 @@ export default function AppRouter() {
               <Route path="account/addresses"   element={<AddressesPage />} />
               {/* Seguridad: cambio de contraseña + sesiones activas */}
               <Route path="account/security"    element={<SecurityPage />} />
+              {/* Programa de referidos del comprador */}
+              <Route path="account/referral"    element={<ReferralPage />} />
               {/* UC-SRCH-03 — Historial personal de busquedas */}
               <Route path="account/search-history" element={<SearchHistoryPage />} />
               <Route path="account/returns"     element={<ReturnsPage />} />

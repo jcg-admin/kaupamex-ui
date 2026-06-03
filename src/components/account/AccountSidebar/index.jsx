@@ -14,6 +14,7 @@ const NAV = [
   { id: 'addresses', to: '/account/addresses',     label: 'Mis direcciones', counter: 'addresses' },
   { id: 'profile',   to: '/account/profile',       label: 'Datos personales' },
   { id: 'security',  to: '/account/security',      label: 'Seguridad' },
+  { id: 'referral',  to: '/account/referral',      label: 'Programa de referidos' },
 ];
 
 export default function AccountSidebar() {
