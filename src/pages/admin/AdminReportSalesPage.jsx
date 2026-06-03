@@ -8,6 +8,7 @@ import {
   useSalesReport,
   buildReportExportUrl,
 } from '@hooks/domain/useReports';
+import RevenueTrendChart from '@components/charts/RevenueTrendChart';
 import styles from './AdminReportPage.module.scss';
 
 const PERIOD_OPTIONS = [
@@ -96,6 +97,8 @@ export default function AdminReportSalesPage() {
       {series.length === 0 ? (
         <p className={styles.empty}>Sin datos en el periodo.</p>
       ) : (
+        <>
+        <RevenueTrendChart data={series} />
         <table className={styles.table}>
           <thead>
             <tr>
@@ -114,6 +117,7 @@ export default function AdminReportSalesPage() {
             ))}
           </tbody>
         </table>
+        </>
       )}
 
       <h2 className={styles.sectionTitle}>Desglose por método de pago</h2>

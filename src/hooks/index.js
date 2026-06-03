@@ -12,3 +12,9 @@ export {
   useLocalStorage, useMediaQuery, useMountedState,
   usePrevious, useThrottle, useTimeout,
 } from './utils';
+
+// Hooks de UI (comportamiento de interfaz)
+export {
+  useClickOutside, useEscapeKey, useFloating,
+  useKeyboardShortcut, useScrollLock,
+} from './ui';

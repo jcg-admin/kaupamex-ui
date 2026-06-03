@@ -11,6 +11,16 @@ jest.mock('@services/apiService', () => ({
   default: { get: jest.fn(), post: jest.fn() },
 }));
 
+// El grafico recharts no se ejercita aqui (ResponsiveContainer requiere
+// ResizeObserver, ausente en jsdom). Se mockea para asertar el cableado de
+// datos; RevenueTrendChart tiene sus propios tests con recharts mockeado.
+jest.mock('@components/charts/RevenueTrendChart', () => ({
+  __esModule: true,
+  default: ({ data }) => (
+    <div data-testid="revenue-trend-chart" data-rows={data.length} />
+  ),
+}));
+
 import apiService from '@services/apiService';
 import AdminReportSalesPage from './AdminReportSalesPage';
 
@@ -89,6 +99,15 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
     // series rows use the `date` field from the response
     expect(await screen.findByText('2026-05-01')).toBeInTheDocument();
     expect(screen.getByText('2026-05-02')).toBeInTheDocument();
+  });
+
+  it('renderiza el grafico de tendencia junto a la tabla de serie', async () => {
+    apiService.get.mockResolvedValue({ data: RESPONSE });
+    render(wrap(<AdminReportSalesPage />));
+    const chart = await screen.findByTestId('revenue-trend-chart');
+    expect(chart).toBeInTheDocument();
+    // El grafico recibe las mismas filas que la tabla.
+    expect(chart).toHaveAttribute('data-rows', '2');
   });
 
   it('renderiza el desglose por metodo de pago', async () => {
