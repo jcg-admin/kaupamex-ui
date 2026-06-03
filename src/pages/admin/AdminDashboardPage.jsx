@@ -3,11 +3,12 @@
  * Vista general: KPIs + alertas + pedidos recientes.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchAdminMetrics } from '@redux/slices/adminSlice';
 import { MetaTag, Price, Button } from '@components/common/primitives';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminDashboardPage.module.scss';
 
 export default function AdminDashboardPage() {
@@ -17,6 +18,40 @@ export default function AdminDashboardPage() {
   const metricsError     = useSelector((s) => s.admin?.metricsError);
 
   useEffect(() => { dispatch(fetchAdminMetrics()); }, [dispatch]);
+
+  const recentOrderColumns = useMemo(() => [
+    {
+      key: 'order_number',
+      header: 'Número',
+      sortable: true,
+      render: (o) => (
+        <span className={styles.mono}>
+          <Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link>
+        </span>
+      ),
+    },
+    { key: 'customer_name', header: 'Cliente', sortable: true },
+    {
+      key: 'status_label',
+      header: 'Estado',
+      sortable: true,
+      render: (o) => (
+        <span className={`${styles.statusPill} ${styles[`pill_${o.tone || 'muted'}`]}`}>
+          {o.status_label}
+        </span>
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      sortable: true,
+      align: 'right',
+      value: (o) => Number(o.total ?? 0),
+      render: (o) => <Price amount={o.total} size="sm" />,
+    },
+  ], []);
+
+  const recentOrders = (m.recent_orders || []).slice(0, 6);
 
   return (
     <div className={styles.page}>
@@ -77,35 +112,13 @@ export default function AdminDashboardPage() {
             <h2 className={styles.cardTitle}>Pedidos recientes</h2>
             <Link to="/admin/pedidos" className={styles.cardLink}>Ver todos →</Link>
           </header>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Número</th>
-                <th>Cliente</th>
-                <th>Estado</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(m.recent_orders || []).slice(0, 6).map((o) => (
-                <tr key={o.order_number}>
-                  <td className={styles.mono}>
-                    <Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link>
-                  </td>
-                  <td>{o.customer_name}</td>
-                  <td>
-                    <span className={`${styles.statusPill} ${styles[`pill_${o.tone || 'muted'}`]}`}>
-                      {o.status_label}
-                    </span>
-                  </td>
-                  <td className={styles.right}><Price amount={o.total} size="sm" /></td>
-                </tr>
-              ))}
-              {(!m.recent_orders || m.recent_orders.length === 0) && (
-                <tr><td colSpan={4} className={styles.empty}>Sin pedidos recientes</td></tr>
-              )}
-            </tbody>
-          </table>
+          <DataTable
+            columns={recentOrderColumns}
+            rows={recentOrders}
+            rowKey={(o) => o.order_number}
+            emptyText="Sin pedidos recientes"
+            caption="Pedidos recientes"
+          />
         </section>
 
         {/* Alerts */}

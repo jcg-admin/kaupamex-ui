@@ -3,7 +3,7 @@
  *
  * Listado admin de productos con Redux adminSlice.
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter } from 'react-router-dom';
@@ -135,5 +135,39 @@ describe('AdminProductsPage — botones de accion por fila', () => {
     await screen.findByText('Collar Oshun dorado');
     const links = screen.getAllByRole('link');
     expect(links.length).toBeGreaterThan(0);
+  });
+});
+
+describe('AdminProductsPage — DataTable (US-2.1)', () => {
+  // Migración a DataTable: el catálogo se renderiza en la tabla reutilizable
+  // con ordenamiento por columna (cliente). Verifica la interacción de sort.
+  it('ordena el catálogo por producto al hacer clic en el header', async () => {
+    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    render(wrap(<AdminProductsPage />));
+    await screen.findByText('Collar Oshun dorado');
+
+    function productCells() {
+      // La columna Producto es la 2ª celda (índice 1): col[0] es la miniatura.
+      return screen.getAllByRole('row')
+        .slice(1)
+        .map((r) => within(r).queryAllByRole('cell')[1]?.textContent)
+        .filter(Boolean);
+    }
+
+    // Orden natural (orden de llegada del API).
+    expect(productCells()).toEqual([
+      'Collar Oshun dorado', 'Pulsera Elegua roja', 'Elekes Yemaya',
+    ]);
+
+    // Ordenar ascendente por Producto (localeCompare 'es').
+    fireEvent.click(screen.getByRole('button', { name: /^Producto$/ }));
+    expect(productCells()).toEqual([
+      'Collar Oshun dorado', 'Elekes Yemaya', 'Pulsera Elegua roja',
+    ]);
+
+    // El header expone el estado de orden accesible.
+    expect(
+      screen.getByRole('button', { name: /^Producto$/ }).closest('th'),
+    ).toHaveAttribute('aria-sort', 'ascending');
   });
 });

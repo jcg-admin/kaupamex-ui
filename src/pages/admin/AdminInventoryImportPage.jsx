@@ -2,7 +2,7 @@
  * AdminInventoryImportPage — PracticaYoruba
  * UC-INV-05: Importar productos desde CSV.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -10,6 +10,7 @@ import {
   clearInventoryActionState,
   clearImportReport,
 } from '@redux/slices/inventorySlice';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminInventoryImportPage.module.scss';
 
 export default function AdminInventoryImportPage() {
@@ -34,6 +35,12 @@ export default function AdminInventoryImportPage() {
     if (!file) return;
     dispatch(importProductsCsv({ file }));
   };
+
+  const errorColumns = useMemo(() => [
+    { key: 'row', header: 'Fila', sortable: true, render: (r) => r.row ?? '—' },
+    { key: 'field', header: 'Campo', sortable: true, render: (r) => r.field ?? '—' },
+    { key: 'reason', header: 'Motivo', sortable: true, render: (r) => r.reason ?? '—' },
+  ], []);
 
   const errorMessage = (() => {
     if (!actionError) return null;
@@ -94,24 +101,11 @@ export default function AdminInventoryImportPage() {
           </p>
 
           {(importReport.error_report ?? []).length > 0 && (
-            <table className={styles.errors}>
-              <thead>
-                <tr>
-                  <th>Fila</th>
-                  <th>Campo</th>
-                  <th>Motivo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {importReport.error_report.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>{row.row ?? '—'}</td>
-                    <td>{row.field ?? '—'}</td>
-                    <td>{row.reason ?? '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <DataTable
+              columns={errorColumns}
+              rows={importReport.error_report}
+              caption="Errores de importación"
+            />
           )}
 
           {importReport.download_url && (

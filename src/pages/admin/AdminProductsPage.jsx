@@ -3,11 +3,12 @@
  * Tabla de productos con filtros + acciones CRUD.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchAdminProducts, deleteProduct, toggleProductFeatured } from '@redux/slices/adminSlice';
 import { MetaTag, Button, Price } from '@components/common/primitives';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminTablePage.module.scss';
 
 const STATUS = [
@@ -31,6 +32,109 @@ export default function AdminProductsPage() {
   const actionError   = useSelector((s) => s.admin?.actionError ?? null);
 
   useEffect(() => { dispatch(fetchAdminProducts({ filter, search })); }, [dispatch, filter, search]);
+
+  const columns = useMemo(() => [
+    {
+      key: 'thumb',
+      header: '',
+      render: (p) => {
+        const coverImageUrl = p.images?.[0]?.image_url ?? null;
+        return (
+          <div className={styles.thumb}>
+            {coverImageUrl ? <img src={coverImageUrl} alt="" loading="lazy" /> : null}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'name',
+      header: 'Producto',
+      sortable: true,
+      render: (p) => (
+        <Link to={`/admin/productos/${p.id}`} className={styles.itemName}>
+          {p.name}
+          {p.is_featured && <span className={styles.starBadge}>★</span>}
+        </Link>
+      ),
+    },
+    {
+      key: 'sku',
+      header: 'SKU',
+      sortable: true,
+      render: (p) => <span className={styles.mono}>{p.sku}</span>,
+    },
+    {
+      key: 'category',
+      header: 'Categoría',
+      sortable: true,
+      // UC-CAT-13: M2M -> la API expone `categories` (lista), no `category`
+      // singular. Leer categories[0] (o category_name si estuviera presente).
+      value: (p) => p.categories?.[0]?.name ?? p.category_name ?? '',
+      render: (p) => p.categories?.[0]?.name ?? p.category_name ?? '—',
+    },
+    {
+      key: 'price',
+      header: 'Precio',
+      sortable: true,
+      align: 'right',
+      value: (p) => Number(p.price_with_tax || p.base_price || 0),
+      render: (p) => {
+        const discountPct = p.discount?.pct ?? null;
+        return (
+          <>
+            <Price amount={p.price_with_tax || p.base_price} size="sm" />
+            {discountPct != null && <div className={styles.discountTag}>−{discountPct}%</div>}
+          </>
+        );
+      },
+    },
+    {
+      key: 'stock',
+      header: 'Stock',
+      sortable: true,
+      align: 'right',
+      value: (p) => Number(p.stock ?? 0),
+      render: (p) => (
+        <span className={p.stock === 0 ? styles.stockOut : p.stock < 5 ? styles.stockLow : styles.stockOk}>
+          {p.stock}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+      value: (p) => (p.is_published ? 'Publicado' : 'Borrador'),
+      render: (p) => (
+        <span className={`${styles.statusPill} ${styles[`pill_${p.is_published ? 'lime' : 'muted'}`]}`}>
+          {p.is_published ? 'Publicado' : 'Borrador'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      render: (p) => (
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.actionBtn}
+            onClick={() => dispatch(toggleProductFeatured(p.id))}
+            title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
+          >★</button>
+          <Link to={`/admin/productos/${p.id}`} className={styles.actionBtn} title="Editar">✎</Link>
+          <button
+            type="button"
+            className={`${styles.actionBtn} ${styles.actionDelete}`}
+            onClick={() => {
+              if (window.confirm(`¿Eliminar "${p.name}"?`)) dispatch(deleteProduct(p.id));
+            }}
+            title="Eliminar"
+          >×</button>
+        </div>
+      ),
+    },
+  ], [dispatch]);
 
   return (
     <div className={styles.page}>
@@ -75,88 +179,19 @@ export default function AdminProductsPage() {
         </p>
       )}
 
+      {/* H-CICLO31-01: ProductAdminSerializer devuelve `images` (array de
+          objetos con image_url) y `categories` (array de objetos, UC-CAT-13
+          M2M), no los campos planos. Las columnas extraen los valores reales. */}
       <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ width: 60 }}></th>
-              <th>Producto</th>
-              <th>SKU</th>
-              <th>Categoría</th>
-              <th>Precio</th>
-              <th>Stock</th>
-              <th>Estado</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && (
-              <tr><td colSpan={8} className={styles.loading}>Cargando productos…</td></tr>
-            )}
-            {!isLoading && products.length === 0 && (
-              <tr><td colSpan={8} className={styles.empty}>Sin productos que coincidan</td></tr>
-            )}
-            {!isLoading && products.map((p) => {
-              /* H-CICLO31-01: ProductAdminSerializer devuelve `images` (array de
-                 objetos con image_url) y `categories` (array de objetos, UC-CAT-13
-                 M2M), no los campos planos `image_url`, `orisha_name`, `has_discount`
-                 ni `discount_pct`. Se extraen los valores de la estructura real. */
-              const coverImageUrl = p.images?.[0]?.image_url ?? null;
-              // UC-CAT-13: M2M -> la API expone `categories` (lista), no `category`
-              // singular. Leer categories[0] (o category_name si estuviera presente).
-              const categoryName  = p.categories?.[0]?.name ?? p.category_name ?? '—';
-              const discountPct   = p.discount?.pct ?? null;
-              return (
-                <tr key={p.id}>
-                  <td className={styles.thumbCol}>
-                    <div className={styles.thumb}>
-                      {coverImageUrl ? <img src={coverImageUrl} alt="" loading="lazy" /> : null}
-                    </div>
-                  </td>
-                  <td>
-                    <Link to={`/admin/productos/${p.id}`} className={styles.itemName}>
-                      {p.name}
-                      {p.is_featured && <span className={styles.starBadge}>★</span>}
-                    </Link>
-                  </td>
-                  <td className={styles.mono}>{p.sku}</td>
-                  <td>{categoryName}</td>
-                  <td className={styles.right}>
-                    <Price amount={p.price_with_tax || p.base_price} size="sm" />
-                    {discountPct != null && <div className={styles.discountTag}>−{discountPct}%</div>}
-                  </td>
-                  <td className={styles.right}>
-                    <span className={p.stock === 0 ? styles.stockOut : p.stock < 5 ? styles.stockLow : styles.stockOk}>
-                      {p.stock}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`${styles.statusPill} ${styles[`pill_${p.is_published ? 'lime' : 'muted'}`]}`}>
-                      {p.is_published ? 'Publicado' : 'Borrador'}
-                    </span>
-                  </td>
-                  <td className={styles.actions}>
-                    <button
-                      type="button"
-                      className={styles.actionBtn}
-                      onClick={() => dispatch(toggleProductFeatured(p.id))}
-                      title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
-                    >★</button>
-                    <Link to={`/admin/productos/${p.id}`} className={styles.actionBtn} title="Editar">✎</Link>
-                    <button
-                      type="button"
-                      className={`${styles.actionBtn} ${styles.actionDelete}`}
-                      onClick={() => {
-                        if (window.confirm(`¿Eliminar "${p.name}"?`)) dispatch(deleteProduct(p.id));
-                      }}
-                      title="Eliminar"
-                    >×</button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          rows={products}
+          rowKey={(p) => p.id}
+          loading={isLoading}
+          loadingText="Cargando productos…"
+          emptyText="Sin productos que coincidan"
+          caption="Productos"
+        />
       </div>
     </div>
   );

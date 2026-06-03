@@ -9,6 +9,7 @@ import {
   buildReportExportUrl,
 } from '@hooks/domain/useReports';
 import RevenueTrendChart from '@components/charts/RevenueTrendChart';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminReportPage.module.scss';
 
 const PERIOD_OPTIONS = [
@@ -40,6 +41,18 @@ export default function AdminReportSalesPage() {
   const deltaClass =
     delta == null ? '' :
     delta >= 0   ? styles.metricDeltaUp : styles.metricDeltaDown;
+
+  const seriesColumns = useMemo(() => [
+    { key: 'date', header: 'Fecha', sortable: true },
+    { key: 'revenue', header: 'Ingreso', sortable: true, align: 'right' },
+    { key: 'orders', header: 'Órdenes', sortable: true, align: 'right' },
+  ], []);
+
+  const breakdownColumns = useMemo(() => [
+    { key: 'gateway', header: 'Método', sortable: true },
+    { key: 'amount', header: 'Ingreso', sortable: true, align: 'right' },
+    { key: 'count', header: 'Órdenes', sortable: true, align: 'right' },
+  ], []);
 
   return (
     <section className={styles.page} aria-labelledby="report-sales-title">
@@ -99,24 +112,12 @@ export default function AdminReportSalesPage() {
       ) : (
         <>
         <RevenueTrendChart data={series} />
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Ingreso</th>
-              <th>Órdenes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {series.map((row) => (
-              <tr key={row.date}>
-                <td>{row.date}</td>
-                <td>{row.revenue}</td>
-                <td>{row.orders}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={seriesColumns}
+          rows={series}
+          rowKey={(row) => row.date}
+          caption="Tendencia del periodo"
+        />
         </>
       )}
 
@@ -124,24 +125,12 @@ export default function AdminReportSalesPage() {
       {breakdown.length === 0 ? (
         <p className={styles.empty}>Sin pagos registrados.</p>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Método</th>
-              <th>Ingreso</th>
-              <th>Órdenes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {breakdown.map((row) => (
-              <tr key={row.gateway}>
-                <td>{row.gateway}</td>
-                <td>{row.amount}</td>
-                <td>{row.count}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={breakdownColumns}
+          rows={breakdown}
+          rowKey={(row) => row.gateway}
+          caption="Desglose por método de pago"
+        />
       )}
     </section>
   );

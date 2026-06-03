@@ -3,10 +3,11 @@
  * UC-PAY-11: Reporte/listado de transacciones de pago para el admin
  * con filtros por estado, gateway y rango de fechas + totales del periodo.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminPayments } from '@hooks/domain/usePayments';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
 import styles from './AdminPaymentsPage.module.scss';
 
@@ -64,6 +65,57 @@ export default function AdminPaymentsPage() {
   const totals = data?.totals;
 
   const setFilter = (key) => (e) => setFilters({ ...filters, [key]: e.target.value });
+
+  const columns = useMemo(() => [
+    { key: 'id', header: 'Pago', sortable: true, render: (p) => `#${p.id}` },
+    { key: 'order_number', header: 'Orden', sortable: true },
+    {
+      key: 'gateway',
+      header: 'Gateway',
+      sortable: true,
+      value: (p) => GATEWAY_LABEL[p.gateway] ?? p.gateway ?? '',
+      render: (p) => GATEWAY_LABEL[p.gateway] ?? p.gateway ?? '—',
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+      value: (p) => STATUS_LABEL[p.status] ?? p.status,
+      render: (p) => (
+        <span className={styles[`status_${p.status}`] || styles.statusDefault}>
+          {STATUS_LABEL[p.status] ?? p.status}
+        </span>
+      ),
+    },
+    {
+      key: 'amount',
+      header: 'Monto',
+      sortable: true,
+      align: 'right',
+      // AdminPaymentSerializer exposes amount (no currency field —
+      // model stores MXN only). Always default to 'MXN'.
+      value: (p) => Number(p.amount ?? 0),
+      render: (p) => formatCurrency(p.amount),
+    },
+    {
+      key: 'created_at',
+      header: 'Fecha',
+      sortable: true,
+      render: (p) => formatDate(p.created_at),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      // AdminPaymentSerializer has no is_refund field. Use status===REFUNDED
+      // as the guard: an APPROVED payment that has been refunded transitions
+      // to REFUNDED, so only payments still APPROVED can be refunded.
+      render: (p) => (p.status === 'APPROVED' ? (
+        <Link to={`/admin/payments/${p.id}/refund`} className={styles.refundLink}>
+          Procesar reembolso
+        </Link>
+      ) : null),
+    },
+  ], []);
 
   return (
     <section className={styles.page} aria-labelledby="payments-report-title">
@@ -129,46 +181,12 @@ export default function AdminPaymentsPage() {
       )}
 
       {items.length > 0 && (
-        <table className={styles.table} aria-label="Lista de transacciones">
-          <thead>
-            <tr>
-              <th>Pago</th>
-              <th>Orden</th>
-              <th>Gateway</th>
-              <th>Estado</th>
-              <th>Monto</th>
-              <th>Fecha</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((p) => (
-              <tr key={p.id}>
-                <td>#{p.id}</td>
-                <td>{p.order_number}</td>
-                <td>{GATEWAY_LABEL[p.gateway] ?? p.gateway ?? '—'}</td>
-                <td className={styles[`status_${p.status}`] || styles.statusDefault}>
-                  {STATUS_LABEL[p.status] ?? p.status}
-                </td>
-                {/* AdminPaymentSerializer exposes amount (no currency field —
-                    model stores MXN only). Always default to 'MXN'. */}
-                <td>{formatCurrency(p.amount)}</td>
-                <td>{formatDate(p.created_at)}</td>
-                <td>
-                  {/* AdminPaymentSerializer has no is_refund field.
-                      Use status===REFUNDED as the guard: an APPROVED payment
-                      that has been refunded transitions to REFUNDED, so only
-                      payments that are still APPROVED can be refunded. */}
-                  {p.status === 'APPROVED' && (
-                    <Link to={`/admin/payments/${p.id}/refund`} className={styles.refundLink}>
-                      Procesar reembolso
-                    </Link>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          rows={items}
+          rowKey={(p) => p.id}
+          caption="Lista de transacciones"
+        />
       )}
     </section>
   );

@@ -3,7 +3,7 @@
  * Detalle de un usuario con datos personales, pedidos, direcciones y acciones admin.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@redux/slices/adminSlice';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import AdminUserPermissions from '@components/admin/AdminUserPermissions';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminUserDetailPage.module.scss';
 
 export default function AdminUserDetailPage() {
@@ -20,6 +21,47 @@ export default function AdminUserDetailPage() {
   const isLoading = useSelector((s) => s.admin?.isLoadingUser);
 
   useEffect(() => { dispatch(fetchAdminUser(pk)); }, [dispatch, pk]);
+
+  const orderColumns = useMemo(() => [
+    {
+      key: 'order_number',
+      header: 'Número',
+      sortable: true,
+      render: (o) => <Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link>,
+    },
+    {
+      key: 'created_at',
+      header: 'Fecha',
+      sortable: true,
+      render: (o) => new Date(o.created_at).toLocaleDateString('es-MX'),
+    },
+    {
+      key: 'item_count',
+      header: 'Items',
+      sortable: true,
+      align: 'right',
+      value: (o) => Number(o.item_count ?? 0),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      sortable: true,
+      align: 'right',
+      value: (o) => Number(o.total ?? 0),
+      render: (o) => <Price amount={o.total} size="sm" />,
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+      value: (o) => o.status_label ?? '',
+      render: (o) => (
+        <span className={`${styles.statusPill} ${styles[`pill_${o.tone || 'muted'}`]}`}>
+          {o.status_label}
+        </span>
+      ),
+    },
+  ], []);
 
   if (isLoading || !user) {
     return <div className={styles.loading}>Cargando usuario…</div>;
@@ -129,35 +171,13 @@ export default function AdminUserDetailPage() {
               Ver todos →
             </Link>
           </header>
-          <table className={styles.ordersTable}>
-            <thead>
-              <tr>
-                <th>Número</th>
-                <th>Fecha</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(user.recent_orders || []).map((o) => (
-                <tr key={o.order_number}>
-                  <td><Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link></td>
-                  <td>{new Date(o.created_at).toLocaleDateString('es-MX')}</td>
-                  <td>{o.item_count}</td>
-                  <td><Price amount={o.total} size="sm" /></td>
-                  <td>
-                    <span className={`${styles.statusPill} ${styles[`pill_${o.tone || 'muted'}`]}`}>
-                      {o.status_label}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {(!user.recent_orders || user.recent_orders.length === 0) && (
-                <tr><td colSpan={5} className={styles.empty}>Sin pedidos</td></tr>
-              )}
-            </tbody>
-          </table>
+          <DataTable
+            columns={orderColumns}
+            rows={user.recent_orders || []}
+            rowKey={(o) => o.order_number}
+            emptyText="Sin pedidos"
+            caption="Pedidos recientes"
+          />
         </section>
       </div>
     </div>

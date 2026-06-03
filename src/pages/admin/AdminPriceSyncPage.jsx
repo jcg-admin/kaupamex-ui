@@ -21,7 +21,7 @@
  *     decide si continuar con las validas.
  *   - EX-03 (error al persistir) — 503 visible en applyError.
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -29,6 +29,7 @@ import {
   previewPercentage, applyPercentage,
   clearPriceSyncState,
 } from '@redux/slices/priceSyncSlice';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminPriceSyncPage.module.scss';
 
 function fmt(n) {
@@ -95,6 +96,37 @@ export default function AdminPriceSyncPage() {
   const rows       = preview?.preview    ?? [];
   const validCount = preview?.valid_count   ?? null;
   const invalidCount = preview?.invalid_count ?? null;
+
+  // H-CICLO70-01: API row fields are old_price (not current_price);
+  // rows in the `preview` array are always valid — no status field.
+  const previewColumns = useMemo(() => [
+    { key: 'sku', header: 'SKU', sortable: true },
+    {
+      key: 'old_price',
+      header: 'Precio actual',
+      sortable: true,
+      align: 'right',
+      value: (r) => Number(r.old_price ?? 0),
+      render: (r) => `$${fmt(r.old_price)}`,
+    },
+    {
+      key: 'new_price',
+      header: 'Nuevo precio',
+      sortable: true,
+      align: 'right',
+      value: (r) => Number(r.new_price ?? 0),
+      render: (r) => `$${fmt(r.new_price)}`,
+    },
+    {
+      key: 'diff_pct',
+      header: 'Diferencia %',
+      sortable: true,
+      align: 'right',
+      value: (r) => Number(r.diff_pct ?? 0),
+      render: (r) => (r.diff_pct != null ? `${fmt(r.diff_pct)}%` : '—'),
+    },
+    { key: 'product_name', header: 'Producto', sortable: true },
+  ], []);
 
   return (
     <section className={styles.page} aria-labelledby="price-sync-title">
@@ -240,30 +272,12 @@ export default function AdminPriceSyncPage() {
 
       {rows.length > 0 && (
         <>
-          <table className={styles.table} aria-label="Vista previa de cambios">
-            <thead>
-              <tr>
-                <th>SKU</th>
-                <th>Precio actual</th>
-                <th>Nuevo precio</th>
-                <th>Diferencia %</th>
-                <th>Producto</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, idx) => (
-                // H-CICLO70-01: API row fields are old_price (not current_price);
-                // rows in the `preview` array are always valid — no status field.
-                <tr key={`${r.sku}-${idx}`}>
-                  <td>{r.sku}</td>
-                  <td>${fmt(r.old_price)}</td>
-                  <td>${fmt(r.new_price)}</td>
-                  <td>{r.diff_pct != null ? `${fmt(r.diff_pct)}%` : '—'}</td>
-                  <td>{r.product_name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            columns={previewColumns}
+            rows={rows}
+            rowKey={(r) => r.sku}
+            caption="Vista previa de cambios"
+          />
 
           <div className={styles.confirmActions}>
             <button

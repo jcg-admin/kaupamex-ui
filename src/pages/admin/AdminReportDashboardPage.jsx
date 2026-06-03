@@ -5,8 +5,10 @@
  * Sin filtros: muestra KPIs del dia, tendencia ultimos 30 dias,
  * top 5 productos del mes y alertas operativas (tickets, stock).
  */
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAnalyticsDashboard } from '@hooks/domain/useReports';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminReportPage.module.scss';
 
 export default function AdminReportDashboardPage() {
@@ -17,6 +19,24 @@ export default function AdminReportDashboardPage() {
   const topProducts  = data?.top_products ?? [];
   const openTickets  = data?.open_tickets;
   const lowStock     = data?.low_stock_alerts;
+
+  const trendColumns = useMemo(() => [
+    { key: 'date', header: 'Fecha', sortable: true },
+    { key: 'revenue', header: 'Ingreso', sortable: true, align: 'right' },
+  ], []);
+
+  const topColumns = useMemo(() => [
+    { key: 'rank', header: '#', align: 'right' },
+    { key: 'product_name', header: 'Producto', sortable: true },
+    { key: 'units_sold', header: 'Unidades', sortable: true, align: 'right' },
+  ], []);
+
+  // Rango (#) precalculado por orden de llegada de la API (top 5 del mes),
+  // preservado como campo de fila para que el orden por columna no lo altere.
+  const topProductsRows = useMemo(
+    () => (data?.top_products ?? []).map((row, idx) => ({ ...row, rank: idx + 1 })),
+    [data?.top_products],
+  );
 
   return (
     <section className={styles.page} aria-labelledby="report-dashboard-title">
@@ -69,46 +89,24 @@ export default function AdminReportDashboardPage() {
       {trend.length === 0 ? (
         <p className={styles.empty}>Sin datos en la ventana.</p>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Ingreso</th>
-            </tr>
-          </thead>
-          <tbody>
-            {trend.map((row) => (
-              <tr key={row.date}>
-                <td>{row.date}</td>
-                <td>{row.revenue}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={trendColumns}
+          rows={trend}
+          rowKey={(row) => row.date}
+          caption="Tendencia (últimos 30 días)"
+        />
       )}
 
       <h2 className={styles.sectionTitle}>Top 5 productos del mes</h2>
       {topProducts.length === 0 ? (
         <p className={styles.empty}>Sin ventas registradas en el mes.</p>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>Unidades</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topProducts.map((row, idx) => (
-              <tr key={row.product_id}>
-                <td>{idx + 1}</td>
-                <td>{row.product_name}</td>
-                <td>{row.units_sold}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={topColumns}
+          rows={topProductsRows}
+          rowKey={(row) => row.product_id}
+          caption="Top 5 productos del mes"
+        />
       )}
 
       <h2 className={styles.sectionTitle}>Accesos directos</h2>

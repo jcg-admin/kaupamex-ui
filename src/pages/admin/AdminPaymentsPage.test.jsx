@@ -2,7 +2,7 @@
  * Tests — AdminPaymentsPage
  * UC-PAY-11: Reporte de transacciones de pago (admin).
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter }  from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -98,5 +98,36 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
     apiService.get.mockResolvedValue({ data: { results: [], count: 0, totals: null } });
     render(wrap(<AdminPaymentsPage />));
     expect(await screen.findByText(/No hay transacciones/i)).toBeInTheDocument();
+  });
+
+  // Migración a DataTable (US-2.1): la lista se renderiza en la tabla
+  // reutilizable con ordenamiento por columna (cliente, monto numérico).
+  it('ordena las transacciones por monto al hacer clic en el header', async () => {
+    apiService.get.mockResolvedValue({ data: RESPONSE });
+    render(wrap(<AdminPaymentsPage />));
+    await screen.findByText('ORD-1');
+
+    function orderCells() {
+      // La columna Orden es la 2ª celda (índice 1): col[0] es el id del pago.
+      return screen.getAllByRole('row')
+        .slice(1)
+        .map((r) => within(r).queryAllByRole('cell')[1]?.textContent)
+        .filter(Boolean);
+    }
+
+    // Orden natural (orden de llegada): montos 1000, 500, 300.
+    expect(orderCells()).toEqual(['ORD-1', 'ORD-2', 'ORD-3']);
+
+    // Ascendente por Monto → 300, 500, 1000 = ORD-3, ORD-2, ORD-1.
+    fireEvent.click(screen.getByRole('button', { name: /Monto/i }));
+    expect(orderCells()).toEqual(['ORD-3', 'ORD-2', 'ORD-1']);
+
+    // Descendente por Monto → 1000, 500, 300.
+    fireEvent.click(screen.getByRole('button', { name: /Monto/i }));
+    expect(orderCells()).toEqual(['ORD-1', 'ORD-2', 'ORD-3']);
+
+    expect(
+      screen.getByRole('button', { name: /Monto/i }).closest('th'),
+    ).toHaveAttribute('aria-sort', 'descending');
   });
 });

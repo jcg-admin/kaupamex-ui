@@ -10,8 +10,10 @@
  *
  * Lectura: useAdminDashboard (React Query).
  */
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminDashboard } from '@hooks/domain/useOrders';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminOrdersDashboardPage.module.scss';
 
 const STATUS_LABEL = {
@@ -39,6 +41,44 @@ function formatCurrency(value) {
 
 export default function AdminOrdersDashboardPage() {
   const { data, isLoading, isError } = useAdminDashboard();
+
+  const latestColumns = useMemo(() => [
+    {
+      key: 'order_number',
+      header: 'Numero',
+      sortable: true,
+      render: (o) => (
+        <Link to={`/admin/orders/${o.order_number}`}>{o.order_number}</Link>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+      value: (o) => STATUS_LABEL[o.status] ?? o.status,
+      render: (o) => STATUS_LABEL[o.status] ?? o.status,
+    },
+    {
+      key: 'created_at',
+      header: 'Fecha',
+      sortable: true,
+      render: (o) => formatDate(o.created_at),
+    },
+    {
+      key: 'user__email',
+      header: 'Comprador',
+      sortable: true,
+      render: (o) => o.user__email ?? '—',
+    },
+    {
+      key: 'value__total',
+      header: 'Total',
+      sortable: true,
+      align: 'right',
+      value: (o) => Number(o.value__total ?? 0),
+      render: (o) => formatCurrency(o.value__total),
+    },
+  ], []);
 
   if (isLoading) return <p>Cargando dashboard…</p>;
   if (isError || !data) {
@@ -101,30 +141,12 @@ export default function AdminOrdersDashboardPage() {
         {latestOrders.length === 0 ? (
           <p>No hay pedidos recientes.</p>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">Numero</th>
-                <th scope="col">Estado</th>
-                <th scope="col">Fecha</th>
-                <th scope="col">Comprador</th>
-                <th scope="col">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {latestOrders.map((o) => (
-                <tr key={o.order_number}>
-                  <td>
-                    <Link to={`/admin/orders/${o.order_number}`}>{o.order_number}</Link>
-                  </td>
-                  <td>{STATUS_LABEL[o.status] ?? o.status}</td>
-                  <td>{formatDate(o.created_at)}</td>
-                  <td>{o.user__email ?? '—'}</td>
-                  <td>{formatCurrency(o.value__total)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            columns={latestColumns}
+            rows={latestOrders}
+            rowKey={(o) => o.order_number}
+            caption="Ultimos pedidos"
+          />
         )}
       </section>
     </section>
