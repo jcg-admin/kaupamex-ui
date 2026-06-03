@@ -6,6 +6,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminPayments } from '@hooks/domain/usePayments';
+import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
+import { toISODateString, fromISODateString } from '@utils/dateRange';
 import styles from './AdminPaymentsPage.module.scss';
 
 const STATUS_LABEL = {
@@ -89,11 +91,22 @@ export default function AdminPaymentsPage() {
             ))}
           </select>
         </label>
-        <label>Desde
-          <input type="date" value={filters.from} onChange={setFilter('from')} />
-        </label>
-        <label>Hasta
-          <input type="date" value={filters.to} onChange={setFilter('to')} />
+        <label>Rango de fechas
+          {/* DateRangePicker (B2): reemplaza los dos <input type="date">.
+              El backend espera ?from=&to= en formato `YYYY-MM-DD`; la
+              conversion local preserva ese contrato sin desfase de zona. */}
+          <DateRangePicker
+            startDate={fromISODateString(filters.from)}
+            endDate={fromISODateString(filters.to)}
+            placeholder={['Desde', 'Hasta']}
+            onRangeChange={({ startDate, endDate }) =>
+              setFilters({
+                ...filters,
+                from: toISODateString(startDate),
+                to:   toISODateString(endDate),
+              })
+            }
+          />
         </label>
       </fieldset>
 

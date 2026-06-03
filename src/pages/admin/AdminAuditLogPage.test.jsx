@@ -65,6 +65,17 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
     expect(screen.getByText('product.deactivated')).toBeInTheDocument();
   });
 
+  it('integra DateRangePicker (B2) en vez de inputs type=date crudos', async () => {
+    apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
+    const { container } = render(wrap());
+    await screen.findByText('product.created');
+    // El filtro de rango ya no usa <input type="date">.
+    expect(container.querySelector('input[type="date"]')).toBeNull();
+    // El DateRangePicker expone dos textboxes (Desde / Hasta).
+    expect(screen.getByPlaceholderText('Desde')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Hasta')).toBeInTheDocument();
+  });
+
   it('aplica el filtro por accion al enviar el formulario', async () => {
     apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
     render(wrap());

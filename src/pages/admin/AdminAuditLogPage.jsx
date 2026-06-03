@@ -8,6 +8,8 @@
  */
 import { useState } from 'react';
 import { useAuditLog } from '@hooks/domain/useAuditLog';
+import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
+import { toISODateString, fromISODateString } from '@utils/dateRange';
 import styles from './AdminAuditLogPage.module.scss';
 
 export default function AdminAuditLogPage() {
@@ -61,12 +63,19 @@ export default function AdminAuditLogPage() {
           />
         </label>
         <label>
-          Desde
-          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
-        </label>
-        <label>
-          Hasta
-          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+          Rango de fechas
+          {/* DateRangePicker (B2): reemplaza los dos <input type="date">.
+              Preserva el contrato de query params ?from=&to= con cadenas
+              `YYYY-MM-DD` en hora local — la API recibe el mismo formato. */}
+          <DateRangePicker
+            startDate={fromISODateString(from)}
+            endDate={fromISODateString(to)}
+            placeholder={['Desde', 'Hasta']}
+            onRangeChange={({ startDate, endDate }) => {
+              setFrom(toISODateString(startDate));
+              setTo(toISODateString(endDate));
+            }}
+          />
         </label>
         <button type="submit">Filtrar</button>
       </form>

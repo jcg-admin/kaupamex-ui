@@ -62,6 +62,15 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
     expect(screen.getByText(/Neto:/i)).toBeInTheDocument();
   });
 
+  it('integra DateRangePicker (B2) en vez de inputs type=date crudos', async () => {
+    apiService.get.mockResolvedValue({ data: RESPONSE });
+    const { container } = render(wrap(<AdminPaymentsPage />));
+    await screen.findByText('ORD-1');
+    expect(container.querySelector('input[type="date"]')).toBeNull();
+    expect(screen.getByPlaceholderText('Desde')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Hasta')).toBeInTheDocument();
+  });
+
   it('aplica filtro por estado y por gateway al endpoint', async () => {
     apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminPaymentsPage />));
