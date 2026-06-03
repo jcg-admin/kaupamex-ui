@@ -9,7 +9,7 @@
  * Punto de entrada operacional para UC-DASH-01 (crear),
  * UC-DASH-02 (editar) y UC-DASH-03 (desactivar).
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -22,6 +22,7 @@ import {
 } from '@redux/slices/productDiscountsSlice';
 import ProductDiscountCreateForm from '@components/admin/ProductDiscountCreateForm';
 import ProductDiscountEditForm   from '@components/admin/ProductDiscountEditForm';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminProductDiscountsPage.module.scss';
 
 const STATUS_OPTIONS = [
@@ -94,6 +95,72 @@ export default function AdminProductDiscountsPage() {
     dispatch(deactivateProductDiscount(discount.id));
   };
 
+  const columns = useMemo(() => [
+    { key: 'product_name', header: 'Producto', sortable: true },
+    {
+      key: 'discount_pct',
+      header: 'Descuento',
+      sortable: true,
+      render: (d) => formatPct(d.discount_pct),
+    },
+    {
+      key: 'validity',
+      header: 'Vigencia',
+      value: (d) => formatValidity(d.valid_from, d.valid_until),
+      render: (d) => formatValidity(d.valid_from, d.valid_until),
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+      value: (d) => STATUS_LABEL[d.status] ?? d.status,
+      render: (d) => (
+        <span className={styles[STATUS_CLASS[d.status]] || ''}>
+          {STATUS_LABEL[d.status] ?? d.status}
+        </span>
+      ),
+    },
+    {
+      key: 'discounted_price',
+      header: 'Precio',
+      sortable: true,
+      render: (d) => (
+        <>
+          <span className={styles.priceOriginal}>{formatPrice(d.original_price)}</span>
+          <span>{formatPrice(d.discounted_price)}</span>
+        </>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (d) => (
+        <>
+          <button
+            type="button"
+            className={styles.editBtn}
+            aria-label={`Editar descuento ${d.product_name}`}
+            onClick={() => setEditingDiscount(d)}
+            disabled={isActioning}
+          >
+            Editar
+          </button>
+          <button
+            type="button"
+            className={styles.dangerBtn}
+            aria-label={`Desactivar descuento ${d.product_name}`}
+            onClick={() => handleDeactivate(d)}
+            disabled={isActioning}
+          >
+            Desactivar
+          </button>
+        </>
+      ),
+    },
+  // Action handlers depend only on dispatch/isActioning; rebuild when actioning toggles.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [isActioning]);
+
   return (
     <section className={styles.page} aria-labelledby="discounts-title">
       <header className={styles.header}>
@@ -144,58 +211,12 @@ export default function AdminProductDiscountsPage() {
       )}
 
       {items.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Descuento</th>
-              <th>Vigencia</th>
-              <th>Estado</th>
-              <th>Precio</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((d) => (
-              <tr key={d.id}>
-                <td>{d.product_name}</td>
-                <td>{formatPct(d.discount_pct)}</td>
-                <td>{formatValidity(d.valid_from, d.valid_until)}</td>
-                <td>
-                  <span className={styles[STATUS_CLASS[d.status]] || ''}>
-                    {STATUS_LABEL[d.status] ?? d.status}
-                  </span>
-                </td>
-                <td>
-                  <span className={styles.priceOriginal}>
-                    {formatPrice(d.original_price)}
-                  </span>
-                  <span>{formatPrice(d.discounted_price)}</span>
-                </td>
-                <td>
-                  <button
-                    type="button"
-                    className={styles.editBtn}
-                    aria-label={`Editar descuento ${d.product_name}`}
-                    onClick={() => setEditingDiscount(d)}
-                    disabled={isActioning}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.dangerBtn}
-                    aria-label={`Desactivar descuento ${d.product_name}`}
-                    onClick={() => handleDeactivate(d)}
-                    disabled={isActioning}
-                  >
-                    Desactivar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          rows={items}
+          rowKey={(d) => d.id}
+          caption="Descuentos de producto activos"
+        />
       )}
 
       {isCreateOpen && (

@@ -8,6 +8,7 @@ import {
   useCustomersRfmReport,
   buildReportExportUrl,
 } from '@hooks/domain/useReports';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminReportPage.module.scss';
 
 const PERIOD_OPTIONS = [
@@ -51,6 +52,21 @@ export default function AdminReportCustomersRfmPage() {
 
   const csvHref = buildReportExportUrl('customers-rfm', { ...params, format: 'csv' });
   const pdfHref = buildReportExportUrl('customers-rfm', { ...params, format: 'pdf' });
+
+  const columns = useMemo(() => [
+    { key: 'user_id', header: 'ID Usuario', sortable: true, align: 'right' },
+    { key: 'email', header: 'Email', sortable: true, render: (row) => row.email ?? '—' },
+    {
+      key: 'segment',
+      header: 'Segmento',
+      sortable: true,
+      value: (row) => SEGMENT_LABEL[row.segment] ?? row.segment,
+      render: (row) => SEGMENT_LABEL[row.segment] ?? row.segment,
+    },
+    { key: 'recency_days', header: 'Recencia (días)', sortable: true, align: 'right' },
+    { key: 'frequency', header: 'Frecuencia', sortable: true, align: 'right' },
+    { key: 'monetary', header: 'Monetario', sortable: true, align: 'right' },
+  ], []);
 
   return (
     <section className={styles.page} aria-labelledby="report-rfm-title">
@@ -104,30 +120,12 @@ export default function AdminReportCustomersRfmPage() {
       {results.length === 0 ? (
         <p className={styles.empty}>Sin clientes en el periodo.</p>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID Usuario</th>
-              <th>Email</th>
-              <th>Segmento</th>
-              <th>Recencia (días)</th>
-              <th>Frecuencia</th>
-              <th>Monetario</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((row) => (
-              <tr key={row.user_id}>
-                <td>{row.user_id}</td>
-                <td>{row.email ?? '—'}</td>
-                <td>{SEGMENT_LABEL[row.segment] ?? row.segment}</td>
-                <td>{row.recency_days}</td>
-                <td>{row.frequency}</td>
-                <td>{row.monetary}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          rows={results}
+          rowKey={(row) => row.user_id}
+          caption="Clientes segmentados por RFM"
+        />
       )}
     </section>
   );

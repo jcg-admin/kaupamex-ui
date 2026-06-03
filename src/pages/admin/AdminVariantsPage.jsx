@@ -7,7 +7,7 @@
  * - Permite alternar activo/inactivo de cada variante.
  * - Cada fila tiene enlace a UC-CHT-04 (precio diferenciado).
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -16,6 +16,7 @@ import {
   toggleVariantActive,
   clearVariantActionState,
 } from '@redux/slices/yorubaVariantsSlice';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminVariantsPage.module.scss';
 
 const TYPE_OPTIONS = ['Tamano', 'Presentacion', 'Material'];
@@ -60,6 +61,56 @@ export default function AdminVariantsPage() {
       isActive:  !variant.is_active,
     }));
   };
+
+  const columns = useMemo(() => [
+    { key: 'variant_type', header: 'Tipo', sortable: true },
+    { key: 'option_name', header: 'Opcion', sortable: true },
+    { key: 'stock', header: 'Stock', sortable: true, align: 'right' },
+    {
+      key: 'price',
+      header: 'Precio',
+      sortable: true,
+      render: (variant) => (
+        variant.price != null
+          ? `$${Number(variant.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
+          : '—'
+      ),
+    },
+    {
+      key: 'is_active',
+      header: 'Estado',
+      sortable: true,
+      value: (variant) => (variant.is_active ? 'Activa' : 'Inactiva'),
+      render: (variant) => (
+        <span className={variant.is_active ? styles.activeBadge : styles.inactiveBadge}>
+          {variant.is_active ? 'Activa' : 'Inactiva'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Acciones',
+      render: (variant) => (
+        <span className={styles.actions}>
+          <button
+            type="button"
+            className={styles.toggleBtn}
+            onClick={() => handleToggle(variant)}
+          >
+            {variant.is_active ? 'Desactivar' : 'Activar'}
+          </button>
+          <Link
+            to={`/admin/variants/${variant.id}/price`}
+            className={styles.priceLink}
+          >
+            Precio
+          </Link>
+        </span>
+      ),
+    },
+  // handleToggle is stable enough for this presentational table; productId drives it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [productId]);
 
   return (
     <section className={styles.page} aria-labelledby="variants-title">
@@ -140,52 +191,12 @@ export default function AdminVariantsPage() {
       )}
 
       {adminVariants.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Tipo</th>
-              <th>Opcion</th>
-              <th>Stock</th>
-              <th>Precio</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {adminVariants.map((variant) => (
-              <tr key={variant.id}>
-                <td>{variant.variant_type}</td>
-                <td>{variant.option_name}</td>
-                <td>{variant.stock}</td>
-                <td>
-                  {variant.price != null
-                    ? `$${Number(variant.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}`
-                    : '—'}
-                </td>
-                <td>
-                  <span className={variant.is_active ? styles.activeBadge : styles.inactiveBadge}>
-                    {variant.is_active ? 'Activa' : 'Inactiva'}
-                  </span>
-                </td>
-                <td className={styles.actions}>
-                  <button
-                    type="button"
-                    className={styles.toggleBtn}
-                    onClick={() => handleToggle(variant)}
-                  >
-                    {variant.is_active ? 'Desactivar' : 'Activar'}
-                  </button>
-                  <Link
-                    to={`/admin/variants/${variant.id}/price`}
-                    className={styles.priceLink}
-                  >
-                    Precio
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          rows={adminVariants}
+          rowKey={(variant) => variant.id}
+          caption="Variantes del producto"
+        />
       )}
     </section>
   );

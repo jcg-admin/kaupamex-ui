@@ -7,6 +7,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useInventoryMovements } from '@hooks/domain/useInventory';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminInventoryMovementsPage.module.scss';
 
 // H-CICLO36-02: enum sync con apps/inventory/models.py:8-15.
@@ -54,6 +55,44 @@ export default function AdminInventoryMovementsPage() {
     typeFilter ? movements.filter((mv) => mv.movement_type === typeFilter) : movements
   ), [movements, typeFilter]);
 
+  const columns = useMemo(() => [
+    {
+      key: 'created_at',
+      header: 'Fecha',
+      sortable: true,
+      render: (mv) => formatDateTime(mv.created_at),
+    },
+    {
+      key: 'movement_type',
+      header: 'Tipo',
+      sortable: true,
+      value: (mv) => TYPE_LABEL[mv.movement_type] ?? mv.movement_type,
+      render: (mv) => (
+        <span className={styles[TYPE_CLASS[mv.movement_type]] || styles.badgeManual}>
+          {TYPE_LABEL[mv.movement_type] ?? mv.movement_type}
+        </span>
+      ),
+    },
+    {
+      key: 'delta',
+      header: 'Delta',
+      sortable: true,
+      render: (mv) => (
+        <span className={mv.delta < 0 ? styles.negative : styles.positive}>
+          {formatDelta(mv.delta)}
+        </span>
+      ),
+    },
+    {
+      key: 'stock_after',
+      header: 'Stock después',
+      sortable: true,
+      render: (mv) => mv.stock_after ?? '—',
+    },
+    { key: 'reference', header: 'Referencia', render: (mv) => mv.reference ?? '—' },
+    { key: 'reason', header: 'Motivo', render: (mv) => mv.reason ?? '—' },
+  ], []);
+
   return (
     <section className={styles.page} aria-labelledby="inv-movements-title">
       <Link to="/admin/inventory" className={styles.backLink}>
@@ -89,37 +128,14 @@ export default function AdminInventoryMovementsPage() {
         <p className={styles.empty}>Sin movimientos registrados.</p>
       )}
 
-      {visibleMovements.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Tipo</th>
-              <th>Delta</th>
-              <th>Stock después</th>
-              <th>Referencia</th>
-              <th>Motivo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleMovements.map((mv) => (
-              <tr key={mv.id}>
-                <td>{formatDateTime(mv.created_at)}</td>
-                <td>
-                  <span className={styles[TYPE_CLASS[mv.movement_type]] || styles.badgeManual}>
-                    {TYPE_LABEL[mv.movement_type] ?? mv.movement_type}
-                  </span>
-                </td>
-                <td className={mv.delta < 0 ? styles.negative : styles.positive}>
-                  {formatDelta(mv.delta)}
-                </td>
-                <td>{mv.stock_after ?? '—'}</td>
-                <td>{mv.reference ?? '—'}</td>
-                <td>{mv.reason ?? '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {!isLoading && movements.length > 0 && (
+        <DataTable
+          columns={columns}
+          rows={visibleMovements}
+          rowKey={(mv) => mv.id}
+          caption="Movimientos de inventario de la variante"
+          emptyText="Sin movimientos para el tipo seleccionado."
+        />
       )}
     </section>
   );

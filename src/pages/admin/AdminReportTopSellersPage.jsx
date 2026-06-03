@@ -8,6 +8,7 @@ import {
   useTopSellersReport,
   buildReportExportUrl,
 } from '@hooks/domain/useReports';
+import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminReportPage.module.scss';
 
 const PERIOD_OPTIONS = [
@@ -32,6 +33,28 @@ export default function AdminReportTopSellersPage() {
 
   const csvHref = buildReportExportUrl('top-sellers', { ...params, format: 'csv' });
   const pdfHref = buildReportExportUrl('top-sellers', { ...params, format: 'pdf' });
+
+  // The ranking number (#) is derived from result order; expose it as a field so
+  // DataTable's per-row render keeps the rank stable and sortable.
+  const rankedRows = useMemo(
+    () => results.map((row, idx) => ({ ...row, rank: idx + 1 })),
+    [results],
+  );
+
+  const columns = useMemo(() => [
+    { key: 'rank', header: '#', sortable: true, align: 'right' },
+    { key: 'product_name', header: 'Producto', sortable: true },
+    { key: 'sku', header: 'SKU', sortable: true },
+    { key: 'units_sold', header: 'Unidades', sortable: true, align: 'right' },
+    { key: 'revenue', header: 'Ingreso', sortable: true, align: 'right' },
+    {
+      key: 'share_pct',
+      header: '% del total',
+      sortable: true,
+      align: 'right',
+      render: (row) => (row.share_pct != null ? `${row.share_pct}%` : '—'),
+    },
+  ], []);
 
   return (
     <section className={styles.page} aria-labelledby="report-top-sellers-title">
@@ -83,30 +106,12 @@ export default function AdminReportTopSellersPage() {
       {results.length === 0 ? (
         <p className={styles.empty}>Sin ventas en el periodo.</p>
       ) : (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Producto</th>
-              <th>SKU</th>
-              <th>Unidades</th>
-              <th>Ingreso</th>
-              <th>% del total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {results.map((row, idx) => (
-              <tr key={row.product_id}>
-                <td>{idx + 1}</td>
-                <td>{row.product_name}</td>
-                <td>{row.sku}</td>
-                <td>{row.units_sold}</td>
-                <td>{row.revenue}</td>
-                <td>{row.share_pct != null ? `${row.share_pct}%` : '—'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable
+          columns={columns}
+          rows={rankedRows}
+          rowKey={(row) => row.product_id}
+          caption="Productos más vendidos"
+        />
       )}
     </section>
   );

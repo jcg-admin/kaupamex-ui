@@ -3,7 +3,7 @@
  * UC-INV-02: Decremento de stock (movimientos tipo SALE)
  * UC-INV-03: Restauración de stock (movimientos tipo CANCELLATION)
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
@@ -114,5 +114,34 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
     const table = screen.getByRole('table');
     expect(table).not.toHaveTextContent('Venta');
     expect(table).toHaveTextContent('Cancelación');
+  });
+
+  // Migración a DataTable: la tabla ahora soporta ordenamiento por columna.
+  // Verifica el sort por Delta (numérico) sobre los movimientos en memoria.
+  it('ordena los movimientos por delta al hacer clic en el header', async () => {
+    apiService.get.mockResolvedValue({ data: { results: MOVEMENTS } });
+    render(wrap(makeStore()));
+    // Esperar a que la tabla (no la <option> "Venta") esté montada: el botón
+    // de orden de la columna Delta solo existe cuando DataTable renderizó.
+    await screen.findByRole('button', { name: /Delta/i });
+
+    function deltaCells() {
+      // La columna Delta es la 3a celda (índice 2) de cada fila de datos.
+      return screen.getAllByRole('row')
+        .slice(1)
+        .map((r) => within(r).queryAllByRole('cell')[2]?.textContent)
+        .filter(Boolean);
+    }
+
+    // Orden natural (orden de llegada): -2, +2, -1.
+    expect(deltaCells()).toEqual(['-2', '+2', '-1']);
+
+    // Ordenar ascendente por Delta: -2, -1, +2.
+    fireEvent.click(screen.getByRole('button', { name: /Delta/i }));
+    expect(deltaCells()).toEqual(['-2', '-1', '+2']);
+
+    // Ordenar descendente: +2, -1, -2.
+    fireEvent.click(screen.getByRole('button', { name: /Delta/i }));
+    expect(deltaCells()).toEqual(['+2', '-1', '-2']);
   });
 });

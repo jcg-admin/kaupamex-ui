@@ -2,7 +2,7 @@
  * Tests — AdminReportTopSellersPage
  * UC-REP-02: Reporte de productos mas vendidos (top sellers).
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -92,5 +92,32 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
     apiService.get.mockResolvedValue({ data: { results: [], inactive_no_sales_pct: 0 } });
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByText(/Sin ventas en el periodo/i)).toBeInTheDocument();
+  });
+
+  // Migración a DataTable: el ranking se renderiza en una tabla reutilizable
+  // con ordenamiento por columna (cliente). Verifica la interacción de sort.
+  it('ordena el ranking por producto al hacer clic en el header', async () => {
+    apiService.get.mockResolvedValue({ data: RESPONSE });
+    render(wrap(<AdminReportTopSellersPage />));
+    await screen.findByText('Falda Yoruba');
+
+    function dataRowFirstCells() {
+      return screen.getAllByRole('row')
+        .slice(1) // row[0] es el header
+        .map((r) => within(r).queryAllByRole('cell')[1]?.textContent) // col Producto
+        .filter(Boolean);
+    }
+
+    // Orden natural por ranking: Falda (1), Camisa (2).
+    expect(dataRowFirstCells()).toEqual(['Falda Yoruba', 'Camisa Africana']);
+
+    // Ordenar ascendente por Producto → Camisa antes que Falda.
+    fireEvent.click(screen.getByRole('button', { name: /Producto/i }));
+    expect(dataRowFirstCells()).toEqual(['Camisa Africana', 'Falda Yoruba']);
+
+    // El header expone el estado de orden accesible.
+    expect(
+      screen.getByRole('button', { name: /Producto/i }).closest('th'),
+    ).toHaveAttribute('aria-sort', 'ascending');
   });
 });
