@@ -23,14 +23,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { sanitizeHtml } from '@lib/sanitize';
+import { formatCurrency } from '@lib/intl';
 import { toggleWishlist, addToWishlist, removeFromWishlist } from '@redux/slices/wishlistSlice';
 import { useToast } from '@context/ToastContext';
 import styles from './ProductCard.module.scss';
 
+// Precio del card: MXN sin decimales (catálogo). Delega en lib/intl.
 function formatPrice(amount) {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency', currency: 'MXN', minimumFractionDigits: 0,
-  }).format(Number(amount));
+  return formatCurrency(amount, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 export default function ProductCard({ product, inWishlist = false }) {

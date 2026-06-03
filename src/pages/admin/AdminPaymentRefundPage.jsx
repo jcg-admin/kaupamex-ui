@@ -14,13 +14,14 @@ import {
   requestAdminRefund,
   clearPaymentsActionState,
 } from '@redux/slices/paymentsSlice';
+import { formatCurrency as formatCurrencyIntl } from '@lib/intl';
 import styles from './AdminPaymentRefundPage.module.scss';
 
+// Delega el formateo en lib/intl (es-MX / MXN); conserva el placeholder
+// "—" para montos ausentes propio de esta vista.
 function formatCurrency(value, currency = 'MXN') {
-  if (value === null || value === undefined || value === '') return '—';
-  const num = typeof value === 'number' ? value : Number(value);
-  if (Number.isNaN(num)) return value;
-  return num.toLocaleString('es-MX', { style: 'currency', currency });
+  const formatted = formatCurrencyIntl(value, { currency });
+  return formatted === '' ? '—' : formatted;
 }
 
 export default function AdminPaymentRefundPage() {
