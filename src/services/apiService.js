@@ -185,7 +185,7 @@ class APIService {
       }
 
       let errorBody = {};
-      try { errorBody = await response.json(); } catch {}
+      try { errorBody = await response.json(); } catch { /* respuesta sin JSON: errorBody queda {} */ }
 
       if (response.status === 401) {
         // DEC-AUTH-3 + DEC-AUTH-4: intento de refresh reactivo con
@@ -230,7 +230,7 @@ class APIService {
 
     let data = null;
     if (response.status !== 204) {
-      try { data = await response.json(); } catch {}
+      try { data = await response.json(); } catch { /* respuesta sin JSON: data queda null */ }
     }
 
     // DEC-BC-07: si el backend devuelve X-Cart-Token (sesion anonima
