@@ -18,6 +18,7 @@ jest.mock('@services/apiService', () => ({
   default: { get: jest.fn().mockResolvedValue({ data: { results: [] } }) },
 }));
 
+import apiService from '@services/apiService';
 import catalogReducer from '@redux/slices/catalogSlice';
 import authReducer from '@redux/slices/authSlice';
 import HomePage from './HomePage';
@@ -92,7 +93,6 @@ describe('HomePage — landing anonima', () => {
       { id: 2, slug: 'pulsera-2', name: 'Pulsera 2', base_price: 50, price_with_tax: 58, stock: 0, highlighted_name: 'Pulsera 2' },
     ];
     // Mock apiService.get to return the featured products for the catalogue endpoint
-    const { default: apiService } = await import('@services/apiService');
     apiService.get.mockResolvedValue({
       data: { results: FEATURED, count: FEATURED.length, next: null, previous: null },
     });

@@ -17,7 +17,7 @@ jest.mock('@services/apiService', () => ({
 
 // Importar el mock YA reemplazado para usar .mockResolvedValue en los tests
 import apiService from '@services/apiService';
-import catalogReducer from '@redux/slices/catalogSlice';
+import catalogReducer, { setFilter } from '@redux/slices/catalogSlice';
 import CatalogPage from './CatalogPage';
 
 // --- Helpers ---
@@ -287,7 +287,6 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
       )).toBe(true);
     });
     // Dispatch filter directly to trigger re-fetch with price params
-    const { setFilter } = await import('@redux/slices/catalogSlice');
     store.dispatch(setFilter({ priceMin: 100, priceMax: 500 }));
     await waitFor(() => {
       const calls = apiService.get.mock.calls;
