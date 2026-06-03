@@ -22,6 +22,12 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import {
+  chartColors,
+  axisDefaults,
+  gridDefaults,
+  chartMargin,
+} from '@lib/chartTheme';
 
 function toNumber(value) {
   const n = Number(value);
@@ -51,15 +57,15 @@ export default function RevenueTrendChart({
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={chartData}
-          margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
+          margin={chartMargin}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-          <YAxis yAxisId="revenue" tick={{ fontSize: 12 }} />
+          <CartesianGrid {...gridDefaults} />
+          <XAxis dataKey="date" {...axisDefaults} />
+          <YAxis yAxisId="revenue" {...axisDefaults} />
           <YAxis
             yAxisId="orders"
             orientation="right"
-            tick={{ fontSize: 12 }}
+            {...axisDefaults}
           />
           <Tooltip />
           <Legend />
@@ -68,7 +74,7 @@ export default function RevenueTrendChart({
             type="monotone"
             dataKey="revenue"
             name="Ingresos"
-            stroke="#8b5e3c"
+            stroke={chartColors.revenue}
             strokeWidth={2}
             dot={false}
           />
@@ -77,7 +83,7 @@ export default function RevenueTrendChart({
             type="monotone"
             dataKey="orders"
             name="Órdenes"
-            stroke="#3c6e8b"
+            stroke={chartColors.orders}
             strokeWidth={2}
             dot={false}
           />
