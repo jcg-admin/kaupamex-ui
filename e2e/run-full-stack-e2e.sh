@@ -32,7 +32,7 @@ API_DIR="${API_DIR:-$SUPERREPO/api}"
 DB_DIR="${DB_DIR:-$SUPERREPO/db}"
 UI_DIR="${UI_DIR:-$SUPERREPO/ui}"
 
-QA_BUYER_EMAIL="${QA_BUYER_EMAIL:-buyer@e-comerce.test}"
+QA_BUYER_EMAIL="${QA_BUYER_EMAIL:-buyer@e-commerce.test}"
 QA_BUYER_PASSWORD="${QA_BUYER_PASSWORD:-Test1234!}"
 export QA_BUYER_EMAIL QA_BUYER_PASSWORD
 export PW_BASE_URL="${PW_BASE_URL:-http://localhost:3001}"

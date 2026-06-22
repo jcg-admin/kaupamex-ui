@@ -1,7 +1,7 @@
 // Portado del prototipo funcional template-ecommerce-ui (codigo propio del ejecutor).
 // Origen: template-ecommerce-ui/src/components/common/Tooltip/Tooltip.jsx
 //
-// ADAPTACION e-comerce-ui: el prototipo usa `@floating-ui/react` (no instalado
+// ADAPTACION e-commerce-ui: el prototipo usa `@floating-ui/react` (no instalado
 // aqui). Se hace rewire al hook nativo `@hooks/ui/useFloating` (mismo contrato
 // `refs`/`floatingStyles`). El offset [skid, distance] se mapea a
 // `offsetPx = distance`; `flip`/`shift`/`fallbackPlacements` no tienen
