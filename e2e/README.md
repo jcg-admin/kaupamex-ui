@@ -52,16 +52,16 @@ gate Node 20 (L-012) y arranca MariaDB → `migrate` → `create_seed_users`
 
 ```bash
 # [deploy] BD viva + QA sembrada (por socket)
-sudo bash /srv/repos/ecom/e-comerce-db/scripts/start_db.sh
-sudo bash /srv/repos/ecom/e-comerce-api/scripts/provisioners/mysql/db_qa_setup.sh
+sudo bash /opt/practicayoruba/db/scripts/start_db.sh
+sudo bash /opt/practicayoruba/api/scripts/provisioners/mysql/db_qa_setup.sh
 
 # [develop] api sirviendo endpoints (:8000)
-cd /srv/repos/ecom/e-comerce-api
+cd /opt/practicayoruba/api
 uv run python practicayoruba/manage.py runserver 0.0.0.0:8000 &
 
 # [develop] ui servida (:3001, dev) — cross-origin contra api
 export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-cd /srv/repos/ecom/e-comerce-ui && nvm use && npm run dev &
+cd /opt/practicayoruba/ui && nvm use && npm run dev &
 
 # [develop] instalar Playwright (una vez) + correr el smoke
 npm install                 # trae @playwright/test del package.json
