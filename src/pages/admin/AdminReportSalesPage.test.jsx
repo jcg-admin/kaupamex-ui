@@ -151,4 +151,13 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
       await screen.findByText(/Sin datos en el periodo/i),
     ).toBeInTheDocument();
   });
+
+  it('tiene DateRangePicker para filtro de rango de fechas', async () => {
+    apiService.get.mockResolvedValue({ data: RESPONSE });
+    render(wrap(<AdminReportSalesPage />));
+    await screen.findByText(/12500/);
+    // DateRangePicker renders two inputs (start/end)
+    const dateInputs = screen.getAllByPlaceholderText(/Desde|Hasta/i);
+    expect(dateInputs.length).toBeGreaterThanOrEqual(2);
+  });
 });

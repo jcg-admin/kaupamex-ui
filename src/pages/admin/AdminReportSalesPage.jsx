@@ -10,6 +10,8 @@ import {
 } from '@hooks/domain/useReports';
 import RevenueTrendChart from '@components/charts/RevenueTrendChart';
 import { DataTable } from '@components/common/DataTable/DataTable';
+import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
+import { toISODateString, fromISODateString } from '@utils/dateRange';
 import styles from './AdminReportPage.module.scss';
 
 const PERIOD_OPTIONS = [
@@ -24,7 +26,14 @@ const DEFAULT_PERIOD = 'month';
 
 export default function AdminReportSalesPage() {
   const [period, setPeriod] = useState(DEFAULT_PERIOD);
-  const params = useMemo(() => ({ period }), [period]);
+  const [from, setFrom]     = useState('');
+  const [to, setTo]         = useState('');
+  const params = useMemo(() => {
+    const p = { period };
+    if (from) p.date_from = from;
+    if (to)   p.date_to   = to;
+    return p;
+  }, [period, from, to]);
   const { data, isLoading, error } = useSalesReport(params);
 
   const totals     = data?.totals     ?? {};
@@ -74,6 +83,18 @@ export default function AdminReportSalesPage() {
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+        </label>
+        <label className={styles.filter}>
+          <span>Rango de fechas</span>
+          <DateRangePicker
+            startDate={fromISODateString(from)}
+            endDate={fromISODateString(to)}
+            placeholder={['Desde', 'Hasta']}
+            onRangeChange={({ startDate, endDate }) => {
+              setFrom(toISODateString(startDate));
+              setTo(toISODateString(endDate));
+            }}
+          />
         </label>
       </div>
 
