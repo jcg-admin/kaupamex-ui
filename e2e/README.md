@@ -2,7 +2,7 @@
 
 Harness E2E full-stack del producto PracticaYoruba. Decisión de
 herramienta y rationale: **ADR-FE-004** (Playwright). Alcance y reparto:
-iniciativa `implementar-e2e-navegador` en `e-comerce-docs`.
+iniciativa `implementar-e2e-navegador` en `e-commerce-docs`.
 
 ## Qué prueba
 
@@ -35,7 +35,7 @@ una esté lista, siembra el usuario `qabuyer` + catálogo, corre Playwright
 y limpia api/ui al salir:
 
 ```bash
-cd e-comerce-ui
+cd e-commerce-ui
 bash e2e/run-full-stack-e2e.sh                 # toda la suite
 E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh   # solo el smoke
 ```

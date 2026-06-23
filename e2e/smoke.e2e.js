@@ -16,7 +16,7 @@
 // realmente sembrado (los defaults son placeholders).
 const { test, expect } = require('@playwright/test');
 
-const EMAIL = process.env.E2E_EMAIL || 'buyer@e-comerce.test';
+const EMAIL = process.env.E2E_EMAIL || 'buyer@e-commerce.test';
 const PASSWORD = process.env.E2E_PASSWORD || 'Test1234!';
 
 test('smoke: login -> catalogo -> carrito -> checkout', async ({ page }) => {
