@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchAdminUsers, setPage } from '@redux/slices/adminSlice';
 import { MetaTag, Button } from '@components/common/primitives';
+import { DataTable } from '@components/common';
 import styles from './AdminTablePage.module.scss';
 
 const ROLE_FILTERS = [
@@ -122,62 +123,56 @@ export default function AdminUsersPage() {
       </div>
 
       <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ width: 50 }}></th>
-              <th>Usuario</th>
-              <th>Correo</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Pedidos</th>
-              <th>Última actividad</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && <tr><td colSpan={8} className={styles.loading}>Cargando usuarios…</td></tr>}
-            {!isLoading && users.length === 0 && (
-              <tr><td colSpan={8} className={styles.empty}>Sin usuarios que coincidan</td></tr>
-            )}
-            {!isLoading && users.map((u) => (
-              <tr key={u.id}>
-                <td className={styles.thumbCol}>
-                  <div className={styles.avatarSm}>
-                    {u.avatar_url
-                      ? <img src={u.avatar_url} alt="" />
-                      : <span>{(u.first_name?.[0] || '')+(u.last_name?.[0] || '')}</span>
-                    }
-                  </div>
-                </td>
-                <td>
+        <DataTable
+          columns={[
+            { key: 'avatar',       header: '',
+              render: (u) => (
+                <div className={styles.avatarSm}>
+                  {u.avatar_url
+                    ? <img src={u.avatar_url} alt="" />
+                    : <span>{(u.first_name?.[0] || '')+(u.last_name?.[0] || '')}</span>
+                  }
+                </div>
+              ) },
+            { key: 'name',         header: 'Usuario',
+              render: (u) => (
+                <>
                   <Link to={`/admin/usuarios/${u.id}`} className={styles.itemName}>
                     {u.first_name} {u.last_name}
                   </Link>
                   <div className={styles.muted}>@{u.username}</div>
-                </td>
-                <td>{u.email}</td>
-                <td>
-                  <span className={`${styles.statusPill} ${styles[`pill_${u.is_admin ? 'bronze' : u.is_staff ? 'coral' : 'muted'}`]}`}>
-                    {u.is_admin ? 'Admin' : u.is_staff ? 'Staff' : 'Comprador'}
-                  </span>
-                </td>
-                <td>
-                  <span className={`${styles.statusPill} ${styles[`pill_${u.is_active ? (u.email_verified ? 'lime' : 'bronze') : 'vino'}`]}`}>
-                    {!u.is_active ? 'Inactivo' : !u.email_verified ? 'Sin verificar' : 'Activo'}
-                  </span>
-                </td>
-                <td className={`${styles.right} ${styles.mono}`}>{u.order_count}</td>
-                <td className={styles.mono}>
-                  {u.last_login ? new Date(u.last_login).toLocaleDateString('es-MX') : '—'}
-                </td>
-                <td className={styles.actions}>
-                  <Link to={`/admin/usuarios/${u.id}`} className={styles.actionBtn} title="Ver">→</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </>
+              ) },
+            { key: 'email',        header: 'Correo',    sortable: true },
+            { key: 'rol',          header: 'Rol',
+              render: (u) => (
+                <span className={`${styles.statusPill} ${styles[`pill_${u.is_admin ? 'bronze' : u.is_staff ? 'coral' : 'muted'}`]}`}>
+                  {u.is_admin ? 'Admin' : u.is_staff ? 'Staff' : 'Comprador'}
+                </span>
+              ) },
+            { key: 'estado',       header: 'Estado',
+              render: (u) => (
+                <span className={`${styles.statusPill} ${styles[`pill_${u.is_active ? (u.email_verified ? 'lime' : 'bronze') : 'vino'}`]}`}>
+                  {!u.is_active ? 'Inactivo' : !u.email_verified ? 'Sin verificar' : 'Activo'}
+                </span>
+              ) },
+            { key: 'order_count',  header: 'Pedidos',   sortable: true },
+            { key: 'last_login',   header: 'Última actividad',
+              render: (u) => u.last_login
+                ? new Date(u.last_login).toLocaleDateString('es-MX')
+                : '—' },
+            { key: 'actions',      header: '',
+              render: (u) => (
+                <Link to={`/admin/usuarios/${u.id}`} className={styles.actionBtn} title="Ver">→</Link>
+              ) },
+          ]}
+          rows={users}
+          rowKey={(u) => u.id}
+          loading={isLoading}
+          emptyText="Sin usuarios que coincidan"
+          caption="Listado de usuarios"
+          pageSize={0}
+        />
       </div>
 
       {totalPages > 1 && (
