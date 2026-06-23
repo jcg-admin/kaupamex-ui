@@ -1,5 +1,6 @@
 @use 'variables' as *;
 @use 'sass:color';
+@use 'sass:map';
 
 // ═══════════════════════════════════════════════════════════════════════
 // MIXINS SCSS — PracticaYoruba E-commerce
@@ -392,6 +393,36 @@
 // 10. UTILIDADES
 // ─────────────────────────────────────────────────────────────────────
 
+// Portado de ui-core-5.25.0/scss/mixins/_elevation.scss
+// 5 niveles: 1=xs, 2=sm, 3=md, 4=lg, 5=xl
+@mixin elevation($n: 1) {
+  $shadows: (
+    1: $shadow-xs,
+    2: $shadow-sm,
+    3: $shadow-md,
+    4: $shadow-lg,
+    5: $shadow-xl,
+  );
+  box-shadow: map-get($shadows, $n);
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: box-shadow $transition-fast;
+  }
+}
+
+// Portado de ui-core-5.25.0/scss/mixins/_transition.scss
+// Respeta prefers-reduced-motion de forma automatica
+@mixin transition($transition...) {
+  @if length($transition) == 0 {
+    $transition: $transition-base;
+  }
+  transition: $transition;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 @mixin visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -402,6 +433,13 @@
   clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
+}
+
+// Portado de ui-core-5.25.0/scss/mixins/_visually-hidden.scss
+@mixin visually-hidden-focusable {
+  &:not(:focus):not(:focus-within) {
+    @include visually-hidden;
+  }
 }
 
 @mixin no-select {

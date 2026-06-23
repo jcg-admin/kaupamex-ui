@@ -27,7 +27,7 @@
   z-index: $z-modal;
   background: var(--ec-bg-page);
   padding: $spacing-6;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.22);
+  @include elevation(5);
   border-bottom: 2px solid var(--ec-accent);
   animation: slideDown 0.2s ease-out;
 }
