@@ -11,7 +11,16 @@ import { MetaTag, Button, Price } from '@components/common/primitives';
 import { DataTable } from '@components/common';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
+import { exportToCsv } from '@lib/csvExporter';
 import styles from './AdminTablePage.module.scss';
+
+const CSV_COLUMNS = [
+  { key: 'order_number', header: 'Orden' },
+  { key: 'created_at',   header: 'Fecha' },
+  { key: 'cliente',      header: 'Cliente' },
+  { key: 'total',        header: 'Total' },
+  { key: 'status',       header: 'Estado' },
+];
 
 const STATUS_FILTERS = [
   { id: 'all',               label: 'Todos' },
@@ -72,7 +81,23 @@ export default function AdminOrdersPage() {
           <h1 className={styles.title}>Pedidos</h1>
         </div>
         <div className={styles.headerActions}>
-          <Button variant="secondary">Exportar CSV</Button>
+          <Button
+            variant="secondary"
+            onClick={() => exportToCsv(
+              CSV_COLUMNS,
+              orders.map((o) => ({
+                order_number: o.order_number,
+                created_at:   new Date(o.created_at).toLocaleDateString('es-MX'),
+                cliente:      o.user_username ?? o.guest_email ?? '—',
+                total:        o.value?.total ?? '',
+                status:       o.status_display || o.status,
+              })),
+              'pedidos.csv',
+            )}
+            disabled={orders.length === 0}
+          >
+            Exportar CSV
+          </Button>
         </div>
       </header>
 
