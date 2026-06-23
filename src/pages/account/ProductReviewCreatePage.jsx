@@ -19,6 +19,7 @@ import {
   uploadReviewImages,
   clearReviewsActionState,
 } from '@redux/slices/reviewsSlice';
+import { ExternalDropZone } from '@components/common';
 import styles from './ProductReviewCreatePage.module.scss';
 
 const TITLE_MIN   = 5;
@@ -184,15 +185,23 @@ export default function ProductReviewCreatePage() {
           <label htmlFor="review-images">
             Fotos del producto (opcional, maximo {MAX_IMAGES})
           </label>
-          <input
-            ref={fileInputRef}
-            id="review-images"
-            type="file"
+          <ExternalDropZone
             accept="image/*"
             multiple
-            className={styles.fileInput}
-            onChange={handleImagesChange}
-          />
+            onChange={(files) => handleImagesChange({ target: { files } })}
+            hint={`Arrastra hasta ${MAX_IMAGES} fotos aquí o usa el selector`}
+            className={styles.dropZone}
+          >
+            <input
+              ref={fileInputRef}
+              id="review-images"
+              type="file"
+              accept="image/*"
+              multiple
+              className={styles.fileInput}
+              onChange={handleImagesChange}
+            />
+          </ExternalDropZone>
           {imagesError && (
             <span className={styles.fieldError}>{imagesError}</span>
           )}

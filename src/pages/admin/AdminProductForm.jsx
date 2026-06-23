@@ -15,6 +15,7 @@
  */
 import { useState } from 'react';
 import { useAdminCategories } from '@hooks/domain/useCategories';
+import { FileUpload } from '@components/common';
 import styles from './AdminProductForm.module.scss';
 
 const DEFAULTS = {
@@ -49,9 +50,8 @@ export default function AdminProductForm({
     if (errors[name]) setErrors((p) => ({ ...p, [name]: '' }));
   };
 
-  const handleFile = (e) => {
-    const file = e.target.files?.[0] ?? null;
-    setImageFile(file);
+  const handleFile = (files) => {
+    setImageFile(files[0] ?? null);
   };
 
   const validate = () => {
@@ -193,13 +193,14 @@ export default function AdminProductForm({
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="product-image" className={styles.label}>Imagen principal</label>
-        <input
-          id="product-image"
-          name="image"
-          type="file"
+        <label className={styles.label}>Imagen principal</label>
+        <FileUpload
           accept="image/*"
+          value={imageFile ? [imageFile] : []}
           onChange={handleFile}
+          label="Seleccionar imagen"
+          hint="JPG, PNG o WebP."
+          maxSizeBytes={10 * 1024 * 1024}
         />
       </div>
 
