@@ -5,6 +5,7 @@
  * búsqueda, cuenta y carrito.
  */
 
+import { useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -29,6 +30,19 @@ export default function Header() {
   const isAuth       = useSelector(selectIsAuthenticated);
   const cartCount    = useSelector(selectCartItemCount);
   const isSearchOpen = useSelector(selectIsSearchOpen);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        dispatch(toggleSearch());
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [dispatch]);
 
   return (
     <header className={styles.header}>

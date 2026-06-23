@@ -39,6 +39,7 @@ export default function ReviewItem({ review: r }) {
                   alt="foto de resena"
                   className={styles.thumbnail}
                   loading="lazy"
+                  onError={(e) => { e.target.style.display = 'none'; }}
                 />
               </a>
             </li>

@@ -65,7 +65,7 @@
   align-items: center;
 
   @media (max-width: $bp-md) {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: auto 1fr auto;
     padding: $spacing-3 $content-padding-mobile;
     gap: $spacing-3;
   }
@@ -82,8 +82,8 @@
 }
 .brandLogo {
   width: 48px; height: 48px;
-  filter: invert(1);
   flex-shrink: 0;
+  color: $text-primary;
 
   @media (max-width: $bp-md) { width: 36px; height: 36px; }
 }
@@ -107,6 +107,8 @@
   text-transform: uppercase;
   letter-spacing: 0.24em;
   line-height: 1;
+
+  @media (max-width: 480px) { display: none; }
 }
 
 // Search
