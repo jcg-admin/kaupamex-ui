@@ -85,6 +85,10 @@ export default function AdminPermissionsPage() {
         </p>
       )}
 
+      {/* T-04-09 analysis: roles×permissions matrix — dynamic columns from
+          data, checkboxes in cells, tfoot with save buttons per role.
+          DataTable assumes fixed column defs and no tfoot. Raw <table> is
+          the correct choice here; styles.matrix ≠ styles.table. */}
       <table className={styles.matrix}>
         <thead>
           <tr>
