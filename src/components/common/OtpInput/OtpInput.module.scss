@@ -1,0 +1,39 @@
+@use '@styles/abstracts' as *;
+
+.root {
+  display: flex;
+  gap: $spacing-3;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  font-family: $font-family-mono;
+  border: 2px solid $border-medium;
+  border-radius: $border-radius-md;
+  background: transparent;
+  color: $text-primary;
+  caret-color: $lime;
+  transition: border-color $transition-fast, box-shadow $transition-fast;
+
+  &:focus {
+    outline: none;
+    border-color: $lime;
+    box-shadow: 0 0 0 3px rgba($lime, 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.filled {
+  border-color: $border-strong;
+  background: rgba($lime, 0.04);
+}

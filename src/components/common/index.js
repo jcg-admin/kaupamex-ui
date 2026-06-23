@@ -40,6 +40,7 @@ export { default as Chip }             from './Chip/Chip';
 export { default as ChipInput }        from './Chip/ChipInput';
 export { default as FileUpload }       from './FileUpload/FileUpload';
 export { default as ExternalDropZone } from './FileUpload/ExternalDropZone';
+export { default as OtpInput }         from './OtpInput/OtpInput';
 export { default as PasswordInput }    from './PasswordInput/PasswordInput';
 export { default as RatingInput }      from './RatingInput/RatingInput';
 

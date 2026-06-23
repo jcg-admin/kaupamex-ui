@@ -1,0 +1,74 @@
+@use '@styles/abstracts' as *;
+
+.page {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: $spacing-8 $spacing-4;
+}
+
+.card {
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: $spacing-6;
+  text-align: center;
+}
+
+.title {
+  margin: 0 0 $spacing-3;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  color: $text-secondary;
+}
+
+.hint {
+  margin: 0 0 $spacing-5;
+  font-size: $font-size-sm;
+  color: $text-muted;
+}
+
+.error {
+  background: $danger-bg;
+  color: $danger-strong;
+  padding: $spacing-3;
+  border-radius: $border-radius-md;
+  margin: $spacing-4 0 0;
+  font-size: $font-size-sm;
+}
+
+.btnSubmit {
+  display: block;
+  width: 100%;
+  margin-top: $spacing-5;
+  padding: $spacing-3 $spacing-4;
+  background: $primary-color;
+  color: $text-inverse;
+  border: none;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: background $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: $primary-light;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.links {
+  margin: $spacing-4 0 0;
+  font-size: $font-size-sm;
+
+  a {
+    color: $primary-color;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+  }
+}
