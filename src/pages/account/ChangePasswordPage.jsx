@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { changePassword } from '@redux/slices/authSlice';
 import { usePasswordStrength } from '@hooks/domain/usePasswordStrength';
+import { PasswordInput } from '@components/common';
 import styles from './ChangePasswordPage.module.scss';
 
 function fieldError(error, key) {
@@ -117,33 +118,26 @@ export default function ChangePasswordPage() {
 
         <form onSubmit={handleSubmit} noValidate className={styles.form}>
           <div className={styles.field}>
-            <label htmlFor="old-password">Contrasena actual</label>
-            <input
+            <PasswordInput
               id="old-password"
-              type="password"
               name="oldPassword"
+              label="Contrasena actual"
               autoComplete="current-password"
               value={fields.oldPassword}
               onChange={handleChange}
-              aria-invalid={!!errors.oldPassword}
+              error={errors.oldPassword || fieldError(apiError, 'current_password')}
             />
-            {(errors.oldPassword || fieldError(apiError, 'current_password')) && (
-              <span className={styles.fieldError}>
-                {errors.oldPassword || fieldError(apiError, 'current_password')}
-              </span>
-            )}
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="new-password">Nueva contrasena</label>
-            <input
+            <PasswordInput
               id="new-password"
-              type="password"
               name="newPassword"
+              label="Nueva contrasena"
               autoComplete="new-password"
               value={fields.newPassword}
               onChange={handleChange}
-              aria-invalid={!!errors.newPassword}
+              error={errors.newPassword || fieldError(apiError, 'new_password')}
             />
             {fields.newPassword && (
               <p
@@ -154,29 +148,18 @@ export default function ChangePasswordPage() {
                 Fortaleza: {strength.label || 'Muy debil'}
               </p>
             )}
-            {(errors.newPassword || fieldError(apiError, 'new_password')) && (
-              <span className={styles.fieldError}>
-                {errors.newPassword || fieldError(apiError, 'new_password')}
-              </span>
-            )}
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="confirm-password">Confirmar nueva contrasena</label>
-            <input
+            <PasswordInput
               id="confirm-password"
-              type="password"
               name="confirmPassword"
+              label="Confirmar nueva contrasena"
               autoComplete="new-password"
               value={fields.confirmPassword}
               onChange={handleChange}
-              aria-invalid={!!errors.confirmPassword}
+              error={errors.confirmPassword}
             />
-            {errors.confirmPassword && (
-              <span className={styles.fieldError}>
-                {errors.confirmPassword}
-              </span>
-            )}
           </div>
 
           <div className={styles.actions}>

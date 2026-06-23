@@ -40,6 +40,7 @@ export { default as Chip }             from './Chip/Chip';
 export { default as ChipInput }        from './Chip/ChipInput';
 export { default as FileUpload }       from './FileUpload/FileUpload';
 export { default as ExternalDropZone } from './FileUpload/ExternalDropZone';
+export { default as PasswordInput }    from './PasswordInput/PasswordInput';
 
 // ── Datos ──────────────────────────────────────────────────────────────────────
 export { default as DataTable }     from './DataTable/DataTable';

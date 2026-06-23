@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { loginUser } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
+import { PasswordInput } from '@components/common';
 import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './LoginPage.module.scss';
 
@@ -64,12 +65,10 @@ export default function LoginPage() {
               data-testid="login-email"
             />
             <div className={styles.passwordField}>
-              <Field
+              <PasswordInput
                 label="Contraseña"
-                type="password"
                 value={creds.password}
                 onChange={(e) => setCreds({ ...creds, password: e.target.value })}
-                required
                 error={error}
                 autoComplete="current-password"
                 data-testid="login-password"

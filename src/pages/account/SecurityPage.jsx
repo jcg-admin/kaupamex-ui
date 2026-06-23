@@ -13,7 +13,8 @@ import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { changePassword, logoutAllSessions } from '@redux/slices/authSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
-import { MetaTag, Button, Field } from '@components/common/primitives';
+import { MetaTag, Button } from '@components/common/primitives';
+import { PasswordInput } from '@components/common';
 import styles from './SecurityPage.module.scss';
 
 const MOCK_SESSIONS = [
@@ -64,9 +65,9 @@ export default function SecurityPage() {
             <Card title="Cambiar contraseña">
               <p className={styles.cardLead}>Te pediremos tu contraseña actual antes de aplicar el cambio.</p>
               <form className={styles.form} onSubmit={handleChangePwd}>
-                <Field label="Contraseña actual" type="password" value={pwd.current} onChange={(e) => setPwd({ ...pwd, current: e.target.value })} required />
-                <Field label="Contraseña nueva"  type="password" value={pwd.next}    onChange={(e) => setPwd({ ...pwd, next: e.target.value })}    required hint="Mínimo 8 caracteres" />
-                <Field label="Confirmar contraseña nueva" type="password" value={pwd.confirm} onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })} required error={err} />
+                <PasswordInput label="Contraseña actual" value={pwd.current} onChange={(e) => setPwd({ ...pwd, current: e.target.value })} autoComplete="current-password" />
+                <PasswordInput label="Contraseña nueva"  value={pwd.next}   onChange={(e) => setPwd({ ...pwd, next: e.target.value })}    hint="Mínimo 8 caracteres" autoComplete="new-password" />
+                <PasswordInput label="Confirmar contraseña nueva" value={pwd.confirm} onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })} error={err} autoComplete="new-password" />
                 <div>
                   <Button type="submit" variant="primary">Cambiar contraseña</Button>
                 </div>

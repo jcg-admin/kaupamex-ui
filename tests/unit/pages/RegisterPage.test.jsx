@@ -44,7 +44,7 @@ describe('RegisterPage', () => {
     renderPage();
     expect(screen.getByRole('heading', { name: /crear cuenta/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/correo electr/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
   });
 
   it('renderiza los campos de nombre y usuario', () => {
