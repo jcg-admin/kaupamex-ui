@@ -145,7 +145,7 @@ export default function AdminProductsPage() {
         </div>
         <div className={styles.headerActions}>
           <Button variant="secondary">Importar CSV</Button>
-          <Link to="/admin/productos/nuevo"><Button variant="primary">+ Nuevo producto</Button></Link>
+          <Link to="/admin/products/new"><Button variant="primary">+ Nuevo producto</Button></Link>
         </div>
       </header>
 

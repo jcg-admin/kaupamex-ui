@@ -73,7 +73,7 @@ export default function AdminUserDetailPage() {
     <div className={styles.page}>
       <nav className={styles.breadcrumb}>
         <Link to="/admin">Admin</Link><span>/</span>
-        <Link to="/admin/usuarios">Usuarios</Link><span>/</span>
+        <Link to="/admin/users">Usuarios</Link><span>/</span>
         <span className={styles.bcCurrent}>{user.first_name} {user.last_name}</span>
       </nav>
 

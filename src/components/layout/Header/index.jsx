@@ -58,7 +58,7 @@ export default function Header() {
             <span>Atención L-V 10:00 — 19:00 · Envíos a toda la república</span>
           </div>
           <div className={styles.topStripRight}>
-            <Link to="/ayuda">Ayuda</Link>
+            <Link to="/help">Ayuda</Link>
             <Link to="/account/orders">Rastrear pedido</Link>
             <Link to="/contact">Contacto</Link>
           </div>
