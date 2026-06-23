@@ -3,7 +3,15 @@
  * Configuración global para todos los tests
  */
 
+process.env.API_URL = 'http://localhost:8000';
+
 require('@testing-library/jest-dom');
+
+const { server } = require('./src/mocks/server');
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
