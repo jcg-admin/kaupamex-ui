@@ -10,7 +10,15 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInventory } from '@hooks/domain/useInventory';
 import { DataTable } from '@components/common';
+import { exportToCsv } from '@lib/csvExporter';
 import styles from './AdminInventoryPage.module.scss';
+
+const CSV_COLUMNS = [
+  { key: 'sku',          header: 'SKU' },
+  { key: 'product_name', header: 'Nombre' },
+  { key: 'stock',        header: 'Stock' },
+  { key: 'status',       header: 'Estado' },
+];
 
 const STATUS_OPTIONS = [
   { value: '',         label: 'Todos los estados' },
@@ -54,9 +62,18 @@ export default function AdminInventoryPage() {
         <h1 id="admin-inventory-title" className={styles.title}>
           Inventario
         </h1>
-        <Link to="/admin/inventory/import" className={styles.importLink}>
-          Importar CSV
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            type="button"
+            onClick={() => exportToCsv(CSV_COLUMNS, items, 'inventario.csv')}
+            disabled={items.length === 0}
+          >
+            Exportar CSV
+          </button>
+          <Link to="/admin/inventory/import" className={styles.importLink}>
+            Importar CSV
+          </Link>
+        </div>
       </header>
 
       <div className={styles.summary} aria-label="Resumen de inventario">
