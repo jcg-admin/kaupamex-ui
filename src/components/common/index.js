@@ -41,6 +41,7 @@ export { default as ChipInput }        from './Chip/ChipInput';
 export { default as FileUpload }       from './FileUpload/FileUpload';
 export { default as ExternalDropZone } from './FileUpload/ExternalDropZone';
 export { default as PasswordInput }    from './PasswordInput/PasswordInput';
+export { default as RatingInput }      from './RatingInput/RatingInput';
 
 // ── Datos ──────────────────────────────────────────────────────────────────────
 export { default as DataTable }     from './DataTable/DataTable';

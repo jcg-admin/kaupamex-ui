@@ -1,0 +1,42 @@
+// RatingInput — portado de ui-core-5.25.0/js/src/rating.js
+@use '@styles/abstracts' as *;
+
+.wrapper {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.star {
+  background: none;
+  border: none;
+  padding: 0.1rem;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.25);
+  transition: color 0.12s ease, transform 0.1s ease;
+  display: flex;
+  align-items: center;
+  border-radius: 0.2rem;
+  line-height: 0;
+
+  &:focus-visible {
+    outline: 2px solid $lime;
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.filled {
+  color: $lime;
+
+  .star:not(:disabled):hover & {
+    transform: scale(1.15);
+  }
+}
+
+.star:not(:disabled):hover {
+  transform: scale(1.15);
+}
