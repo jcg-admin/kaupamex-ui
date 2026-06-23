@@ -12,7 +12,14 @@ import RevenueTrendChart from '@components/charts/RevenueTrendChart';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
+import { exportToCsv } from '@lib/csvExporter';
 import styles from './AdminReportPage.module.scss';
+
+const SERIES_CSV_COLUMNS = [
+  { key: 'date',    header: 'Fecha' },
+  { key: 'revenue', header: 'Ingreso' },
+  { key: 'orders',  header: 'Ordenes' },
+];
 
 const PERIOD_OPTIONS = [
   { value: 'today',   label: 'Hoy' },
@@ -70,6 +77,14 @@ export default function AdminReportSalesPage() {
           Reporte de ingresos y ventas
         </h1>
         <div className={styles.exportGroup}>
+          <button
+            type="button"
+            className={styles.exportLink}
+            onClick={() => exportToCsv(SERIES_CSV_COLUMNS, series, 'reporte-ventas.csv')}
+            disabled={series.length === 0}
+          >
+            Exportar tabla
+          </button>
           <a href={csvHref} className={styles.exportLink}>Exportar CSV</a>
           <a href={pdfHref} className={styles.exportLink}>Exportar PDF</a>
         </div>
