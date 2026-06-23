@@ -2,6 +2,10 @@
  * Tests — AdminNewsletterComposePage
  * UC-NEW-04: el admin compone y envia (o programa) una campana.
  */
+// jsdom no implementa showModal() — polyfill para Modal
+HTMLDialogElement.prototype.showModal = jest.fn(function() { this.open = true; });
+HTMLDialogElement.prototype.close    = jest.fn(function() { this.open = false; });
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';

@@ -8,6 +8,7 @@ import {
   sendNewsletterBroadcast,
   clearNewsletterActionState,
 } from '@redux/slices/newsletterSlice';
+import { Modal } from '@components/common';
 import styles from './AdminNewsletterComposePage.module.scss';
 
 const SEGMENTS = [
@@ -159,22 +160,29 @@ export default function AdminNewsletterComposePage() {
           </p>
         )}
 
-        {confirmPending && (
-          <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" className={styles.confirmDialog}>
+        <Modal
+          open={confirmPending}
+          onClose={handleCancelConfirm}
+          backdrop="static"
+          keyboard={false}
+          size="sm"
+          centered
+        >
+          <div className={styles.confirmDialog}>
             <p id="confirm-title" className={styles.confirmText}>
-              ¿Confirmas el envío de esta campaña al segmento seleccionado?
-              Esta acción no se puede deshacer.
+              ¿Confirmas el envio de esta campana al segmento seleccionado?
+              Esta accion no se puede deshacer.
             </p>
             <div className={styles.confirmActions}>
               <button type="button" className={styles.primaryBtn} onClick={handleConfirm}>
-                Sí, enviar
+                Si, enviar
               </button>
               <button type="button" className={styles.secondaryBtn} onClick={handleCancelConfirm}>
                 Cancelar
               </button>
             </div>
           </div>
-        )}
+        </Modal>
 
         <div className={styles.actions}>
           <button
