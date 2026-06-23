@@ -32,12 +32,14 @@ export { default as Carousel }   from './Carousel/Carousel';
 export { CarouselSlide }         from './Carousel/Carousel';
 
 // ── Formularios ────────────────────────────────────────────────────────────────
-export { default as Autocomplete }  from './Autocomplete/Autocomplete';
-export { default as MultiSelect }   from './MultiSelect/MultiSelect';
-export { default as RangeSlider }   from './RangeSlider/RangeSlider';
-export { default as LoadingButton } from './LoadingButton/LoadingButton';
-export { default as Chip }          from './Chip/Chip';
-export { default as ChipInput }     from './Chip/ChipInput';
+export { default as Autocomplete }     from './Autocomplete/Autocomplete';
+export { default as MultiSelect }      from './MultiSelect/MultiSelect';
+export { default as RangeSlider }      from './RangeSlider/RangeSlider';
+export { default as LoadingButton }    from './LoadingButton/LoadingButton';
+export { default as Chip }             from './Chip/Chip';
+export { default as ChipInput }        from './Chip/ChipInput';
+export { default as FileUpload }       from './FileUpload/FileUpload';
+export { default as ExternalDropZone } from './FileUpload/ExternalDropZone';
 
 // ── Datos ──────────────────────────────────────────────────────────────────────
 export { default as DataTable }     from './DataTable/DataTable';

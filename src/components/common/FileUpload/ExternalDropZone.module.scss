@@ -1,0 +1,38 @@
+@use '@styles/abstracts' as *;
+
+.zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  border: 2px dashed var(--c-bronze, #B89840);
+  border-radius: 8px;
+  background: transparent;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+  cursor: default;
+  user-select: none;
+}
+
+.dragOver {
+  border-color: var(--c-lime, #8CB800);
+  background: rgba(140, 184, 0, 0.08);
+}
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.icon {
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--c-bronze, #B89840);
+}
+
+.hintText {
+  font-size: 0.875rem;
+  color: var(--c-ink-mute, #7A7D62);
+}
