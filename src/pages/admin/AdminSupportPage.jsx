@@ -5,6 +5,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminSupportTickets } from '@hooks/domain/useSupportTickets';
+import { DataTable } from '@components/common';
 import styles from './AdminSupportPage.module.scss';
 
 const PAGE_SIZE = 20;
@@ -122,60 +123,49 @@ export default function AdminSupportPage() {
         </label>
       </div>
 
-      {isLoading && <p>Cargando bandeja…</p>}
-
       {isError && (
         <p role="alert" className={styles.error}>
           No se pudo cargar la bandeja de soporte. Intenta de nuevo.
         </p>
       )}
 
-      {!isLoading && items.length === 0 && (
-        <p className={styles.empty}>No se encontraron tickets.</p>
-      )}
-
-      {items.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Asunto</th>
-              <th>Comprador</th>
-              <th>Estado</th>
-              <th>Apertura</th>
-              <th>Respuestas</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((ticket) => (
-              <tr key={ticket.ticket_id}>
-                <td>#{ticket.ticket_id}</td>
-                <td>{ticket.subject}</td>
-                <td>
-                  <div className={styles.customer}>
-                    <span>{ticket.customer?.name ?? '—'}</span>
-                    <span className={styles.customerEmail}>
-                      {ticket.customer?.email ?? '—'}
-                    </span>
-                  </div>
-                </td>
-                <td>{STATUS_LABEL[ticket.status] ?? ticket.status}</td>
-                <td>{formatDate(ticket.created_at)}</td>
-                <td>{ticket.replies_count ?? 0}</td>
-                <td>
-                  <Link
-                    to={`/support/tickets/${ticket.ticket_id}`}
-                    className={styles.detailLink}
-                  >
-                    Ver detalle
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <DataTable
+        columns={[
+          { key: 'ticket_id',    header: 'ID',
+            render: (t) => `#${t.ticket_id}` },
+          { key: 'subject',      header: 'Asunto',    sortable: true },
+          { key: 'customer',     header: 'Comprador',
+            render: (t) => (
+              <div className={styles.customer}>
+                <span>{t.customer?.name ?? '—'}</span>
+                <span className={styles.customerEmail}>
+                  {t.customer?.email ?? '—'}
+                </span>
+              </div>
+            ) },
+          { key: 'status',       header: 'Estado',
+            render: (t) => STATUS_LABEL[t.status] ?? t.status },
+          { key: 'created_at',   header: 'Apertura',  sortable: true,
+            render: (t) => formatDate(t.created_at) },
+          { key: 'replies_count',header: 'Respuestas',
+            render: (t) => t.replies_count ?? 0 },
+          { key: 'actions',      header: 'Acciones',
+            render: (t) => (
+              <Link
+                to={`/support/tickets/${t.ticket_id}`}
+                className={styles.detailLink}
+              >
+                Ver detalle
+              </Link>
+            ) },
+        ]}
+        rows={items}
+        rowKey={(t) => t.ticket_id}
+        loading={isLoading}
+        emptyText="No se encontraron tickets."
+        caption="Tickets de soporte"
+        pageSize={0}
+      />
 
       {totalPages > 1 && (
         <div className={styles.pagination}>
