@@ -8,12 +8,11 @@ import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import contactReducer from '@redux/slices/contactSlice';
 import AdminContactMessagesPage from './AdminContactMessagesPage';
 
@@ -31,11 +30,11 @@ const wrap = (ui) => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminContactMessagesPage (UC-COM-02)', () => {
   it('muestra el titulo de la bandeja', () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/`, () => HttpResponse.json({ results: [] })),
+    );
     render(wrap(<AdminContactMessagesPage />));
     expect(
       screen.getByRole('heading', { name: /Bandeja de mensajes de contacto/i }),
@@ -43,15 +42,17 @@ describe('AdminContactMessagesPage (UC-COM-02)', () => {
   });
 
   it('lista los mensajes del backend con asunto y estado', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [
-          // H-CICLO-COM-02: getStatusLabel usa m.replied / m.read (booleans), no m.status.
-          { id: 1, name: 'Ana',  email: 'ana@x.com', subject: 'Consulta uno', read: false, replied: false, created_at: '2026-05-01T10:00:00Z' },
-          { id: 2, name: 'Bob',  email: 'bob@x.com', subject: 'Consulta dos', read: true,  replied: true,  created_at: '2026-05-02T10:00:00Z' },
-        ],
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/`, () =>
+        HttpResponse.json({
+          results: [
+            // H-CICLO-COM-02: getStatusLabel usa m.replied / m.read (booleans), no m.status.
+            { id: 1, name: 'Ana',  email: 'ana@x.com', subject: 'Consulta uno', read: false, replied: false, created_at: '2026-05-01T10:00:00Z' },
+            { id: 2, name: 'Bob',  email: 'bob@x.com', subject: 'Consulta dos', read: true,  replied: true,  created_at: '2026-05-02T10:00:00Z' },
+          ],
+        }),
+      ),
+    );
     render(wrap(<AdminContactMessagesPage />));
     expect(await screen.findByText(/Consulta uno/i)).toBeInTheDocument();
     expect(screen.getByText(/Consulta dos/i)).toBeInTheDocument();
@@ -62,21 +63,24 @@ describe('AdminContactMessagesPage (UC-COM-02)', () => {
   });
 
   it('llama a la URL de admin con el filtro de estado', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    let calledUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/`, ({ request }) => {
+        calledUrl = request.url;
+        return HttpResponse.json({ results: [] });
+      }),
+    );
     render(wrap(<AdminContactMessagesPage />));
 
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/contact/messages/',
-        expect.objectContaining({
-          params: expect.any(Object),
-        }),
-      );
+      expect(calledUrl).toContain('/api/v1/admin/contact/messages/');
     });
   });
 
   it('muestra estado vacio cuando no hay mensajes', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/`, () => HttpResponse.json({ results: [] })),
+    );
     render(wrap(<AdminContactMessagesPage />));
     expect(
       await screen.findByText(/No hay mensajes para mostrar/i),

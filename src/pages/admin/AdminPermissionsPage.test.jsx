@@ -8,13 +8,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), put: jest.fn(), patch: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import permissionsReducer from '@redux/slices/permissionsSlice';
 import AdminPermissionsPage from './AdminPermissionsPage';
 
@@ -38,11 +36,11 @@ const wrap = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminPermissionsPage (UC-ADM-02)', () => {
   it('renderiza la matriz de roles x permisos', async () => {
-    apiService.get.mockResolvedValue({ data: DATA });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/permissions/`, () => HttpResponse.json(DATA)),
+    );
     render(wrap());
     expect(await screen.findByRole('heading', { name: /Permisos/i })).toBeInTheDocument();
     expect(screen.getByText('admin')).toBeInTheDocument();
@@ -51,7 +49,9 @@ describe('AdminPermissionsPage (UC-ADM-02)', () => {
   });
 
   it('refleja los permisos marcados por rol', async () => {
-    apiService.get.mockResolvedValue({ data: DATA });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/permissions/`, () => HttpResponse.json(DATA)),
+    );
     render(wrap());
     await screen.findByText('admin');
     expect(screen.getByLabelText('catalog.manage para staff')).toBeChecked();
@@ -59,20 +59,25 @@ describe('AdminPermissionsPage (UC-ADM-02)', () => {
   });
 
   it('guarda cambios via PUT /api/v1/admin/roles/:role/permissions/', async () => {
-    apiService.get.mockResolvedValue({ data: DATA });
-    apiService.put.mockResolvedValue({ data: { ok: true } });
+    let putBody;
+    let putUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/permissions/`, () => HttpResponse.json(DATA)),
+      http.put(`${BASE}/api/v1/admin/roles/staff/permissions/`, async ({ request }) => {
+        putUrl = request.url;
+        putBody = await request.json();
+        return HttpResponse.json({ ok: true });
+      }),
+    );
     render(wrap());
     await screen.findByText('admin');
-    // Toggle orders.manage en staff
     fireEvent.click(screen.getByLabelText('orders.manage para staff'));
     fireEvent.click(screen.getByRole('button', { name: /Guardar staff/i }));
 
     await waitFor(() => {
-      expect(apiService.put).toHaveBeenCalledWith(
-        '/api/v1/admin/roles/staff/permissions/',
-        expect.objectContaining({
-          permissions: expect.arrayContaining(['catalog.manage', 'orders.manage']),
-        }),
+      expect(putUrl).toContain('/api/v1/admin/roles/staff/permissions/');
+      expect(putBody?.permissions).toEqual(
+        expect.arrayContaining(['catalog.manage', 'orders.manage']),
       );
     });
   });

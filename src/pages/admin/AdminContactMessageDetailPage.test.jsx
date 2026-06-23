@@ -8,12 +8,11 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import contactReducer from '@redux/slices/contactSlice';
 import AdminContactMessageDetailPage from './AdminContactMessageDetailPage';
 
@@ -38,22 +37,25 @@ const wrap = (initialPath = '/admin/contact/messages/7') => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
   it('muestra el contenido del mensaje cargado', async () => {
     // H-CICLO-COM-01: el campo es "body" no "message" en el serializer.
-    apiService.get.mockResolvedValue({
-      data: {
-        id: 7,
-        name: 'Ana',
-        email: 'ana@example.com',
-        subject: 'Consulta sobre el producto X',
-        body: 'Hola, queria saber sobre el envio.',
-        read: false, replied: false,
-        created_at: '2026-05-01T10:00:00Z',
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+        HttpResponse.json({
+          id: 7,
+          name: 'Ana',
+          email: 'ana@example.com',
+          subject: 'Consulta sobre el producto X',
+          body: 'Hola, queria saber sobre el envio.',
+          read: false, replied: false,
+          created_at: '2026-05-01T10:00:00Z',
+        }),
+      ),
+    );
+    server.use(
+      http.post(`${BASE}/api/v1/admin/contact/messages/7/read/`, () => HttpResponse.json({})),
+    );
     render(wrap());
     expect(await screen.findByText(/Consulta sobre el producto X/i)).toBeInTheDocument();
     expect(screen.getByText(/Hola, queria saber sobre el envio/i)).toBeInTheDocument();
@@ -63,23 +65,43 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
   it('requiere texto antes de enviar la respuesta', async () => {
     // read: true evita que useEffect dispare markContactMessageRead (que
     // pondria isActioning=true y deshabilitaria el boton de envio).
-    apiService.get.mockResolvedValue({
-      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z' },
-    });
-    apiService.post.mockResolvedValue({ data: {} });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+        HttpResponse.json({
+          id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z',
+        }),
+      ),
+    );
+    let replyCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/contact/messages/7/reply/`, () => {
+        replyCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap());
     await screen.findByText(/Hola/i);
 
     fireEvent.click(screen.getByRole('button', { name: /Enviar respuesta/i }));
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(replyCalled).toBe(false);
     expect(screen.getByText(/La respuesta es obligatoria/i)).toBeInTheDocument();
   });
 
   it('al enviar, hace POST a /api/v1/admin/contact/messages/<id>/reply/', async () => {
-    apiService.get.mockResolvedValue({
-      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z' },
-    });
-    apiService.post.mockResolvedValue({ data: { id: 7, status: 'REPLIED' } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+        HttpResponse.json({
+          id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z',
+        }),
+      ),
+    );
+    let lastReplyBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/contact/messages/:id/reply/`, async ({ request }) => {
+        lastReplyBody = await request.json();
+        return HttpResponse.json({ id: 7, status: 'REPLIED' });
+      }),
+    );
     render(wrap());
     await screen.findByText(/Hola/i);
 
@@ -90,21 +112,26 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Enviar respuesta/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/contact/messages/7/reply/',
-        expect.objectContaining({
-          reply_body:    'Gracias por escribirnos, el envio tarda 3 dias.',
-          internal_note: 'cliente recurrente',
-        }),
-      );
+      expect(lastReplyBody).toMatchObject({
+        reply_body:    'Gracias por escribirnos, el envio tarda 3 dias.',
+        internal_note: 'cliente recurrente',
+      });
     });
   });
 
   it('muestra mensaje de exito tras responder', async () => {
-    apiService.get.mockResolvedValue({
-      data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z' },
-    });
-    apiService.post.mockResolvedValue({ data: { id: 7, status: 'REPLIED' } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+        HttpResponse.json({
+          id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z',
+        }),
+      ),
+    );
+    server.use(
+      http.post(`${BASE}/api/v1/admin/contact/messages/:id/reply/`, () =>
+        HttpResponse.json({ id: 7, status: 'REPLIED' }),
+      ),
+    );
     render(wrap());
     await screen.findByText(/Hola/i);
 

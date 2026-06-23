@@ -143,9 +143,20 @@ const mockPricePreview = [
 ];
 
 export const adminHandlers = [
-  // Dashboard
-  http.get(`${BASE}/api/v1/admin/dashboard/`, () =>
+  // Dashboard — KPIs / metrics
+  http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () =>
     HttpResponse.json(mockDashboard),
+  ),
+
+  // Orders dashboard — transactional (UC-ORD-10)
+  http.get(`${BASE}/api/v1/admin/dashboard/`, () =>
+    HttpResponse.json({
+      order_counts: { pending: 5, processing: 3, in_preparation: 2, shipped: 1, total_active: 11 },
+      expiring_orders: [],
+      day_summary: { orders_count: 7, total_revenue: '12500.00' },
+      latest_orders: [],
+      payment_timeout_minutes: 30,
+    }),
   ),
 
   // Products
@@ -374,10 +385,10 @@ export const adminHandlers = [
   }),
 
   // Support
-  http.get(`${BASE}/api/v1/admin/support/`, () =>
+  http.get(`${BASE}/api/v1/admin/support/tickets/`, () =>
     HttpResponse.json({ count: mockSupport.length, results: mockSupport }),
   ),
-  http.patch(`${BASE}/api/v1/admin/support/:id/`, async ({ params, request }) => {
+  http.patch(`${BASE}/api/v1/admin/support/tickets/:id/`, async ({ params, request }) => {
     const body = await request.json();
     const t = mockSupport.find(x => String(x.id) === params.id);
     if (!t) return new HttpResponse(null, { status: 404 });

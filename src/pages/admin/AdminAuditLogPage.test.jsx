@@ -5,13 +5,11 @@
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import AdminAuditLogPage from './AdminAuditLogPage';
 
 const ENTRIES = [
@@ -38,46 +36,63 @@ const wrap = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminAuditLogPage (UC-ADM-03)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/audit-log/`, () =>
+        HttpResponse.json({ results: ENTRIES, count: 2 }),
+      ),
+    );
     render(wrap());
     expect(await screen.findByRole('heading', { name: /Auditoria/i })).toBeInTheDocument();
   });
 
   it('llama al endpoint /api/v1/admin/audit-log/ al montar', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/audit-log/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        return HttpResponse.json({ results: ENTRIES, count: 2 });
+      }),
+    );
     render(wrap());
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/audit-log/',
-        expect.objectContaining({ params: expect.objectContaining({ page: 1 }) }),
-      );
+      expect(lastUrl?.searchParams.get('page')).toBe('1');
     });
   });
 
   it('lista las entradas de auditoria', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/audit-log/`, () =>
+        HttpResponse.json({ results: ENTRIES, count: 2 }),
+      ),
+    );
     render(wrap());
     expect(await screen.findByText('product.created')).toBeInTheDocument();
     expect(screen.getByText('product.deactivated')).toBeInTheDocument();
   });
 
   it('integra DateRangePicker (B2) en vez de inputs type=date crudos', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/audit-log/`, () =>
+        HttpResponse.json({ results: ENTRIES, count: 2 }),
+      ),
+    );
     const { container } = render(wrap());
     await screen.findByText('product.created');
-    // El filtro de rango ya no usa <input type="date">.
     expect(container.querySelector('input[type="date"]')).toBeNull();
-    // El DateRangePicker expone dos textboxes (Desde / Hasta).
     expect(screen.getByPlaceholderText('Desde')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Hasta')).toBeInTheDocument();
   });
 
   it('aplica el filtro por accion al enviar el formulario', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/audit-log/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        return HttpResponse.json({ results: ENTRIES, count: 2 });
+      }),
+    );
     render(wrap());
     await screen.findByText('product.created');
 
@@ -86,12 +101,7 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Filtrar/i }));
 
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/audit-log/',
-        expect.objectContaining({
-          params: expect.objectContaining({ action: 'product.created' }),
-        }),
-      );
+      expect(lastUrl?.searchParams.get('action')).toBe('product.created');
     });
   });
 });

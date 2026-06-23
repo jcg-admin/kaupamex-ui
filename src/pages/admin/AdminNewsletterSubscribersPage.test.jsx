@@ -7,15 +7,13 @@ import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import newsletterReducer from '@redux/slices/newsletterSlice';
 import AdminNewsletterSubscribersPage from './AdminNewsletterSubscribersPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { newsletter: newsletterReducer } });
@@ -31,11 +29,13 @@ const wrap = (ui) => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
   it('muestra el titulo de la pagina', () => {
-    apiService.get.mockResolvedValue({ data: { results: [], total: 0 } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, () =>
+        HttpResponse.json({ results: [], total: 0 }),
+      ),
+    );
     render(wrap(<AdminNewsletterSubscribersPage />));
     expect(
       screen.getByRole('heading', { name: /Suscriptores del newsletter/i }),
@@ -43,42 +43,56 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
   });
 
   it('lista los suscriptores recibidos', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [
-          { id: 1, email: 'ana@x.com', status: 'ACTIVE',       subscribed_at: '2026-01-10T00:00:00Z' },
-          { id: 2, email: 'bob@x.com', status: 'UNSUBSCRIBED', subscribed_at: '2025-12-01T00:00:00Z' },
-        ],
-        total: 2,
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, () =>
+        HttpResponse.json({
+          results: [
+            { id: 1, email: 'ana@x.com', status: 'ACTIVE',       subscribed_at: '2026-01-10T00:00:00Z' },
+            { id: 2, email: 'bob@x.com', status: 'UNSUBSCRIBED', subscribed_at: '2025-12-01T00:00:00Z' },
+          ],
+          total: 2,
+        }),
+      ),
+    );
     render(wrap(<AdminNewsletterSubscribersPage />));
     expect(await screen.findByText(/ana@x.com/i)).toBeInTheDocument();
     expect(screen.getByText(/bob@x.com/i)).toBeInTheDocument();
   });
 
   it('llama al endpoint admin con el filtro de estado', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, ({ request }) => {
+        capturedUrl = new URL(request.url);
+        return HttpResponse.json({ results: [] });
+      }),
+    );
     render(wrap(<AdminNewsletterSubscribersPage />));
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/newsletter/subscribers/',
-        expect.objectContaining({ params: expect.any(Object) }),
-      );
+      expect(capturedUrl).not.toBeUndefined();
+      expect(capturedUrl.pathname).toBe('/api/v1/admin/newsletter/subscribers/');
     });
   });
 
   it('al hacer clic en Desuscribir, hace POST al endpoint manual', async () => {
     // handleUnsubscribe usa window.confirm; se debe mockear para que retorne true.
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [
-          { id: 1, email: 'ana@x.com', status: 'ACTIVE', subscribed_at: '2026-01-10T00:00:00Z' },
-        ],
-      },
-    });
-    apiService.post.mockResolvedValue({ data: { ok: true } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, () =>
+        HttpResponse.json({
+          results: [
+            { id: 1, email: 'ana@x.com', status: 'ACTIVE', subscribed_at: '2026-01-10T00:00:00Z' },
+          ],
+        }),
+      ),
+    );
+    let lastPostBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/newsletter/subscribers/1/unsubscribe/`, async ({ request }) => {
+        lastPostBody = await request.json();
+        return HttpResponse.json({ ok: true });
+      }),
+    );
     render(wrap(<AdminNewsletterSubscribersPage />));
     const row = await screen.findByText(/ana@x.com/i);
     expect(row).toBeInTheDocument();
@@ -86,10 +100,7 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Desuscribir/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/newsletter/subscribers/1/unsubscribe/',
-        expect.objectContaining({ reason: 'SOLICITUD_MANUAL' }),
-      );
+      expect(lastPostBody).toMatchObject({ reason: 'SOLICITUD_MANUAL' });
     });
     confirmSpy.mockRestore();
   });

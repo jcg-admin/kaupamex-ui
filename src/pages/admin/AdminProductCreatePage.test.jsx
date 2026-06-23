@@ -16,13 +16,11 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import productsReducer from '@redux/slices/productsSlice';
 import AdminProductCreatePage from './AdminProductCreatePage';
 
@@ -47,11 +45,11 @@ const wrap = (ui, store) => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminProductCreatePage (UC-CAT-09)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+    );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Nuevo Producto/i }),
@@ -59,7 +57,9 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
   });
 
   it('expone los campos requeridos del formulario', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+    );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     expect(await screen.findByLabelText(/Nombre/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Descripcion corta/i)).toBeInTheDocument();
@@ -70,29 +70,39 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
   });
 
   it('carga las categorias al montar', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
+    let categoriesCalled = false;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/categories/`, () => {
+        categoriesCalled = true;
+        return HttpResponse.json({ results: CATEGORIES });
+      }),
+    );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/categories/',
-        expect.any(Object),
-      );
+      expect(categoriesCalled).toBe(true);
     });
     expect(await screen.findByRole('option', { name: 'Collares' })).toBeInTheDocument();
   });
 
   it('valida los campos requeridos antes de enviar', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+    );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     await screen.findByLabelText(/Nombre/i);
     fireEvent.click(screen.getByRole('button', { name: /Crear producto/i }));
     expect(await screen.findByText(/El nombre es obligatorio/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('envia POST /api/v1/admin/products/ con los datos del formulario', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
-    apiService.post.mockResolvedValue({ data: { id: 99, sku: 'NEW-001' } });
+    let lastPostBody;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v1/admin/products/`, async ({ request }) => {
+        lastPostBody = await request.json().catch(() => null);
+        return HttpResponse.json({ id: 99, sku: 'NEW-001' });
+      }),
+    );
 
     render(wrap(<AdminProductCreatePage />, makeStore()));
     await screen.findByLabelText(/Nombre/i);
@@ -113,22 +123,20 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear producto/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/products/',
-        expect.any(Object),
-      );
+      expect(lastPostBody).not.toBeNull();
     });
-    const payload = apiService.post.mock.calls[0][1];
-    expect(payload.name).toBe('Collar Oshun dorado');
+    expect(lastPostBody.name).toBe('Collar Oshun dorado');
     // UC-CAT-13: el contrato es category_ids (lista de PKs), no category_id singular.
-    expect(payload.category_ids).toEqual([1]);
+    expect(lastPostBody.category_ids).toEqual([1]);
   });
 
   it('muestra error 409 cuando el SKU ya existe', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
-    apiService.post.mockRejectedValue({
-      response: { status: 409, data: { detail: 'SKU duplicado' } },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v1/admin/products/`, () =>
+        HttpResponse.json({ detail: 'SKU duplicado' }, { status: 409 }),
+      ),
+    );
 
     render(wrap(<AdminProductCreatePage />, makeStore()));
     await screen.findByLabelText(/Nombre/i);

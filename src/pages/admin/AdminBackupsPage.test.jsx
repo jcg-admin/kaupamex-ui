@@ -8,13 +8,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import backupsReducer from '@redux/slices/backupsSlice';
 import AdminBackupsPage from './AdminBackupsPage';
 
@@ -35,11 +33,13 @@ const wrap = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminBackupsPage (UC-ADM-05)', () => {
   it('muestra el listado de backups', async () => {
-    apiService.get.mockResolvedValue({ data: { results: BACKUPS } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/backups/`, () =>
+        HttpResponse.json({ results: BACKUPS }),
+      ),
+    );
     render(wrap());
     expect(await screen.findByRole('heading', { name: /Backups/i })).toBeInTheDocument();
     expect(await screen.findByText('AUTO')).toBeInTheDocument();
@@ -47,17 +47,22 @@ describe('AdminBackupsPage (UC-ADM-05)', () => {
   });
 
   it('dispara backup manual via POST /api/v1/admin/backups/trigger/', async () => {
-    apiService.get.mockResolvedValue({ data: { results: BACKUPS } });
-    apiService.post.mockResolvedValue({ data: { ok: true } });
+    let lastPostUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/backups/`, () =>
+        HttpResponse.json({ results: BACKUPS }),
+      ),
+      http.post(`${BASE}/api/v1/admin/backups/trigger/`, ({ request }) => {
+        lastPostUrl = request.url;
+        return HttpResponse.json({ ok: true });
+      }),
+    );
     render(wrap());
     await screen.findByText('AUTO');
 
     fireEvent.click(screen.getByRole('button', { name: /Generar backup ahora/i }));
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/backups/trigger/',
-        expect.anything(),
-      );
+      expect(lastPostUrl).toContain('/api/v1/admin/backups/trigger/');
     });
   });
 });

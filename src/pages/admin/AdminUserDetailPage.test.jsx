@@ -8,16 +8,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }       from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import adminReducer from '@redux/slices/adminSlice';
 import authReducer  from '@redux/slices/authSlice';
 import AdminUserDetailPage from './AdminUserDetailPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({
@@ -43,12 +41,12 @@ const USER_ACTIVE = {
 
 const USER_INACTIVE = { ...USER_ACTIVE, is_active: false };
 
-afterEach(() => jest.clearAllMocks());
-
 // =============================================================================
 describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
   beforeEach(() => {
-    apiService.get.mockResolvedValue({ data: USER_ACTIVE });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+    );
   });
 
   it('muestra el nombre completo del usuario en el heading', async () => {
@@ -67,7 +65,9 @@ describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
   });
 
   it('muestra spinner mientras carga', () => {
-    apiService.get.mockReturnValue(new Promise(() => {}));
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => new Promise(() => {})),
+    );
     render(wrap(42, makeStore()));
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
   });
@@ -83,46 +83,59 @@ describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
 // =============================================================================
 describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
   it('muestra boton Desactivar cuenta si el usuario está activo', async () => {
-    apiService.get.mockResolvedValue({ data: USER_ACTIVE });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+    );
     render(wrap(42, makeStore()));
     expect(await screen.findByRole('button', { name: /Desactivar cuenta/i })).toBeInTheDocument();
   });
 
   it('no muestra Desactivar cuenta si el usuario ya está inactivo', async () => {
-    apiService.get.mockResolvedValue({ data: USER_INACTIVE });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
+    );
     render(wrap(42, makeStore()));
     await screen.findByText('buyer42@test.mx');
     expect(screen.queryByRole('button', { name: /Desactivar cuenta/i })).not.toBeInTheDocument();
   });
 
   it('muestra boton Activar cuenta si el usuario está inactivo', async () => {
-    apiService.get.mockResolvedValue({ data: USER_INACTIVE });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
+    );
     render(wrap(42, makeStore()));
     expect(await screen.findByRole('button', { name: /Activar cuenta/i })).toBeInTheDocument();
   });
 
   it('no muestra Activar cuenta si el usuario está activo', async () => {
-    apiService.get.mockResolvedValue({ data: USER_ACTIVE });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+    );
     render(wrap(42, makeStore()));
     await screen.findByText('buyer42@test.mx');
     expect(screen.queryByRole('button', { name: /^Activar cuenta$/i })).not.toBeInTheDocument();
   });
 
   it('llama al API de suspend al hacer clic en Desactivar cuenta', async () => {
-    apiService.get.mockResolvedValue({ data: USER_ACTIVE });
-    apiService.post.mockResolvedValue({ data: {} });
+    let capturedUrl = null;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+      http.post(`${BASE}/api/v1/admin/users/42/suspend/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(42, makeStore()));
     fireEvent.click(await screen.findByRole('button', { name: /Desactivar cuenta/i }));
     await waitFor(() =>
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/admin/users/42/'),
-        expect.anything(),
-      )
+      expect(capturedUrl).toContain('/api/v1/admin/users/42/')
     );
   });
 
   it('muestra estado Inactivo cuando el usuario está inactivo', async () => {
-    apiService.get.mockResolvedValue({ data: USER_INACTIVE });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
+    );
     render(wrap(42, makeStore()));
     expect(await screen.findByText(/Inactivo/i)).toBeInTheDocument();
   });

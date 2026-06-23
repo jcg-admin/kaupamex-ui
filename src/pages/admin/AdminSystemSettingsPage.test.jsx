@@ -8,13 +8,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), patch: jest.fn(), post: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import settingsReducer from '@redux/slices/settingsSlice';
 import AdminSystemSettingsPage from './AdminSystemSettingsPage';
 
@@ -40,11 +38,11 @@ const wrap = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
   it('carga los settings actuales', async () => {
-    apiService.get.mockResolvedValue({ data: SETTINGS });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/settings/`, () => HttpResponse.json(SETTINGS)),
+    );
     render(wrap());
     expect(
       await screen.findByRole('heading', { name: /Configuracion del Sistema/i }),
@@ -54,8 +52,14 @@ describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
   });
 
   it('envia PATCH /api/v1/admin/settings/ con los cambios', async () => {
-    apiService.get.mockResolvedValue({ data: SETTINGS });
-    apiService.patch.mockResolvedValue({ data: SETTINGS });
+    let patchBody;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/settings/`, () => HttpResponse.json(SETTINGS)),
+      http.patch(`${BASE}/api/v1/admin/settings/`, async ({ request }) => {
+        patchBody = await request.json();
+        return HttpResponse.json(SETTINGS);
+      }),
+    );
 
     render(wrap());
     const input = await screen.findByDisplayValue('PracticaYoruba');
@@ -63,10 +67,7 @@ describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar cambios/i }));
 
     await waitFor(() => {
-      expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/settings/',
-        expect.objectContaining({ site_name: 'PracticaYoruba MX' }),
-      );
+      expect(patchBody).toMatchObject({ site_name: 'PracticaYoruba MX' });
     });
   });
 });

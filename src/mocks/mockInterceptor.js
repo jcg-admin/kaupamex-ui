@@ -34,9 +34,12 @@ class MockInterceptor {
    */
   async intercept(url, options = {}) {
     const method = (options.method || 'GET').toUpperCase();
-    const body   = options.body ? JSON.parse(options.body) : null;
 
     if (process.env.NODE_ENV !== 'development') return null;
+
+    const body = options.body && typeof options.body === 'string'
+      ? JSON.parse(options.body)
+      : null;
 
     if (process.env.NODE_ENV === 'development') {
       console.log(`[MOCK] ${method} ${url}`, this._sanitize(body));

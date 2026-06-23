@@ -7,13 +7,11 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter } from 'react-router-dom';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), delete: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import adminReducer from '@redux/slices/adminSlice';
 import AdminProductsPage from './AdminProductsPage';
 
@@ -42,11 +40,11 @@ const wrap = (ui) => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminProductsPage (D-011 listado)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+    );
     render(wrap(<AdminProductsPage />));
     expect(
       await screen.findByRole('heading', { name: /Productos/i }),
@@ -54,24 +52,31 @@ describe('AdminProductsPage (D-011 listado)', () => {
   });
 
   it('llama a GET /api/v1/admin/products/ al montar', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    let getCalled = false;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, () => {
+        getCalled = true;
+        return HttpResponse.json(RESPONSE_PAGE_1);
+      }),
+    );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/products/',
-      expect.anything(),
-    );
+    expect(getCalled).toBe(true);
   });
 
   it('renderiza cada producto con nombre, SKU, precio y stock', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+    );
     render(wrap(<AdminProductsPage />));
     expect(await screen.findByText('Collar Oshun dorado')).toBeInTheDocument();
     expect(screen.getByText('OSHUN-001')).toBeInTheDocument();
   });
 
   it('muestra estado publicado/borrador segun is_published', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+    );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
     expect(screen.getAllByText('Publicado').length).toBeGreaterThan(0);
@@ -79,7 +84,9 @@ describe('AdminProductsPage (D-011 listado)', () => {
   });
 
   it('muestra estado vacio cuando no hay productos', async () => {
-    apiService.get.mockResolvedValue({ data: { count: 0, results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json({ count: 0, results: [] })),
+    );
     render(wrap(<AdminProductsPage />));
     expect(
       await screen.findByText(/Sin productos que coincidan/i),
@@ -89,7 +96,13 @@ describe('AdminProductsPage (D-011 listado)', () => {
 
 describe('AdminProductsPage — busqueda', () => {
   it('pasa search en los params al cambiar el input', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        return HttpResponse.json(RESPONSE_PAGE_1);
+      }),
+    );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
 
@@ -98,39 +111,33 @@ describe('AdminProductsPage — busqueda', () => {
       { target: { value: 'oshun' } },
     );
 
-    await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/products/',
-        expect.objectContaining({
-          params: expect.objectContaining({ search: 'oshun' }),
-        }),
-      );
-    });
+    await waitFor(() => expect(lastUrl?.searchParams.get('search')).toBe('oshun'));
   });
 });
 
 describe('AdminProductsPage — filtro por estado', () => {
   it('re-llama al API al hacer clic en el boton Publicados', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        return HttpResponse.json(RESPONSE_PAGE_1);
+      }),
+    );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
 
     fireEvent.click(screen.getByRole('button', { name: /Publicados/i }));
 
-    await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/products/',
-        expect.objectContaining({
-          params: expect.objectContaining({ filter: 'published' }),
-        }),
-      );
-    });
+    await waitFor(() => expect(lastUrl?.searchParams.get('filter')).toBe('published'));
   });
 });
 
 describe('AdminProductsPage — botones de accion por fila', () => {
   it('renderiza el enlace al detalle del producto', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+    );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
     const links = screen.getAllByRole('link');
@@ -142,7 +149,9 @@ describe('AdminProductsPage — DataTable (US-2.1)', () => {
   // Migración a DataTable: el catálogo se renderiza en la tabla reutilizable
   // con ordenamiento por columna (cliente). Verifica la interacción de sort.
   it('ordena el catálogo por producto al hacer clic en el header', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+    );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
 

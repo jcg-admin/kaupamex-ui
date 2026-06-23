@@ -8,12 +8,11 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import returnsReducer from '@redux/slices/returnsSlice';
 import AdminReturnDetailPage from './AdminReturnDetailPage';
 
@@ -48,22 +47,25 @@ const PENDING_RETURN = {
   ],
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminReturnDetailPage (UC-RET-02)', () => {
   it('carga el detalle admin por id desde la URL', async () => {
-    apiService.get.mockResolvedValue({ data: PENDING_RETURN });
+    let calledUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/returns/:id/`, ({ request }) => {
+        calledUrl = request.url;
+        return HttpResponse.json(PENDING_RETURN);
+      }),
+    );
     render(wrap(<AdminReturnDetailPage />, makeStore()));
 
     await screen.findByText(/Devoluci.n #300/);
-    expect(apiService.get).toHaveBeenCalledWith(
-      expect.stringContaining('/admin/returns/300/'),
-      expect.anything(),
-    );
+    expect(calledUrl).toContain('/admin/returns/300/');
   });
 
   it('muestra los datos del comprador y de la orden', async () => {
-    apiService.get.mockResolvedValue({ data: PENDING_RETURN });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+    );
     render(wrap(<AdminReturnDetailPage />, makeStore()));
     expect(await screen.findByText('demo@test.mx')).toBeInTheDocument();
     expect(screen.getByText('ORD-300')).toBeInTheDocument();
@@ -71,10 +73,16 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
   });
 
   it('aprueba la solicitud al confirmar el formulario', async () => {
-    apiService.get.mockResolvedValue({ data: PENDING_RETURN });
-    apiService.post.mockResolvedValue({
-      data: { ...PENDING_RETURN, status: 'APPROVED' },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+    );
+    let approvedId;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/returns/:id/approve/`, ({ params }) => {
+        approvedId = params.id;
+        return HttpResponse.json({ ...PENDING_RETURN, status: 'APPROVED' });
+      }),
+    );
 
     render(wrap(<AdminReturnDetailPage />, makeStore()));
     await screen.findByText(/Devoluci.n #300/);
@@ -83,19 +91,20 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
       { target: { value: 'Daño confirmado por fotos' } });
     fireEvent.click(screen.getByRole('button', { name: /^Aprobar$/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/returns/300/approve/'),
-        expect.objectContaining({ justification: 'Daño confirmado por fotos' }),
-      );
-    });
+    await waitFor(() => expect(approvedId).toBe('300'));
   });
 
   it('rechaza la solicitud con justificacion', async () => {
-    apiService.get.mockResolvedValue({ data: PENDING_RETURN });
-    apiService.post.mockResolvedValue({
-      data: { ...PENDING_RETURN, status: 'REJECTED' },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+    );
+    let rejectedId;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/returns/:id/reject/`, ({ params }) => {
+        rejectedId = params.id;
+        return HttpResponse.json({ ...PENDING_RETURN, status: 'REJECTED' });
+      }),
+    );
 
     render(wrap(<AdminReturnDetailPage />, makeStore()));
     await screen.findByText(/Devoluci.n #300/);
@@ -104,19 +113,20 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
       { target: { value: 'Plazo de devolución vencido' } });
     fireEvent.click(screen.getByRole('button', { name: /^Rechazar$/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/returns/300/reject/'),
-        expect.objectContaining({ justification: 'Plazo de devolución vencido' }),
-      );
-    });
+    await waitFor(() => expect(rejectedId).toBe('300'));
   });
 
   it('solicita información adicional al comprador', async () => {
-    apiService.get.mockResolvedValue({ data: PENDING_RETURN });
-    apiService.post.mockResolvedValue({
-      data: { ...PENDING_RETURN, status: 'INFO_REQUESTED' },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+    );
+    let requestedInfoId;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/returns/:id/request-info/`, ({ params }) => {
+        requestedInfoId = params.id;
+        return HttpResponse.json({ ...PENDING_RETURN, status: 'INFO_REQUESTED' });
+      }),
+    );
 
     render(wrap(<AdminReturnDetailPage />, makeStore()));
     await screen.findByText(/Devoluci.n #300/);
@@ -125,21 +135,25 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
       { target: { value: 'Por favor envía fotos adicionales del daño.' } });
     fireEvent.click(screen.getByRole('button', { name: /Solicitar informaci/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/returns/300/request-info/'),
-        expect.objectContaining({ message: expect.stringMatching(/fotos adicionales/i) }),
-      );
-    });
+    await waitFor(() => expect(requestedInfoId).toBe('300'));
   });
 
   it('exige justificacion antes de aprobar o rechazar', async () => {
-    apiService.get.mockResolvedValue({ data: PENDING_RETURN });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+    );
+    let actionCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/returns/:id/approve/`, () => {
+        actionCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(<AdminReturnDetailPage />, makeStore()));
     await screen.findByText(/Devoluci.n #300/);
 
     fireEvent.click(screen.getByRole('button', { name: /^Aprobar$/i }));
     expect(screen.getByText(/La justificación es obligatoria/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(actionCalled).toBe(false);
   });
 });

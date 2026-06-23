@@ -7,13 +7,11 @@ import { Provider } from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import ordersReducer from '@redux/slices/ordersSlice';
 import AdminOrderDetailPage from './AdminOrderDetailPage';
 
@@ -52,11 +50,11 @@ const ORDER = {
   },
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
   it('muestra el numero y estado de la orden', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+    );
     render(wrap(<AdminOrderDetailPage />));
     expect(
       await screen.findByRole('heading', { name: /Pedido PY-2026-000101/i })
@@ -65,8 +63,16 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
   });
 
   it('aplica una transicion via PATCH /admin/orders/:n/status/', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
-    apiService.patch.mockResolvedValue({ data: { ...ORDER, status: 'PROCESSING' } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+    );
+    let lastPatchBody;
+    server.use(
+      http.patch(`${BASE}/api/v1/admin/orders/PY-2026-000101/status/`, async ({ request }) => {
+        lastPatchBody = await request.json();
+        return HttpResponse.json({ ...ORDER, status: 'PROCESSING' });
+      }),
+    );
     const user = userEvent.setup();
 
     render(wrap(<AdminOrderDetailPage />));
@@ -76,17 +82,14 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
     await user.click(screen.getByRole('button', { name: /Aplicar transicion/i }));
 
     await waitFor(() => {
-      expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/orders/PY-2026-000101/status/',
-        expect.objectContaining({
-          new_status: 'PROCESSING',
-        }),
-      );
+      expect(lastPatchBody).toMatchObject({ new_status: 'PROCESSING' });
     });
   });
 
   it('no permite transiciones desde un estado terminal (DELIVERED)', async () => {
-    apiService.get.mockResolvedValue({ data: { ...ORDER, status: 'DELIVERED' } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json({ ...ORDER, status: 'DELIVERED' })),
+    );
     render(wrap(<AdminOrderDetailPage />));
     await screen.findByRole('heading', { name: /Pedido PY-2026-000101/i });
     expect(screen.queryByLabelText(/Nuevo estado/i)).not.toBeInTheDocument();
@@ -95,8 +98,18 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
 
 describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
   it('cancela un pedido con motivo (>= 10 caracteres) via POST /admin/.../cancel/', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
-    apiService.post.mockResolvedValue({ data: { ...ORDER, status: 'CANCELLED' } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+    );
+    let lastPostUrl;
+    let lastPostBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/orders/PY-2026-000101/cancel/`, async ({ request }) => {
+        lastPostUrl = request.url;
+        lastPostBody = await request.json();
+        return HttpResponse.json({ ...ORDER, status: 'CANCELLED' });
+      }),
+    );
     const user = userEvent.setup();
 
     render(wrap(<AdminOrderDetailPage />));
@@ -110,17 +123,19 @@ describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
     await user.click(screen.getByRole('button', { name: /Confirmar cancelacion/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/orders/PY-2026-000101/cancel/',
-        expect.objectContaining({
-          reason: expect.stringMatching(/Cliente solicito/),
-        }),
-      );
+      expect(lastPostUrl).toContain('/admin/orders/PY-2026-000101/cancel/');
+    });
+    await waitFor(() => {
+      expect(lastPostBody).toMatchObject({
+        reason: expect.stringMatching(/Cliente solicito/),
+      });
     });
   });
 
   it('boton confirmar deshabilitado si motivo es muy corto', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+    );
     const user = userEvent.setup();
 
     render(wrap(<AdminOrderDetailPage />));
@@ -134,7 +149,9 @@ describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
   });
 
   it('no muestra cancelacion en pedidos SHIPPED', async () => {
-    apiService.get.mockResolvedValue({ data: { ...ORDER, status: 'SHIPPED' } });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json({ ...ORDER, status: 'SHIPPED' })),
+    );
     render(wrap(<AdminOrderDetailPage />));
     await screen.findByRole('heading', { name: /Pedido PY-2026-000101/i });
     expect(screen.queryByRole('button', { name: /Cancelar este pedido/i })).not.toBeInTheDocument();

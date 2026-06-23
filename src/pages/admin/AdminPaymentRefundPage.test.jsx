@@ -8,12 +8,11 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureStore } from '@reduxjs/toolkit';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import paymentsReducer from '@redux/slices/paymentsSlice';
 import AdminPaymentRefundPage from './AdminPaymentRefundPage';
 
@@ -41,11 +40,11 @@ const APPROVED_PAYMENT = {
   order_number: 'ORD-88',
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
   it('muestra el titulo y la informacion del pago', async () => {
-    apiService.get.mockResolvedValue({ data: APPROVED_PAYMENT });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+    );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Procesar reembolso/i })
@@ -54,10 +53,16 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
   });
 
   it('envia el reembolso con monto y motivo', async () => {
-    apiService.get.mockResolvedValue({ data: APPROVED_PAYMENT });
-    apiService.post.mockResolvedValue({
-      data: { id: 'rfd-1', amount: 500, status: 'REFUNDED' },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+    );
+    let lastRefundBody;
+    server.use(
+      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, async ({ request }) => {
+        lastRefundBody = await request.json();
+        return HttpResponse.json({ id: 'rfd-1', amount: 500, status: 'REFUNDED' });
+      }),
+    );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     await screen.findByRole('heading', { name: /Procesar reembolso/i });
 
@@ -68,27 +73,42 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Procesar reembolso/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/admin/501/refund/',
-        { amount: 500, reason: 'Reembolso de cortesia por incidente' }
-      );
+      expect(lastRefundBody).toMatchObject({ amount: 500, reason: 'Reembolso de cortesia por incidente' });
     });
   });
 
   it('rechaza el envio si el motivo esta vacio', async () => {
-    apiService.get.mockResolvedValue({ data: APPROVED_PAYMENT });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+    );
+    let refundCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () => {
+        refundCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     await screen.findByRole('heading', { name: /Procesar reembolso/i });
 
     fireEvent.change(screen.getByLabelText(/Monto/i), { target: { value: '500' } });
     fireEvent.click(screen.getByRole('button', { name: /Procesar reembolso/i }));
 
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(refundCalled).toBe(false);
     expect(screen.getByText(/Motivo es obligatorio/i)).toBeInTheDocument();
   });
 
   it('rechaza monto mayor al pago', async () => {
-    apiService.get.mockResolvedValue({ data: APPROVED_PAYMENT });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+    );
+    let refundCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () => {
+        refundCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     await screen.findByRole('heading', { name: /Procesar reembolso/i });
 
@@ -96,15 +116,19 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
     fireEvent.change(screen.getByLabelText(/Motivo/i), { target: { value: 'Test refund completo' } });
     fireEvent.click(screen.getByRole('button', { name: /Procesar reembolso/i }));
 
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(refundCalled).toBe(false);
     expect(screen.getByText(/no puede superar el monto del pago/i)).toBeInTheDocument();
   });
 
   it('muestra confirmacion tras un reembolso exitoso', async () => {
-    apiService.get.mockResolvedValue({ data: APPROVED_PAYMENT });
-    apiService.post.mockResolvedValue({
-      data: { id: 'rfd-2', amount: 1500, status: 'REFUNDED' },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+    );
+    server.use(
+      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () =>
+        HttpResponse.json({ id: 'rfd-2', amount: 1500, status: 'REFUNDED' }),
+      ),
+    );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     await screen.findByRole('heading', { name: /Procesar reembolso/i });
 
@@ -118,10 +142,17 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
   });
 
   it('muestra error si el gateway rechaza el reembolso', async () => {
-    apiService.get.mockResolvedValue({ data: APPROVED_PAYMENT });
-    apiService.post.mockRejectedValue({
-      message: 'GATEWAY_ERROR', code: 'GATEWAY_ERROR', status: 502,
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+    );
+    server.use(
+      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () =>
+        HttpResponse.json(
+          { codigo_error: 'GATEWAY_ERROR', detail: 'GATEWAY_ERROR' },
+          { status: 400 },
+        ),
+      ),
+    );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     await screen.findByRole('heading', { name: /Procesar reembolso/i });
 
