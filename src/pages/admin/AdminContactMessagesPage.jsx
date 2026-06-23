@@ -10,6 +10,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminContactMessages } from '@hooks/domain/useContactMessages';
+import { DataTable } from '@components/common';
 import styles from './AdminContactMessagesPage.module.scss';
 
 function getStatusLabel(m) {
@@ -82,80 +83,67 @@ export default function AdminContactMessagesPage() {
         </label>
       </div>
 
-      {isLoading && <p>Cargando bandeja…</p>}
-
       {isError && (
         <p role="alert" className={styles.error}>
           No se pudo cargar la bandeja. Intenta de nuevo.
         </p>
       )}
 
-      {!isLoading && items.length === 0 && (
-        <p className={styles.empty}>No hay mensajes para mostrar.</p>
-      )}
-
-      {items.length > 0 && (
-        <>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Asunto</th>
-                <th>Remitente</th>
-                <th>Estado</th>
-                <th>Recibido</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((m) => (
-                <tr key={m.id}>
-                  <td>#{m.id}</td>
-                  <td>{m.subject}</td>
-                  <td>
-                    <div className={styles.customer}>
-                      <span>{m.name ?? '—'}</span>
-                      <span className={styles.customerEmail}>{m.email ?? '—'}</span>
-                    </div>
-                  </td>
-                  <td>{getStatusLabel(m)}</td>
-                  <td>{formatDate(m.created_at)}</td>
-                  <td>
-                    <Link
-                      to={`/admin/contact/messages/${m.id}`}
-                      className={styles.detailLink}
-                    >
-                      Ver detalle
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* H-CICLO123-01: pagination controls */}
-          {(hasPrev || hasNext) && (
-            <nav className={styles.pagination} aria-label="Paginacion de mensajes">
-              <button
-                type="button"
-                className={styles.pageBtn}
-                disabled={!hasPrev}
-                onClick={() => setPage((p) => p - 1)}
+      <DataTable
+        columns={[
+          { key: 'id',         header: 'ID',
+            render: (m) => `#${m.id}` },
+          { key: 'subject',    header: 'Asunto',     sortable: true },
+          { key: 'remitente',  header: 'Remitente',
+            render: (m) => (
+              <div className={styles.customer}>
+                <span>{m.name ?? '—'}</span>
+                <span className={styles.customerEmail}>{m.email ?? '—'}</span>
+              </div>
+            ) },
+          { key: 'status',     header: 'Estado',
+            render: (m) => getStatusLabel(m) },
+          { key: 'created_at', header: 'Recibido',   sortable: true,
+            render: (m) => formatDate(m.created_at) },
+          { key: 'actions',    header: 'Acciones',
+            render: (m) => (
+              <Link
+                to={`/admin/contact/messages/${m.id}`}
+                className={styles.detailLink}
               >
-                Anterior
-              </button>
-              <span className={styles.pageInfo}>Página {page}</span>
-              <button
-                type="button"
-                className={styles.pageBtn}
-                disabled={!hasNext}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Siguiente
-              </button>
-            </nav>
-          )}
-        </>
+                Ver detalle
+              </Link>
+            ) },
+        ]}
+        rows={items}
+        rowKey={(m) => m.id}
+        loading={isLoading}
+        emptyText="No hay mensajes para mostrar."
+        caption="Mensajes de contacto"
+        pageSize={0}
+      />
+
+      {/* H-CICLO123-01: pagination controls */}
+      {(hasPrev || hasNext) && (
+        <nav className={styles.pagination} aria-label="Paginacion de mensajes">
+          <button
+            type="button"
+            className={styles.pageBtn}
+            disabled={!hasPrev}
+            onClick={() => setPage((p) => p - 1)}
+          >
+            Anterior
+          </button>
+          <span className={styles.pageInfo}>Página {page}</span>
+          <button
+            type="button"
+            className={styles.pageBtn}
+            disabled={!hasNext}
+            onClick={() => setPage((p) => p + 1)}
+          >
+            Siguiente
+          </button>
+        </nav>
       )}
     </section>
   );
