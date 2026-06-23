@@ -7,15 +7,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import referralReducer from '@redux/slices/referralSlice';
 import ReferralPage from './ReferralPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { referral: referralReducer } });
@@ -34,11 +32,11 @@ const GET_PAYLOAD = {
   rewards_earned:      150,
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('ReferralPage', () => {
   it('renderiza el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: GET_PAYLOAD });
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+    );
     render(wrap(<ReferralPage />, makeStore()));
     expect(
       screen.getByRole('heading', { name: /Programa de referidos/i, level: 1 }),
@@ -46,7 +44,9 @@ describe('ReferralPage', () => {
   });
 
   it('muestra el codigo y las metricas tras el GET', async () => {
-    apiService.get.mockResolvedValue({ data: GET_PAYLOAD });
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+    );
     render(wrap(<ReferralPage />, makeStore()));
 
     expect(await screen.findByTestId('referral-code')).toHaveTextContent('YORUBA-42');
@@ -59,11 +59,11 @@ describe('ReferralPage', () => {
   });
 
   it('muestra el estado de programa deshabilitado ante un 404', async () => {
-    apiService.get.mockRejectedValue({
-      message: 'Not found',
-      code: 'NOT_FOUND',
-      statusCode: 404,
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () =>
+        HttpResponse.json({ detail: 'Not found' }, { status: 404 }),
+      ),
+    );
     render(wrap(<ReferralPage />, makeStore()));
 
     expect(
@@ -73,8 +73,16 @@ describe('ReferralPage', () => {
   });
 
   it('canjea un codigo correctamente y muestra confirmacion', async () => {
-    apiService.get.mockResolvedValue({ data: GET_PAYLOAD });
-    apiService.post.mockResolvedValue({ data: { detail: 'ok' } });
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+    );
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/account/referral/redeem/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ detail: 'ok' });
+      }),
+    );
     render(wrap(<ReferralPage />, makeStore()));
 
     await screen.findByTestId('referral-code');
@@ -84,24 +92,24 @@ describe('ReferralPage', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /Canjear/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/account/referral/redeem/',
-        { code: 'FRIEND-CODE' },
-      );
-    });
+    await waitFor(() => expect(lastBody).toMatchObject({ code: 'FRIEND-CODE' }));
     expect(
       await screen.findByText(/Código canjeado correctamente/i),
     ).toBeInTheDocument();
   });
 
   it('surface el mensaje del codigo_error al fallar el canje (422 self-referral)', async () => {
-    apiService.get.mockResolvedValue({ data: GET_PAYLOAD });
-    apiService.post.mockRejectedValue({
-      message: 'Self referral',
-      code: 'SELF_REFERRAL_NOT_ALLOWED',
-      statusCode: 422,
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+    );
+    server.use(
+      http.post(`${BASE}/api/v1/account/referral/redeem/`, () =>
+        HttpResponse.json(
+          { codigo_error: 'SELF_REFERRAL_NOT_ALLOWED', detail: 'Self referral' },
+          { status: 422 },
+        ),
+      ),
+    );
     render(wrap(<ReferralPage />, makeStore()));
 
     await screen.findByTestId('referral-code');

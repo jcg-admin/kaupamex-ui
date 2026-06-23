@@ -8,17 +8,15 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import { createErrorFromResponse } from '@utils/apiErrors';
 import adminReducer from '@redux/slices/adminSlice';
 import authReducer  from '@redux/slices/authSlice';
 import AdminUserPermissions from './index';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const TARGET_USER = {
   id: 42, username: 'buyer42', email: 'buyer42@test.mx',
@@ -42,8 +40,6 @@ const wrap = (user = TARGET_USER, store = makeStore()) => (
     <AdminUserPermissions user={user} />
   </Provider>
 );
-
-afterEach(() => jest.clearAllMocks());
 
 describe('AdminUserPermissions — render (UC-ADM-02)', () => {
   it('muestra el control de acceso de staff', () => {
@@ -69,9 +65,13 @@ describe('AdminUserPermissions — render (UC-ADM-02)', () => {
 
 describe('AdminUserPermissions — guardar (éxito)', () => {
   it('hace POST al endpoint de permisos con el body parcial correcto', async () => {
-    apiService.post.mockResolvedValue({
-      data: { ...TARGET_USER, is_staff: true },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ ...TARGET_USER, is_staff: true });
+      }),
+    );
     render(wrap());
 
     // Activar staff y escribir grupos.
@@ -82,55 +82,61 @@ describe('AdminUserPermissions — guardar (éxito)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar permisos/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/users/42/permissions/',
-        expect.objectContaining({
-          is_staff: true,
-          is_superuser: false,
-          groups: [1, 2],
-        }),
-      );
+      expect(lastBody).toMatchObject({
+        is_staff: true,
+        is_superuser: false,
+        groups: [1, 2],
+      });
     });
     expect(await screen.findByText(/Permisos actualizados/i)).toBeInTheDocument();
   });
 
   it('descarta ids de grupo no numéricos', async () => {
-    apiService.post.mockResolvedValue({ data: TARGET_USER });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json(TARGET_USER);
+      }),
+    );
     render(wrap());
     fireEvent.change(screen.getByPlaceholderText(/1, 2, 3/), {
       target: { value: '3, abc, 5' },
     });
     fireEvent.click(screen.getByRole('button', { name: /Guardar permisos/i }));
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/users/42/permissions/',
-        expect.objectContaining({ groups: [3, 5] }),
-      );
+      expect(lastBody).toMatchObject({ groups: [3, 5] });
     });
   });
 
   it('un viewer no-superadmin no envía is_superuser', async () => {
-    apiService.post.mockResolvedValue({ data: TARGET_USER });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json(TARGET_USER);
+      }),
+    );
     render(wrap(TARGET_USER, makeStore(STAFF_ONLY)));
     fireEvent.click(screen.getByRole('button', { name: /Guardar permisos/i }));
     await waitFor(() => {
-      const body = apiService.post.mock.calls[0][1];
-      expect(body).not.toHaveProperty('is_superuser');
+      expect(lastBody).not.toHaveProperty('is_superuser');
     });
   });
 });
 
 describe('AdminUserPermissions — errores', () => {
   it('muestra mensaje de auto-lockout ante codigo_error CANNOT_DEMOTE_SELF', async () => {
-    // El viewer edita su propia cuenta y la API rechaza la auto-degradación.
-    apiService.post.mockRejectedValue(
-      createErrorFromResponse({
-        status: 400,
-        data: {
-          detail: 'Un administrador no puede quitarse a sí mismo el rol.',
-          codigo_error: 'CANNOT_DEMOTE_SELF',
-        },
-      }),
+    server.use(
+      http.post(`${BASE}/api/v1/admin/users/1/permissions/`, () =>
+        HttpResponse.json(
+          {
+            detail: 'Un administrador no puede quitarse a sí mismo el rol.',
+            codigo_error: 'CANNOT_DEMOTE_SELF',
+          },
+          { status: 400 },
+        ),
+      ),
     );
     const selfUser = { ...TARGET_USER, id: 1, username: 'root', is_staff: true, is_admin: true };
     render(wrap(selfUser, makeStore(SUPERADMIN)));
@@ -141,11 +147,10 @@ describe('AdminUserPermissions — errores', () => {
   });
 
   it('muestra mensaje de permiso denegado ante 403', async () => {
-    apiService.post.mockRejectedValue(
-      createErrorFromResponse({
-        status: 403,
-        data: { detail: 'Forbidden' },
-      }),
+    server.use(
+      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, () =>
+        HttpResponse.json({ detail: 'Forbidden' }, { status: 403 }),
+      ),
     );
     render(wrap());
     fireEvent.click(screen.getByRole('button', { name: /Guardar permisos/i }));

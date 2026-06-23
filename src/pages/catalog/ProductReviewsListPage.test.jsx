@@ -5,14 +5,11 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import ProductReviewsListPage from './ProductReviewsListPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeQueryClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -30,11 +27,13 @@ const wrap = (path = '/catalog/42/reviews') => (
   </QueryClientProvider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('ProductReviewsListPage (UC-REV-02)', () => {
   it('muestra el titulo de la seccion de resenas', () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
     render(wrap());
     expect(
       screen.getByRole('heading', { name: /Rese[nñ]as del producto/i }),
@@ -42,49 +41,60 @@ describe('ProductReviewsListPage (UC-REV-02)', () => {
   });
 
   it('GET al endpoint publico del producto', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/products/42/reviews/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ results: [] });
+      }),
+    );
     render(wrap());
     await screen.findByText(/A[uú]n no hay rese[nñ]as/i);
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/products/42/reviews/',
-      expect.any(Object),
-    );
+    expect(capturedUrl).toContain('/api/v1/products/42/reviews/');
   });
 
   it('muestra la calificacion promedio y el total de resenas', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [
-          { id: 1, rating: 5, title: 'Bueno', body: 'Cumple lo prometido' },
-          { id: 2, rating: 4, title: 'Bien', body: 'Calidad correcta' },
-        ],
-        average_rating: 4.5,
-        total_reviews:  2,
-        rating_breakdown: { '5': 1, '4': 1 },
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+        HttpResponse.json({
+          results: [
+            { id: 1, rating: 5, title: 'Bueno', body: 'Cumple lo prometido' },
+            { id: 2, rating: 4, title: 'Bien', body: 'Calidad correcta' },
+          ],
+          average_rating: 4.5,
+          total_reviews:  2,
+          rating_breakdown: { '5': 1, '4': 1 },
+        }),
+      ),
+    );
     render(wrap());
     expect(await screen.findByText(/4\.5/)).toBeInTheDocument();
     expect(screen.getByText(/2 rese[nñ]as/i)).toBeInTheDocument();
   });
 
   it('lista los items con titulo y texto', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [
-          { id: 1, rating: 5, title: 'Excelente', body: 'Recomendado.' },
-        ],
-        average_rating: 5.0,
-        total_reviews:  1,
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+        HttpResponse.json({
+          results: [
+            { id: 1, rating: 5, title: 'Excelente', body: 'Recomendado.' },
+          ],
+          average_rating: 5.0,
+          total_reviews:  1,
+        }),
+      ),
+    );
     render(wrap());
     expect(await screen.findByText(/Excelente/)).toBeInTheDocument();
     expect(screen.getByText(/Recomendado\./)).toBeInTheDocument();
   });
 
   it('muestra estado vacio cuando no hay resenas', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
     render(wrap());
     expect(
       await screen.findByText(/A[uú]n no hay rese[nñ]as aprobadas/i),

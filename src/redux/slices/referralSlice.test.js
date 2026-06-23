@@ -4,15 +4,10 @@
  * Patron canonico D-010: errores tipados via serializeApiError; el
  * campo `code` transporta el codigo_error del backend.
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { configureStore } from '@reduxjs/toolkit';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
-
+import { waitFor } from '@testing-library/react';
 import referralReducer, {
   fetchReferral,
   redeemReferral,
@@ -20,10 +15,10 @@ import referralReducer, {
   clearReferralRedeemState,
 } from './referralSlice';
 
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 const makeStore = () =>
   configureStore({ reducer: { referral: referralReducer } });
-
-afterEach(() => jest.clearAllMocks());
 
 describe('referralSlice — initial state', () => {
   it('expone el estado inicial esperado', () => {
@@ -46,21 +41,21 @@ describe('referralSlice — initial state', () => {
 
 describe('referralSlice — fetchReferral', () => {
   it('normaliza el payload del backend (snake_case -> camelCase)', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        code:                'YORUBA-42',
-        share_link:          'https://practicayoruba.test/r/YORUBA-42',
-        total_referrals:     5,
-        completed_referrals: 3,
-        rewards_earned:      150,
-      },
-    });
-
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () =>
+        HttpResponse.json({
+          code:                'YORUBA-42',
+          share_link:          'https://practicayoruba.test/r/YORUBA-42',
+          total_referrals:     5,
+          completed_referrals: 3,
+          rewards_earned:      150,
+        }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchReferral());
     const { referral } = store.getState();
 
-    expect(apiService.get).toHaveBeenCalledWith('/api/v1/account/referral/');
     expect(referral.code).toBe('YORUBA-42');
     expect(referral.shareLink).toBe('https://practicayoruba.test/r/YORUBA-42');
     expect(referral.totalReferrals).toBe(5);
@@ -72,12 +67,14 @@ describe('referralSlice — fetchReferral', () => {
   });
 
   it('marca isProgramDisabled cuando el GET responde 404 NOT_FOUND', async () => {
-    apiService.get.mockRejectedValue({
-      message: 'Not found',
-      code: 'NOT_FOUND',
-      statusCode: 404,
-    });
-
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () =>
+        HttpResponse.json(
+          { detail: 'Not found', codigo_error: 'NOT_FOUND' },
+          { status: 404 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchReferral());
     const { referral } = store.getState();
@@ -88,22 +85,28 @@ describe('referralSlice — fetchReferral', () => {
   });
 
   it('guarda el error en estado para fallos no-404', async () => {
-    apiService.get.mockRejectedValue({
-      message: 'Server error',
-      code: 'SERVER_ERROR',
-      statusCode: 500,
-    });
-
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () =>
+        HttpResponse.json(
+          { detail: 'Server error', codigo_error: 'SERVER_ERROR' },
+          { status: 422 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchReferral());
     const { referral } = store.getState();
 
     expect(referral.isProgramDisabled).toBe(false);
-    expect(referral.error).toMatchObject({ statusCode: 500 });
+    expect(referral.error).toMatchObject({ statusCode: 422 });
   });
 
   it('clearReferralError limpia el error', async () => {
-    apiService.get.mockRejectedValue({ message: 'boom', statusCode: 500 });
+    server.use(
+      http.get(`${BASE}/api/v1/account/referral/`, () =>
+        HttpResponse.json({ detail: 'boom' }, { status: 422 }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchReferral());
     expect(store.getState().referral.error).not.toBeNull();
@@ -114,28 +117,33 @@ describe('referralSlice — fetchReferral', () => {
 
 describe('referralSlice — redeemReferral', () => {
   it('canjea un codigo y marca lastRedeemSucceeded', async () => {
-    apiService.post.mockResolvedValue({ data: { detail: 'ok' } });
-
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/account/referral/redeem/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ detail: 'ok' });
+      }),
+    );
     const store = makeStore();
     await store.dispatch(redeemReferral('YORUBA-99'));
     const { referral } = store.getState();
 
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/account/referral/redeem/',
-      { code: 'YORUBA-99' },
-    );
+    await waitFor(() => expect(lastBody).toBeDefined());
+    expect(lastBody).toMatchObject({ code: 'YORUBA-99' });
     expect(referral.lastRedeemSucceeded).toBe(true);
     expect(referral.isRedeeming).toBe(false);
     expect(referral.redeemError).toBeNull();
   });
 
   it('preserva el codigo_error en redeemError ante un 422', async () => {
-    apiService.post.mockRejectedValue({
-      message: 'Self referral',
-      code: 'SELF_REFERRAL_NOT_ALLOWED',
-      statusCode: 422,
-    });
-
+    server.use(
+      http.post(`${BASE}/api/v1/account/referral/redeem/`, () =>
+        HttpResponse.json(
+          { detail: 'Self referral', codigo_error: 'SELF_REFERRAL_NOT_ALLOWED' },
+          { status: 422 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(redeemReferral('MY-OWN-CODE'));
     const { referral } = store.getState();
@@ -148,7 +156,11 @@ describe('referralSlice — redeemReferral', () => {
   });
 
   it('clearReferralRedeemState limpia error y bandera de exito', async () => {
-    apiService.post.mockResolvedValue({ data: {} });
+    server.use(
+      http.post(`${BASE}/api/v1/account/referral/redeem/`, () =>
+        HttpResponse.json({}),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(redeemReferral('ABC'));
     expect(store.getState().referral.lastRedeemSucceeded).toBe(true);

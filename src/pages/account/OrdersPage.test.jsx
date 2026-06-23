@@ -1,20 +1,18 @@
 /**
  * Tests — OrdersPage (UC-ORD-03)
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import ordersReducer from '@redux/slices/ordersSlice';
 import OrdersPage from './OrdersPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { orders: ordersReducer } });
@@ -39,11 +37,11 @@ const ORDERS = [
     created_at: '2026-05-01T10:00:00Z', total: '320.00',  items_count: 3 },
 ];
 
-afterEach(() => jest.clearAllMocks());
-
 describe('OrdersPage (UC-ORD-03 listado)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
+    server.use(
+      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+    );
     render(wrap(<OrdersPage />));
     expect(
       await screen.findByRole('heading', { name: /Mis pedidos/i })
@@ -51,7 +49,9 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
   });
 
   it('renderiza el numero de orden de cada pedido', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
+    server.use(
+      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+    );
     render(wrap(<OrdersPage />));
     expect(await screen.findByText('PY-2026-000001')).toBeInTheDocument();
     expect(screen.getByText('PY-2026-000002')).toBeInTheDocument();
@@ -59,7 +59,9 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
   });
 
   it('muestra el estado de cada pedido en espanol', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
+    server.use(
+      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+    );
     render(wrap(<OrdersPage />));
     // Component uses STATUS_TONE map: PENDING='Pendiente', SHIPPED='En camino', CANCELLED='Cancelado'
     expect(await screen.findByText('Pendiente')).toBeInTheDocument();
@@ -68,7 +70,9 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
   });
 
   it('enlaza al detalle de cada orden', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
+    server.use(
+      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+    );
     render(wrap(<OrdersPage />));
     // Component links to /account/orders/{order_number}
     await screen.findByText('PY-2026-000001');
@@ -78,7 +82,9 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
   });
 
   it('muestra estado vacio cuando no hay pedidos', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], count: 0 } });
+    server.use(
+      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: [], count: 0 })),
+    );
     render(wrap(<OrdersPage />));
     // Component renders "Aún no tienes pedidos" when list is empty
     expect(
@@ -87,12 +93,15 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
   });
 
   it('llama al endpoint /api/v1/orders/', async () => {
-    apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/orders/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ results: ORDERS, count: 3 });
+      }),
+    );
     render(wrap(<OrdersPage />));
     await screen.findByText('PY-2026-000001');
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/orders/',
-      expect.objectContaining({ params: {} }),
-    );
+    await waitFor(() => expect(capturedUrl).toContain('/api/v1/orders/'));
   });
 });

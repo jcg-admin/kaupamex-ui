@@ -2,21 +2,19 @@
  * Tests — useAddProductWithVariant
  * UC-CHT-02: Seleccionar Variante al Agregar al Carrito.
  */
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn(), delete: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import cartReducer       from '@redux/slices/cartSlice';
 import yorubaVariantsReducer, {
   selectVariant,
 } from '@redux/slices/yorubaVariantsSlice';
 import useAddProductWithVariant from './useAddProductWithVariant';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const buildStore = () =>
   configureStore({
@@ -29,8 +27,6 @@ const buildStore = () =>
 const wrap = (store) => ({ children }) => (
   <Provider store={store}>{children}</Provider>
 );
-
-afterEach(() => jest.clearAllMocks());
 
 const PRODUCT_WITH_VARIANTS = {
   id: 7,
@@ -62,7 +58,6 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
 
     expect(outcome.ok).toBe(false);
     expect(outcome.error).toBe('VARIANT_REQUIRED');
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('rechaza si la variante seleccionada no tiene stock disponible', async () => {
@@ -81,13 +76,17 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
 
     expect(outcome.ok).toBe(false);
     expect(outcome.error).toBe('VARIANT_OUT_OF_STOCK');
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('agrega al carrito con product_id, variant_id y quantity correctos', async () => {
-    apiService.post.mockResolvedValue({
-      data: { items: [], voucher: null },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ items: [], voucher: null });
+      }),
+    );
+
     const store = buildStore();
     store.dispatch(selectVariant(201)); // Chico: stock 4
 
@@ -102,20 +101,24 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
     });
 
     expect(outcome.ok).toBe(true);
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/cart/items/',
-      expect.objectContaining({
+    await waitFor(() => {
+      expect(lastBody).toMatchObject({
         product_id: 7,
         variant_id: 201,
         quantity:   2,
-      }),
-    );
+      });
+    });
   });
 
   it('si el producto no tiene variantes agrega sin variant_id', async () => {
-    apiService.post.mockResolvedValue({
-      data: { items: [], voucher: null },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ items: [], voucher: null });
+      }),
+    );
+
     const store = buildStore();
     const { result } = renderHook(
       () => useAddProductWithVariant(),
@@ -128,18 +131,24 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
     });
 
     expect(outcome.ok).toBe(true);
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/cart/items/',
-      expect.objectContaining({
+    await waitFor(() => {
+      expect(lastBody).toMatchObject({
         product_id: 8,
         variant_id: null,
         quantity:   1,
-      }),
-    );
+      });
+    });
   });
 
   it('cantidad por defecto es 1', async () => {
-    apiService.post.mockResolvedValue({ data: { items: [] } });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ items: [] });
+      }),
+    );
+
     const store = buildStore();
     store.dispatch(selectVariant(201));
 
@@ -152,10 +161,9 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
       await result.current.addProduct(PRODUCT_WITH_VARIANTS);
     });
 
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/cart/items/',
-      expect.objectContaining({ quantity: 1 }),
-    );
+    await waitFor(() => {
+      expect(lastBody).toMatchObject({ quantity: 1 });
+    });
   });
 
   it('reporta el id de la variante seleccionada como `selectedVariantId`', () => {

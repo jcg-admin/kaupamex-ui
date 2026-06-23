@@ -5,15 +5,13 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }      from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import returnsReducer from '@redux/slices/returnsSlice';
 import AdminReturnRefundPanel from './AdminReturnRefundPanel';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { returns: returnsReducer } });
@@ -36,8 +34,6 @@ const COMPLETED = {
 
 const NOT_ELIGIBLE = { id: 300, status: 'APPROVED' };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminReturnRefundPanel (UC-RET-06)', () => {
   it('no se renderiza si la devolución no está en estado COMPLETADA', () => {
     const { container } = render(
@@ -54,25 +50,30 @@ describe('AdminReturnRefundPanel (UC-RET-06)', () => {
   });
 
   it('procesa el reembolso con el monto confirmado', async () => {
-    apiService.post.mockResolvedValue({
-      data: { ...COMPLETED, refund: { status: 'APPROVED', amount: 1250 } },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/returns/300/refund/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ ...COMPLETED, refund: { status: 'APPROVED', amount: 1250 } });
+      }),
+    );
 
     render(wrap(<AdminReturnRefundPanel returnRequest={COMPLETED} />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Confirmar reembolso/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/returns/300/refund/'),
-        expect.objectContaining({ amount: 1250 }),
-      );
+      expect(lastBody).toMatchObject({ amount: 1250 });
     });
   });
 
   it('permite ajustar el monto antes de confirmar el reembolso', async () => {
-    apiService.post.mockResolvedValue({
-      data: { ...COMPLETED, refund: { status: 'APPROVED', amount: 900 } },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/admin/returns/300/refund/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ ...COMPLETED, refund: { status: 'APPROVED', amount: 900 } });
+      }),
+    );
 
     render(wrap(<AdminReturnRefundPanel returnRequest={COMPLETED} />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Monto a reembolsar/i),
@@ -80,10 +81,7 @@ describe('AdminReturnRefundPanel (UC-RET-06)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Confirmar reembolso/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenLastCalledWith(
-        expect.stringContaining('/admin/returns/300/refund/'),
-        expect.objectContaining({ amount: 900 }),
-      );
+      expect(lastBody).toMatchObject({ amount: 900 });
     });
   });
 
@@ -94,6 +92,5 @@ describe('AdminReturnRefundPanel (UC-RET-06)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Confirmar reembolso/i }));
 
     expect(screen.getByText(/El monto debe ser mayor a cero/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 });

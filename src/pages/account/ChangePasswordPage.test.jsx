@@ -1,22 +1,17 @@
 /**
  * Tests — ChangePasswordPage (UC-AUTH-08)
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(),
-    patch: jest.fn(), delete: jest.fn(),
-  },
-}));
-
-import apiService from '@services/apiService';
 import authReducer from '../../redux/slices/authSlice';
 import ChangePasswordPage from './ChangePasswordPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({
@@ -37,8 +32,6 @@ const renderPage = () =>
       </MemoryRouter>
     </Provider>,
   );
-
-afterEach(() => jest.clearAllMocks());
 
 describe('ChangePasswordPage (UC-AUTH-08)', () => {
   it('renderiza el formulario con los 3 campos', () => {
@@ -95,7 +88,13 @@ describe('ChangePasswordPage (UC-AUTH-08)', () => {
   });
 
   it('envia POST a change-password y muestra confirmacion', async () => {
-    apiService.post.mockResolvedValue({ data: { status: 'OK' } });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/auth/change-password/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ status: 'OK' });
+      }),
+    );
     renderPage();
     fireEvent.change(screen.getByLabelText(/contrasena actual/i), {
       target: { value: 'OldPass1!', name: 'oldPassword' },
@@ -108,15 +107,11 @@ describe('ChangePasswordPage (UC-AUTH-08)', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /guardar cambio/i }));
     await waitFor(() =>
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/auth/change-password/',
-        {
-          current_password: 'OldPass1!',
-          new_password: 'NewPass1!',
-          // DEC-AUM-02: rename a canon API new_password_confirm.
-          new_password_confirm: 'NewPass1!',
-        },
-      ),
+      expect(lastBody).toMatchObject({
+        current_password: 'OldPass1!',
+        new_password: 'NewPass1!',
+        new_password_confirm: 'NewPass1!',
+      }),
     );
     expect(
       await screen.findByText(/contrasena cambiada exitosamente/i),
@@ -124,12 +119,11 @@ describe('ChangePasswordPage (UC-AUTH-08)', () => {
   });
 
   it('muestra error de contrasena actual incorrecta (Alt A)', async () => {
-    apiService.post.mockRejectedValue({
-      code: 'INVALID_CURRENT_PASSWORD',
-      status: 400,
-      message: 'incorrecta',
-      body: { detail: 'La contrasena actual es incorrecta.' },
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/auth/change-password/`, () =>
+        HttpResponse.json({ detail: 'La contrasena actual es incorrecta.' }, { status: 400 }),
+      ),
+    );
     renderPage();
     fireEvent.change(screen.getByLabelText(/contrasena actual/i), {
       target: { value: 'Wrong1!', name: 'oldPassword' },

@@ -1,23 +1,18 @@
 /**
  * Tests — WishlistPage (UC-WISH-02 + UC-WISH-03)
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureStore } from '@reduxjs/toolkit';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(),
-    patch: jest.fn(), delete: jest.fn(),
-  },
-}));
-
-import apiService from '@services/apiService';
 import wishlistReducer from '../../redux/slices/wishlistSlice';
 import WishlistPage from './WishlistPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 // Use the field names the component actually reads:
 // item.product_name, item.current_price, item.image_url, item.is_available, item.stock
@@ -56,11 +51,13 @@ const renderPage = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
   it('muestra titulo Lista de deseos', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], total_items: 0 } });
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [], total_items: 0 }),
+      ),
+    );
     renderPage();
     expect(
       await screen.findByRole('heading', { name: /lista de deseos/i }),
@@ -68,9 +65,11 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
   });
 
   it('renderiza los productos guardados con nombre y precio', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [ITEM_1, ITEM_2], total_items: 2 },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_1, ITEM_2], total_items: 2 }),
+      ),
+    );
     renderPage();
     expect(await screen.findByText('Collar Yemayá')).toBeInTheDocument();
     // Both items have image_url set, so product_name only appears in h3
@@ -79,9 +78,11 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
 
   it('marca el item sin stock: solo muestra última unidad badge cuando stock <= 3', async () => {
     const LOW_STOCK_ITEM = { ...ITEM_1, stock: 2, is_available: true };
-    apiService.get.mockResolvedValue({
-      data: { results: [LOW_STOCK_ITEM], total_items: 1 },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [LOW_STOCK_ITEM], total_items: 1 }),
+      ),
+    );
     renderPage();
     await screen.findByText('Collar Yemayá');
     // Component renders "Última unidad" badge when is_available=true and stock <= 3
@@ -91,9 +92,11 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
   });
 
   it('destaca el indicador de rebaja cuando current_price < price_at_add', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [ITEM_1], total_items: 1 },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_1], total_items: 1 }),
+      ),
+    );
     renderPage();
     await screen.findByText('Collar Yemayá');
     // Component renders "Bajó de precio" badge when current_price < price_at_add
@@ -101,9 +104,11 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
   });
 
   it('muestra mensaje vacio cuando la lista no tiene items', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [], total_items: 0 },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [], total_items: 0 }),
+      ),
+    );
     renderPage();
     // Component shows "No tienes piezas guardadas" in EmptyState
     expect(
@@ -112,26 +117,40 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
   });
 
   it('UC-WISH-02: eliminar item llama DELETE', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [ITEM_1], total_items: 1 },
-    });
-    apiService.delete.mockResolvedValue({});
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_1], total_items: 1 }),
+      ),
+    );
+    let deleteCalled = false;
+    server.use(
+      http.delete(`${BASE}/api/v1/wishlist/:itemId/`, () => {
+        deleteCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     renderPage();
     await screen.findByText('Collar Yemayá');
     // The remove button has aria-label="Quitar de deseos"
     fireEvent.click(
       screen.getByRole('button', { name: /quitar de deseos/i }),
     );
-    await waitFor(() =>
-      expect(apiService.delete).toHaveBeenCalledWith('/api/v1/wishlist/1/'),
-    );
+    await waitFor(() => expect(deleteCalled).toBe(true));
   });
 
   it('UC-WISH-03: mover al carrito invoca el endpoint move-to-cart', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [ITEM_1], total_items: 1 },
-    });
-    apiService.post.mockResolvedValue({ data: {} });
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_1], total_items: 1 }),
+      ),
+    );
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/wishlist/:itemId/move-to-cart/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({});
+      }),
+    );
     renderPage();
     await screen.findByText('Collar Yemayá');
     // The move button text is "Mover al carrito"
@@ -139,17 +158,16 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
       screen.getByRole('button', { name: /mover al carrito/i }),
     );
     await waitFor(() =>
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/wishlist/1/move-to-cart/',
-        { quantity: 1, keep_in_wishlist: false },
-      ),
+      expect(lastBody).toMatchObject({ quantity: 1, keep_in_wishlist: false }),
     );
   });
 
   it('UC-WISH-03: si el item esta sin stock, el boton mover sigue presente', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [ITEM_2], total_items: 1 },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_2], total_items: 1 }),
+      ),
+    );
     renderPage();
     await screen.findByText('Pulsera Oshún');
     // The move button is always rendered (component does not disable it for out-of-stock)

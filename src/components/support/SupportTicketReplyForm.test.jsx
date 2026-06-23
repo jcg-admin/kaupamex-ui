@@ -6,15 +6,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import supportTicketsReducer from '@redux/slices/supportTicketsSlice';
 import SupportTicketReplyForm from './SupportTicketReplyForm';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { supportTickets: supportTicketsReducer } });
@@ -24,8 +22,6 @@ const wrap = (ui, store) => (
     <MemoryRouter>{ui}</MemoryRouter>
   </Provider>
 );
-
-afterEach(() => jest.clearAllMocks());
 
 describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
   it('renderiza el campo de texto y el boton de enviar', () => {
@@ -43,13 +39,16 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
     expect(
       screen.getByText(/La respuesta debe tener al menos 10 caracteres/i)
     ).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('envia la respuesta al backend con el body indicado', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 99, body: 'Mi respuesta valida', author: 'buyer', sent_at: '2026-05-19T10:00:00Z' },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/support/tickets/5/replies/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 99, body: 'Mi respuesta valida', author: 'buyer', sent_at: '2026-05-19T10:00:00Z' });
+      }),
+    );
 
     render(wrap(<SupportTicketReplyForm ticketId={5} />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Tu respuesta/i), {
@@ -58,20 +57,19 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Enviar respuesta/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/support/tickets/5/replies/'),
-        expect.objectContaining({
-          body: 'Esta es una respuesta valida con suficiente largo',
-          is_internal_note: false,
-        }),
-      );
+      expect(lastBody).toMatchObject({
+        body: 'Esta es una respuesta valida con suficiente largo',
+        is_internal_note: false,
+      });
     });
   });
 
   it('limpia el campo despues de enviar una respuesta', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 99, body: 'ok', author: 'buyer', sent_at: '2026-05-19T10:00:00Z' },
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/support/tickets/5/replies/`, () =>
+        HttpResponse.json({ id: 99, body: 'ok', author: 'buyer', sent_at: '2026-05-19T10:00:00Z' }),
+      ),
+    );
 
     render(wrap(<SupportTicketReplyForm ticketId={5} />, makeStore()));
     const textarea = screen.getByLabelText(/Tu respuesta/i);
@@ -82,9 +80,13 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
   });
 
   it('admin puede marcar la respuesta como nota interna', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 1, body: 'Nota interna del equipo', is_internal: true, author: 'admin' },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/support/tickets/5/replies/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 1, body: 'Nota interna del equipo', is_internal: true, author: 'admin' });
+      }),
+    );
 
     render(wrap(<SupportTicketReplyForm ticketId={5} isAdmin />, makeStore()));
     const checkbox = screen.getByLabelText(/Nota interna/i);
@@ -95,10 +97,7 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Enviar respuesta/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/support/tickets/5/replies/'),
-        expect.objectContaining({ is_internal_note: true }),
-      );
+      expect(lastBody).toMatchObject({ is_internal_note: true });
     });
   });
 

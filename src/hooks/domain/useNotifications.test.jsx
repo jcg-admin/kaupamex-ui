@@ -3,18 +3,16 @@
  */
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import {
   useNotificationsList,
   useUnreadNotificationsCount,
   useNotificationPreferences,
 } from './useNotifications';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeWrapper = () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -23,13 +21,19 @@ const makeWrapper = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('useNotifications hooks', () => {
   it('useNotificationsList retorna la forma paginada de la API', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ id: 1, subject: 'Bienvenido' }], count: 1, next: null, previous: null },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/notifications/`, () =>
+        HttpResponse.json({
+          results: [{ id: 1, subject: 'Bienvenido' }],
+          count: 1,
+          next: null,
+          previous: null,
+        }),
+      ),
+    );
+
     const { result } = renderHook(() => useNotificationsList(), {
       wrapper: makeWrapper(),
     });
@@ -41,29 +45,29 @@ describe('useNotifications hooks', () => {
       next: null,
       previous: null,
     });
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/notifications/',
-      expect.objectContaining({ params: {} }),
-    );
   });
 
   it('useUnreadNotificationsCount retorna el conteo sin envoltura', async () => {
-    apiService.get.mockResolvedValue({ data: { count: 7 } });
+    server.use(
+      http.get(`${BASE}/api/v1/notifications/unread-count/`, () =>
+        HttpResponse.json({ count: 7 }),
+      ),
+    );
+
     const { result } = renderHook(() => useUnreadNotificationsCount(), {
       wrapper: makeWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toBe(7);
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/notifications/unread-count/',
-      expect.any(Object),
-    );
   });
 
   it('useNotificationPreferences retorna la lista de preferencias', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ type: 'MARKETING', enabled: false }] },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+        HttpResponse.json({ results: [{ type: 'MARKETING', enabled: false }] }),
+      ),
+    );
+
     const { result } = renderHook(() => useNotificationPreferences(), {
       wrapper: makeWrapper(),
     });

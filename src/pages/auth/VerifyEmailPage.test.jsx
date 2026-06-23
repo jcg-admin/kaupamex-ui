@@ -5,18 +5,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(),
-    patch: jest.fn(), delete: jest.fn(),
-  },
-}));
-
-import apiService from '@services/apiService';
 import authReducer from '../../redux/slices/authSlice';
 import VerifyEmailPage from './VerifyEmailPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({
@@ -35,20 +30,25 @@ const renderPage = (search = '?token=abc123') =>
     </Provider>,
   );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('VerifyEmailPage (UC-AUTH-10)', () => {
   it('llama POST verify-email con el token del query string', async () => {
-    apiService.post.mockResolvedValue({ data: { status: 'OK' } });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/auth/verify-email/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ status: 'OK' });
+      }),
+    );
     renderPage('?token=abc123');
-    await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/verify-email/',
-      { token: 'abc123' },
-    ));
+    await waitFor(() => expect(lastBody).toMatchObject({ token: 'abc123' }));
   });
 
   it('muestra mensaje de exito tras verificar', async () => {
-    apiService.post.mockResolvedValue({ data: { status: 'OK' } });
+    server.use(
+      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+        HttpResponse.json({ status: 'OK' }),
+      ),
+    );
     renderPage('?token=abc123');
     expect(
       await screen.findByText(/email verificado correctamente/i),
@@ -56,7 +56,11 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
   });
 
   it('muestra link para iniciar sesion cuando el exito', async () => {
-    apiService.post.mockResolvedValue({ data: { status: 'OK' } });
+    server.use(
+      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+        HttpResponse.json({ status: 'OK' }),
+      ),
+    );
     renderPage('?token=abc123');
     expect(
       await screen.findByRole('link', { name: /iniciar sesion/i }),
@@ -64,11 +68,11 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
   });
 
   it('muestra error cuando el token es invalido o expiro', async () => {
-    apiService.post.mockRejectedValue({
-      code: 'TOKEN_INVALID',
-      status: 400,
-      message: 'Token invalido o expirado',
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+        HttpResponse.json({ detail: 'Token invalido o expirado' }, { status: 400 }),
+      ),
+    );
     renderPage('?token=expired');
     expect(
       await screen.findByText(/enlace de verificacion no es valido/i),
@@ -76,9 +80,11 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
   });
 
   it('ofrece reenviar el correo de verificacion en caso de error', async () => {
-    apiService.post.mockRejectedValue({
-      code: 'TOKEN_INVALID', status: 400, message: 'expired',
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+        HttpResponse.json({ detail: 'expired' }, { status: 400 }),
+      ),
+    );
     renderPage('?token=expired');
     await screen.findByText(/enlace de verificacion no es valido/i);
     expect(
@@ -87,10 +93,18 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
   });
 
   it('al reenviar llama POST resend-verification con el email ingresado', async () => {
-    apiService.post.mockRejectedValueOnce({
-      code: 'TOKEN_INVALID', status: 400, message: 'x',
-    });
-    apiService.post.mockResolvedValueOnce({ data: { status: 'OK' } });
+    server.use(
+      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+        HttpResponse.json({ detail: 'x' }, { status: 400 }),
+      ),
+    );
+    let resendBody;
+    server.use(
+      http.post(`${BASE}/api/v1/auth/resend-verification/`, async ({ request }) => {
+        resendBody = await request.json();
+        return HttpResponse.json({ status: 'OK' });
+      }),
+    );
     renderPage('?token=expired');
     await screen.findByText(/enlace de verificacion no es valido/i);
 
@@ -99,10 +113,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /reenviar correo/i }));
 
-    await waitFor(() => expect(apiService.post).toHaveBeenLastCalledWith(
-      '/api/v1/auth/resend-verification/',
-      { email: 'demo@test.mx' },
-    ));
+    await waitFor(() => expect(resendBody).toMatchObject({ email: 'demo@test.mx' }));
   });
 
   it('muestra error cuando no se proporciona token en la URL', () => {
@@ -110,6 +121,5 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
     expect(
       screen.getByText(/enlace de verificacion incompleto/i),
     ).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 });

@@ -4,20 +4,14 @@
  * Listado publico del arbol jerarquico de categorias. Read-only,
  * React Query contra GET /api/v1/categories/.
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(),
-    patch: jest.fn(), delete: jest.fn(),
-  },
-}));
-
-import apiService from '@services/apiService';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import CategoryListPage from './CategoryListPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const TREE = [
   {
@@ -45,11 +39,13 @@ const renderPage = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('CategoryListPage (UC-CAT-08)', () => {
   it('muestra heading «Categorias»', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TREE, count: TREE.length } });
+    server.use(
+      http.get(`${BASE}/api/v1/categories/`, () =>
+        HttpResponse.json({ results: TREE, count: TREE.length }),
+      ),
+    );
     renderPage();
     expect(
       await screen.findByRole('heading', { name: /categorias/i, level: 1 }),
@@ -57,7 +53,11 @@ describe('CategoryListPage (UC-CAT-08)', () => {
   });
 
   it('renderiza los nodos raiz con su conteo de productos', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TREE, count: TREE.length } });
+    server.use(
+      http.get(`${BASE}/api/v1/categories/`, () =>
+        HttpResponse.json({ results: TREE, count: TREE.length }),
+      ),
+    );
     renderPage();
     expect(await screen.findByText('Orishas')).toBeInTheDocument();
     expect(screen.getByText('Soperas')).toBeInTheDocument();
@@ -66,7 +66,11 @@ describe('CategoryListPage (UC-CAT-08)', () => {
   });
 
   it('expande subcategorias al pulsar el toggle del nodo padre', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TREE, count: TREE.length } });
+    server.use(
+      http.get(`${BASE}/api/v1/categories/`, () =>
+        HttpResponse.json({ results: TREE, count: TREE.length }),
+      ),
+    );
     renderPage();
     await screen.findByText('Orishas');
     // Subcategorias no visibles hasta expandir
@@ -80,14 +84,22 @@ describe('CategoryListPage (UC-CAT-08)', () => {
   });
 
   it('genera enlace a /catalog?category=<slug> en cada categoria', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TREE, count: TREE.length } });
+    server.use(
+      http.get(`${BASE}/api/v1/categories/`, () =>
+        HttpResponse.json({ results: TREE, count: TREE.length }),
+      ),
+    );
     renderPage();
     const link = await screen.findByRole('link', { name: /ver productos de orishas/i });
     expect(link).toHaveAttribute('href', '/catalog?category=orishas');
   });
 
   it('muestra estado vacio cuando no hay categorias', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], count: 0 } });
+    server.use(
+      http.get(`${BASE}/api/v1/categories/`, () =>
+        HttpResponse.json({ results: [], count: 0 }),
+      ),
+    );
     renderPage();
     expect(
       await screen.findByText(/no hay categorias disponibles/i),
@@ -95,7 +107,11 @@ describe('CategoryListPage (UC-CAT-08)', () => {
   });
 
   it('muestra estado de error si la API falla', async () => {
-    apiService.get.mockRejectedValue(new Error('boom'));
+    server.use(
+      http.get(`${BASE}/api/v1/categories/`, () =>
+        HttpResponse.json({ detail: 'Error' }, { status: 400 }),
+      ),
+    );
     renderPage();
     expect(
       await screen.findByText(/no se pudo cargar el arbol de categorias/i),

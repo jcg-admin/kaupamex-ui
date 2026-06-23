@@ -5,20 +5,17 @@
  * useSelector). A Redux Provider is required even though the page itself
  * does not use Redux directly.
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import cartReducer from '@redux/slices/cartSlice';
 import SearchResultsPage from './SearchResultsPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({
@@ -54,17 +51,17 @@ const CATEGORIES_FIXTURE = [
 ];
 
 beforeEach(() => {
-  apiService.get.mockImplementation((url) => {
-    if (typeof url === 'string' && url.includes('/categories')) {
-      return Promise.resolve({ data: { results: CATEGORIES_FIXTURE, count: 1 } });
-    }
-    return Promise.resolve({
-      data: { results: [PRODUCT_A], count: 1, active_filters: {}, normalized_query: 'oshun' },
-    });
-  });
+  server.use(
+    http.get(`${BASE}/api/v1/categories/`, () =>
+      HttpResponse.json({ results: CATEGORIES_FIXTURE, count: 1 }),
+    ),
+    http.get(`${BASE}/api/v1/catalogue/search/`, () =>
+      HttpResponse.json({
+        results: [PRODUCT_A], count: 1, active_filters: {}, normalized_query: 'oshun',
+      }),
+    ),
+  );
 });
-
-afterEach(() => jest.clearAllMocks());
 
 describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
   it('muestra el titulo «Resultados de busqueda»', async () => {
@@ -86,48 +83,64 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
   });
 
   it('llama a /api/v1/catalogue/search/ con el termino normalizado', async () => {
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/catalogue/search/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({
+          results: [PRODUCT_A], count: 1, active_filters: {}, normalized_query: 'oshun',
+        });
+      }),
+    );
     renderAt('?q=oshun');
     await waitFor(() => {
-      const call = apiService.get.mock.calls.find(
-        ([url]) => typeof url === 'string' && url.includes('/catalogue/search/'),
-      );
-      expect(call?.[1]?.params?.q).toBe('oshun');
+      expect(capturedUrl).toBeDefined();
+      expect(new URL(capturedUrl).searchParams.get('q')).toBe('oshun');
     });
   });
 
   it('reenvia los filtros (category, price_min, price_max) a la API (UC-CAT-03-EXT)', async () => {
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/catalogue/search/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({
+          results: [PRODUCT_A], count: 1, active_filters: {}, normalized_query: 'oshun',
+        });
+      }),
+    );
     renderAt('?q=oshun&category=collares&price_min=100&price_max=500');
     await waitFor(() => {
-      const call = apiService.get.mock.calls.find(
-        ([url]) => typeof url === 'string' && url.includes('/catalogue/search/'),
-      );
-      expect(call?.[1]?.params).toMatchObject({
-        q: 'oshun', category: 'collares',
-        price_min: '100', price_max: '500',
-      });
+      expect(capturedUrl).toBeDefined();
+      const params = new URL(capturedUrl).searchParams;
+      expect(params.get('q')).toBe('oshun');
+      expect(params.get('category')).toBe('collares');
+      expect(params.get('price_min')).toBe('100');
+      expect(params.get('price_max')).toBe('500');
     });
   });
 
   it('no consulta la API cuando el termino es demasiado corto (Alt C)', async () => {
+    let searchCalled = false;
+    server.use(
+      http.get(`${BASE}/api/v1/catalogue/search/`, () => {
+        searchCalled = true;
+        return HttpResponse.json({ results: [], count: 0 });
+      }),
+    );
     renderAt('?q=a');
     expect(
       await screen.findByText(/al menos 2 caracteres/i),
     ).toBeInTheDocument();
-    const searchCall = apiService.get.mock.calls.find(
-      ([url]) => typeof url === 'string' && url.includes('/catalogue/search/'),
-    );
-    expect(searchCall).toBeUndefined();
+    expect(searchCalled).toBe(false);
   });
 
   it('muestra estado «sin resultados» con sugerencias accionables (Alt A)', async () => {
-    apiService.get.mockImplementation((url) => {
-      if (typeof url === 'string' && url.includes('/categories')) {
-        return Promise.resolve({ data: { results: CATEGORIES_FIXTURE, count: 1 } });
-      }
-      return Promise.resolve({
-        data: { results: [], count: 0, normalized_query: 'xyznada' },
-      });
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/catalogue/search/`, () =>
+        HttpResponse.json({ results: [], count: 0, normalized_query: 'xyznada' }),
+      ),
+    );
     renderAt('?q=xyznada');
     expect(
       await screen.findByText(/no encontramos productos/i),
@@ -136,12 +149,11 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
   });
 
   it('muestra estado de error si la API falla', async () => {
-    apiService.get.mockImplementation((url) => {
-      if (typeof url === 'string' && url.includes('/categories')) {
-        return Promise.resolve({ data: { results: [], count: 0 } });
-      }
-      return Promise.reject(new Error('boom'));
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/catalogue/search/`, () =>
+        HttpResponse.json({ detail: 'Error' }, { status: 400 }),
+      ),
+    );
     renderAt('?q=oshun');
     expect(await screen.findByRole('alert')).toBeInTheDocument();
   });

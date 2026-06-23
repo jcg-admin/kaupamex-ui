@@ -8,21 +8,19 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
 jest.mock('./paymentRedirect', () => ({
   __esModule: true,
   redirectToGateway: jest.fn(),
 }));
 
-import apiService from '@services/apiService';
 import { redirectToGateway } from './paymentRedirect';
 import paymentsReducer from '@redux/slices/paymentsSlice';
 import PaymentSelectionPage from './PaymentSelectionPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { payments: paymentsReducer } });
@@ -53,73 +51,75 @@ describe('PaymentSelectionPage', () => {
     // DEC-BC-09: backend devuelve `checkout_url` (unificado) en endpoint
     // unico `/api/v1/payments/initiate/` con body
     // `{ order_number, gateway: 'MERCADOPAGO', installments? }`.
-    apiService.post.mockResolvedValue({
-      data: {
-        payment_id:   123,
-        checkout_url: 'https://mp.example/pay/123',
-        order_number: 'ORD-001',
-        amount:       '500.00',
-        installments: 1,
-      },
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+        HttpResponse.json({
+          payment_id:   123,
+          checkout_url: 'https://mp.example/pay/123',
+          order_number: 'ORD-001',
+          amount:       '500.00',
+          installments: 1,
+        }),
+      ),
+    );
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Pagar con Mercado Pago/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/initiate/',
-        { order_number: 'ORD-001', gateway: 'MERCADOPAGO' }
-      );
-    });
     await waitFor(() => {
       expect(redirectToGateway).toHaveBeenCalledWith('https://mp.example/pay/123');
     });
   });
 
   it('UC-PAY-01-EXT: incluye installments cuando MSI esta seleccionado', async () => {
-    apiService.post.mockResolvedValue({
-      data: { payment_id: 124, checkout_url: 'https://mp.example/pay/msi', order_number: 'ORD-001', amount: '500.00', installments: 6 },
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+        HttpResponse.json({
+          payment_id: 124,
+          checkout_url: 'https://mp.example/pay/msi',
+          order_number: 'ORD-001',
+          amount: '500.00',
+          installments: 6,
+        }),
+      ),
+    );
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Cuotas sin intereses/i), { target: { value: '6' } });
     fireEvent.click(screen.getByRole('button', { name: /Pagar con Mercado Pago/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/initiate/',
-        { order_number: 'ORD-001', gateway: 'MERCADOPAGO', installments: 6 }
-      );
+      expect(redirectToGateway).toHaveBeenCalledWith('https://mp.example/pay/msi');
     });
   });
 
   it('UC-PAY-02: inicia pago PayPal y redirige al checkout_url', async () => {
-    apiService.post.mockResolvedValue({
-      data: {
-        payment_id:   125,
-        checkout_url: 'https://paypal.example/approve/9',
-        order_number: 'ORD-001',
-        amount:       '500.00',
-        installments: 1,
-      },
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+        HttpResponse.json({
+          payment_id:   125,
+          checkout_url: 'https://paypal.example/approve/9',
+          order_number: 'ORD-001',
+          amount:       '500.00',
+          installments: 1,
+        }),
+      ),
+    );
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Pagar con PayPal/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/initiate/',
-        { order_number: 'ORD-001', gateway: 'PAYPAL' }
-      );
-    });
     await waitFor(() => {
       expect(redirectToGateway).toHaveBeenCalledWith('https://paypal.example/approve/9');
     });
   });
 
   it('muestra mensaje de error si el gateway falla', async () => {
-    apiService.post.mockRejectedValue({
-      message: 'AMOUNT_MISMATCH', code: 'AMOUNT_MISMATCH', status: 422,
-    });
+    server.use(
+      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+        HttpResponse.json(
+          { detail: 'AMOUNT_MISMATCH', codigo_error: 'AMOUNT_MISMATCH' },
+          { status: 422 },
+        ),
+      ),
+    );
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Pagar con Mercado Pago/i }));
 

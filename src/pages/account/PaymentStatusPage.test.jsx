@@ -2,17 +2,15 @@
  * Tests — PaymentStatusPage
  * UC-PAY-05: Ver estado actual del pago de una orden propia.
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import PaymentStatusPage from './PaymentStatusPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -27,8 +25,6 @@ const wrap = (ui, path = '/account/orders/ORD-1/payment') => (
   </QueryClientProvider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 const APPROVED_PAYMENT = {
   id: 'pay_1',
   order_id: 'ORD-1',
@@ -42,7 +38,11 @@ const APPROVED_PAYMENT = {
 
 describe('PaymentStatusPage (UC-PAY-05)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [APPROVED_PAYMENT] } });
+    server.use(
+      http.get(`${BASE}/api/v1/payments/`, () =>
+        HttpResponse.json({ results: [APPROVED_PAYMENT] }),
+      ),
+    );
     render(wrap(<PaymentStatusPage />));
     expect(
       await screen.findByRole('heading', { name: /Estado del pago/i })
@@ -50,17 +50,26 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
   });
 
   it('consulta el endpoint con order_id y latest=true', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [APPROVED_PAYMENT] } });
+    let requestUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/payments/`, ({ request }) => {
+        requestUrl = request.url;
+        return HttpResponse.json({ results: [APPROVED_PAYMENT] });
+      }),
+    );
     render(wrap(<PaymentStatusPage />));
     await screen.findByRole('heading', { name: /Estado del pago/i });
-    expect(apiService.get).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v1/payments/?order_id=ORD-1&latest=true'),
-      expect.any(Object)
-    );
+    expect(requestUrl).toContain('/api/v1/payments/');
+    expect(requestUrl).toContain('order_id=ORD-1');
+    expect(requestUrl).toContain('latest=true');
   });
 
   it('renderiza el estado, gateway, monto y fecha en español', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [APPROVED_PAYMENT] } });
+    server.use(
+      http.get(`${BASE}/api/v1/payments/`, () =>
+        HttpResponse.json({ results: [APPROVED_PAYMENT] }),
+      ),
+    );
     render(wrap(<PaymentStatusPage />));
     expect(await screen.findByText(/Aprobado/i)).toBeInTheDocument();
     expect(screen.getByText(/Mercado Pago/i)).toBeInTheDocument();
@@ -68,7 +77,11 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
   });
 
   it('muestra "Sin intentos de pago" si no hay registros', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v1/payments/`, () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
     render(wrap(<PaymentStatusPage />));
     expect(
       await screen.findByText(/No hay intentos de pago registrados/i)
@@ -76,18 +89,22 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
   });
 
   it('muestra estado de pago rechazado con codigo de error', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ ...APPROVED_PAYMENT, status: 'REJECTED', error_code: 'PAGO_RECHAZADO' }] },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/payments/`, () =>
+        HttpResponse.json({ results: [{ ...APPROVED_PAYMENT, status: 'REJECTED', error_code: 'PAGO_RECHAZADO' }] }),
+      ),
+    );
     render(wrap(<PaymentStatusPage />));
     expect(await screen.findByText(/^Rechazado$/i)).toBeInTheDocument();
     expect(screen.getByText(/PAGO_RECHAZADO/)).toBeInTheDocument();
   });
 
   it('para pago rechazado o pendiente ofrece enlace para reintentar', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ ...APPROVED_PAYMENT, status: 'REJECTED' }] },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/payments/`, () =>
+        HttpResponse.json({ results: [{ ...APPROVED_PAYMENT, status: 'REJECTED' }] }),
+      ),
+    );
     render(wrap(<PaymentStatusPage />));
     const retry = await screen.findByRole('link', { name: /Reintentar pago/i });
     expect(retry).toHaveAttribute('href', '/account/orders/ORD-1/payment/retry');

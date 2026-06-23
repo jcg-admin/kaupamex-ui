@@ -3,14 +3,12 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import CatalogFilters from './CatalogFilters';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const TREE = [
   { id: 1, slug: 'collares', name: 'Collares', product_count: 5, children: [
@@ -20,7 +18,11 @@ const TREE = [
 ];
 
 const renderFilters = (props = {}) => {
-  apiService.get.mockResolvedValue({ data: { results: TREE, count: TREE.length } });
+  server.use(
+    http.get(`${BASE}/api/v1/categories/`, () =>
+      HttpResponse.json({ results: TREE, count: TREE.length }),
+    ),
+  );
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const onChange = jest.fn();
   const utils = render(
@@ -30,8 +32,6 @@ const renderFilters = (props = {}) => {
   );
   return { ...utils, onChange };
 };
-
-afterEach(() => jest.clearAllMocks());
 
 describe('CatalogFilters (UC-CAT-04 + UC-CAT-05)', () => {
   it('renderiza un selector con las categorias aplanadas (UC-CAT-04)', async () => {

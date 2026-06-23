@@ -9,16 +9,15 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn().mockResolvedValue({ data: { count: 0 } }) },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
 import authReducer from '@redux/slices/authSlice';
 import cartReducer from '@redux/slices/cartSlice';
 import uiReducer from '@redux/slices/uiSlice';
 import AccountLayout from './AccountLayout';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 function buildStore() {
   return configureStore({
@@ -35,6 +34,11 @@ function buildStore() {
 }
 
 function renderLayout() {
+  server.use(
+    http.get(`${BASE}/api/v1/notifications/count/`, () =>
+      HttpResponse.json({ count: 0 }),
+    ),
+  );
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <Provider store={buildStore()}>

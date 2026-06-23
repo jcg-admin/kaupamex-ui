@@ -9,13 +9,9 @@
  */
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import {
   useSalesReport,
   useTopSellersReport,
@@ -24,6 +20,8 @@ import {
   buildReportExportUrl,
 } from './useReports';
 
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 const makeWrapper = () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return ({ children }) => (
@@ -31,73 +29,91 @@ const makeWrapper = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('useReports hooks', () => {
   it('useSalesReport solicita el reporte de ventas con filtros', async () => {
-    apiService.get.mockResolvedValue({
-      data: { totals: { gross_revenue: '1000.00', orders: 12 }, series: [] },
-    });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/reports/sales/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({
+          totals: { gross_revenue: '1000.00', orders: 12 },
+          series: [],
+        });
+      }),
+    );
+
     const { result } = renderHook(
       () => useSalesReport({ period: 'month' }),
       { wrapper: makeWrapper() },
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/sales/',
-      expect.objectContaining({ params: { period: 'month' } }),
-    );
+    await waitFor(() => {
+      expect(new URL(capturedUrl).searchParams.get('period')).toBe('month');
+    });
     expect(result.current.data.totals.orders).toBe(12);
   });
 
   it('useTopSellersReport retorna el ranking', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ product_id: 1, units: 50, revenue: '500.00' }] },
-    });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({
+          results: [{ product_id: 1, units: 50, revenue: '500.00' }],
+        });
+      }),
+    );
+
     const { result } = renderHook(
       () => useTopSellersReport({ period: 'week', limit: 10 }),
       { wrapper: makeWrapper() },
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/top-sellers/',
-      expect.objectContaining({ params: { period: 'week', limit: 10 } }),
-    );
+    await waitFor(() => {
+      const u = new URL(capturedUrl);
+      expect(u.searchParams.get('period')).toBe('week');
+      expect(u.searchParams.get('limit')).toBe('10');
+    });
     expect(result.current.data.results).toHaveLength(1);
   });
 
   it('useCustomersRfmReport retorna la lista segmentada', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ customer_id: 7, segment: 'VIP', recency: 3, frequency: 8, monetary: '900.00' }] },
-    });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({
+          results: [{ customer_id: 7, segment: 'VIP', recency: 3, frequency: 8, monetary: '900.00' }],
+        });
+      }),
+    );
+
     const { result } = renderHook(
       () => useCustomersRfmReport({ segment: 'VIP' }),
       { wrapper: makeWrapper() },
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/customers-rfm/',
-      expect.objectContaining({ params: { segment: 'VIP' } }),
-    );
+    await waitFor(() => {
+      expect(new URL(capturedUrl).searchParams.get('segment')).toBe('VIP');
+    });
     expect(result.current.data.results[0].segment).toBe('VIP');
   });
 
   it('useAnalyticsDashboard agrega KPIs del dashboard', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        today: { revenue: '300.00', orders: 4, new_customers: 1 },
-        trend: [],
-        top_products: [],
-        open_tickets: 2,
-        low_stock_alerts: 1,
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () =>
+        HttpResponse.json({
+          today: { revenue: '300.00', orders: 4, new_customers: 1 },
+          trend: [],
+          top_products: [],
+          open_tickets: 2,
+          low_stock_alerts: 1,
+        }),
+      ),
+    );
+
     const { result } = renderHook(() => useAnalyticsDashboard(), { wrapper: makeWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/dashboard/',
-      expect.objectContaining({ params: {} }),
-    );
     expect(result.current.data.today.orders).toBe(4);
   });
 

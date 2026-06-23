@@ -6,15 +6,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import newsletterReducer from '@redux/slices/newsletterSlice';
 import NewsletterUnsubscribePage from './NewsletterUnsubscribePage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { newsletter: newsletterReducer } });
@@ -27,8 +25,6 @@ const wrap = (initialPath = '/newsletter/unsubscribe?token=abc123') => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('NewsletterUnsubscribePage (UC-NEW-02)', () => {
   it('muestra el titulo y el motivo opcional', () => {
     render(wrap());
@@ -39,7 +35,13 @@ describe('NewsletterUnsubscribePage (UC-NEW-02)', () => {
   });
 
   it('al confirmar, hace POST a /api/v1/newsletter/unsubscribe/ con el token', async () => {
-    apiService.post.mockResolvedValue({ data: { ok: true } });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/newsletter/unsubscribe/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ ok: true });
+      }),
+    );
     render(wrap());
 
     fireEvent.change(screen.getByLabelText(/Motivo/i),
@@ -47,18 +49,19 @@ describe('NewsletterUnsubscribePage (UC-NEW-02)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Confirmar desuscripci[oó]n/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/newsletter/unsubscribe/',
-        expect.objectContaining({
-          token:  'abc123',
-          reason: 'TOO_FREQUENT',
-        }),
-      );
+      expect(lastBody).toMatchObject({
+        token:  'abc123',
+        reason: 'TOO_FREQUENT',
+      });
     });
   });
 
   it('muestra confirmacion tras el envio', async () => {
-    apiService.post.mockResolvedValue({ data: { ok: true } });
+    server.use(
+      http.post(`${BASE}/api/v1/newsletter/unsubscribe/`, () =>
+        HttpResponse.json({ ok: true }),
+      ),
+    );
     render(wrap());
     fireEvent.click(screen.getByRole('button', { name: /Confirmar desuscripci[oó]n/i }));
     expect(

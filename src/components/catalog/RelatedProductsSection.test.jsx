@@ -10,18 +10,13 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(),
-    patch: jest.fn(), delete: jest.fn(),
-  },
-}));
-
-import apiService from '@services/apiService';
 import cartReducer from '@redux/slices/cartSlice';
 import RelatedProductsSection from './RelatedProductsSection';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({
@@ -55,24 +50,25 @@ const renderSection = (slug = 'producto-base') => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('RelatedProductsSection (UC-CAT-07)', () => {
   it('llama a GET /api/v1/products/:slug/related/', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], fallback: null } });
-    renderSection('mi-producto');
-    await waitFor(() =>
-      expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/products/mi-producto/related/',
-        expect.any(Object),
-      ),
+    let called = false;
+    server.use(
+      http.get(`${BASE}/api/v1/products/mi-producto/related/`, () => {
+        called = true;
+        return HttpResponse.json({ results: [], fallback: null });
+      }),
     );
+    renderSection('mi-producto');
+    await waitFor(() => expect(called).toBe(true));
   });
 
   it('renderiza productos relacionados con titulo "Productos relacionados"', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [P1, P2], fallback: 'category' },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+        HttpResponse.json({ results: [P1, P2], fallback: 'category' }),
+      ),
+    );
     renderSection();
     expect(await screen.findByText('Pulsera Yemaya')).toBeInTheDocument();
     expect(screen.getByText('Collar Oshun')).toBeInTheDocument();
@@ -82,9 +78,11 @@ describe('RelatedProductsSection (UC-CAT-07)', () => {
   });
 
   it('usa titulo "Tambien te puede interesar" cuando fallback es recent', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [P1], fallback: 'recent' },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+        HttpResponse.json({ results: [P1], fallback: 'recent' }),
+      ),
+    );
     renderSection();
     expect(
       await screen.findByRole('heading', { name: /tambien te puede interesar/i }),
@@ -92,15 +90,23 @@ describe('RelatedProductsSection (UC-CAT-07)', () => {
   });
 
   it('oculta la seccion cuando no hay resultados (Alt A)', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], fallback: 'category' } });
+    server.use(
+      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+        HttpResponse.json({ results: [], fallback: 'category' }),
+      ),
+    );
     const { container } = renderSection();
     await waitFor(() => expect(container.querySelector('section')).toBeNull());
   });
 
   it('oculta la seccion silenciosamente cuando la API falla (EX-01/EX-02)', async () => {
-    apiService.get.mockRejectedValue(new Error('boom'));
+    // Use 400 (not 500) — 500 is in RETRYABLE_STATUS and apiService retries 3×
+    server.use(
+      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+        HttpResponse.json({ detail: 'Error' }, { status: 400 }),
+      ),
+    );
     const { container } = renderSection();
-    await waitFor(() => expect(apiService.get).toHaveBeenCalled());
     await waitFor(() => expect(container.querySelector('section')).toBeNull());
   });
 });

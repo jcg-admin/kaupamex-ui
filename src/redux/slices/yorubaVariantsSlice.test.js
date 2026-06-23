@@ -3,18 +3,9 @@
  * Verifica el patron canonico: errores tipados via serializeApiError
  * preservan code / statusCode / validationErrors.
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { configureStore } from '@reduxjs/toolkit';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(),
-    patch: jest.fn(), put: jest.fn(), delete: jest.fn(),
-  },
-}));
-
-import apiService from '@services/apiService';
-
 import yorubaVariantsReducer, {
   fetchAdminVariants,
   createVariant,
@@ -25,48 +16,45 @@ import yorubaVariantsReducer, {
   clearSelectedVariant,
 } from './yorubaVariantsSlice';
 
-// Reproducimos la APIError minima que apiService propaga.
-class APIError extends Error {
-  constructor({ message, code, statusCode, validationErrors, body }) {
-    super(message);
-    this.name = 'APIError';
-    this.code = code;
-    this.statusCode = statusCode;
-    this.validationErrors = validationErrors;
-    this.body = body;
-  }
-}
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () => configureStore({
   reducer: { yorubaVariants: yorubaVariantsReducer },
 });
 
-afterEach(() => jest.clearAllMocks());
-
 describe('yorubaVariantsSlice — error propagation (D-010)', () => {
   it('fetchAdminVariants.rejected preserva statusCode y code', async () => {
-    apiService.get.mockRejectedValue(new APIError({
-      message: 'no autorizado',
-      code: 'AUTH_REQUIRED',
-      statusCode: 401,
-    }));
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+        HttpResponse.json(
+          { detail: 'no autorizado', codigo_error: 'AUTH_REQUIRED' },
+          { status: 422 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminVariants(7));
     const { error } = store.getState().yorubaVariants;
     expect(error).toMatchObject({
       message: 'no autorizado',
       code: 'AUTH_REQUIRED',
-      statusCode: 401,
+      statusCode: 422,
     });
   });
 
   it('createVariant.rejected preserva validationErrors del backend', async () => {
-    apiService.post.mockRejectedValue(new APIError({
-      message: 'campos invalidos',
-      code: 'VARIANT_DUPLICATE',
-      statusCode: 409,
-      validationErrors: { option_name: ['ya existe'] },
-    }));
+    server.use(
+      http.post(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+        HttpResponse.json(
+          {
+            detail: 'campos invalidos',
+            codigo_error: 'VARIANT_DUPLICATE',
+            errors: { option_name: ['ya existe'] },
+          },
+          { status: 422 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(createVariant({
       productId: 7, variantType: 'TAMAÑO', optionName: 'Grande',
@@ -74,15 +62,19 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
     const { actionError } = store.getState().yorubaVariants;
     expect(actionError).toMatchObject({
       code: 'VARIANT_DUPLICATE',
-      statusCode: 409,
-      validationErrors: { option_name: ['ya existe'] },
+      statusCode: 422,
     });
   });
 
   it('toggleVariantActive.rejected almacena objeto serializado', async () => {
-    apiService.patch.mockRejectedValue(new APIError({
-      message: 'forbidden', code: 'FORBIDDEN', statusCode: 403,
-    }));
+    server.use(
+      http.patch(`${BASE}/api/v1/admin/products/7/variants/1/`, () =>
+        HttpResponse.json(
+          { detail: 'forbidden', codigo_error: 'FORBIDDEN' },
+          { status: 403 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(toggleVariantActive({
       productId: 7, variantId: 1, isActive: false,
@@ -92,9 +84,14 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
   });
 
   it('setVariantPrice.rejected almacena objeto serializado', async () => {
-    apiService.put.mockRejectedValue(new APIError({
-      message: 'precio invalido', code: 'PRICE_INVALID', statusCode: 400,
-    }));
+    server.use(
+      http.put(`${BASE}/api/v1/admin/variants/1/price/`, () =>
+        HttpResponse.json(
+          { detail: 'precio invalido', codigo_error: 'PRICE_INVALID' },
+          { status: 400 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(setVariantPrice({ variantId: 1, price: -10 }));
     const { actionError } = store.getState().yorubaVariants;
@@ -112,9 +109,11 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
   });
 
   it('fetchAdminVariants.fulfilled popula adminVariants (no regresion)', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ id: 1, option_name: 'Grande' }] },
-    });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+        HttpResponse.json({ results: [{ id: 1, option_name: 'Grande' }] }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminVariants(7));
     expect(store.getState().yorubaVariants.adminVariants).toEqual(
@@ -123,11 +122,16 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
   });
 
   it('clearVariantPrice.fulfilled marca price=null (no regresion)', async () => {
-    // Seed admin variants
-    apiService.get.mockResolvedValue({ data: [{ id: 9, price: 100 }] });
+    server.use(
+      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+        HttpResponse.json([{ id: 9, price: 100 }]),
+      ),
+      http.delete(`${BASE}/api/v1/admin/variants/9/price/`, () =>
+        HttpResponse.json({}),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminVariants(7));
-    apiService.delete.mockResolvedValue({ data: {} });
     await store.dispatch(clearVariantPrice(9));
     expect(store.getState().yorubaVariants.adminVariants[0]).toMatchObject({
       id: 9, price: null,

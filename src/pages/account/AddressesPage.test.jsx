@@ -6,18 +6,13 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(),
-    patch: jest.fn(), delete: jest.fn(),
-  },
-}));
-
-import apiService from '@services/apiService';
 import authReducer from '../../redux/slices/authSlice';
 import AddressesPage from './AddressesPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const ADDR_1 = {
   id: 1, alias: 'Casa', recipient_name: 'Demo Yoruba', street: 'Av. Reforma',
@@ -44,7 +39,11 @@ const makeStore = (addresses = []) =>
   });
 
 const renderPage = (addresses = []) => {
-  apiService.get.mockResolvedValue({ data: { results: addresses } });
+  server.use(
+    http.get(`${BASE}/api/v1/auth/addresses/`, () =>
+      HttpResponse.json({ results: addresses }),
+    ),
+  );
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <Provider store={makeStore(addresses)}>
@@ -56,12 +55,6 @@ const renderPage = (addresses = []) => {
     </Provider>,
   );
 };
-
-beforeEach(() => {
-  apiService.get.mockResolvedValue({ data: { results: [] } });
-});
-
-afterEach(() => jest.clearAllMocks());
 
 describe('AddressesPage (UC-AUTH-07)', () => {
   it('muestra titulo y lista de direcciones', async () => {
@@ -93,7 +86,13 @@ describe('AddressesPage (UC-AUTH-07)', () => {
   });
 
   it('Happy Path: agregar nueva direccion llama POST con campos', async () => {
-    apiService.post.mockResolvedValue({ data: { id: 99, ...ADDR_1 } });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v1/auth/addresses/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 99, ...ADDR_1 });
+      }),
+    );
     renderPage([]);
     // Click "Añadir dirección" button
     fireEvent.click(screen.getByRole('button', { name: /añadir dirección/i }));
@@ -117,32 +116,42 @@ describe('AddressesPage (UC-AUTH-07)', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /guardar dirección/i }));
 
-    await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/addresses/',
-      expect.objectContaining({
-        alias: 'Casa',
-        recipient_name: 'Demo Yoruba',
-        phone: '5551234567',
-        street: 'Av. Reforma',
-        neighborhood: 'Centro',
-        zip_code: '06000',
-        city: 'CDMX',
-        state: 'CDMX',
-        country: 'MX',
-      }),
-    ));
+    await waitFor(() => expect(lastBody).toMatchObject({
+      alias: 'Casa',
+      recipient_name: 'Demo Yoruba',
+      phone: '5551234567',
+      street: 'Av. Reforma',
+      neighborhood: 'Centro',
+      zip_code: '06000',
+      city: 'CDMX',
+      state: 'CDMX',
+      country: 'MX',
+    }));
   });
 
   it('valida campos obligatorios al enviar formulario', async () => {
+    let postCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v1/auth/addresses/`, () => {
+        postCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     renderPage([]);
     fireEvent.click(screen.getByRole('button', { name: /añadir dirección/i }));
     fireEvent.click(screen.getByRole('button', { name: /guardar dirección/i }));
     // HTML5 validation prevents submission; post not called
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(postCalled).toBe(false);
   });
 
   it('Alt B: eliminar direccion llama DELETE', async () => {
-    apiService.delete.mockResolvedValue({});
+    let deleteCalled = false;
+    server.use(
+      http.delete(`${BASE}/api/v1/auth/addresses/2/`, () => {
+        deleteCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     // window.confirm must return true for delete to proceed
     window.confirm = jest.fn(() => true);
     renderPage([ADDR_2]);
@@ -150,21 +159,22 @@ describe('AddressesPage (UC-AUTH-07)', () => {
     fireEvent.click(
       screen.getByRole('button', { name: /eliminar/i }),
     );
-    await waitFor(() => expect(apiService.delete).toHaveBeenCalledWith(
-      '/api/v1/auth/addresses/2/',
-    ));
+    await waitFor(() => expect(deleteCalled).toBe(true));
   });
 
   it('Alt C: marcar predeterminada llama set-default', async () => {
-    apiService.post.mockResolvedValue({ data: {} });
+    let lastUrl;
+    server.use(
+      http.post(`${BASE}/api/v1/auth/addresses/2/set-default/`, ({ request }) => {
+        lastUrl = request.url;
+        return HttpResponse.json({});
+      }),
+    );
     renderPage([ADDR_1, ADDR_2]);
     await screen.findByText('Otra Persona');
     fireEvent.click(
       screen.getByRole('button', { name: /hacer predeterminada/i }),
     );
-    await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/addresses/2/set-default/',
-      {},
-    ));
+    await waitFor(() => expect(lastUrl).toContain('/api/v1/auth/addresses/2/set-default/'));
   });
 });
