@@ -46,7 +46,7 @@ describe('PaymentRetryPage (UC-PAY-08)', () => {
     // `checkout_url` (no approve_url separado).
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/payments/initiate/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/payments/initiate/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({
           payment_id:   456,
@@ -71,7 +71,7 @@ describe('PaymentRetryPage (UC-PAY-08)', () => {
     // Use 400 with codigo_error so apiService propagates ORDER_EXPIRED as error.code.
     // A raw 409 becomes ConflictError(code='CONFLICT') which is not ORDER_EXPIRED.
     server.use(
-      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json(
           { detail: 'ORDER_EXPIRED', codigo_error: 'ORDER_EXPIRED' },
           { status: 400 },

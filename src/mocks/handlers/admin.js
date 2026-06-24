@@ -417,11 +417,11 @@ export const adminHandlers = [
     return HttpResponse.json({ ...r, ...body });
   }),
 
-  // Payments (admin)
-  http.get(`${BASE}/api/v1/admin/payments/`, () =>
+  // Payments (admin) — v2
+  http.get(`${BASE}/api/v2/admin/payments/`, () =>
     HttpResponse.json({ count: mockPayments.length, results: mockPayments }),
   ),
-  http.post(`${BASE}/api/v1/payments/admin/:id/refund/`, async ({ params, request }) => {
+  http.post(`${BASE}/api/v2/payments/admin/:id/refund/`, async ({ params, request }) => {
     const body = await request.json();
     return HttpResponse.json({ payment_id: params.id, refunded: body.amount, status: 'REFUNDED' });
   }),
@@ -441,11 +441,11 @@ export const adminHandlers = [
     HttpResponse.json({ id: params.id, is_active: false }),
   ),
 
-  // Notifications
-  http.get(`${BASE}/api/v1/admin/notifications/audience-count/`, () =>
+  // Notifications (admin) — v2
+  http.get(`${BASE}/api/v2/admin/notifications/audience-count/`, () =>
     HttpResponse.json({ count: 1250 }),
   ),
-  http.post(`${BASE}/api/v1/admin/notifications/manual/`, async ({ request }) => {
+  http.post(`${BASE}/api/v2/admin/notifications/`, async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({ sent: true, recipient_count: 1250, ...body }, { status: 201 });
   }),

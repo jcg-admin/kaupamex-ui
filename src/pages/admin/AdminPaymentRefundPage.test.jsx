@@ -43,7 +43,7 @@ const APPROVED_PAYMENT = {
 describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
   it('muestra el titulo y la informacion del pago', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
     );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     expect(
@@ -54,11 +54,11 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
 
   it('envia el reembolso con monto y motivo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
     );
     let lastRefundBody;
     server.use(
-      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/payments/admin/:paymentId/refund/`, async ({ request }) => {
         lastRefundBody = await request.json();
         return HttpResponse.json({ id: 'rfd-1', amount: 500, status: 'REFUNDED' });
       }),
@@ -79,11 +79,11 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
 
   it('rechaza el envio si el motivo esta vacio', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
     );
     let refundCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () => {
+      http.post(`${BASE}/api/v2/payments/admin/:paymentId/refund/`, () => {
         refundCalled = true;
         return HttpResponse.json({});
       }),
@@ -100,11 +100,11 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
 
   it('rechaza monto mayor al pago', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
     );
     let refundCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () => {
+      http.post(`${BASE}/api/v2/payments/admin/:paymentId/refund/`, () => {
         refundCalled = true;
         return HttpResponse.json({});
       }),
@@ -122,10 +122,10 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
 
   it('muestra confirmacion tras un reembolso exitoso', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
     );
     server.use(
-      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () =>
+      http.post(`${BASE}/api/v2/payments/admin/:paymentId/refund/`, () =>
         HttpResponse.json({ id: 'rfd-2', amount: 1500, status: 'REFUNDED' }),
       ),
     );
@@ -143,10 +143,10 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
 
   it('muestra error si el gateway rechaza el reembolso', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
     );
     server.use(
-      http.post(`${BASE}/api/v1/payments/admin/:paymentId/refund/`, () =>
+      http.post(`${BASE}/api/v2/payments/admin/:paymentId/refund/`, () =>
         HttpResponse.json(
           { codigo_error: 'GATEWAY_ERROR', detail: 'GATEWAY_ERROR' },
           { status: 400 },

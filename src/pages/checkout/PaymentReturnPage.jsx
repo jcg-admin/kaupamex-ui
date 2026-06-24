@@ -31,7 +31,7 @@ export default function PaymentReturnPage() {
     async function poll(n) {
       if (cancelled) return;
       try {
-        const res = await apiService.get(`/api/v1/payments/${id}/status/`);
+        const res = await apiService.get(`/api/v2/payments/${id}/status/`);
         if (cancelled) return;
         // PaymentStatusSerializer returns { payment_status, order_status, ... }
         const paymentStatus = res.data?.payment_status;

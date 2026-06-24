@@ -34,7 +34,7 @@ const RESPONSE = {
 describe('AdminPaymentsPage (UC-PAY-11)', () => {
   it('muestra el titulo del reporte', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminPaymentsPage />));
     expect(
@@ -44,7 +44,7 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
 
   it('lista los pagos con sus estados, gateways y montos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminPaymentsPage />));
     expect(await screen.findByText('ORD-1')).toBeInTheDocument();
@@ -57,7 +57,7 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
 
   it('muestra los totales del periodo (cobros / reembolsos / neto)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminPaymentsPage />));
     expect(await screen.findByText(/Aprobados:/i)).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
 
   it('integra DateRangePicker (B2) en vez de inputs type=date crudos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
     );
     const { container } = render(wrap(<AdminPaymentsPage />));
     await screen.findByText('ORD-1');
@@ -78,14 +78,14 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
 
   it('aplica filtro por estado y por gateway al endpoint', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminPaymentsPage />));
     await screen.findByText('ORD-1');
 
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/payments/`, ({ request }) => {
         lastUrl = request.url;
         return HttpResponse.json(RESPONSE);
       }),
@@ -95,14 +95,14 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
     fireEvent.change(screen.getByLabelText(/Gateway/i), { target: { value: 'mercadopago' } });
 
     await screen.findByText('ORD-1');
-    expect(lastUrl).toContain('/api/v1/admin/payments/');
+    expect(lastUrl).toContain('/api/v2/admin/payments/');
     expect(lastUrl).toContain('status=APPROVED');
     expect(lastUrl).toContain('gateway=mercadopago');
   });
 
   it('muestra enlace para procesar reembolso en pagos APPROVED', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminPaymentsPage />));
     const refundLink = await screen.findByRole('link', { name: /Procesar reembolso/i });
@@ -111,7 +111,7 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
 
   it('estado vacio cuando no hay transacciones', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () =>
+      http.get(`${BASE}/api/v2/admin/payments/`, () =>
         HttpResponse.json({ results: [], count: 0, totals: null }),
       ),
     );
@@ -123,7 +123,7 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
   // reutilizable con ordenamiento por columna (cliente, monto numérico).
   it('ordena las transacciones por monto al hacer clic en el header', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminPaymentsPage />));
     await screen.findByText('ORD-1');

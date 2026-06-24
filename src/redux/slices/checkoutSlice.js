@@ -7,10 +7,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const CREATE_ORDER_URL       = '/api/v1/orders/checkout/';
-const PAYMENTS_URL           = '/api/v1/payments/initiate/';
-const ELIGIBILITY_URL        = '/api/v1/checkout/eligibility/';
-const EXPRESS_CHECKOUT_URL   = '/api/v1/checkout/express/';
+const CREATE_ORDER_URL       = '/api/v2/orders/';
+const PAYMENTS_URL           = '/api/v2/payments/initiate/';
+const ELIGIBILITY_URL        = '/api/v2/checkout/eligibility/';
+const EXPRESS_CHECKOUT_URL   = '/api/v2/checkout/express/';
 
 export const createOrder = createAsyncThunk(
   'checkout/createOrder',

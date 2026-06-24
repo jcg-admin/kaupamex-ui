@@ -24,7 +24,7 @@ const makeWrapper = () => {
 describe('useNotifications hooks', () => {
   it('useNotificationsList retorna la forma paginada de la API', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/`, () =>
+      http.get(`${BASE}/api/v2/notifications/`, () =>
         HttpResponse.json({
           results: [{ id: 1, subject: 'Bienvenido' }],
           count: 1,
@@ -49,7 +49,7 @@ describe('useNotifications hooks', () => {
 
   it('useUnreadNotificationsCount retorna el conteo sin envoltura', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/unread-count/`, () =>
+      http.get(`${BASE}/api/v2/notifications/unread-count/`, () =>
         HttpResponse.json({ count: 7 }),
       ),
     );
@@ -63,7 +63,7 @@ describe('useNotifications hooks', () => {
 
   it('useNotificationPreferences retorna la lista de preferencias', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.get(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: [{ type: 'MARKETING', enabled: false }] }),
       ),
     );

@@ -35,7 +35,7 @@ function buildStore() {
 
 function renderLayout() {
   server.use(
-    http.get(`${BASE}/api/v1/notifications/count/`, () =>
+    http.get(`${BASE}/api/v2/notifications/unread-count/`, () =>
       HttpResponse.json({ count: 0 }),
     ),
   );

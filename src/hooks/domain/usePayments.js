@@ -11,9 +11,9 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const PAYMENTS_BY_ORDER_URL = (orderId) => `/api/v1/payments/?order_id=${encodeURIComponent(orderId)}`;
-const PAYMENT_STATUS_URL    = (orderId) => `/api/v1/payments/?order_id=${encodeURIComponent(orderId)}&latest=true`;
-const ADMIN_PAYMENTS_URL    = '/api/v1/admin/payments/';
+const PAYMENT_HISTORY_URL   = (orderId) => `/api/v2/payments/${orderId}/history/`;
+const PAYMENT_STATUS_URL    = (orderId) => `/api/v2/payments/${orderId}/status/`;
+const ADMIN_PAYMENTS_URL    = '/api/v2/admin/payments/';
 
 export const PAYMENTS_KEY            = ['payments'];
 export const PAYMENT_STATUS_KEY      = ['payments', 'status'];
@@ -30,8 +30,6 @@ export function usePaymentStatus(orderId) {
     enabled:  Boolean(orderId),
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(PAYMENT_STATUS_URL(orderId), { signal });
-      if (Array.isArray(data?.results)) return data.results[0] ?? null;
-      if (Array.isArray(data))          return data[0] ?? null;
       return data ?? null;
     },
   });
@@ -46,8 +44,8 @@ export function usePaymentHistory(orderId) {
     queryKey: [...PAYMENT_HISTORY_KEY, orderId],
     enabled:  Boolean(orderId),
     queryFn:  async ({ signal }) => {
-      const { data } = await apiService.get(PAYMENTS_BY_ORDER_URL(orderId), { signal });
-      return data?.results ?? (Array.isArray(data) ? data : []);
+      const { data } = await apiService.get(PAYMENT_HISTORY_URL(orderId), { signal });
+      return Array.isArray(data) ? data : (data?.results ?? []);
     },
   });
 }

@@ -49,10 +49,10 @@ describe('PaymentSelectionPage', () => {
 
   it('UC-PAY-01: inicia pago MP y redirige al checkout_url', async () => {
     // DEC-BC-09: backend devuelve `checkout_url` (unificado) en endpoint
-    // unico `/api/v1/payments/initiate/` con body
+    // unico `/api/v2/payments/initiate/` con body
     // `{ order_number, gateway: 'MERCADOPAGO', installments? }`.
     server.use(
-      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json({
           payment_id:   123,
           checkout_url: 'https://mp.example/pay/123',
@@ -72,7 +72,7 @@ describe('PaymentSelectionPage', () => {
 
   it('UC-PAY-01-EXT: incluye installments cuando MSI esta seleccionado', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json({
           payment_id: 124,
           checkout_url: 'https://mp.example/pay/msi',
@@ -93,7 +93,7 @@ describe('PaymentSelectionPage', () => {
 
   it('UC-PAY-02: inicia pago PayPal y redirige al checkout_url', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json({
           payment_id:   125,
           checkout_url: 'https://paypal.example/approve/9',
@@ -113,7 +113,7 @@ describe('PaymentSelectionPage', () => {
 
   it('muestra mensaje de error si el gateway falla', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json(
           { detail: 'AMOUNT_MISMATCH', codigo_error: 'AMOUNT_MISMATCH' },
           { status: 422 },

@@ -15,12 +15,12 @@ import { serializeApiError } from '@utils/serializeApiError';
 const PREFERENCES_URL          = '/api/v2/notifications/preferences/';
 // F2 Tier B: mark-read is now PATCH /notifications/<pk>/ (was POST /notifications/<id>/read/)
 const MARK_AS_READ_URL         = (id) => `/api/v2/notifications/${id}/`;
-// No v2 read-all endpoint yet — stays at v1
-const MARK_ALL_AS_READ_URL     = '/api/v1/notifications/read-all/';
+// F6 Tier B: PATCH /notifications/ marks all as read (was POST /notifications/read-all/)
+const MARK_ALL_AS_READ_URL     = '/api/v2/notifications/';
 // F2 Tier B: admin manual path simplified (was /manual/)
 const ADMIN_MANUAL_NOTIFY_URL  = '/api/v2/admin/notifications/';
-// No v2 audience-count endpoint yet — stays at v1
-const ADMIN_AUDIENCE_COUNT_URL = '/api/v1/admin/notifications/audience-count/';
+// F6: audience-count now available at v2
+const ADMIN_AUDIENCE_COUNT_URL = '/api/v2/admin/notifications/audience-count/';
 
 // =============================================================================
 // Thunks
@@ -70,7 +70,7 @@ export const markAllNotificationsAsRead = createAsyncThunk(
   'notifications/markAllAsRead',
   async (_arg, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(MARK_ALL_AS_READ_URL, {});
+      const res = await apiService.patch(MARK_ALL_AS_READ_URL, { read: true });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

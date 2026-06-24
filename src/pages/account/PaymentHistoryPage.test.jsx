@@ -34,7 +34,7 @@ const HISTORY = [
 describe('PaymentHistoryPage (UC-PAY-06)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () => HttpResponse.json({ results: HISTORY })),
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json(HISTORY)),
     );
     render(wrap(<PaymentHistoryPage />));
     expect(
@@ -44,7 +44,7 @@ describe('PaymentHistoryPage (UC-PAY-06)', () => {
 
   it('lista los intentos con su estado y fecha', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () => HttpResponse.json({ results: HISTORY })),
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json(HISTORY)),
     );
     render(wrap(<PaymentHistoryPage />));
     expect(await screen.findByText(/^Aprobado$/i)).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('PaymentHistoryPage (UC-PAY-06)', () => {
 
   it('marca explicitamente las filas de reembolso', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () => HttpResponse.json({ results: HISTORY })),
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json(HISTORY)),
     );
     render(wrap(<PaymentHistoryPage />));
     const refundRow = await screen.findByText(/^Reembolso$/);
@@ -63,7 +63,7 @@ describe('PaymentHistoryPage (UC-PAY-06)', () => {
 
   it('muestra estado vacio cuando la orden no tiene pagos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json([])),
     );
     render(wrap(<PaymentHistoryPage />));
     expect(
@@ -71,16 +71,16 @@ describe('PaymentHistoryPage (UC-PAY-06)', () => {
     ).toBeInTheDocument();
   });
 
-  it('consulta el endpoint correcto con order_id', async () => {
+  it('consulta el endpoint correcto con orderId en la ruta', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, ({ request }) => {
         capturedUrl = request.url;
-        return HttpResponse.json({ results: HISTORY });
+        return HttpResponse.json(HISTORY);
       }),
     );
     render(wrap(<PaymentHistoryPage />));
     await screen.findByRole('heading', { name: /Historial de pagos/i });
-    await waitFor(() => expect(capturedUrl).toContain('order_id=ORD-9'));
+    await waitFor(() => expect(capturedUrl).toContain('/api/v2/payments/ORD-9/history/'));
   });
 });

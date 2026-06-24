@@ -39,8 +39,8 @@ const APPROVED_PAYMENT = {
 describe('PaymentStatusPage (UC-PAY-05)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () =>
-        HttpResponse.json({ results: [APPROVED_PAYMENT] }),
+      http.get(`${BASE}/api/v2/payments/:orderId/status/`, () =>
+        HttpResponse.json(APPROVED_PAYMENT),
       ),
     );
     render(wrap(<PaymentStatusPage />));
@@ -49,25 +49,23 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
     ).toBeInTheDocument();
   });
 
-  it('consulta el endpoint con order_id y latest=true', async () => {
+  it('consulta el endpoint con orderId en la ruta', async () => {
     let requestUrl;
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/payments/:orderId/status/`, ({ request }) => {
         requestUrl = request.url;
-        return HttpResponse.json({ results: [APPROVED_PAYMENT] });
+        return HttpResponse.json(APPROVED_PAYMENT);
       }),
     );
     render(wrap(<PaymentStatusPage />));
     await screen.findByRole('heading', { name: /Estado del pago/i });
-    expect(requestUrl).toContain('/api/v1/payments/');
-    expect(requestUrl).toContain('order_id=ORD-1');
-    expect(requestUrl).toContain('latest=true');
+    expect(requestUrl).toContain('/api/v2/payments/ORD-1/status/');
   });
 
   it('renderiza el estado, gateway, monto y fecha en español', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () =>
-        HttpResponse.json({ results: [APPROVED_PAYMENT] }),
+      http.get(`${BASE}/api/v2/payments/:orderId/status/`, () =>
+        HttpResponse.json(APPROVED_PAYMENT),
       ),
     );
     render(wrap(<PaymentStatusPage />));
@@ -78,8 +76,8 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
 
   it('muestra "Sin intentos de pago" si no hay registros', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () =>
-        HttpResponse.json({ results: [] }),
+      http.get(`${BASE}/api/v2/payments/:orderId/status/`, () =>
+        HttpResponse.json(null),
       ),
     );
     render(wrap(<PaymentStatusPage />));
@@ -90,8 +88,8 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
 
   it('muestra estado de pago rechazado con codigo de error', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () =>
-        HttpResponse.json({ results: [{ ...APPROVED_PAYMENT, status: 'REJECTED', error_code: 'PAGO_RECHAZADO' }] }),
+      http.get(`${BASE}/api/v2/payments/:orderId/status/`, () =>
+        HttpResponse.json({ ...APPROVED_PAYMENT, status: 'REJECTED', error_code: 'PAGO_RECHAZADO' }),
       ),
     );
     render(wrap(<PaymentStatusPage />));
@@ -101,8 +99,8 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
 
   it('para pago rechazado o pendiente ofrece enlace para reintentar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/payments/`, () =>
-        HttpResponse.json({ results: [{ ...APPROVED_PAYMENT, status: 'REJECTED' }] }),
+      http.get(`${BASE}/api/v2/payments/:orderId/status/`, () =>
+        HttpResponse.json({ ...APPROVED_PAYMENT, status: 'REJECTED' }),
       ),
     );
     render(wrap(<PaymentStatusPage />));

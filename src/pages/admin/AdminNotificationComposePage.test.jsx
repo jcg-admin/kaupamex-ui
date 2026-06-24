@@ -111,7 +111,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
   it('muestra el conteo de destinatarios cuando se elige PRODUCT_BUYERS', async () => {
     let capturedParams;
     server.use(
-      http.get(`${BASE}/api/v1/admin/notifications/audience-count/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/notifications/audience-count/`, ({ request }) => {
         const url = new URL(request.url);
         capturedParams = Object.fromEntries(url.searchParams.entries());
         return HttpResponse.json({ count: 42 });

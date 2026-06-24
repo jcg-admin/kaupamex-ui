@@ -34,13 +34,34 @@ export const paymentsHandlers = [
     HttpResponse.json(mockPaymentResult),
   ),
 
-  // Payment status
-  http.get(`${BASE}/api/v1/payments/:id/status/`, ({ params }) =>
+  // Initiate payment (v2 — unified gateway endpoint)
+  http.post(`${BASE}/api/v2/payments/initiate/`, async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json({
+      payment_id: 'mp-pay-12345',
+      checkout_url: mockMpPreference.sandbox_init_point,
+      order_number: body.order_number || 'PY-0001',
+      amount: '198.00',
+    }, { status: 201 });
+  }),
+
+  // Checkout eligibility (v2)
+  http.get(`${BASE}/api/v2/checkout/eligibility/`, () =>
+    HttpResponse.json({ eligible: true, reason: null }),
+  ),
+
+  // Payment status (v2)
+  http.get(`${BASE}/api/v2/payments/:id/status/`, ({ params }) =>
     HttpResponse.json({ payment_id: params.id, status: 'approved', amount: '198.00' }),
   ),
 
-  // Order checkout (initiate payment)
-  http.post(`${BASE}/api/v1/orders/checkout/`, async ({ request }) => {
+  // Payment history (v2)
+  http.get(`${BASE}/api/v2/payments/:id/history/`, ({ params }) =>
+    HttpResponse.json([{ payment_id: params.id, status: 'approved', amount: '198.00' }]),
+  ),
+
+  // Order checkout (initiate payment) — v2
+  http.post(`${BASE}/api/v2/orders/`, async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({
       order_id: 1,
@@ -50,8 +71,8 @@ export const paymentsHandlers = [
     }, { status: 201 });
   }),
 
-  // Express checkout
-  http.post(`${BASE}/api/v1/orders/express-checkout/`, async ({ request }) => {
+  // Express checkout (v2)
+  http.post(`${BASE}/api/v2/checkout/express/`, async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({
       order_id: 2,

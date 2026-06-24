@@ -8,7 +8,7 @@
  *   - Submit button: "Confirmar y pagar" (not "Confirmar pedido")
  *   - No "Acepto los términos" checkbox — disclaimer is plain text
  *   - No guest-specific notice/email fields — component always shows email field
- *   - Creates order via POST /api/v1/orders/checkout/ (checkoutSlice)
+ *   - Creates order via POST /api/v2/orders/ (checkoutSlice)
  *   - fetchAddresses dispatch requires addresses slice in store
  */
 import { render, screen, waitFor } from '@testing-library/react';
@@ -88,12 +88,12 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(screen.getByRole('heading', { name: /Dirección de envío/i })).toBeInTheDocument();
   });
 
-  it('crea la orden via POST /api/v1/orders/checkout/ con direccion y metodo de envio', async () => {
+  it('crea la orden via POST /api/v2/orders/ con direccion y metodo de envio', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/orders/checkout/`, () =>
+      http.post(`${BASE}/api/v2/orders/`, () =>
         HttpResponse.json({ order_number: 'PY-2026-000123', status: 'PENDING' }),
       ),
-      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json({ checkout_url: null }),
       ),
     );
@@ -112,7 +112,7 @@ describe('CheckoutPage (UC-ORD-01)', () => {
   it('muestra error cuando el backend devuelve un fallo', async () => {
     // ConflictError (409) usa response.data.message (no detail) como mensaje.
     server.use(
-      http.post(`${BASE}/api/v1/orders/checkout/`, () =>
+      http.post(`${BASE}/api/v2/orders/`, () =>
         HttpResponse.json(
           { message: 'Stock insuficiente para algunos items.' },
           { status: 409 },
