@@ -14,6 +14,7 @@ export default function PasswordInput({
   error,
   hint,
   label,
+  ...rest
 }) {
   const autoId = useId();
   const inputId = id ?? autoId;
@@ -35,6 +36,7 @@ export default function PasswordInput({
           className={`${styles.input} ${error ? styles.inputError : ''}`}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${inputId}-err` : hint ? `${inputId}-hint` : undefined}
+          {...rest}
         />
         <button
           type="button"
@@ -58,7 +60,7 @@ export default function PasswordInput({
           )}
         </button>
       </div>
-      {error && <span id={`${inputId}-err`} className={styles.error}>{error}</span>}
+      {error && <span id={`${inputId}-err`} role="alert" className={styles.error}>{error}</span>}
       {!error && hint && <span id={`${inputId}-hint`} className={styles.hint}>{hint}</span>}
     </div>
   );

@@ -36,7 +36,7 @@ export const COOKIE_CONFIG = {
   samesite: 'Strict',     // CSRF protection
   sameSite: 'Strict',     // Alias para compatibilidad
   path: '/',
-  domain: process.env.REACT_APP_COOKIE_DOMAIN || undefined,
+  domain: undefined,
 };
 
 // HTTPS y HSTS

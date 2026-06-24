@@ -28,6 +28,7 @@ const AUTH_URLS = {
   logout:               '/api/v1/auth/logout/',
   refresh:              '/api/v1/auth/refresh/',
   register:             '/api/v1/auth/register/',
+  me:                   '/api/v1/auth/me/',
   profile:              '/api/v1/auth/profile/',
   changePassword:       '/api/v1/auth/change-password/',
   verifyEmail:          '/api/v1/auth/verify-email/',
@@ -40,6 +41,25 @@ const AUTH_URLS = {
 const ADDRESSES_URL  = '/api/v1/auth/addresses/';
 const ADDRESS_URL    = (id) => `/api/v1/auth/addresses/${id}/`;
 const LOGOUT_ALL_URL = '/api/v1/auth/logout-all/';
+
+// ─── Thunks ─── Session check ───────────────────────────────────────────
+
+/**
+ * Verifica si el usuario ya tiene sesion activa al cargar la app.
+ * Llama a /api/v1/auth/me/. En modo mock, el interceptor lee
+ * localStorage._mock_auth_type para responder sin JWT.
+ */
+export const checkAuth = createAsyncThunk(
+  'auth/checkAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiService.get(AUTH_URLS.me);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
 
 // ─── Thunks ─── Sprint 1 ─────────────────────────────────────────────
 
@@ -336,6 +356,7 @@ const authSlice = createSlice({
   initialState: {
     user:            null,
     isAuthenticated: false,
+    sessionChecked:  false,
     isLoading:       false,
     error:           null,
   },
@@ -359,6 +380,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
+        state.sessionChecked = true;
         state.user = action.payload.user ?? action.payload;
         state.error = null;
         if (action.payload.access) apiService.setAuthToken(action.payload.access);
@@ -376,7 +398,27 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+        state.sessionChecked = true;
         state.error = null;
+      });
+
+    // checkAuth (session restore on page reload)
+    builder
+      .addCase(checkAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.sessionChecked = true;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.sessionChecked = true;
+        state.user = null;
       });
 
     // Register

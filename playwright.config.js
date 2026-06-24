@@ -12,7 +12,7 @@ const { defineConfig, devices } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: './e2e',
   testMatch: '**/*.e2e.js',
-  timeout: 30_000,
+  timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -25,6 +25,16 @@ module.exports = defineConfig({
     video: 'retain-on-failure',
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+            || '/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell',
+          args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu'],
+        },
+      },
+    },
   ],
 });

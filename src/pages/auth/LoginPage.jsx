@@ -30,7 +30,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await dispatch(loginUser(creds)).unwrap();
+      await dispatch(loginUser({ username: creds.email, password: creds.password })).unwrap();
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError('Correo o contraseña incorrectos.');

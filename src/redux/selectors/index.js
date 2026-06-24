@@ -11,6 +11,7 @@ export const selectUser            = (state) => state.auth.user;
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectIsAdmin         = (state) => state.auth.user?.is_staff ?? false;
 export const selectAuthLoading     = (state) => state.auth.isLoading;
+export const selectSessionChecked  = (state) => state.auth.sessionChecked;
 export const selectAuthError       = (state) => state.auth.error;
 
 // ─── UI ────────────────────────────────────────────────────────────────
