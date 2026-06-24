@@ -48,7 +48,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
   it('CSV: previsualiza al cargar archivo y pulsar generar vista previa', async () => {
     let handlerCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/admin/price-sync/preview-csv/`, () => {
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, () => {
         handlerCalled = true;
         return HttpResponse.json(PREVIEW);
       }),
@@ -67,12 +67,13 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
   it('CSV: confirma y aplica usando el token de la preview', async () => {
     let applyBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/price-sync/preview-csv/`, () =>
-        HttpResponse.json(PREVIEW),
-      ),
-      http.post(`${BASE}/api/v1/admin/price-sync/apply-csv/`, async ({ request }) => {
-        applyBody = await request.json();
-        return HttpResponse.json({ updated: 1, skipped: 1 });
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, async ({ request }) => {
+        const contentType = request.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          applyBody = await request.json();
+          return HttpResponse.json({ updated_count: 1 });
+        }
+        return HttpResponse.json(PREVIEW);
       }),
     );
     renderPage();
@@ -93,7 +94,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     // resumen; no renderiza la columna "status" por fila (filas del preview
     // son siempre validas en la nueva API).
     server.use(
-      http.post(`${BASE}/api/v1/admin/price-sync/preview-csv/`, () =>
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, () =>
         HttpResponse.json(PREVIEW),
       ),
     );
@@ -108,7 +109,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
   it('porcentaje: envia percentage + filtros al backend (Alt A)', async () => {
     let lastPostBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/price-sync/preview-percentage/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, async ({ request }) => {
         lastPostBody = await request.json();
         return HttpResponse.json(PREVIEW);
       }),
@@ -128,7 +129,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
 
   it('muestra error si la API de preview falla (EX-01)', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/price-sync/preview-csv/`, () =>
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, () =>
         HttpResponse.json({ detail: 'csv invalido' }, { status: 400 }),
       ),
     );

@@ -4,8 +4,8 @@
  * Verifica que el mock se comporte como el contrato real para:
  *   - GET listado con summary y status calculado por umbral.
  *   - GET movimientos por variante (URL prefix variants/<id>/).
- *   - POST ajustar stock (codigos 200/400/404/409).
- *   - POST import CSV (201).
+ *   - PATCH ajustar stock v2 (codigos 200/400/404/409).
+ *   - POST import CSV v2 (201).
  */
 import {
   interceptInventory,
@@ -45,9 +45,9 @@ describe('mocks/interceptors/inventory', () => {
     expect(r.data.results).toEqual([]);
   });
 
-  it('POST adjust con new_quantity valido devuelve 200 + nuevo stock', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/variants/1/adjust/', {
-      method: 'POST',
+  it('PATCH adjust con new_quantity valido devuelve 200 + nuevo stock', () => {
+    const r = interceptInventory('/api/v2/admin/inventory/variants/1/', {
+      method: 'PATCH',
       body:   JSON.stringify({ new_quantity: 15, reason: 'PHYSICAL_COUNT' }),
     });
     expect(r.status).toBe(200);
@@ -59,33 +59,33 @@ describe('mocks/interceptors/inventory', () => {
     expect(v1.stock).toBe(15);
   });
 
-  it('POST adjust sin reason devuelve 400', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/variants/1/adjust/', {
-      method: 'POST',
+  it('PATCH adjust sin reason devuelve 400', () => {
+    const r = interceptInventory('/api/v2/admin/inventory/variants/1/', {
+      method: 'PATCH',
       body:   JSON.stringify({ new_quantity: 10 }),
     });
     expect(r.status).toBe(400);
   });
 
-  it('POST adjust con new_quantity negativo devuelve 409', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/variants/1/adjust/', {
-      method: 'POST',
+  it('PATCH adjust con new_quantity negativo devuelve 409', () => {
+    const r = interceptInventory('/api/v2/admin/inventory/variants/1/', {
+      method: 'PATCH',
       body:   JSON.stringify({ new_quantity: -1, reason: 'LOSS' }),
     });
     expect(r.status).toBe(409);
     expect(r.data.detail).toMatch(/NEGATIVE_STOCK_NOT_ALLOWED/);
   });
 
-  it('POST adjust sobre variante inexistente devuelve 404', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/variants/999/adjust/', {
-      method: 'POST',
+  it('PATCH adjust sobre variante inexistente devuelve 404', () => {
+    const r = interceptInventory('/api/v2/admin/inventory/variants/999/', {
+      method: 'PATCH',
       body:   JSON.stringify({ new_quantity: 5, reason: 'AJUSTE' }),
     });
     expect(r.status).toBe(404);
   });
 
-  it('POST /api/v1/admin/inventory/import/ devuelve 201 con reporte', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/import/', {
+  it('POST /api/v2/admin/inventory/imports/ devuelve 201 con reporte', () => {
+    const r = interceptInventory('/api/v2/admin/inventory/imports/', {
       method: 'POST',
       body:   new FormData(),
     });

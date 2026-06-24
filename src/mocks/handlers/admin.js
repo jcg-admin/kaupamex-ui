@@ -268,10 +268,10 @@ export const adminHandlers = [
       summary: { productos_normales: 1, productos_bajo_stock: 1, productos_agotados: 0 },
     }),
   ),
-  http.post(`${BASE}/api/v1/admin/inventory/import/`, () =>
+  http.post(`${BASE}/api/v2/admin/inventory/imports/`, () =>
     HttpResponse.json({ imported: 10, errors: 0 }, { status: 201 }),
   ),
-  http.post(`${BASE}/api/v1/admin/inventory/variants/:id/adjust/`, async ({ params, request }) => {
+  http.patch(`${BASE}/api/v2/admin/inventory/variants/:id/`, async ({ params, request }) => {
     const body = await request.json();
     return HttpResponse.json({ variant_id: params.id, ...body, stock_after: body.quantity });
   }),
@@ -460,17 +460,30 @@ export const adminHandlers = [
     HttpResponse.json({ status: 'QUEUED', message: 'Backup iniciado' }, { status: 202 }),
   ),
 
-  // Price sync
-  http.post(`${BASE}/api/v1/admin/price-sync/preview-csv/`, () =>
-    HttpResponse.json({ count: mockPricePreview.length, results: mockPricePreview }),
-  ),
-  http.post(`${BASE}/api/v1/admin/price-sync/preview-percentage/`, () =>
-    HttpResponse.json({ count: mockPricePreview.length, results: mockPricePreview }),
-  ),
-  http.post(`${BASE}/api/v1/admin/price-sync/apply-csv/`, () =>
-    HttpResponse.json({ updated: mockPricePreview.length, errors: 0 }),
-  ),
-  http.get(`${BASE}/api/v1/admin/price-sync/template.csv`, () =>
+  // Price sync (v2 — consolidated endpoint)
+  http.post(`${BASE}/api/v2/admin/price-syncs/`, async ({ request }) => {
+    const contentType = request.headers.get('content-type') || '';
+    let type, mode;
+    if (contentType.includes('multipart/form-data') || contentType.includes('application/x-www-form-urlencoded')) {
+      const fd = await request.formData();
+      type = fd.get('type');
+      mode = fd.get('mode');
+    } else {
+      const body = await request.json().catch(() => ({}));
+      type = body.type;
+      mode = body.mode;
+    }
+    if (type === 'apply') {
+      return HttpResponse.json({ updated_count: mockPricePreview.length, errors: 0 });
+    }
+    return HttpResponse.json({
+      session_id: 'mock-session',
+      preview: mockPricePreview,
+      valid_count: mockPricePreview.length,
+      invalid_count: 0,
+    });
+  }),
+  http.get(`${BASE}/api/v2/admin/price-syncs/template.csv`, () =>
     new HttpResponse('sku,price\nSKU-001,99.00\n', {
       headers: { 'Content-Type': 'text/csv' },
     }),

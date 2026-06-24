@@ -48,11 +48,11 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
     expect(select).toHaveTextContent(/Otro/i);
   });
 
-  it('al enviar, hace POST al endpoint /adjust con la nueva cantidad y motivo', async () => {
+  it('al enviar, hace PATCH al endpoint v2 con la nueva cantidad y motivo', async () => {
     let lastPostUrl;
     let lastPostBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/inventory/variants/10/adjust/`, async ({ request }) => {
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, async ({ request }) => {
         lastPostUrl = request.url;
         lastPostBody = await request.json().catch(() => null);
         return HttpResponse.json({
@@ -68,7 +68,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Aplicar ajuste/i }));
 
     await waitFor(() => {
-      expect(lastPostUrl).toContain('/api/v1/admin/inventory/variants/10/adjust/');
+      expect(lastPostUrl).toContain('/api/v2/admin/inventory/variants/10/');
     });
     expect(lastPostBody).toMatchObject({
       new_quantity: 12,
@@ -78,7 +78,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
 
   it('muestra un mensaje de exito tras un ajuste correcto', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/inventory/variants/10/adjust/`, () =>
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
         HttpResponse.json({
           variant_id: 10, previous_stock: 5, new_stock: 12, delta: 7, movement_id: 42,
         }),
@@ -95,7 +95,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
 
   it('muestra error si el backend rechaza con STOCK_NEGATIVO_NO_PERMITIDO', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/inventory/variants/10/adjust/`, () =>
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
         HttpResponse.json(
           { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' },
           { status: 422 },

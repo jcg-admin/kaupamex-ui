@@ -109,7 +109,7 @@ describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
 describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
   it('fulfilled — marca lastAction y aplica el nuevo stock al item', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/inventory/variants/10/adjust/`, () =>
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
         HttpResponse.json({
           variant_id: 10, new_stock: 25, previous_stock: 3, delta: 22, movement_id: 99,
         }),
@@ -130,7 +130,7 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
 
   it('rejected — guarda actionError', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/inventory/variants/10/adjust/`, () =>
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
         HttpResponse.json(
           { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' },
           { status: 422 },
@@ -158,7 +158,7 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
 describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
   it('fulfilled — guarda importReport y lastAction=imported', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/inventory/import/`, () =>
+      http.post(`${BASE}/api/v2/admin/inventory/imports/`, () =>
         HttpResponse.json({
           products_created: 8, products_failed: 2,
           error_report: [{ row: 3, field: 'sku', reason: 'duplicado' }],
@@ -177,7 +177,7 @@ describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
 
   it('rejected — guarda actionError', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/inventory/import/`, () =>
+      http.post(`${BASE}/api/v2/admin/inventory/imports/`, () =>
         HttpResponse.json(
           { detail: 'CSV_HEADER_INVALID' },
           { status: 422 },
