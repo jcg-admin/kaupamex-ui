@@ -17,14 +17,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const CHECKOUT_URL              = '/api/v1/orders/checkout/';
-const CANCEL_URL                = (orderNumber) => `/api/v1/orders/${orderNumber}/cancel/`;
-const ADDRESS_URL               = (orderNumber) => `/api/v1/orders/${orderNumber}/address/`;
-const SHIPPING_URL              = (orderNumber) => `/api/v1/orders/${orderNumber}/shipping/`;
-const ADMIN_STATUS_URL          = (orderNumber) => `/api/v1/admin/orders/${orderNumber}/status/`;
-const ADMIN_CANCEL_URL          = (orderNumber) => `/api/v1/admin/orders/${orderNumber}/cancel/`;
-const ORDERS_URL                = '/api/v1/orders/';
-const ORDER_DETAIL_URL          = (orderNumber) => `/api/v1/orders/${orderNumber}/`;
+const CHECKOUT_URL              = '/api/v1/orders/checkout/';  // F6 Tier B — awaiting v2
+const CANCEL_URL                = (orderNumber) => `/api/v2/orders/${orderNumber}/cancellations/`;
+const ADDRESS_URL               = (orderNumber) => `/api/v2/orders/${orderNumber}/shipping-address/`;
+const SHIPPING_URL              = (orderNumber) => `/api/v2/orders/${orderNumber}/shipping-method/`;
+const ADMIN_STATUS_URL          = (orderNumber) => `/api/v2/admin/orders/${orderNumber}/status/`;
+const ADMIN_CANCEL_URL          = (orderNumber) => `/api/v2/admin/orders/${orderNumber}/cancel/`;
+const ORDERS_URL                = '/api/v2/orders/';
+const ORDER_DETAIL_URL          = (orderNumber) => `/api/v2/orders/${orderNumber}/`;
 
 // =============================================================================
 // Thunks

@@ -24,23 +24,27 @@ import { serializeApiError } from '@utils/serializeApiError';
 
 // ─── URL Constants ───────────────────────────────────────────────────────
 const AUTH_URLS = {
-  login:                '/api/v1/auth/login/',
-  logout:               '/api/v1/auth/logout/',
-  refresh:              '/api/v1/auth/refresh/',
-  register:             '/api/v1/auth/register/',
-  me:                   '/api/v1/auth/me/',
-  profile:              '/api/v1/auth/profile/',
-  changePassword:       '/api/v1/auth/change-password/',
-  verifyEmail:          '/api/v1/auth/verify-email/',
-  resendVerification:   '/api/v1/auth/resend-verification/',
-  deactivate:           '/api/v1/auth/me/deactivate/',
-  passwordReset:        '/api/v1/auth/password-reset/',
-  passwordResetConfirm: '/api/v1/auth/password-reset/confirm/',
+  login:                '/api/v2/auth/login/',
+  logout:               '/api/v2/auth/logout/',
+  refresh:              '/api/v2/auth/refresh/',
+  register:             '/api/v2/auth/register/',
+  me:                   '/api/v2/auth/me/',
+  profile:              '/api/v2/auth/profile/',
+  changePassword:       '/api/v2/auth/change-password/',
+  // F5 Tier B: verify + resend merged into one endpoint;
+  // dispatch by presence of 'token' key in body.
+  verifyEmail:          '/api/v2/auth/email-verifications/',
+  resendVerification:   '/api/v2/auth/email-verifications/',
+  // F5 Tier B: deactivate is now DELETE /auth/me/ (was POST /me/deactivate/)
+  deactivate:           '/api/v2/auth/me/',
+  passwordReset:        '/api/v2/auth/password-resets/',
+  passwordResetConfirm: '/api/v2/auth/password-resets/confirm/',
 };
 
-const ADDRESSES_URL  = '/api/v1/auth/addresses/';
-const ADDRESS_URL    = (id) => `/api/v1/auth/addresses/${id}/`;
-const LOGOUT_ALL_URL = '/api/v1/auth/logout-all/';
+const ADDRESSES_URL  = '/api/v2/auth/addresses/';
+const ADDRESS_URL    = (id) => `/api/v2/auth/addresses/${id}/`;
+// F5 Tier B: logout-all is now DELETE /auth/sessions/ (was POST /logout-all/)
+const LOGOUT_ALL_URL = '/api/v2/auth/sessions/';
 
 // ─── Thunks ─── Session check ───────────────────────────────────────────
 
@@ -218,8 +222,8 @@ export const deactivateAccount = createAsyncThunk(
   'auth/deactivateAccount',
   async ({ password }, { rejectWithValue }) => {
     try {
-      const response = await apiService.post(
-        AUTH_URLS.deactivate, { password },
+      const response = await apiService.delete(
+        AUTH_URLS.deactivate, { body: { password } },
       );
       return response.data;
     } catch (err) {
@@ -287,7 +291,7 @@ export const logoutAllSessions = createAsyncThunk(
   'auth/logoutAllSessions',
   async (_, { rejectWithValue }) => {
     try {
-      await apiService.post(LOGOUT_ALL_URL, {});
+      await apiService.delete(LOGOUT_ALL_URL);
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
     }

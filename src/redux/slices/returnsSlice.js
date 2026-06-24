@@ -13,8 +13,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const CUSTOMER_URL = '/api/v1/returns/';
-const ADMIN_URL    = '/api/v1/admin/returns/';
+const CUSTOMER_URL = '/api/v2/return-requests/';
+const ADMIN_URL    = '/api/v2/admin/return-requests/';
 
 // =============================================================================
 // Thunks — Comprador

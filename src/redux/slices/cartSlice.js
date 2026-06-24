@@ -23,12 +23,12 @@ import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
 // ─── Endpoints ────────────────────────────────────────────────────────
-const CART_URL          = '/api/v1/cart/';
-const CART_ITEMS_URL    = '/api/v1/cart/items/';
-const CART_ITEM_URL     = (id) => `/api/v1/cart/items/${id}/`;
-const CART_VOUCHER_URL  = '/api/v1/cart/voucher/';
-const CART_SAVE_URL     = '/api/v1/cart/save/';
-const CART_SYNC_URL     = '/api/v1/cart/merge/';
+const CART_URL          = '/api/v2/cart/';
+const CART_ITEMS_URL    = '/api/v2/cart/items/';
+const CART_ITEM_URL     = (id) => `/api/v2/cart/items/${id}/`;
+const CART_VOUCHER_URL  = '/api/v2/cart/voucher/';
+const CART_SAVE_URL     = '/api/v2/cart/snapshots/';
+const CART_SYNC_URL     = '/api/v2/cart/merges/';
 
 // ─── Thunks ───────────────────────────────────────────────────────────
 

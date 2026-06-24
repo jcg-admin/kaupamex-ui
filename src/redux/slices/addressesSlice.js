@@ -12,9 +12,9 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const ADDRESSES_URL  = '/api/v1/auth/addresses/';
-const ADDRESS_URL    = (id) => `/api/v1/auth/addresses/${id}/`;
-const SET_DEFAULT    = (id) => `/api/v1/auth/addresses/${id}/set-default/`;
+const ADDRESSES_URL  = '/api/v2/auth/addresses/';
+const ADDRESS_URL    = (id) => `/api/v2/auth/addresses/${id}/`;
+const SET_DEFAULT    = (id) => `/api/v2/auth/addresses/${id}/set-default/`;
 
 // =============================================================================
 // Thunks

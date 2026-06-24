@@ -12,8 +12,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const STOCK_URL      = '/api/v1/admin/inventory/';
-const MOVEMENTS      = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/movements/`;
+const STOCK_URL      = '/api/v2/admin/inventory/';
+const MOVEMENTS      = (variantId) => `/api/v2/admin/inventory/variants/${variantId}/movements/`;
 const ADJUST         = (variantId) => `/api/v2/admin/inventory/variants/${variantId}/`;
 // H-CICLO110-03: endpoint para productos sin variante.
 const ADJUST_PRODUCT = (productId) => `/api/v2/admin/inventory/${productId}/`;

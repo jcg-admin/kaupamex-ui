@@ -3,9 +3,9 @@
  *
  * Mutaciones administrativas sobre el arbol de categorias (UC-CAT-06).
  *
- *   createCategory      POST   /api/v1/admin/categories/
- *   updateCategory      PATCH  /api/v1/admin/categories/:id/
- *   deactivateCategory  POST   /api/v1/admin/categories/:id/deactivate/
+ *   createCategory      POST   /api/v2/admin/categories/
+ *   updateCategory      PATCH  /api/v2/admin/categories/:id/
+ *   deactivateCategory  POST   /api/v2/admin/categories/:id/deactivate/
  *
  * El listado lo expone `useAdminCategories` (React Query).
  */
@@ -13,7 +13,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const URL_BASE = '/api/v1/admin/categories/';
+const URL_BASE = '/api/v2/admin/categories/';
 
 export const createCategory = createAsyncThunk(
   'categories/create',

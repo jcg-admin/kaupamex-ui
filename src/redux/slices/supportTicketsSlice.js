@@ -12,8 +12,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const TICKETS_URL       = '/api/v1/support/tickets/';
-const ADMIN_TICKETS_URL = '/api/v1/admin/support/tickets/';
+const TICKETS_URL       = '/api/v2/support/tickets/';
+const ADMIN_TICKETS_URL = '/api/v2/admin/support/tickets/';
 
 // =============================================================================
 // Thunks

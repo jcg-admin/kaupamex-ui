@@ -2,7 +2,7 @@
  * Catalog Slice — PracticaYoruba
  * Gestiona el catálogo de productos: listado, detalle, búsqueda y filtros.
  *
- * Sprint 5: URLs corregidas a /api/v1/catalogue/* (anteriormente /api/products/)
+ * Sprint 5: URLs corregidas a /api/v2/catalogue/* (anteriormente /api/products/)
  *           campo base_price (anteriormente price)
  */
 
@@ -18,7 +18,7 @@ export const fetchProducts = createAsyncThunk(
   'catalog/fetchProducts',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await apiService.get('/api/v1/catalogue/', { params });
+      const res = await apiService.get('/api/v2/catalogue/', { params });
       return res.data;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
@@ -30,7 +30,7 @@ export const fetchProduct = createAsyncThunk(
   'catalog/fetchProduct',
   async (slug, { rejectWithValue }) => {
     try {
-      const res = await apiService.get(`/api/v1/catalogue/${slug}/`);
+      const res = await apiService.get(`/api/v2/catalogue/${slug}/`);
       return res.data;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
@@ -42,7 +42,7 @@ export const searchProducts = createAsyncThunk(
   'catalog/searchProducts',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await apiService.get('/api/v1/catalogue/search/', { params });
+      const res = await apiService.get('/api/v2/catalogue/search/', { params });
       return { ...res.data, query: params.q };
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
@@ -54,7 +54,7 @@ export const fetchFeaturedProducts = createAsyncThunk(
   'catalog/fetchFeaturedProducts',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await apiService.get('/api/v1/catalogue/', {
+      const res = await apiService.get('/api/v2/catalogue/', {
         params: { is_featured: true, page_size: 8 },
       });
       return res.data;
@@ -68,7 +68,7 @@ export const fetchCategories = createAsyncThunk(
   'catalog/fetchCategories',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await apiService.get('/api/v1/catalogue/categories/', { params });
+      const res = await apiService.get('/api/v2/catalogue/categories/', { params });
       return res.data;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));

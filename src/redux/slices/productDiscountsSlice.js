@@ -15,7 +15,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const URL_BASE = '/api/v1/admin/product-discounts/';
+const URL_BASE = '/api/v2/admin/product-discounts/';
 
 // =============================================================================
 // Thunks
@@ -52,7 +52,8 @@ export const deactivateProductDiscount = createAsyncThunk(
   'productDiscounts/deactivate',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${URL_BASE}${id}/deactivate/`, {});
+      // F5 Tier B: deactivate/ sub-resource → PATCH detail with {is_active:false}
+      const res = await apiService.patch(`${URL_BASE}${id}/`, { is_active: false });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

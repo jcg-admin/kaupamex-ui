@@ -13,10 +13,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const SUBSCRIBE_URL                 = '/api/v1/newsletter/subscribe/';
-const UNSUBSCRIBE_URL               = '/api/v1/newsletter/unsubscribe/';
-const ADMIN_UNSUBSCRIBE_MANUAL_URL  = (id) => `/api/v1/admin/newsletter/subscribers/${id}/unsubscribe/`;
-const ADMIN_BROADCAST_URL           = '/api/v1/admin/newsletter/campaigns/';
+// F5 Tier B: subscribe path changed (was /subscribe/)
+const SUBSCRIBE_URL                = '/api/v2/newsletter/subscriptions/';
+// F5 Tier B: unsubscribe is now DELETE /newsletter/subscriptions/ (was POST /unsubscribe/)
+const UNSUBSCRIBE_URL              = '/api/v2/newsletter/subscriptions/';
+// F5 Tier B: admin unsub is now DELETE /subscription/ (was POST /unsubscribe/)
+const ADMIN_UNSUBSCRIBE_MANUAL_URL = (id) => `/api/v2/admin/newsletter/subscribers/${id}/subscription/`;
+const ADMIN_BROADCAST_URL          = '/api/v2/admin/newsletter/campaigns/';
 
 // =============================================================================
 // Thunks
@@ -43,9 +46,8 @@ export const unsubscribeNewsletter = createAsyncThunk(
   'newsletter/unsubscribe',
   async ({ token, reason }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(UNSUBSCRIBE_URL, {
-        token,
-        reason: reason || null,
+      const res = await apiService.delete(UNSUBSCRIBE_URL, {
+        body: { token, reason: reason || null },
       });
       return res.data;
     } catch (err) {
@@ -59,8 +61,8 @@ export const adminUnsubscribeSubscriber = createAsyncThunk(
   'newsletter/adminUnsubscribe',
   async ({ id, reason }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADMIN_UNSUBSCRIBE_MANUAL_URL(id), {
-        reason: reason || 'MANUAL_REQUEST',
+      const res = await apiService.delete(ADMIN_UNSUBSCRIBE_MANUAL_URL(id), {
+        body: { reason: reason || 'MANUAL_REQUEST' },
       });
       return res.data;
     } catch (err) {

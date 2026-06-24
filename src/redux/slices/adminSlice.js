@@ -12,7 +12,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const ADMIN_USERS_URL = '/api/v1/admin/users/';
+const ADMIN_USERS_URL = '/api/v2/admin/users/';
 
 // =============================================================================
 // Thunks
@@ -141,12 +141,12 @@ export const updateUserPermissions = createAsyncThunk(
   }
 );
 
-const ADMIN_ORDERS_URL   = '/api/v1/admin/orders/';
-const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
+const ADMIN_ORDERS_URL   = '/api/v2/admin/orders/';
+const ADMIN_PRODUCTS_URL = '/api/v2/admin/products/';
 // H-CICLO95-01: /api/v1/admin/metrics/ never existed — 404 on every load.
 // The actual dashboard snapshot is served by DashboardReportView at
-// /api/v1/admin/reports/dashboard/ (build_dashboard_payload in apps/reports).
-const ADMIN_METRICS_URL  = '/api/v1/admin/reports/dashboard/';
+// /api/v2/admin/reports/dashboard/ (build_dashboard_payload in apps/reports).
+const ADMIN_METRICS_URL  = '/api/v2/admin/reports/dashboard/';
 
 /** UC-ADM-01: KPIs del panel de administración */
 export const fetchAdminMetrics = createAsyncThunk(

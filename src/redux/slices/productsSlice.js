@@ -3,10 +3,10 @@
  *
  * Mutaciones administrativas sobre el catalogo de productos.
  *
- *   UC-CAT-09  — Crear producto       (POST   /api/v1/admin/products/)
- *   UC-CAT-10  — Editar producto      (PATCH  /api/v1/admin/products/:id/)
- *   UC-CAT-11  — Desactivar producto  (POST   /api/v1/admin/products/:id/deactivate/)
- *                Reactivar producto   (POST   /api/v1/admin/products/:id/activate/)
+ *   UC-CAT-09  — Crear producto       (POST   /api/v2/admin/products/)
+ *   UC-CAT-10  — Editar producto      (PATCH  /api/v2/admin/products/:id/)
+ *   UC-CAT-11  — Desactivar producto  (POST   /api/v2/admin/products/:id/deactivate/)
+ *                Reactivar producto   (POST   /api/v2/admin/products/:id/activate/)
  *
  * La lectura del listado vive en `useAdminProducts` (React Query). Las
  * mutaciones se centralizan aqui para reutilizar `isActioning`,
@@ -16,7 +16,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const URL_BASE = '/api/v1/admin/products/';
+const URL_BASE = '/api/v2/admin/products/';
 
 // =============================================================================
 // Thunks

@@ -26,8 +26,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const REFERRAL_URL        = '/api/v1/account/referral/';
-const REFERRAL_REDEEM_URL = '/api/v1/account/referral/redeem/';
+const REFERRAL_URL        = '/api/v2/account/referral/';
+const REFERRAL_REDEEM_URL = '/api/v2/account/referral/redemptions/';
 
 // =============================================================================
 // Thunks

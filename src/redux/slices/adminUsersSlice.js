@@ -3,9 +3,9 @@
  *
  * Mutaciones admin sobre usuarios. UC-ADM-01.
  *
- *   changeUserRole    POST  /api/v1/admin/users/:id/role/
- *   suspendUser       POST  /api/v1/admin/users/:id/suspend/
- *   reactivateUser    POST  /api/v1/admin/users/:id/reactivate/
+ *   changeUserRole    POST  /api/v2/admin/users/:id/role/
+ *   suspendUser       POST  /api/v2/admin/users/:id/suspend/
+ *   reactivateUser    POST  /api/v2/admin/users/:id/reactivate/
  *
  * El listado vive en `useAdminUsers` (React Query). Las mutaciones aqui
  * por consistencia con el resto del codigo admin.
@@ -14,7 +14,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const URL_BASE = '/api/v1/admin/users/';
+const URL_BASE = '/api/v2/admin/users/';
 
 export const changeUserRole = createAsyncThunk(
   'adminUsers/changeRole',
