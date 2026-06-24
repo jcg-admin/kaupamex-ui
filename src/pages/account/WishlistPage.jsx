@@ -28,7 +28,7 @@ export default function WishlistPage() {
         <nav className={styles.breadcrumb}>
           <Link to="/account">Mi cuenta</Link>
           <span>/</span>
-          <span className={styles.bcCurrent}>Lista de deseos</span>
+          <span className={styles.bcCurrent}>Mis deseos</span>
         </nav>
 
         <div className={styles.layout}>

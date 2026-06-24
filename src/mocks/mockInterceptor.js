@@ -45,8 +45,6 @@ class MockInterceptor {
       console.log(`[MOCK] ${method} ${url}`, this._sanitize(body));
     }
 
-    await this._delay(this.delay);
-
     // ─── Auth ───────────────────────────────────────────────────
     if (url.includes('/api/v1/auth/login/'))         return this._login(body);
     if (url.includes('/api/v1/auth/logout/'))   return this._logout();
@@ -75,6 +73,7 @@ class MockInterceptor {
       return this._listAddresses();
 
     // ─── Catálogo ────────────────────────────────────────────────
+    if (url.includes('/api/v1/categories/'))                return this._categories();
     if (url.includes('/api/v1/catalogue/search/'))          return this._searchProducts(url);
     if (url.includes('/api/v1/catalogue/categories/'))      return this._categories();
     if (url.match(/\/api\/v1\/catalogue\/[^/]+\//))         return this._productDetail(url);
@@ -118,17 +117,37 @@ class MockInterceptor {
 
   _login(body) {
     if (!body?.username || !body?.password) return this._error(400, 'Credenciales requeridas.');
-    if (body.username === 'comprador@test.mx' && body.password === 'Test1234!') {
-      return this._ok({ user: this._mockUser(1, false) });
+    const isBuyer =
+      (body.username === 'comprador@test.mx' ||
+       body.username === 'testbuyer@example.com' ||
+       body.username === 'buyer@e-commerce.test') &&
+      body.password === 'Test1234!';
+    if (isBuyer) {
+      try { window.localStorage.setItem('_mock_auth_type', 'buyer'); } catch (e) {}
+      return this._ok({ user: this._mockUser(1, false, 'testbuyer@example.com') });
     }
-    if (body.username === 'admin@practicayoruba.mx' && body.password === 'Admin1234!') {
-      return this._ok({ user: this._mockUser(2, true) });
+    const isAdmin =
+      (body.username === 'admin@practicayoruba.mx' || body.username === 'testadmin@example.com') &&
+      body.password === 'Admin1234!';
+    if (isAdmin) {
+      try { window.localStorage.setItem('_mock_auth_type', 'admin'); } catch (e) {}
+      return this._ok({ user: this._mockUser(2, true, 'testadmin@example.com') });
     }
     return this._error(401, 'Credenciales inválidas.');
   }
 
-  _logout()   { return this._ok({ detail: 'Sesión cerrada.' }); }
-  _me()       { return this._ok(this._mockUser(1, false)); }
+  _logout() {
+    try { window.localStorage.removeItem('_mock_auth_type'); } catch (e) {}
+    return this._ok({ detail: 'Sesión cerrada.' });
+  }
+
+  _me() {
+    let type = null;
+    try { type = window.localStorage.getItem('_mock_auth_type'); } catch (e) {}
+    if (type === 'admin') return this._ok(this._mockUser(2, true, 'testadmin@example.com'));
+    if (type === 'buyer') return this._ok(this._mockUser(1, false, 'testbuyer@example.com'));
+    return this._error(401, 'No autenticado.');
+  }
   _register(body) {
     if (!body?.email || !body?.password) return this._error(400, 'Email y contraseña requeridos.');
     return { status: 201, data: { user: this._mockUser(99, false, body.email) } };

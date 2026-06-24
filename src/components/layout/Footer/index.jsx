@@ -26,7 +26,7 @@ const COLUMNS = [
       { to: '/auth/register',        label: 'Crear cuenta' },
       { to: '/account/orders',       label: 'Mis pedidos' },
       { to: '/account/addresses',    label: 'Direcciones' },
-      { to: '/account/wishlist',     label: 'Lista de deseos' },
+      { to: '/account/wishlist',     label: 'Mis deseos' },
     ],
   },
   {

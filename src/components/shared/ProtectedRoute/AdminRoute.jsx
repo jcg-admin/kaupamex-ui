@@ -1,19 +1,29 @@
 /**
  * AdminRoute — PracticaYoruba
- * Solo usuarios con is_staff = true. Redirige al inicio si no es admin.
+ * Solo usuarios con is_staff = true. Verifica sesión con /api/v1/auth/me/
+ * en el primer montaje para sobrevivir recargas de página.
  */
 
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
-import { selectIsAuthenticated, selectIsAdmin, selectAuthLoading } from '@redux/selectors';
+import { selectIsAuthenticated, selectIsAdmin, selectSessionChecked } from '@redux/selectors';
+import { checkAuth } from '@redux/slices/authSlice';
 import PageLoader from '@components/shared/LazyLoad/PageLoader';
 
 export default function AdminRoute() {
+  const dispatch        = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const isAdmin         = useSelector(selectIsAdmin);
-  const isLoading       = useSelector(selectAuthLoading);
+  const sessionChecked  = useSelector(selectSessionChecked);
 
-  if (isLoading) return <PageLoader />;
+  useEffect(() => {
+    if (!sessionChecked) {
+      dispatch(checkAuth());
+    }
+  }, [dispatch, sessionChecked]);
+
+  if (!sessionChecked) return <PageLoader />;
   if (!isAuthenticated) return <Navigate to="/auth/login" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
 
