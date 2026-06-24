@@ -8,7 +8,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const URL = '/api/v1/admin/audit-log/';
+const URL = '/api/v2/admin/audit-log/';
 export const AUDIT_LOG_KEY = ['admin', 'audit-log'];
 
 export function useAuditLog(params = {}) {

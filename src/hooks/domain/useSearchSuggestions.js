@@ -20,7 +20,8 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-export const SUGGESTIONS_URL = '/api/v1/catalogue/autocomplete/';
+// F1 Tier A: /api/v1/catalogue/autocomplete/ → /api/v2/products/?q=&autocomplete=1
+export const SUGGESTIONS_URL = '/api/v2/products/';
 export const SUGGESTIONS_KEY = ['catalog', 'search', 'autocomplete'];
 
 const MIN_LENGTH  = 2;
@@ -51,7 +52,7 @@ export function useSearchSuggestions(rawQuery = '', options = {}) {
     queryKey: [...SUGGESTIONS_KEY, debounced],
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(SUGGESTIONS_URL, {
-        params: { q: debounced },
+        params: { q: debounced, autocomplete: 1 },
         signal,
       });
       // AutocompleteView devuelve un array de productos {id, name, slug}.

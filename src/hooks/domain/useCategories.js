@@ -10,8 +10,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const PUBLIC_URL = '/api/v1/categories/';
-const ADMIN_URL  = '/api/v1/admin/categories/';
+const PUBLIC_URL = '/api/v2/categories/';
+const ADMIN_URL  = '/api/v2/admin/categories/';
 
 export const CATEGORIES_KEY       = ['categories'];
 export const ADMIN_CATEGORIES_KEY = ['admin', 'categories'];

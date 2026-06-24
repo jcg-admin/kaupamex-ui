@@ -8,7 +8,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const URL = '/api/v1/admin/users/';
+const URL = '/api/v2/admin/users/';
 export const ADMIN_USERS_KEY = ['admin', 'users'];
 
 export function useAdminUsers(params = {}) {

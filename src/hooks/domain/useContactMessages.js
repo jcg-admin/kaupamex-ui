@@ -10,8 +10,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const ADMIN_CONTACT_LIST_URL   = '/api/v1/admin/contact/messages/';
-const ADMIN_CONTACT_DETAIL_URL = (id) => `/api/v1/admin/contact/messages/${id}/`;
+const ADMIN_CONTACT_LIST_URL   = '/api/v2/admin/contact/messages/';
+const ADMIN_CONTACT_DETAIL_URL = (id) => `/api/v2/admin/contact/messages/${id}/`;
 
 export const ADMIN_CONTACT_MESSAGES_KEY = ['contact', 'admin', 'messages'];
 

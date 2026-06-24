@@ -28,7 +28,7 @@
 import { useEffect, useState } from 'react';
 import apiService from '@services/apiService';
 
-export const PUBLIC_SETTINGS_URL = '/api/v1/config/settings/';
+export const PUBLIC_SETTINGS_URL = '/api/v2/config/settings/';
 
 export function usePublicSettings(fallback = {}) {
   const [settings, setSettings] = useState(fallback);

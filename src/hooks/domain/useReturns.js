@@ -8,8 +8,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const CUSTOMER_URL = '/api/v1/returns/';
-const ADMIN_URL    = '/api/v1/admin/returns/';
+const CUSTOMER_URL = '/api/v2/return-requests/';
+const ADMIN_URL    = '/api/v2/admin/return-requests/';
 
 export const RETURNS_KEY       = ['returns'];
 export const ADMIN_RETURNS_KEY = ['returns', 'admin'];

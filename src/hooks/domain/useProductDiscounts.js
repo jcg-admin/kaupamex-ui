@@ -13,7 +13,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const PRODUCT_DISCOUNTS_URL = '/api/v1/admin/product-discounts/';
+const PRODUCT_DISCOUNTS_URL = '/api/v2/admin/product-discounts/';
 
 export const PRODUCT_DISCOUNTS_QUERY_KEY = ['product-discounts'];
 

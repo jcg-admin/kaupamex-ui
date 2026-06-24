@@ -15,7 +15,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
+const ADMIN_PRODUCTS_URL = '/api/v2/admin/products/';
 
 export const ADMIN_PRODUCTS_KEY = ['admin', 'products'];
 

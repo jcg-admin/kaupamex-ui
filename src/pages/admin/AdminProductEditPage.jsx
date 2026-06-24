@@ -29,7 +29,7 @@ export default function AdminProductEditPage() {
 
   useEffect(() => {
     let cancelled = false;
-    apiService.get(`/api/v1/admin/products/${id}/`)
+    apiService.get(`/api/v2/admin/products/${id}/`)
       .then(({ data }) => { if (!cancelled) { setProduct(data); setIsLoading(false); } })
       .catch((err) => { if (!cancelled) { setLoadError(err); setIsLoading(false); } });
     return () => { cancelled = true; };

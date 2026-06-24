@@ -15,7 +15,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const BASE = '/api/v1/admin/reports';
+const BASE = '/api/v2/admin/reports';
 
 export const REPORTS_KEY = ['admin', 'reports'];
 
@@ -69,7 +69,8 @@ export function buildReportExportUrl(reportSlug, params = {}) {
     search.set(k, v);
   });
   const qs = search.toString();
-  return `${base}export/${qs ? `?${qs}` : ''}`;
+  // F5 Tier A: export/ → exports/ (plural canonical REST)
+  return `${base}exports/${qs ? `?${qs}` : ''}`;
 }
 
 export default useSalesReport;

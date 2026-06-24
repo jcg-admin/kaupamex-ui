@@ -21,7 +21,7 @@ export function useRelatedProducts(slug, options = {}) {
     queryKey: [...RELATED_PRODUCTS_KEY, slug],
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(
-        `/api/v1/products/${encodeURIComponent(slug)}/related/`,
+        `/api/v2/products/${encodeURIComponent(slug)}/related/`,
         { signal },
       );
       const results = data?.results ?? [];

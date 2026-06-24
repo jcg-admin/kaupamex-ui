@@ -21,7 +21,7 @@ export default function TwoFactorPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/v1/auth/verify-otp/', {
+      const res = await fetch('/api/v2/auth/verify-otp/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ otp: code }),

@@ -20,7 +20,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const URL = '/api/v1/logistics/';
+const URL = '/api/v2/logistics/';
 export const LOGISTICS_KEY = ['admin', 'logistics'];
 
 export function useLogistics(params = {}) {

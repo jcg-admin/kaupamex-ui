@@ -21,7 +21,7 @@ export function useVouchers(params = {}) {
   return useQuery({
     queryKey: [...VOUCHERS_QUERY_KEY, params],
     queryFn:  async ({ signal }) => {
-      const { data } = await apiService.get('/api/v1/admin/vouchers/', {
+      const { data } = await apiService.get('/api/v2/admin/vouchers/', {
         params,
         signal,
       });
