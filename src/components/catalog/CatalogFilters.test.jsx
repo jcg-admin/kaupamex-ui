@@ -19,7 +19,7 @@ const TREE = [
 
 const renderFilters = (props = {}) => {
   server.use(
-    http.get(`${BASE}/api/v1/categories/`, () =>
+    http.get(`${BASE}/api/v2/categories/`, () =>
       HttpResponse.json({ results: TREE, count: TREE.length }),
     ),
   );

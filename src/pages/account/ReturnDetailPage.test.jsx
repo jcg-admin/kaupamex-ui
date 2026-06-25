@@ -51,7 +51,7 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
   it('carga el detalle por id desde la URL', async () => {
     let requestUrl;
     server.use(
-      http.get(`${BASE}/api/v1/returns/:id/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/return-requests/:id/`, ({ request }) => {
         requestUrl = request.url;
         return HttpResponse.json(RETURN_OK);
       }),
@@ -59,12 +59,12 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
     render(wrap(<ReturnDetailPage />, makeStore()));
 
     await screen.findByText(/Devoluci.n #77/);
-    expect(requestUrl).toContain('/returns/77/');
+    expect(requestUrl).toContain('/return-requests/77/');
   });
 
   it('muestra el estado actual en español', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/:id/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/:id/`, () =>
         HttpResponse.json(RETURN_OK),
       ),
     );
@@ -75,7 +75,7 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
 
   it('renderiza el historial de cambios de estado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/:id/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/:id/`, () =>
         HttpResponse.json(RETURN_OK),
       ),
     );
@@ -86,7 +86,7 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
 
   it('muestra el estado del reembolso si existe', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/:id/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/:id/`, () =>
         HttpResponse.json(RETURN_OK),
       ),
     );
@@ -96,7 +96,7 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
 
   it('muestra el motivo del rechazo si la solicitud fue rechazada', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/:id/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/:id/`, () =>
         HttpResponse.json({
           ...RETURN_OK,
           status: 'REJECTED',
@@ -112,7 +112,7 @@ describe('ReturnDetailPage (UC-RET-04 detalle)', () => {
 
   it('muestra mensaje de error cuando no se encuentra la devolucion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/:id/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/:id/`, () =>
         HttpResponse.json({ detail: 'Not found' }, { status: 404 }),
       ),
     );

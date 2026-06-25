@@ -5,7 +5,7 @@
  * Endpoints:
  *   GET /wishlist/
  *   DELETE /wishlist/{pk}/
- *   POST /wishlist/{pk}/move-to-cart/
+ *   POST /wishlist/{pk}/cart-transfers/
  */
 
 import { useEffect } from 'react';

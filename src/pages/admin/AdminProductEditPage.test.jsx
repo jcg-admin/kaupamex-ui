@@ -54,10 +54,10 @@ const wrap = (store) => {
 };
 
 describe('AdminProductEditPage (UC-CAT-10)', () => {
-  it('carga el producto desde /api/v1/admin/products/:id/', async () => {
+  it('carga el producto desde /api/v2/admin/products/:id/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/`, () => HttpResponse.json(PRODUCT)),
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.get(`${BASE}/api/v2/admin/products/7/`, () => HttpResponse.json(PRODUCT)),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
     );
     render(wrap(makeStore()));
     expect(await screen.findByRole('heading', { name: /Editar Producto/i })).toBeInTheDocument();
@@ -68,9 +68,9 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
     let lastPatchUrl;
     let lastPatchBody;
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/`, () => HttpResponse.json(PRODUCT)),
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
-      http.patch(`${BASE}/api/v1/admin/products/7/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/products/7/`, () => HttpResponse.json(PRODUCT)),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.patch(`${BASE}/api/v2/admin/products/7/`, async ({ request }) => {
         lastPatchUrl = request.url;
         lastPatchBody = await request.json().catch(() => null);
         return HttpResponse.json({ ...PRODUCT, name: 'Nuevo' });
@@ -83,7 +83,7 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar cambios/i }));
 
     await waitFor(() => {
-      expect(lastPatchUrl).toContain('/api/v1/admin/products/7/');
+      expect(lastPatchUrl).toContain('/api/v2/admin/products/7/');
     });
     expect(lastPatchBody).toMatchObject({ name: 'Nuevo nombre' });
   });
@@ -91,9 +91,9 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
   it('UC-CAT-11: desactiva el producto via POST /deactivate/', async () => {
     let lastDeactivateUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/`, () => HttpResponse.json(PRODUCT)),
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
-      http.post(`${BASE}/api/v1/admin/products/7/deactivate/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/products/7/`, () => HttpResponse.json(PRODUCT)),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v2/admin/products/7/deactivate/`, async ({ request }) => {
         lastDeactivateUrl = request.url;
         return HttpResponse.json({ ok: true });
       }),
@@ -104,7 +104,7 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
     fireEvent.click(btn);
 
     await waitFor(() => {
-      expect(lastDeactivateUrl).toContain('/api/v1/admin/products/7/deactivate/');
+      expect(lastDeactivateUrl).toContain('/api/v2/admin/products/7/deactivate/');
     });
   });
 });

@@ -45,7 +45,7 @@ const USER_INACTIVE = { ...USER_ACTIVE, is_active: false };
 describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
     );
   });
 
@@ -66,7 +66,7 @@ describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
 
   it('muestra spinner mientras carga', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => new Promise(() => {})),
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => new Promise(() => {})),
     );
     render(wrap(42, makeStore()));
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe('AdminUserDetailPage — perfil (UC-AUTH-12)', () => {
 describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
   it('muestra boton Desactivar cuenta si el usuario está activo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
     );
     render(wrap(42, makeStore()));
     expect(await screen.findByRole('button', { name: /Desactivar cuenta/i })).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
 
   it('no muestra Desactivar cuenta si el usuario ya está inactivo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
     );
     render(wrap(42, makeStore()));
     await screen.findByText('buyer42@test.mx');
@@ -101,7 +101,7 @@ describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
 
   it('muestra boton Activar cuenta si el usuario está inactivo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
     );
     render(wrap(42, makeStore()));
     expect(await screen.findByRole('button', { name: /Activar cuenta/i })).toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
 
   it('no muestra Activar cuenta si el usuario está activo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
     );
     render(wrap(42, makeStore()));
     await screen.findByText('buyer42@test.mx');
@@ -119,8 +119,8 @@ describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
   it('llama al API de suspend al hacer clic en Desactivar cuenta', async () => {
     let capturedUrl = null;
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
-      http.post(`${BASE}/api/v1/admin/users/42/suspend/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => HttpResponse.json(USER_ACTIVE)),
+      http.post(`${BASE}/api/v2/admin/users/42/suspend/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({});
       }),
@@ -128,13 +128,13 @@ describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
     render(wrap(42, makeStore()));
     fireEvent.click(await screen.findByRole('button', { name: /Desactivar cuenta/i }));
     await waitFor(() =>
-      expect(capturedUrl).toContain('/api/v1/admin/users/42/')
+      expect(capturedUrl).toContain('/api/v2/admin/users/42/')
     );
   });
 
   it('muestra estado Inactivo cuando el usuario está inactivo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
+      http.get(`${BASE}/api/v2/admin/users/42/`, () => HttpResponse.json(USER_INACTIVE)),
     );
     render(wrap(42, makeStore()));
     expect(await screen.findByText(/Inactivo/i)).toBeInTheDocument();

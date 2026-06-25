@@ -44,7 +44,7 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
   it('envia la respuesta al backend con el body indicado', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/5/replies/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/support/tickets/5/replies/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 99, body: 'Mi respuesta valida', author: 'buyer', sent_at: '2026-05-19T10:00:00Z' });
       }),
@@ -66,7 +66,7 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
 
   it('limpia el campo despues de enviar una respuesta', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/5/replies/`, () =>
+      http.post(`${BASE}/api/v2/support/tickets/5/replies/`, () =>
         HttpResponse.json({ id: 99, body: 'ok', author: 'buyer', sent_at: '2026-05-19T10:00:00Z' }),
       ),
     );
@@ -82,7 +82,7 @@ describe('SupportTicketReplyForm (UC-SUPP-03)', () => {
   it('admin puede marcar la respuesta como nota interna', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/5/replies/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/support/tickets/5/replies/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 1, body: 'Nota interna del equipo', is_internal: true, author: 'admin' });
       }),

@@ -50,7 +50,7 @@ const MOVEMENTS = [
 describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
   it('muestra el titulo de la pagina de movimientos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({ results: MOVEMENTS }),
       ),
     );
@@ -62,7 +62,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
 
   it('UC-INV-02: muestra los movimientos tipo SALE (venta)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({ results: MOVEMENTS }),
       ),
     );
@@ -74,7 +74,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
 
   it('UC-INV-03: muestra los movimientos tipo CANCELLATION (cancelacion)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({ results: MOVEMENTS }),
       ),
     );
@@ -87,7 +87,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
   it('llama al endpoint de movimientos con el variantId de la URL', async () => {
     let getCalled = false;
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () => {
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () => {
         getCalled = true;
         return HttpResponse.json({ results: [] });
       }),
@@ -99,7 +99,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
 
   it('muestra estado vacio si la variante no tiene movimientos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );
@@ -111,7 +111,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
 
   it('cada fila muestra la referencia (orden o admin)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({ results: MOVEMENTS }),
       ),
     );
@@ -123,7 +123,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
   // UC-INV-03 — filtro por tipo para ver solo cancelaciones
   it('UC-INV-03: filtra los movimientos por tipo (solo cancelaciones)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({ results: MOVEMENTS }),
       ),
     );
@@ -143,7 +143,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
   // Verifica el sort por Delta (numérico) sobre los movimientos en memoria.
   it('ordena los movimientos por delta al hacer clic en el header', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({ results: MOVEMENTS }),
       ),
     );

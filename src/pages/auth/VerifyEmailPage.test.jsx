@@ -34,7 +34,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
   it('llama POST verify-email con el token del query string', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/auth/verify-email/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ status: 'OK' });
       }),
@@ -45,7 +45,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
 
   it('muestra mensaje de exito tras verificar', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
         HttpResponse.json({ status: 'OK' }),
       ),
     );
@@ -57,7 +57,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
 
   it('muestra link para iniciar sesion cuando el exito', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
         HttpResponse.json({ status: 'OK' }),
       ),
     );
@@ -69,7 +69,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
 
   it('muestra error cuando el token es invalido o expiro', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
         HttpResponse.json({ detail: 'Token invalido o expirado' }, { status: 400 }),
       ),
     );
@@ -81,7 +81,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
 
   it('ofrece reenviar el correo de verificacion en caso de error', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
         HttpResponse.json({ detail: 'expired' }, { status: 400 }),
       ),
     );
@@ -94,19 +94,20 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
 
   it('al reenviar llama POST resend-verification con el email ingresado', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/auth/verify-email/`, () =>
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
         HttpResponse.json({ detail: 'x' }, { status: 400 }),
       ),
     );
     let resendBody;
+    renderPage('?token=expired');
+    await screen.findByText(/enlace de verificacion no es valido/i);
+
     server.use(
-      http.post(`${BASE}/api/v1/auth/resend-verification/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, async ({ request }) => {
         resendBody = await request.json();
         return HttpResponse.json({ status: 'OK' });
       }),
     );
-    renderPage('?token=expired');
-    await screen.findByText(/enlace de verificacion no es valido/i);
 
     fireEvent.change(screen.getByLabelText(/correo electronico/i), {
       target: { value: 'demo@test.mx', name: 'email' },

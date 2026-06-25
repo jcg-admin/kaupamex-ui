@@ -46,7 +46,7 @@ describe('AdminReturnReceptionPanel (UC-RET-03)', () => {
   it('registra la recepción con el estado del producto y observaciones', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/returns/300/reception/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/return-requests/300/reception/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ ...APPROVED, status: 'RECEIVED' });
       }),

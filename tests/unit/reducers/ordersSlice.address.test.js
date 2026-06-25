@@ -38,7 +38,7 @@ describe('ordersSlice — updateOrderAddress (UC-ORD-05)', () => {
       address:     ADDRESS,
     }));
     expect(apiService.patch).toHaveBeenCalledWith(
-      '/api/v2/orders/PY-2026-000001/address/',
+      '/api/v2/orders/PY-2026-000001/shipping-address/',
       ADDRESS,
     );
     const state = store.getState().orders;

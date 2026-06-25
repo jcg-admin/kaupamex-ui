@@ -51,7 +51,7 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
   it('carga el detalle admin por id desde la URL', async () => {
     let calledUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/:id/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/return-requests/:id/`, ({ request }) => {
         calledUrl = request.url;
         return HttpResponse.json(PENDING_RETURN);
       }),
@@ -59,12 +59,12 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
     render(wrap(<AdminReturnDetailPage />, makeStore()));
 
     await screen.findByText(/Devoluci.n #300/);
-    expect(calledUrl).toContain('/admin/returns/300/');
+    expect(calledUrl).toContain('/admin/return-requests/300/');
   });
 
   it('muestra los datos del comprador y de la orden', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+      http.get(`${BASE}/api/v2/admin/return-requests/:id/`, () => HttpResponse.json(PENDING_RETURN)),
     );
     render(wrap(<AdminReturnDetailPage />, makeStore()));
     expect(await screen.findByText('demo@test.mx')).toBeInTheDocument();
@@ -74,11 +74,11 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
 
   it('aprueba la solicitud al confirmar el formulario', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+      http.get(`${BASE}/api/v2/admin/return-requests/:id/`, () => HttpResponse.json(PENDING_RETURN)),
     );
     let approvedId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/returns/:id/approve/`, ({ params }) => {
+      http.post(`${BASE}/api/v2/admin/return-requests/:id/approve/`, ({ params }) => {
         approvedId = params.id;
         return HttpResponse.json({ ...PENDING_RETURN, status: 'APPROVED' });
       }),
@@ -96,11 +96,11 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
 
   it('rechaza la solicitud con justificacion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+      http.get(`${BASE}/api/v2/admin/return-requests/:id/`, () => HttpResponse.json(PENDING_RETURN)),
     );
     let rejectedId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/returns/:id/reject/`, ({ params }) => {
+      http.post(`${BASE}/api/v2/admin/return-requests/:id/reject/`, ({ params }) => {
         rejectedId = params.id;
         return HttpResponse.json({ ...PENDING_RETURN, status: 'REJECTED' });
       }),
@@ -118,11 +118,11 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
 
   it('solicita información adicional al comprador', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+      http.get(`${BASE}/api/v2/admin/return-requests/:id/`, () => HttpResponse.json(PENDING_RETURN)),
     );
     let requestedInfoId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/returns/:id/request-info/`, ({ params }) => {
+      http.post(`${BASE}/api/v2/admin/return-requests/:id/request-info/`, ({ params }) => {
         requestedInfoId = params.id;
         return HttpResponse.json({ ...PENDING_RETURN, status: 'INFO_REQUESTED' });
       }),
@@ -140,11 +140,11 @@ describe('AdminReturnDetailPage (UC-RET-02)', () => {
 
   it('exige justificacion antes de aprobar o rechazar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/:id/`, () => HttpResponse.json(PENDING_RETURN)),
+      http.get(`${BASE}/api/v2/admin/return-requests/:id/`, () => HttpResponse.json(PENDING_RETURN)),
     );
     let actionCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/admin/returns/:id/approve/`, () => {
+      http.post(`${BASE}/api/v2/admin/return-requests/:id/approve/`, () => {
         actionCalled = true;
         return HttpResponse.json({});
       }),

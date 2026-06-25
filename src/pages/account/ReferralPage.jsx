@@ -8,7 +8,7 @@
  *
  * Endpoints (via referralSlice):
  *   GET  /api/v2/account/referral/         -> fetchReferral
- *   POST /api/v2/account/referral/redeem/  -> redeemReferral
+ *   POST /api/v2/account/referral/redemptions/  -> redeemReferral
  */
 
 import { useEffect, useState } from 'react';

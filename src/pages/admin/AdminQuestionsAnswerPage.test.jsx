@@ -33,7 +33,7 @@ const wrap = (ui) => (
 describe('AdminQuestionsAnswerPage (UC-QST-03)', () => {
   it('muestra el titulo de la cola', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/questions/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/admin/questions/`, () => HttpResponse.json({ results: [] })),
     );
     render(wrap(<AdminQuestionsAnswerPage />));
     expect(
@@ -43,7 +43,7 @@ describe('AdminQuestionsAnswerPage (UC-QST-03)', () => {
 
   it('lista las preguntas aprobadas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/questions/`, () =>
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, body: 'Tallas disponibles?', product: { id: 7, name: 'Camisa' } },
@@ -58,7 +58,7 @@ describe('AdminQuestionsAnswerPage (UC-QST-03)', () => {
 
   it('al publicar la respuesta, hace POST al endpoint admin', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/questions/`, () =>
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, body: 'Tallas disponibles?', product: { id: 7, name: 'Camisa' } },
@@ -68,7 +68,7 @@ describe('AdminQuestionsAnswerPage (UC-QST-03)', () => {
     );
     let answeredId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/questions/:id/answer/`, ({ params }) => {
+      http.post(`${BASE}/api/v2/admin/questions/:id/answers/`, ({ params }) => {
         answeredId = params.id;
         return HttpResponse.json({ id: params.id, status: 'ANSWERED' });
       }),

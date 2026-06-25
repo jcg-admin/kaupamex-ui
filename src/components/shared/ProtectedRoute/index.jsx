@@ -1,6 +1,6 @@
 /**
  * ProtectedRoute — PracticaYoruba
- * Requiere autenticación. Verifica sesión con /api/v1/auth/me/ en el
+ * Requiere autenticación. Verifica sesión con /api/v2/auth/me/ en el
  * primer montaje (cubre recarga de página donde el JWT en memoria se
  * pierde). Redirige a /auth/login si no hay sesión activa.
  */

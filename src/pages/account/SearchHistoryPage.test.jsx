@@ -36,7 +36,7 @@ const renderPage = () => {
 describe('SearchHistoryPage (UC-SRCH-03)', () => {
   it('muestra el titulo «Historial de busquedas»', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/search/history/`, () =>
+      http.get(`${BASE}/api/v2/search/history/`, () =>
         HttpResponse.json({ results: [], count: 0 }),
       ),
     );
@@ -48,7 +48,7 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
 
   it('renderiza la lista de terminos con su fecha', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/search/history/`, () =>
+      http.get(`${BASE}/api/v2/search/history/`, () =>
         HttpResponse.json({ results: [ENTRY_1, ENTRY_2], count: 2 }),
       ),
     );
@@ -59,7 +59,7 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
 
   it('cada termino enlaza a /search?q=<term>', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/search/history/`, () =>
+      http.get(`${BASE}/api/v2/search/history/`, () =>
         HttpResponse.json({ results: [ENTRY_1], count: 1 }),
       ),
     );
@@ -70,7 +70,7 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
 
   it('muestra el estado vacio cuando no hay historial', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/search/history/`, () =>
+      http.get(`${BASE}/api/v2/search/history/`, () =>
         HttpResponse.json({ results: [], count: 0 }),
       ),
     );
@@ -80,15 +80,15 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
     ).toBeInTheDocument();
   });
 
-  it('eliminar una entrada llama DELETE /api/v1/search/history/:id/ (Alt A)', async () => {
+  it('eliminar una entrada llama DELETE /api/v2/search/history/:id/ (Alt A)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/search/history/`, () =>
+      http.get(`${BASE}/api/v2/search/history/`, () =>
         HttpResponse.json({ results: [ENTRY_1], count: 1 }),
       ),
     );
     let deleteCalled = false;
     server.use(
-      http.delete(`${BASE}/api/v1/search/history/1/`, () => {
+      http.delete(`${BASE}/api/v2/search/history/1/`, () => {
         deleteCalled = true;
         return HttpResponse.json(null);
       }),
@@ -99,15 +99,15 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
     await waitFor(() => expect(deleteCalled).toBe(true));
   });
 
-  it('borrar todo llama DELETE /api/v1/search/history/ (Alt B)', async () => {
+  it('borrar todo llama DELETE /api/v2/search/history/ (Alt B)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/search/history/`, () =>
+      http.get(`${BASE}/api/v2/search/history/`, () =>
         HttpResponse.json({ results: [ENTRY_1], count: 1 }),
       ),
     );
     let deleteCalled = false;
     server.use(
-      http.delete(`${BASE}/api/v1/search/history/`, () => {
+      http.delete(`${BASE}/api/v2/search/history/`, () => {
         deleteCalled = true;
         return HttpResponse.json(null);
       }),
@@ -123,7 +123,7 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
 
   it('muestra error si la API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/search/history/`, () =>
+      http.get(`${BASE}/api/v2/search/history/`, () =>
         HttpResponse.json({ detail: 'Error' }, { status: 400 }),
       ),
     );

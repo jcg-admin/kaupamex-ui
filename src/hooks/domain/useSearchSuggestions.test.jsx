@@ -4,7 +4,7 @@
  * Autocomplete con sugerencias en vivo. El hook:
  *   - aplica debounce (~250ms) al termino antes de consultar,
  *   - exige minimo 2 caracteres (query deshabilitada por debajo),
- *   - llama GET /api/v2/catalogue/autocomplete/?q=,
+ *   - llama GET /api/v2/products/?q=,
  *   - mapea el array de productos {id,name,slug} a sus nombres,
  *   - expone { suggestions, isLoading }.
  *
@@ -48,7 +48,7 @@ describe('useSearchSuggestions (UC-SRCH-02)', () => {
   it('NO consulta con menos de 2 caracteres', () => {
     let requestMade = false;
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/autocomplete/`, () => {
+      http.get(`${BASE}/api/v2/products/`, () => {
         requestMade = true;
         return HttpResponse.json([]);
       }),
@@ -59,10 +59,10 @@ describe('useSearchSuggestions (UC-SRCH-02)', () => {
     expect(requestMade).toBe(false);
   });
 
-  it('consulta GET /api/v1/catalogue/autocomplete/ tras el debounce', async () => {
+  it('consulta GET /api/v2/products/ tras el debounce', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/autocomplete/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json([{ id: 1, name: 'Collar Oshun', slug: 'collar-oshun' }]);
       }),
@@ -92,7 +92,7 @@ describe('useSearchSuggestions (UC-SRCH-02)', () => {
     let requestCount = 0;
     let lastCapturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/autocomplete/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
         requestCount++;
         lastCapturedUrl = request.url;
         return HttpResponse.json([]);
@@ -119,7 +119,7 @@ describe('useSearchSuggestions (UC-SRCH-02)', () => {
 
   it('mapea respuesta paginada {results:[...]} a nombres', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/autocomplete/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json({ results: [{ id: 2, name: 'Pulsera Yemaya', slug: 'pulsera-yemaya' }] }),
       ),
     );

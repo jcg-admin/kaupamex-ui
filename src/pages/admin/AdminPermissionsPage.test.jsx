@@ -39,7 +39,7 @@ const wrap = () => {
 describe('AdminPermissionsPage (UC-ADM-02)', () => {
   it('renderiza la matriz de roles x permisos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/permissions/`, () => HttpResponse.json(DATA)),
+      http.get(`${BASE}/api/v2/admin/permissions/`, () => HttpResponse.json(DATA)),
     );
     render(wrap());
     expect(await screen.findByRole('heading', { name: /Permisos/i })).toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('AdminPermissionsPage (UC-ADM-02)', () => {
 
   it('refleja los permisos marcados por rol', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/permissions/`, () => HttpResponse.json(DATA)),
+      http.get(`${BASE}/api/v2/admin/permissions/`, () => HttpResponse.json(DATA)),
     );
     render(wrap());
     await screen.findByText('admin');
@@ -58,12 +58,12 @@ describe('AdminPermissionsPage (UC-ADM-02)', () => {
     expect(screen.getByLabelText('orders.manage para staff')).not.toBeChecked();
   });
 
-  it('guarda cambios via PUT /api/v1/admin/roles/:role/permissions/', async () => {
+  it('guarda cambios via PUT /api/v2/admin/roles/:role/permissions/', async () => {
     let putBody;
     let putUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/permissions/`, () => HttpResponse.json(DATA)),
-      http.put(`${BASE}/api/v1/admin/roles/staff/permissions/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/permissions/`, () => HttpResponse.json(DATA)),
+      http.put(`${BASE}/api/v2/admin/roles/staff/permissions/`, async ({ request }) => {
         putUrl = request.url;
         putBody = await request.json();
         return HttpResponse.json({ ok: true });
@@ -75,7 +75,7 @@ describe('AdminPermissionsPage (UC-ADM-02)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar staff/i }));
 
     await waitFor(() => {
-      expect(putUrl).toContain('/api/v1/admin/roles/staff/permissions/');
+      expect(putUrl).toContain('/api/v2/admin/roles/staff/permissions/');
       expect(putBody?.permissions).toEqual(
         expect.arrayContaining(['catalog.manage', 'orders.manage']),
       );

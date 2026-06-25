@@ -10,7 +10,7 @@ const CATEGORIES = [
 ];
 
 export const catalogueHandlers = [
-  http.get(`${BASE}/api/v1/catalogue/`, ({ request }) => {
+  http.get(`${BASE}/api/v2/catalogue/`, ({ request }) => {
     const url    = new URL(request.url);
     const search = url.searchParams.get('search') || '';
     const count  = 6;
@@ -20,11 +20,11 @@ export const catalogueHandlers = [
     return HttpResponse.json({ count, next: null, previous: null, results });
   }),
 
-  http.get(`${BASE}/api/v1/catalogue/:slug/`, ({ params }) =>
+  http.get(`${BASE}/api/v2/catalogue/:slug/`, ({ params }) =>
     HttpResponse.json(makeProduct({ slug: params.slug })),
   ),
 
-  http.get(`${BASE}/api/v1/catalogue/categories/`, () =>
+  http.get(`${BASE}/api/v2/catalogue/categories/`, () =>
     HttpResponse.json({ count: CATEGORIES.length, results: CATEGORIES }),
   ),
 ];

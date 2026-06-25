@@ -75,7 +75,7 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
   it('envia el voucher al backend en el happy path', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/vouchers/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/vouchers/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json(
           { id: 99, code: 'WELCOME20', voucher_type: 'PERCENTAGE', discount_pct: 20, is_active: true },

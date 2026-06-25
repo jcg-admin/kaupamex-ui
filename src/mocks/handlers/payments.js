@@ -19,18 +19,18 @@ const mockPaymentResult = {
 
 export const paymentsHandlers = [
   // MercadoPago preference
-  http.post(`${BASE}/api/v1/payments/mercadopago/create-preference/`, async ({ request }) => {
+  http.post(`${BASE}/api/v2/payments/mercadopago/create-preference/`, async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({ ...mockMpPreference, order_id: body.order_id }, { status: 201 });
   }),
 
   // Payment webhook (MP notification)
-  http.post(`${BASE}/api/v1/payments/mercadopago/webhook/`, () =>
+  http.post(`${BASE}/api/v2/payments/mercadopago/webhook/`, () =>
     new HttpResponse(null, { status: 200 }),
   ),
 
   // Payment return (user returns from MP)
-  http.get(`${BASE}/api/v1/payments/mercadopago/return/`, () =>
+  http.get(`${BASE}/api/v2/payments/mercadopago/return/`, () =>
     HttpResponse.json(mockPaymentResult),
   ),
 
@@ -83,7 +83,7 @@ export const paymentsHandlers = [
   }),
 
   // Voucher validation at checkout
-  http.post(`${BASE}/api/v1/vouchers/validate/`, async ({ request }) => {
+  http.post(`${BASE}/api/v2/vouchers/validate/`, async ({ request }) => {
     const body = await request.json();
     if (body.code === 'YORUBA10') {
       return HttpResponse.json({

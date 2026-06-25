@@ -56,7 +56,7 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
   it('si no esta autenticado redirige a login y no llama al API', () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/`, () => {
+      http.post(`${BASE}/api/v2/wishlist/`, () => {
         called = true;
         return HttpResponse.json({});
       }),
@@ -69,7 +69,7 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
 
   it('agrega el producto y muestra confirmacion visual', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/`, () =>
+      http.post(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ id: 1, product_id: 7 }),
       ),
     );
@@ -86,7 +86,7 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
   it('envia variant_id cuando corresponde (Alternativa B)', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/wishlist/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 1 });
       }),
@@ -100,7 +100,7 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
 
   it('muestra aviso cuando el producto ya esta en la lista (409)', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/`, () =>
+      http.post(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json(
           { detail: 'ya esta en la lista', codigo_error: 'PRODUCT_ALREADY_IN_WISHLIST' },
           { status: 409 },

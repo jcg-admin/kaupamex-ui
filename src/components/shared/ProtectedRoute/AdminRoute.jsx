@@ -1,6 +1,6 @@
 /**
  * AdminRoute — PracticaYoruba
- * Solo usuarios con is_staff = true. Verifica sesión con /api/v1/auth/me/
+ * Solo usuarios con is_staff = true. Verifica sesión con /api/v2/auth/me/
  * en el primer montaje para sobrevivir recargas de página.
  */
 

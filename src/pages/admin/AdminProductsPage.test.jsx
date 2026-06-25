@@ -43,7 +43,7 @@ const wrap = (ui) => (
 describe('AdminProductsPage (D-011 listado)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+      http.get(`${BASE}/api/v2/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
     );
     render(wrap(<AdminProductsPage />));
     expect(
@@ -51,10 +51,10 @@ describe('AdminProductsPage (D-011 listado)', () => {
     ).toBeInTheDocument();
   });
 
-  it('llama a GET /api/v1/admin/products/ al montar', async () => {
+  it('llama a GET /api/v2/admin/products/ al montar', async () => {
     let getCalled = false;
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, () => {
+      http.get(`${BASE}/api/v2/admin/products/`, () => {
         getCalled = true;
         return HttpResponse.json(RESPONSE_PAGE_1);
       }),
@@ -66,7 +66,7 @@ describe('AdminProductsPage (D-011 listado)', () => {
 
   it('renderiza cada producto con nombre, SKU, precio y stock', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+      http.get(`${BASE}/api/v2/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
     );
     render(wrap(<AdminProductsPage />));
     expect(await screen.findByText('Collar Oshun dorado')).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe('AdminProductsPage (D-011 listado)', () => {
 
   it('muestra estado publicado/borrador segun is_published', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+      http.get(`${BASE}/api/v2/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
     );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
@@ -85,7 +85,7 @@ describe('AdminProductsPage (D-011 listado)', () => {
 
   it('muestra estado vacio cuando no hay productos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json({ count: 0, results: [] })),
+      http.get(`${BASE}/api/v2/admin/products/`, () => HttpResponse.json({ count: 0, results: [] })),
     );
     render(wrap(<AdminProductsPage />));
     expect(
@@ -98,7 +98,7 @@ describe('AdminProductsPage — busqueda', () => {
   it('pasa search en los params al cambiar el input', async () => {
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/products/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json(RESPONSE_PAGE_1);
       }),
@@ -119,7 +119,7 @@ describe('AdminProductsPage — filtro por estado', () => {
   it('re-llama al API al hacer clic en el boton Publicados', async () => {
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/products/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json(RESPONSE_PAGE_1);
       }),
@@ -136,7 +136,7 @@ describe('AdminProductsPage — filtro por estado', () => {
 describe('AdminProductsPage — botones de accion por fila', () => {
   it('renderiza el enlace al detalle del producto', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+      http.get(`${BASE}/api/v2/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
     );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
@@ -150,7 +150,7 @@ describe('AdminProductsPage — DataTable (US-2.1)', () => {
   // con ordenamiento por columna (cliente). Verifica la interacción de sort.
   it('ordena el catálogo por producto al hacer clic en el header', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+      http.get(`${BASE}/api/v2/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
     );
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');

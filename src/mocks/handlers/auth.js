@@ -4,7 +4,7 @@ import { makeUser } from '../factories/user';
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
 export const authHandlers = [
-  http.post(`${BASE}/api/v1/auth/login/`, async ({ request }) => {
+  http.post(`${BASE}/api/v2/auth/login/`, async ({ request }) => {
     const body = await request.json();
     if (!body.username || !body.password) {
       return HttpResponse.json(
@@ -19,15 +19,15 @@ export const authHandlers = [
     });
   }),
 
-  http.post(`${BASE}/api/v1/auth/logout/`, () =>
+  http.post(`${BASE}/api/v2/auth/logout/`, () =>
     HttpResponse.json({ detail: 'Sesion cerrada' }),
   ),
 
-  http.post(`${BASE}/api/v1/auth/refresh/`, () =>
+  http.post(`${BASE}/api/v2/auth/refresh/`, () =>
     HttpResponse.json({ access: 'mock-access-token-refreshed' }),
   ),
 
-  http.get(`${BASE}/api/v1/auth/me/`, () =>
+  http.get(`${BASE}/api/v2/auth/me/`, () =>
     HttpResponse.json(makeUser()),
   ),
 ];

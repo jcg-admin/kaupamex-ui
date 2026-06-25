@@ -33,7 +33,7 @@ const wrap = (ui) => {
 describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
   it('renderiza el titulo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(
@@ -43,7 +43,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
 
   it('renderiza la tabla con compradores y su segmento', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByText('vip@example.com')).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
 
   it('muestra los filtros de segmento y periodo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByRole('combobox', { name: /Periodo/i })).toBeInTheDocument();
@@ -64,7 +64,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
   it('filtra por segmento al cambiar el selector', async () => {
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json(RESPONSE);
       }),
@@ -82,7 +82,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
 
   it('muestra totales de nuevos vs recurrentes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportCustomersRfmPage />));
     await screen.findByText('vip@example.com');
@@ -93,7 +93,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
 
   it('tiene boton de exportar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByRole('link', { name: /Exportar CSV/i })).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
 
   it('estado vacio cuando no hay clientes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, () =>
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () =>
         HttpResponse.json({ results: [], totals: { customer_count: 0, total_monetary: '0.00' } }),
       ),
     );

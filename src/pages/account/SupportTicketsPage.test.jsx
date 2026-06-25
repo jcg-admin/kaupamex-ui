@@ -38,7 +38,7 @@ const TICKETS = [
 describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
         HttpResponse.json({ results: TICKETS }),
       ),
     );
@@ -50,7 +50,7 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
 
   it('renderiza los tickets del comprador', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
         HttpResponse.json({ results: TICKETS }),
       ),
     );
@@ -62,7 +62,7 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
 
   it('muestra los estados de cada ticket en español', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
         HttpResponse.json({ results: TICKETS }),
       ),
     );
@@ -75,7 +75,7 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
 
   it('muestra estado vacio cuando no hay tickets', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );
@@ -87,7 +87,7 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
 
   it('muestra enlace para abrir un nuevo ticket', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
         HttpResponse.json({ results: TICKETS }),
       ),
     );

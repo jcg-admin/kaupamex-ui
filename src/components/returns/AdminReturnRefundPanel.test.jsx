@@ -52,7 +52,7 @@ describe('AdminReturnRefundPanel (UC-RET-06)', () => {
   it('procesa el reembolso con el monto confirmado', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/returns/300/refund/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/return-requests/300/refund/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ ...COMPLETED, refund: { status: 'APPROVED', amount: 1250 } });
       }),
@@ -69,7 +69,7 @@ describe('AdminReturnRefundPanel (UC-RET-06)', () => {
   it('permite ajustar el monto antes de confirmar el reembolso', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/returns/300/refund/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/return-requests/300/refund/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ ...COMPLETED, refund: { status: 'APPROVED', amount: 900 } });
       }),

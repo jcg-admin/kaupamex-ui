@@ -40,7 +40,7 @@ const DATA = {
 describe('AdminOrdersDashboardPage (UC-ORD-10)', () => {
   it('muestra el titulo del dashboard', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/dashboard/`, () => HttpResponse.json(DATA)),
+      http.get(`${BASE}/api/v2/admin/dashboard/`, () => HttpResponse.json(DATA)),
     );
     render(wrap(<AdminOrdersDashboardPage />));
     expect(
@@ -50,7 +50,7 @@ describe('AdminOrdersDashboardPage (UC-ORD-10)', () => {
 
   it('renderiza contadores por estado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/dashboard/`, () => HttpResponse.json(DATA)),
+      http.get(`${BASE}/api/v2/admin/dashboard/`, () => HttpResponse.json(DATA)),
     );
     render(wrap(<AdminOrdersDashboardPage />));
     await screen.findByRole('heading', { name: /Pedidos por estado/i });
@@ -61,7 +61,7 @@ describe('AdminOrdersDashboardPage (UC-ORD-10)', () => {
 
   it('renderiza ordenes proximas a expirar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/dashboard/`, () => HttpResponse.json(DATA)),
+      http.get(`${BASE}/api/v2/admin/dashboard/`, () => HttpResponse.json(DATA)),
     );
     render(wrap(<AdminOrdersDashboardPage />));
     expect(await screen.findByText('PY-2026-000900')).toBeInTheDocument();
@@ -70,17 +70,17 @@ describe('AdminOrdersDashboardPage (UC-ORD-10)', () => {
 
   it('renderiza ultimos pedidos con enlace al detalle', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/dashboard/`, () => HttpResponse.json(DATA)),
+      http.get(`${BASE}/api/v2/admin/dashboard/`, () => HttpResponse.json(DATA)),
     );
     render(wrap(<AdminOrdersDashboardPage />));
     const link = await screen.findByRole('link', { name: 'PY-2026-000999' });
     expect(link).toHaveAttribute('href', '/admin/orders/PY-2026-000999');
   });
 
-  it('llama al endpoint /api/v1/admin/dashboard/', async () => {
+  it('llama al endpoint /api/v2/admin/dashboard/', async () => {
     let requested = false;
     server.use(
-      http.get(`${BASE}/api/v1/admin/dashboard/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/dashboard/`, ({ request }) => {
         requested = true;
         return HttpResponse.json(DATA);
       }),

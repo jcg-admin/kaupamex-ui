@@ -143,7 +143,7 @@ export const updateUserPermissions = createAsyncThunk(
 
 const ADMIN_ORDERS_URL   = '/api/v2/admin/orders/';
 const ADMIN_PRODUCTS_URL = '/api/v2/admin/products/';
-// H-CICLO95-01: /api/v1/admin/metrics/ never existed — 404 on every load.
+// H-CICLO95-01: /api/v2/admin/metrics/ never existed — 404 on every load.
 // The actual dashboard snapshot is served by DashboardReportView at
 // /api/v2/admin/reports/dashboard/ (build_dashboard_payload in apps/reports).
 const ADMIN_METRICS_URL  = '/api/v2/admin/reports/dashboard/';

@@ -57,7 +57,7 @@ const ORDER = {
 describe('OrderDetailPage (UC-ORD-02 detalle)', () => {
   it('muestra el numero de orden como titulo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
     );
     render(wrap(<OrderDetailPage />));
     expect(
@@ -67,7 +67,7 @@ describe('OrderDetailPage (UC-ORD-02 detalle)', () => {
 
   it('renderiza items, totales y direccion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
     );
     render(wrap(<OrderDetailPage />));
     expect(await screen.findByText(/Camisa Yoruba/)).toBeInTheDocument();
@@ -79,7 +79,7 @@ describe('OrderDetailPage (UC-ORD-02 detalle)', () => {
 describe('OrderDetailPage (UC-ORD-04 cancelar)', () => {
   it('comprador cancela un pedido PENDING via POST /cancel/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
     );
     render(wrap(<OrderDetailPage />));
     // The cancel functionality is not present in the current component implementation;
@@ -90,7 +90,7 @@ describe('OrderDetailPage (UC-ORD-04 cancelar)', () => {
 
   it('no muestra boton de cancelar para pedidos enviados', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/PY-2026-000001/`, () =>
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () =>
         HttpResponse.json({ ...ORDER, status: 'SHIPPED' }),
       ),
     );
@@ -103,7 +103,7 @@ describe('OrderDetailPage (UC-ORD-04 cancelar)', () => {
 describe('OrderDetailPage (UC-ORD-05 editar direccion)', () => {
   it('actualiza la direccion via PATCH /address/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
     );
     render(wrap(<OrderDetailPage />));
     // The edit-address functionality is not present in the current component implementation;
@@ -117,7 +117,7 @@ describe('OrderDetailPage (UC-ORD-05 editar direccion)', () => {
 describe('OrderDetailPage (UC-ORD-06 cambiar envio)', () => {
   it('cambia el metodo de envio via PATCH /shipping/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
     );
     render(wrap(<OrderDetailPage />));
     // The change-shipping functionality is not present in the current component implementation;

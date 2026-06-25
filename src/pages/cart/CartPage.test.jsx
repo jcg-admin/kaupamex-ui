@@ -78,7 +78,7 @@ const CART_PAYLOAD = {
 describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
   it('al montar, hace GET a /api/cart/ y muestra los items', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
     );
     render(wrap(<CartPage />, makeStore()));
 
@@ -88,7 +88,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
   it('muestra el subtotal del backend (DEC-BC-02: sin recalculo)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
     );
     render(wrap(<CartPage />, makeStore()));
 
@@ -98,8 +98,8 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
   it('UC-CART-03 — al hacer click en Eliminar, hace DELETE /api/cart/items/:id/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
-      http.delete(`${BASE}/api/v1/cart/items/11/`, () => HttpResponse.json({ ok: true })),
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
+      http.delete(`${BASE}/api/v2/cart/items/11/`, () => HttpResponse.json({ ok: true })),
     );
     render(wrap(<CartPage />, makeStore()));
 
@@ -113,7 +113,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
   it('UC-CART-03 — muestra mensaje cuando el carrito esta vacio', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json({ items: [], voucher: null })),
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json({ items: [], voucher: null })),
     );
     render(wrap(<CartPage />, makeStore()));
 
@@ -125,8 +125,8 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
   it('UC-CART-04 — aplica un cupon via POST /api/cart/voucher/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
-      http.post(`${BASE}/api/v1/cart/voucher/`, () => HttpResponse.json({
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
+      http.post(`${BASE}/api/v2/cart/voucher/`, () => HttpResponse.json({
         ...CART_PAYLOAD,
         voucher: { code: 'YORUBA10', type: 'PERCENT', value: 10 },
       })),
@@ -146,8 +146,8 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
   it('UC-CART-04 — muestra error si el cupon es invalido', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
-      http.post(`${BASE}/api/v1/cart/voucher/`, () =>
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
+      http.post(`${BASE}/api/v2/cart/voucher/`, () =>
         HttpResponse.json(
           { detail: 'El cupon no es valido o ya expiro.', codigo_error: 'VOUCHER_INVALID' },
           { status: 400 },
@@ -169,7 +169,7 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
     // The CartPage component does not render a "Guardar para mas tarde" button.
     // The saveCartForLater thunk exists in cartSlice but is not wired in CartPage UI.
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
     );
     render(wrap(<CartPage />, makeStore()));
 
@@ -181,8 +181,8 @@ describe('CartPage (UC-CART-02 / UC-CART-03 / UC-CART-04 / UC-CART-05)', () => {
 
   it('al hacer click en +, hace PATCH /api/cart/items/:id/ con cantidad incrementada', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
-      http.patch(`${BASE}/api/v1/cart/items/11/`, () => HttpResponse.json({
+      http.get(`${BASE}/api/v2/cart/`, () => HttpResponse.json(CART_PAYLOAD)),
+      http.patch(`${BASE}/api/v2/cart/items/11/`, () => HttpResponse.json({
         ...CART_PAYLOAD,
         items: [{ ...CART_PAYLOAD.items[0], quantity: 3 }, CART_PAYLOAD.items[1]],
       })),

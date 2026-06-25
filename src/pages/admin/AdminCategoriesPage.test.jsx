@@ -42,7 +42,7 @@ const wrap = () => {
 describe('AdminCategoriesPage (UC-CAT-06)', () => {
   it('muestra el listado de categorias', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
     );
     render(wrap());
     expect(
@@ -51,11 +51,11 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     expect(await screen.findByRole('cell', { name: 'Collares' })).toBeInTheDocument();
   });
 
-  it('crea una categoria via POST /api/v1/admin/categories/', async () => {
+  it('crea una categoria via POST /api/v2/admin/categories/', async () => {
     let lastPostUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
-      http.post(`${BASE}/api/v1/admin/categories/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v2/admin/categories/`, async ({ request }) => {
         lastPostUrl = request.url;
         return HttpResponse.json({ id: 99, name: 'Nueva' });
       }),
@@ -69,13 +69,13 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear categoria/i }));
 
     await waitFor(() => {
-      expect(lastPostUrl).toContain('/api/v1/admin/categories/');
+      expect(lastPostUrl).toContain('/api/v2/admin/categories/');
     });
   });
 
   it('valida nombre obligatorio antes de enviar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
     );
     render(wrap());
     await screen.findByRole('cell', { name: 'Collares' });
@@ -87,8 +87,8 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
   it('desactiva una categoria via POST /:id/deactivate/', async () => {
     let lastDeactivateUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
-      http.post(`${BASE}/api/v1/admin/categories/:id/deactivate/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v2/admin/categories/:id/deactivate/`, async ({ request }) => {
         lastDeactivateUrl = request.url;
         return HttpResponse.json({ ok: true });
       }),

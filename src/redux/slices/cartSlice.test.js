@@ -20,7 +20,7 @@ describe('cartSlice (UC-CART-01)', () => {
   it('addToCart: hace POST /api/cart/items/ con product_id, variant_id, quantity', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ items: [], voucher: null });
       }),
@@ -34,7 +34,7 @@ describe('cartSlice (UC-CART-01)', () => {
 
   it('addToCart: marca lastAction=added en estado tras exito', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, () =>
+      http.post(`${BASE}/api/v2/cart/items/`, () =>
         HttpResponse.json({
           items: [{ id: 1, product_id: 4321, name: 'Test', price: 100, quantity: 1 }],
           voucher: null,
@@ -52,7 +52,7 @@ describe('cartSlice (UC-CART-01)', () => {
 
   it('addToCart: en error, guarda actionError serializado (message+code)', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, () =>
+      http.post(`${BASE}/api/v2/cart/items/`, () =>
         HttpResponse.json(
           { detail: 'Sin stock disponible.', codigo_error: 'SIN_STOCK' },
           { status: 400 },
@@ -73,7 +73,7 @@ describe('cartSlice (UC-CART-01)', () => {
   it('UC-CART-06 — syncCartOnLogin: hace POST /api/cart/sync/ y carga items fusionados', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/cart/merge/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/cart/merges/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({
           items: [
@@ -96,7 +96,7 @@ describe('cartSlice (UC-CART-01)', () => {
 
   it('UC-CART-06 — syncCartOnLogin: en error guarda actionError serializado', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/cart/merge/`, () =>
+      http.post(`${BASE}/api/v2/cart/merges/`, () =>
         HttpResponse.json(
           { detail: 'Error al fusionar', codigo_error: 'FUSION_ERROR' },
           { status: 400 },
@@ -123,7 +123,7 @@ describe('cartSlice (UC-CART-01)', () => {
   // T-202 — DEC-BC-02: UI usa totals del backend, sin calcular localmente.
   it('totals_from_backend: mapea payload.totals al estado sin recalcular', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, () =>
+      http.post(`${BASE}/api/v2/cart/items/`, () =>
         HttpResponse.json({
           items: [{ id: 1, product_id: 10, name: 'P', price: 1000, quantity: 1 }],
           voucher: null,
@@ -144,7 +144,7 @@ describe('cartSlice (UC-CART-01)', () => {
     const store = makeStore();
 
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, () =>
+      http.post(`${BASE}/api/v2/cart/items/`, () =>
         HttpResponse.json({
           items: [{ id: 1 }],
           voucher: null,
@@ -156,7 +156,7 @@ describe('cartSlice (UC-CART-01)', () => {
     expect(store.getState().cart.totals.tax).toBe(10);
 
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, () =>
+      http.post(`${BASE}/api/v2/cart/items/`, () =>
         HttpResponse.json({
           items: [{ id: 1 }],
           voucher: null,
@@ -172,7 +172,7 @@ describe('cartSlice (UC-CART-01)', () => {
   // T-309 — DEC-BC-08: items persisten en estado tras addToCart exitoso.
   it('cart_item_added_state_persists: items.length > 0 tras addToCart exitoso', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, () =>
+      http.post(`${BASE}/api/v2/cart/items/`, () =>
         HttpResponse.json({
           items: [{ id: 1, product_id: 5, name: 'Pulcera', price: 250, quantity: 1 }],
           voucher: null,

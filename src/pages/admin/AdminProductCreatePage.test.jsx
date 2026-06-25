@@ -48,7 +48,7 @@ const wrap = (ui, store) => {
 describe('AdminProductCreatePage (UC-CAT-09)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
     );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     expect(
@@ -58,7 +58,7 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
 
   it('expone los campos requeridos del formulario', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
     );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     expect(await screen.findByLabelText(/Nombre/i)).toBeInTheDocument();
@@ -72,7 +72,7 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
   it('carga las categorias al montar', async () => {
     let categoriesCalled = false;
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => {
+      http.get(`${BASE}/api/v2/admin/categories/`, () => {
         categoriesCalled = true;
         return HttpResponse.json({ results: CATEGORIES });
       }),
@@ -86,7 +86,7 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
 
   it('valida los campos requeridos antes de enviar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
     );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     await screen.findByLabelText(/Nombre/i);
@@ -94,11 +94,11 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
     expect(await screen.findByText(/El nombre es obligatorio/i)).toBeInTheDocument();
   });
 
-  it('envia POST /api/v1/admin/products/ con los datos del formulario', async () => {
+  it('envia POST /api/v2/admin/products/ con los datos del formulario', async () => {
     let lastPostBody;
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
-      http.post(`${BASE}/api/v1/admin/products/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v2/admin/products/`, async ({ request }) => {
         lastPostBody = await request.json().catch(() => null);
         return HttpResponse.json({ id: 99, sku: 'NEW-001' });
       }),
@@ -132,8 +132,8 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
 
   it('muestra error 409 cuando el SKU ya existe', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
-      http.post(`${BASE}/api/v1/admin/products/`, () =>
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v2/admin/products/`, () =>
         HttpResponse.json({ detail: 'SKU duplicado' }, { status: 409 }),
       ),
     );

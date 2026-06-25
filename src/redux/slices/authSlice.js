@@ -50,7 +50,7 @@ const LOGOUT_ALL_URL = '/api/v2/auth/sessions/';
 
 /**
  * Verifica si el usuario ya tiene sesion activa al cargar la app.
- * Llama a /api/v1/auth/me/. En modo mock, el interceptor lee
+ * Llama a /api/v2/auth/me/. En modo mock, el interceptor lee
  * localStorage._mock_auth_type para responder sin JWT.
  */
 export const checkAuth = createAsyncThunk(

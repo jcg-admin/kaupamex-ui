@@ -24,7 +24,7 @@ const makeWrapper = () => {
 describe('useSupportTickets hooks', () => {
   it('useSupportTickets retorna la lista', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
         HttpResponse.json({ results: [{ id: 1 }] }),
       ),
     );
@@ -36,7 +36,7 @@ describe('useSupportTickets hooks', () => {
 
   it('useSupportTicket(id) consulta el detalle', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/42/`, () =>
+      http.get(`${BASE}/api/v2/support/tickets/42/`, () =>
         HttpResponse.json({ id: 42, subject: 'x' }),
       ),
     );
@@ -54,7 +54,7 @@ describe('useSupportTickets hooks', () => {
 
   it('useAdminSupportTickets devuelve el payload tal cual (con metrics)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () =>
         HttpResponse.json({ results: [], metrics: { open: 3 } }),
       ),
     );

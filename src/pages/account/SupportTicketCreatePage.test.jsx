@@ -57,7 +57,7 @@ describe('SupportTicketCreatePage (UC-SUPP-01)', () => {
   it('envia el ticket al backend cuando el formulario es valido', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/support/tickets/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 42, subject: 'Problema con mi pedido', status: 'OPEN' });
       }),
@@ -78,7 +78,7 @@ describe('SupportTicketCreatePage (UC-SUPP-01)', () => {
 
   it('muestra confirmacion con el numero de ticket creado', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/`, () =>
+      http.post(`${BASE}/api/v2/support/tickets/`, () =>
         HttpResponse.json({ ticket_id: 99, id: 99, subject: 'Asunto', status: 'OPEN' }),
       ),
     );

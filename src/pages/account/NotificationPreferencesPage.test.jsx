@@ -41,7 +41,7 @@ const PREFERENCES = [
 describe('NotificationPreferencesPage (UC-NOT-06)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.get(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: PREFERENCES }),
       ),
     );
@@ -53,7 +53,7 @@ describe('NotificationPreferencesPage (UC-NOT-06)', () => {
 
   it('lista cada tipo de notificacion como un toggle', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.get(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: PREFERENCES }),
       ),
     );
@@ -65,7 +65,7 @@ describe('NotificationPreferencesPage (UC-NOT-06)', () => {
 
   it('marca como deshabilitados los toggles obligatorios', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.get(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: PREFERENCES }),
       ),
     );
@@ -77,13 +77,13 @@ describe('NotificationPreferencesPage (UC-NOT-06)', () => {
 
   it('al guardar, hace PUT con la lista de preferencias actualizadas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.get(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: PREFERENCES }),
       ),
     );
     let lastBody;
     server.use(
-      http.put(`${BASE}/api/v1/notifications/preferences/`, async ({ request }) => {
+      http.patch(`${BASE}/api/v2/notifications/preferences/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ results: PREFERENCES });
       }),
@@ -105,12 +105,12 @@ describe('NotificationPreferencesPage (UC-NOT-06)', () => {
 
   it('muestra un mensaje de exito tras guardar correctamente', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.get(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: PREFERENCES }),
       ),
     );
     server.use(
-      http.put(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.patch(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: PREFERENCES }),
       ),
     );
@@ -123,7 +123,7 @@ describe('NotificationPreferencesPage (UC-NOT-06)', () => {
 
   it('ofrece desactivar todas las notificaciones opcionales de una vez', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/notifications/preferences/`, () =>
+      http.get(`${BASE}/api/v2/notifications/preferences/`, () =>
         HttpResponse.json({ results: PREFERENCES }),
       ),
     );

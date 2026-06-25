@@ -42,7 +42,7 @@ const renderPage = () => {
 describe('CategoryListPage (UC-CAT-08)', () => {
   it('muestra heading «Categorias»', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/categories/`, () =>
+      http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ results: TREE, count: TREE.length }),
       ),
     );
@@ -54,7 +54,7 @@ describe('CategoryListPage (UC-CAT-08)', () => {
 
   it('renderiza los nodos raiz con su conteo de productos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/categories/`, () =>
+      http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ results: TREE, count: TREE.length }),
       ),
     );
@@ -67,7 +67,7 @@ describe('CategoryListPage (UC-CAT-08)', () => {
 
   it('expande subcategorias al pulsar el toggle del nodo padre', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/categories/`, () =>
+      http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ results: TREE, count: TREE.length }),
       ),
     );
@@ -85,7 +85,7 @@ describe('CategoryListPage (UC-CAT-08)', () => {
 
   it('genera enlace a /catalog?category=<slug> en cada categoria', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/categories/`, () =>
+      http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ results: TREE, count: TREE.length }),
       ),
     );
@@ -96,7 +96,7 @@ describe('CategoryListPage (UC-CAT-08)', () => {
 
   it('muestra estado vacio cuando no hay categorias', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/categories/`, () =>
+      http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ results: [], count: 0 }),
       ),
     );
@@ -108,7 +108,7 @@ describe('CategoryListPage (UC-CAT-08)', () => {
 
   it('muestra estado de error si la API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/categories/`, () =>
+      http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ detail: 'Error' }, { status: 400 }),
       ),
     );

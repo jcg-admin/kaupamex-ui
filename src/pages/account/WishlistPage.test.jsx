@@ -54,7 +54,7 @@ const renderPage = () => {
 describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
   it('muestra titulo Lista de deseos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [], total_items: 0 }),
       ),
     );
@@ -66,7 +66,7 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
 
   it('renderiza los productos guardados con nombre y precio', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [ITEM_1, ITEM_2], total_items: 2 }),
       ),
     );
@@ -79,7 +79,7 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
   it('marca el item sin stock: solo muestra última unidad badge cuando stock <= 3', async () => {
     const LOW_STOCK_ITEM = { ...ITEM_1, stock: 2, is_available: true };
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [LOW_STOCK_ITEM], total_items: 1 }),
       ),
     );
@@ -93,7 +93,7 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
 
   it('destaca el indicador de rebaja cuando current_price < price_at_add', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [ITEM_1], total_items: 1 }),
       ),
     );
@@ -105,7 +105,7 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
 
   it('muestra mensaje vacio cuando la lista no tiene items', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [], total_items: 0 }),
       ),
     );
@@ -118,13 +118,13 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
 
   it('UC-WISH-02: eliminar item llama DELETE', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [ITEM_1], total_items: 1 }),
       ),
     );
     let deleteCalled = false;
     server.use(
-      http.delete(`${BASE}/api/v1/wishlist/:itemId/`, () => {
+      http.delete(`${BASE}/api/v2/wishlist/:itemId/`, () => {
         deleteCalled = true;
         return HttpResponse.json({});
       }),
@@ -140,13 +140,13 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
 
   it('UC-WISH-03: mover al carrito invoca el endpoint move-to-cart', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [ITEM_1], total_items: 1 }),
       ),
     );
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/:itemId/move-to-cart/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/wishlist/:itemId/cart-transfers/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({});
       }),
@@ -164,7 +164,7 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
 
   it('UC-WISH-03: si el item esta sin stock, el boton mover sigue presente', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({ results: [ITEM_2], total_items: 1 }),
       ),
     );

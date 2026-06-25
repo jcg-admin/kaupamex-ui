@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-// F1 Tier A: /api/v1/catalogue/autocomplete/ → /api/v2/products/?q=&autocomplete=1
+// F1 Tier A: /api/v2/catalogue/autocomplete/ → /api/v2/products/?q=&autocomplete=1
 export const SUGGESTIONS_URL = '/api/v2/products/';
 export const SUGGESTIONS_KEY = ['catalog', 'search', 'autocomplete'];
 

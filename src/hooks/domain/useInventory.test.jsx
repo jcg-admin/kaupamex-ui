@@ -21,7 +21,7 @@ describe('useInventory hooks', () => {
   it('useInventory devuelve el payload con summary', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/inventory/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({
           results: [{ variant_id: 1 }],
@@ -42,7 +42,7 @@ describe('useInventory hooks', () => {
 
   it('useInventoryMovements(variantId) retorna la lista', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/7/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/7/movements/`, () =>
         HttpResponse.json({ results: [{ id: 1, type: 'SALE' }] }),
       ),
     );

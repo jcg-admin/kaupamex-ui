@@ -25,7 +25,7 @@ const makeStore = () => configureStore({
 describe('yorubaVariantsSlice — error propagation (D-010)', () => {
   it('fetchAdminVariants.rejected preserva statusCode y code', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () =>
         HttpResponse.json(
           { detail: 'no autorizado', codigo_error: 'AUTH_REQUIRED' },
           { status: 422 },
@@ -44,7 +44,7 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
 
   it('createVariant.rejected preserva validationErrors del backend', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+      http.post(`${BASE}/api/v2/admin/products/7/variants/`, () =>
         HttpResponse.json(
           {
             detail: 'campos invalidos',
@@ -68,7 +68,7 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
 
   it('toggleVariantActive.rejected almacena objeto serializado', async () => {
     server.use(
-      http.patch(`${BASE}/api/v1/admin/products/7/variants/1/`, () =>
+      http.patch(`${BASE}/api/v2/admin/products/7/variants/1/`, () =>
         HttpResponse.json(
           { detail: 'forbidden', codigo_error: 'FORBIDDEN' },
           { status: 403 },
@@ -85,7 +85,7 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
 
   it('setVariantPrice.rejected almacena objeto serializado', async () => {
     server.use(
-      http.put(`${BASE}/api/v1/admin/variants/1/price/`, () =>
+      http.put(`${BASE}/api/v2/admin/variants/1/price/`, () =>
         HttpResponse.json(
           { detail: 'precio invalido', codigo_error: 'PRICE_INVALID' },
           { status: 400 },
@@ -110,7 +110,7 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
 
   it('fetchAdminVariants.fulfilled popula adminVariants (no regresion)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () =>
         HttpResponse.json({ results: [{ id: 1, option_name: 'Grande' }] }),
       ),
     );
@@ -123,10 +123,10 @@ describe('yorubaVariantsSlice — error propagation (D-010)', () => {
 
   it('clearVariantPrice.fulfilled marca price=null (no regresion)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () =>
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () =>
         HttpResponse.json([{ id: 9, price: 100 }]),
       ),
-      http.delete(`${BASE}/api/v1/admin/variants/9/price/`, () =>
+      http.delete(`${BASE}/api/v2/admin/variants/9/price/`, () =>
         HttpResponse.json({}),
       ),
     );

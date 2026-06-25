@@ -36,7 +36,7 @@ const wrap = () => {
 describe('AdminBackupsPage (UC-ADM-05)', () => {
   it('muestra el listado de backups', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/backups/`, () =>
+      http.get(`${BASE}/api/v2/admin/backups/`, () =>
         HttpResponse.json({ results: BACKUPS }),
       ),
     );
@@ -46,13 +46,13 @@ describe('AdminBackupsPage (UC-ADM-05)', () => {
     expect(screen.getByText('MANUAL')).toBeInTheDocument();
   });
 
-  it('dispara backup manual via POST /api/v1/admin/backups/trigger/', async () => {
+  it('dispara backup manual via POST /api/v2/admin/backups/trigger/', async () => {
     let lastPostUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/backups/`, () =>
+      http.get(`${BASE}/api/v2/admin/backups/`, () =>
         HttpResponse.json({ results: BACKUPS }),
       ),
-      http.post(`${BASE}/api/v1/admin/backups/trigger/`, ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/backups/`, ({ request }) => {
         lastPostUrl = request.url;
         return HttpResponse.json({ ok: true });
       }),
@@ -62,7 +62,7 @@ describe('AdminBackupsPage (UC-ADM-05)', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Generar backup ahora/i }));
     await waitFor(() => {
-      expect(lastPostUrl).toContain('/api/v1/admin/backups/trigger/');
+      expect(lastPostUrl).toContain('/api/v2/admin/backups/');
     });
   });
 });

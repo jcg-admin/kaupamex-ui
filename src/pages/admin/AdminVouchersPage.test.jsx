@@ -40,7 +40,7 @@ const VOUCHERS = [
 describe('AdminVouchersPage — listado (UC-PRO-02)', () => {
   it('muestra el título de la página', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: VOUCHERS }),
       ),
     );
@@ -51,7 +51,7 @@ describe('AdminVouchersPage — listado (UC-PRO-02)', () => {
 
   it('renderiza la tabla con los cupones', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: VOUCHERS }),
       ),
     );
@@ -62,7 +62,7 @@ describe('AdminVouchersPage — listado (UC-PRO-02)', () => {
 
   it('muestra mensaje cuando no hay cupones', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );
@@ -72,7 +72,7 @@ describe('AdminVouchersPage — listado (UC-PRO-02)', () => {
 
   it('muestra un boton para crear voucher', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: VOUCHERS }),
       ),
     );
@@ -85,14 +85,14 @@ describe('AdminVouchersPage — listado (UC-PRO-02)', () => {
 describe('AdminVouchersPage — desactivar (UC-PRO-03)', () => {
   it('llama al endpoint de desactivar al confirmar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: VOUCHERS }),
       ),
     );
 
     let lastPostUrl;
     server.use(
-      http.post(`${BASE}/api/v1/admin/vouchers/1/deactivate/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/vouchers/1/deactivate/`, async ({ request }) => {
         lastPostUrl = request.url;
         return HttpResponse.json({ ...VOUCHERS[0], is_active: false });
       }),
@@ -113,14 +113,14 @@ describe('AdminVouchersPage — desactivar (UC-PRO-03)', () => {
 
   it('no llama al endpoint si el admin cancela la confirmacion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: VOUCHERS }),
       ),
     );
 
     let postCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/admin/vouchers/1/deactivate/`, () => {
+      http.post(`${BASE}/api/v2/admin/vouchers/1/deactivate/`, () => {
         postCalled = true;
         return HttpResponse.json({});
       }),
@@ -139,7 +139,7 @@ describe('AdminVouchersPage — desactivar (UC-PRO-03)', () => {
 
   it('no muestra boton de desactivar si el voucher ya esta inactivo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: VOUCHERS }),
       ),
     );

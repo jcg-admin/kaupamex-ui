@@ -48,7 +48,7 @@ let lastInventoryUrl;
 beforeEach(() => {
   lastInventoryUrl = undefined;
   server.use(
-    http.get(`${BASE}/api/v1/admin/inventory/`, ({ request }) => {
+    http.get(`${BASE}/api/v2/admin/inventory/`, ({ request }) => {
       lastInventoryUrl = new URL(request.url);
       return HttpResponse.json(RESPONSE);
     }),
@@ -111,7 +111,7 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
 
   it('muestra estado vacio si no hay variantes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/`, () =>
         HttpResponse.json({ results: [], summary: null }),
       ),
     );

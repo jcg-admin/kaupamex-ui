@@ -38,7 +38,7 @@ afterEach(() => {
 describe('loginUser persiste tokens (D-extra-1)', () => {
   it('llama setAuthToken + setRefreshToken con los tokens del response', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/auth/login/`, () =>
+      http.post(`${BASE}/api/v2/auth/login/`, () =>
         HttpResponse.json({
           access:  'access-abc',
           refresh: 'refresh-xyz',
@@ -61,7 +61,7 @@ describe('logoutUser envia {refresh} en body (D-17)', () => {
     apiService.setRefreshToken('refresh-abc');
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/auth/logout/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/logout/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ detail: 'ok' });
       }),
@@ -79,7 +79,7 @@ describe('logoutUser envia {refresh} en body (D-17)', () => {
   it('si no hay refresh, envia body vacio pero limpia local', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/auth/logout/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/logout/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ detail: 'ok' });
       }),
@@ -95,7 +95,7 @@ describe('logoutUser envia {refresh} en body (D-17)', () => {
   it('si backend falla, limpia local igual (resiliencia)', async () => {
     apiService.setRefreshToken('refresh-abc');
     server.use(
-      http.post(`${BASE}/api/v1/auth/logout/`, () =>
+      http.post(`${BASE}/api/v2/auth/logout/`, () =>
         HttpResponse.json({ detail: 'error' }, { status: 400 }),
       ),
     );
@@ -113,7 +113,7 @@ describe('refreshSession actualiza tokens (D-23)', () => {
     apiService.setRefreshToken('refresh-old');
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/auth/refresh/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/refresh/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ access: 'access-new', refresh: 'refresh-new' });
       }),
@@ -140,7 +140,7 @@ describe('refreshSession actualiza tokens (D-23)', () => {
   it('si backend rechaza el refresh, limpia tokens y falla', async () => {
     apiService.setRefreshToken('refresh-invalid');
     server.use(
-      http.post(`${BASE}/api/v1/auth/refresh/`, () =>
+      http.post(`${BASE}/api/v2/auth/refresh/`, () =>
         HttpResponse.json({ detail: 'Token invalid' }, { status: 401 }),
       ),
     );

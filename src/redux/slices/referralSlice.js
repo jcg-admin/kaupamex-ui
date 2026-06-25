@@ -10,7 +10,7 @@
  *     -> 404 codigo_error=NOT_FOUND  (programa deshabilitado)
  *     -> 401 sin autenticar
  *
- *   POST /api/v2/account/referral/redeem/   body { code }
+ *   POST /api/v2/account/referral/redemptions/   body { code }
  *     -> 201 canje exitoso
  *     -> 422 codigo_error SELF_REFERRAL_NOT_ALLOWED | VOUCHER_INACTIVE
  *     -> 404 codigo_error NOT_FOUND      (codigo desconocido)

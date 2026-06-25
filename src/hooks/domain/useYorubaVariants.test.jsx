@@ -30,7 +30,7 @@ describe('useAdminProductVariants', () => {
 
   it('lista las variantes admin del producto indicado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/42/variants/`, () =>
+      http.get(`${BASE}/api/v2/admin/products/42/variants/`, () =>
         HttpResponse.json({ results: [{ id: 1, option_name: 'Grande' }] }),
       ),
     );
@@ -51,7 +51,7 @@ describe('useAdminProductVariants', () => {
 
   it('acepta payload plano (array sin envoltura results)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/42/variants/`, () =>
+      http.get(`${BASE}/api/v2/admin/products/42/variants/`, () =>
         HttpResponse.json([{ id: 2, option_name: 'Mediana' }]),
       ),
     );

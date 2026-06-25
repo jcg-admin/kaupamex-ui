@@ -81,7 +81,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
   it('agrega al carrito con product_id, variant_id y quantity correctos', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ items: [], voucher: null });
       }),
@@ -113,7 +113,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
   it('si el producto no tiene variantes agrega sin variant_id', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ items: [], voucher: null });
       }),
@@ -143,7 +143,7 @@ describe('useAddProductWithVariant (UC-CHT-02)', () => {
   it('cantidad por defecto es 1', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ items: [] });
       }),

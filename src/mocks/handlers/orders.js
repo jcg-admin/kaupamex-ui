@@ -16,17 +16,17 @@ const MOCK_ORDERS = [
 ];
 
 export const ordersHandlers = [
-  http.get(`${BASE}/api/v1/orders/`, () =>
+  http.get(`${BASE}/api/v2/orders/`, () =>
     HttpResponse.json({ count: MOCK_ORDERS.length, results: MOCK_ORDERS }),
   ),
 
-  http.get(`${BASE}/api/v1/orders/:id/`, ({ params }) => {
+  http.get(`${BASE}/api/v2/orders/:id/`, ({ params }) => {
     const order = MOCK_ORDERS.find(o => String(o.id) === params.id);
     if (!order) return new HttpResponse(null, { status: 404 });
     return HttpResponse.json(order);
   }),
 
-  http.patch(`${BASE}/api/v1/admin/orders/:id/`, async ({ params, request }) => {
+  http.patch(`${BASE}/api/v2/admin/orders/:id/`, async ({ params, request }) => {
     const body  = await request.json();
     const order = MOCK_ORDERS.find(o => String(o.id) === params.id);
     if (!order) return new HttpResponse(null, { status: 404 });

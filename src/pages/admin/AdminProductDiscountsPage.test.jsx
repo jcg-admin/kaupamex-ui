@@ -58,7 +58,7 @@ const wrap = (ui, store) => {
 describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );
@@ -70,7 +70,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 
   it('renderiza la tabla con los descuentos clasificados', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );
@@ -82,7 +82,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 
   it('muestra los porcentajes y precios con descuento', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );
@@ -94,7 +94,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 
   it('muestra mensaje cuando no hay descuentos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );
@@ -106,7 +106,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 
   it('expone un boton para crear un nuevo descuento', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );
@@ -119,7 +119,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   it('permite filtrar por estado de vigencia', async () => {
     let lastRequestUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, ({ request }) => {
         lastRequestUrl = request.url;
         return HttpResponse.json({ results: DISCOUNTS });
       }),
@@ -138,7 +138,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 
   it('muestra mensaje de error cuando la API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ detail: 'Error de servidor' }, { status: 400 }),
       ),
     );
@@ -152,7 +152,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
   it('muestra un boton de desactivar por cada descuento', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );
@@ -166,10 +166,10 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
   it('llama al endpoint de desactivar al confirmar', async () => {
     let lastPostUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
-      http.post(`${BASE}/api/v1/admin/product-discounts/1/deactivate/`, ({ request }) => {
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, ({ request }) => {
         lastPostUrl = request.url;
         return HttpResponse.json({ ...DISCOUNTS[0], is_active: false });
       }),
@@ -185,7 +185,7 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
     }));
 
     await waitFor(() => {
-      expect(lastPostUrl).toContain('/admin/product-discounts/1/deactivate/');
+      expect(lastPostUrl).toContain('/admin/product-discounts/1/');
     });
 
     confirmSpy.mockRestore();
@@ -194,10 +194,10 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
   it('no llama al endpoint si el admin cancela la confirmacion', async () => {
     let postCalled = false;
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
-      http.post(`${BASE}/api/v1/admin/product-discounts/1/deactivate/`, () => {
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, () => {
         postCalled = true;
         return HttpResponse.json({ ...DISCOUNTS[0], is_active: false });
       }),
@@ -217,10 +217,10 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
 
   it('muestra mensaje de error cuando la desactivacion falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
-      http.post(`${BASE}/api/v1/admin/product-discounts/1/deactivate/`, () =>
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, () =>
         HttpResponse.json({ detail: 'No se pudo desactivar' }, { status: 400 }),
       ),
     );
@@ -244,7 +244,7 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
 describe('AdminProductDiscountsPage — crear (UC-DASH-01)', () => {
   it('abre el modal al pulsar Nuevo descuento', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );
@@ -261,7 +261,7 @@ describe('AdminProductDiscountsPage — crear (UC-DASH-01)', () => {
 describe('AdminProductDiscountsPage — editar (UC-DASH-02)', () => {
   it('muestra un boton de editar por cada descuento', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );
@@ -274,7 +274,7 @@ describe('AdminProductDiscountsPage — editar (UC-DASH-02)', () => {
 
   it('abre el modal de edicion al pulsar Editar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ results: DISCOUNTS }),
       ),
     );

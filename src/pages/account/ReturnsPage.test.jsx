@@ -39,7 +39,7 @@ const RETURNS = [
 describe('ReturnsPage (UC-RET-04 listado)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
         HttpResponse.json({ results: RETURNS }),
       ),
     );
@@ -51,7 +51,7 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
 
   it('renderiza las devoluciones del comprador', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
         HttpResponse.json({ results: RETURNS }),
       ),
     );
@@ -63,7 +63,7 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
 
   it('muestra los estados en español', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
         HttpResponse.json({ results: RETURNS }),
       ),
     );
@@ -78,7 +78,7 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
 
   it('muestra estado vacio cuando no hay devoluciones', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );
@@ -90,7 +90,7 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
 
   it('muestra enlace para crear una nueva devolucion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
         HttpResponse.json({ results: RETURNS }),
       ),
     );

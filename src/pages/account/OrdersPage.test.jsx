@@ -40,7 +40,7 @@ const ORDERS = [
 describe('OrdersPage (UC-ORD-03 listado)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+      http.get(`${BASE}/api/v2/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
     );
     render(wrap(<OrdersPage />));
     expect(
@@ -50,7 +50,7 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
 
   it('renderiza el numero de orden de cada pedido', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+      http.get(`${BASE}/api/v2/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
     );
     render(wrap(<OrdersPage />));
     expect(await screen.findByText('PY-2026-000001')).toBeInTheDocument();
@@ -60,7 +60,7 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
 
   it('muestra el estado de cada pedido en espanol', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+      http.get(`${BASE}/api/v2/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
     );
     render(wrap(<OrdersPage />));
     // Component uses STATUS_TONE map: PENDING='Pendiente', SHIPPED='En camino', CANCELLED='Cancelado'
@@ -71,7 +71,7 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
 
   it('enlaza al detalle de cada orden', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
+      http.get(`${BASE}/api/v2/orders/`, () => HttpResponse.json({ results: ORDERS, count: 3 })),
     );
     render(wrap(<OrdersPage />));
     // Component links to /account/orders/{order_number}
@@ -83,7 +83,7 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
 
   it('muestra estado vacio cuando no hay pedidos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/orders/`, () => HttpResponse.json({ results: [], count: 0 })),
+      http.get(`${BASE}/api/v2/orders/`, () => HttpResponse.json({ results: [], count: 0 })),
     );
     render(wrap(<OrdersPage />));
     // Component renders "Aún no tienes pedidos" when list is empty
@@ -92,16 +92,16 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
     ).toBeInTheDocument();
   });
 
-  it('llama al endpoint /api/v1/orders/', async () => {
+  it('llama al endpoint /api/v2/orders/', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/orders/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/orders/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: ORDERS, count: 3 });
       }),
     );
     render(wrap(<OrdersPage />));
     await screen.findByText('PY-2026-000001');
-    await waitFor(() => expect(capturedUrl).toContain('/api/v1/orders/'));
+    await waitFor(() => expect(capturedUrl).toContain('/api/v2/orders/'));
   });
 });

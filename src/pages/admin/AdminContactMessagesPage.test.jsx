@@ -33,7 +33,7 @@ const wrap = (ui) => (
 describe('AdminContactMessagesPage (UC-COM-02)', () => {
   it('muestra el titulo de la bandeja', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/admin/contact/messages/`, () => HttpResponse.json({ results: [] })),
     );
     render(wrap(<AdminContactMessagesPage />));
     expect(
@@ -43,7 +43,7 @@ describe('AdminContactMessagesPage (UC-COM-02)', () => {
 
   it('lista los mensajes del backend con asunto y estado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/`, () =>
+      http.get(`${BASE}/api/v2/admin/contact/messages/`, () =>
         HttpResponse.json({
           results: [
             // H-CICLO-COM-02: getStatusLabel usa m.replied / m.read (booleans), no m.status.
@@ -65,7 +65,7 @@ describe('AdminContactMessagesPage (UC-COM-02)', () => {
   it('llama a la URL de admin con el filtro de estado', async () => {
     let calledUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/contact/messages/`, ({ request }) => {
         calledUrl = request.url;
         return HttpResponse.json({ results: [] });
       }),
@@ -73,13 +73,13 @@ describe('AdminContactMessagesPage (UC-COM-02)', () => {
     render(wrap(<AdminContactMessagesPage />));
 
     await waitFor(() => {
-      expect(calledUrl).toContain('/api/v1/admin/contact/messages/');
+      expect(calledUrl).toContain('/api/v2/admin/contact/messages/');
     });
   });
 
   it('muestra estado vacio cuando no hay mensajes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/admin/contact/messages/`, () => HttpResponse.json({ results: [] })),
     );
     render(wrap(<AdminContactMessagesPage />));
     expect(

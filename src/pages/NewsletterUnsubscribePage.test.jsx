@@ -34,10 +34,10 @@ describe('NewsletterUnsubscribePage (UC-NEW-02)', () => {
     expect(screen.getByLabelText(/Motivo/i)).toBeInTheDocument();
   });
 
-  it('al confirmar, hace POST a /api/v1/newsletter/unsubscribe/ con el token', async () => {
+  it('al confirmar, hace DELETE a /api/v2/newsletter/subscriptions/ con el token', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/newsletter/unsubscribe/`, async ({ request }) => {
+      http.delete(`${BASE}/api/v2/newsletter/subscriptions/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ ok: true });
       }),
@@ -58,7 +58,7 @@ describe('NewsletterUnsubscribePage (UC-NEW-02)', () => {
 
   it('muestra confirmacion tras el envio', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/newsletter/unsubscribe/`, () =>
+      http.delete(`${BASE}/api/v2/newsletter/subscriptions/`, () =>
         HttpResponse.json({ ok: true }),
       ),
     );

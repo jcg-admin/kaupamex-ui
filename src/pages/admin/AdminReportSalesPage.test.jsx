@@ -52,7 +52,7 @@ const wrap = (ui) => {
 describe('AdminReportSalesPage (UC-REP-01)', () => {
   it('renderiza el titulo del reporte', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     expect(
@@ -62,7 +62,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('muestra los filtros de periodo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     expect(await screen.findByRole('combobox', { name: /Periodo/i })).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
   it('cambia los parametros al cambiar el periodo', async () => {
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json(RESPONSE);
       }),
@@ -89,7 +89,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('renderiza los totales del periodo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     await screen.findByText(/12500/);
@@ -100,7 +100,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('renderiza la tabla de serie temporal', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     expect(await screen.findByText('2026-05-01')).toBeInTheDocument();
@@ -109,7 +109,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('renderiza el grafico de tendencia junto a la tabla de serie', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     const chart = await screen.findByTestId('revenue-trend-chart');
@@ -119,7 +119,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('renderiza el desglose por metodo de pago', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     expect(await screen.findByText('MERCADOPAGO')).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('tiene boton de exportar CSV y PDF', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     expect(await screen.findByRole('link', { name: /Exportar CSV/i })).toBeInTheDocument();
@@ -137,7 +137,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('el enlace de exportar lleva el periodo seleccionado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     await screen.findByText(/12500/);
@@ -149,14 +149,14 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
       const csvLink = screen.getByRole('link', { name: /Exportar CSV/i });
       expect(csvLink).toHaveAttribute(
         'href',
-        '/api/v2/admin/reports/sales/export/?period=year&format=csv',
+        '/api/v2/admin/reports/sales/exports/?period=year&format=csv',
       );
     });
   });
 
   it('muestra estado vacio cuando no hay serie', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () =>
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () =>
         HttpResponse.json({ totals: { gross_revenue: '0.00', orders: 0 }, series: [], payment_breakdown: [] }),
       ),
     );
@@ -168,7 +168,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
 
   it('tiene DateRangePicker para filtro de rango de fechas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
     await screen.findByText(/12500/);

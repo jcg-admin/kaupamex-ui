@@ -33,7 +33,7 @@ const wrap = (ui) => (
 describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
   it('muestra el titulo de la cola de moderacion', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/questions/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/admin/questions/`, () => HttpResponse.json({ results: [] })),
     );
     render(wrap(<AdminQuestionsModerationPage />));
     expect(
@@ -43,7 +43,7 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
 
   it('lista las preguntas pendientes de moderacion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/questions/`, () =>
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
         HttpResponse.json({
           results: [
             { id: 5, body: 'Pregunta a moderar', product: { id: 7, name: 'Camisa' } },
@@ -55,9 +55,9 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
     expect(await screen.findByText(/Pregunta a moderar/i)).toBeInTheDocument();
   });
 
-  it('al hacer clic en Aprobar, hace POST al endpoint approve', async () => {
+  it('al hacer clic en Aprobar, hace PATCH al endpoint status', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/questions/`, () =>
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
         HttpResponse.json({
           results: [{ id: 5, body: 'X', product: { id: 7, name: 'Y' } }],
         }),
@@ -65,7 +65,7 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
     );
     let approvedId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/questions/:id/approve/`, ({ params }) => {
+      http.patch(`${BASE}/api/v2/admin/questions/:id/status/`, ({ params }) => {
         approvedId = params.id;
         return HttpResponse.json({ id: params.id, status: 'APPROVED' });
       }),
@@ -77,9 +77,9 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
     await waitFor(() => expect(approvedId).toBe('5'));
   });
 
-  it('al hacer clic en Rechazar, hace POST al endpoint reject', async () => {
+  it('al hacer clic en Rechazar, hace PATCH al endpoint status', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/questions/`, () =>
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
         HttpResponse.json({
           results: [{ id: 5, body: 'X', product: { id: 7, name: 'Y' } }],
         }),
@@ -87,7 +87,7 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
     );
     let rejectedId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/questions/:id/reject/`, ({ params }) => {
+      http.patch(`${BASE}/api/v2/admin/questions/:id/status/`, ({ params }) => {
         rejectedId = params.id;
         return HttpResponse.json({ id: params.id, status: 'REJECTED' });
       }),

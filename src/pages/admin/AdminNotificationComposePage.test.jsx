@@ -45,7 +45,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
   it('requiere asunto y mensaje antes de enviar', () => {
     let postCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/admin/notifications/manual/`, () => {
+      http.post(`${BASE}/api/v2/admin/notifications/`, () => {
         postCalled = true;
         return HttpResponse.json({});
       }),
@@ -59,7 +59,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
   it('al enviar, hace POST con destinatario, asunto y mensaje', async () => {
     let lastPostBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/notifications/manual/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/notifications/`, async ({ request }) => {
         lastPostBody = await request.json();
         return HttpResponse.json({ id: 99, recipients_count: 1, status: 'SENT' }, { status: 201 });
       }),
@@ -88,7 +88,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
 
   it('muestra mensaje de exito tras un envio correcto', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/notifications/manual/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/notifications/`, async ({ request }) => {
         await request.json();
         return HttpResponse.json({ id: 99, recipients_count: 1, status: 'SENT' }, { status: 201 });
       }),
@@ -136,7 +136,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
 
   it('muestra error si el backend rechaza con DESTINATARIO_INVALIDO', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/notifications/manual/`, () =>
+      http.post(`${BASE}/api/v2/admin/notifications/`, () =>
         HttpResponse.json(
           { message: 'El destinatario no puede recibir notificaciones', code: 'RECIPIENT_INVALID' },
           { status: 422 },
