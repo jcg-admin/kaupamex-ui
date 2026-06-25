@@ -10,7 +10,16 @@ import {
 } from '@hooks/domain/useReports';
 import RevenueTrendChart from '@components/charts/RevenueTrendChart';
 import { DataTable } from '@components/common/DataTable/DataTable';
+import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
+import { toISODateString, fromISODateString } from '@utils/dateRange';
+import { exportToCsv } from '@lib/csvExporter';
 import styles from './AdminReportPage.module.scss';
+
+const SERIES_CSV_COLUMNS = [
+  { key: 'date',    header: 'Fecha' },
+  { key: 'revenue', header: 'Ingreso' },
+  { key: 'orders',  header: 'Ordenes' },
+];
 
 const PERIOD_OPTIONS = [
   { value: 'today',   label: 'Hoy' },
@@ -24,7 +33,14 @@ const DEFAULT_PERIOD = 'month';
 
 export default function AdminReportSalesPage() {
   const [period, setPeriod] = useState(DEFAULT_PERIOD);
-  const params = useMemo(() => ({ period }), [period]);
+  const [from, setFrom]     = useState('');
+  const [to, setTo]         = useState('');
+  const params = useMemo(() => {
+    const p = { period };
+    if (from) p.date_from = from;
+    if (to)   p.date_to   = to;
+    return p;
+  }, [period, from, to]);
   const { data, isLoading, error } = useSalesReport(params);
 
   const totals     = data?.totals     ?? {};
@@ -61,6 +77,14 @@ export default function AdminReportSalesPage() {
           Reporte de ingresos y ventas
         </h1>
         <div className={styles.exportGroup}>
+          <button
+            type="button"
+            className={styles.exportLink}
+            onClick={() => exportToCsv(SERIES_CSV_COLUMNS, series, 'reporte-ventas.csv')}
+            disabled={series.length === 0}
+          >
+            Exportar tabla
+          </button>
           <a href={csvHref} className={styles.exportLink}>Exportar CSV</a>
           <a href={pdfHref} className={styles.exportLink}>Exportar PDF</a>
         </div>
@@ -74,6 +98,18 @@ export default function AdminReportSalesPage() {
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+        </label>
+        <label className={styles.filter}>
+          <span>Rango de fechas</span>
+          <DateRangePicker
+            startDate={fromISODateString(from)}
+            endDate={fromISODateString(to)}
+            placeholder={['Desde', 'Hasta']}
+            onRangeChange={({ startDate, endDate }) => {
+              setFrom(toISODateString(startDate));
+              setTo(toISODateString(endDate));
+            }}
+          />
         </label>
       </div>
 

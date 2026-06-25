@@ -28,18 +28,42 @@ const AUTH_URLS = {
   logout:               '/api/v2/auth/logout/',
   refresh:              '/api/v2/auth/refresh/',
   register:             '/api/v2/auth/register/',
+  me:                   '/api/v2/auth/me/',
   profile:              '/api/v2/auth/profile/',
   changePassword:       '/api/v2/auth/change-password/',
-  verifyEmail:          '/api/v2/auth/verify-email/',
-  resendVerification:   '/api/v2/auth/resend-verification/',
-  deactivate:           '/api/v2/auth/me/deactivate/',
-  passwordReset:        '/api/v2/auth/password-reset/',
-  passwordResetConfirm: '/api/v2/auth/password-reset/confirm/',
+  // F5 Tier B: verify + resend merged into one endpoint;
+  // dispatch by presence of 'token' key in body.
+  verifyEmail:          '/api/v2/auth/email-verifications/',
+  resendVerification:   '/api/v2/auth/email-verifications/',
+  // F5 Tier B: deactivate is now DELETE /auth/me/ (was POST /me/deactivate/)
+  deactivate:           '/api/v2/auth/me/',
+  passwordReset:        '/api/v2/auth/password-resets/',
+  passwordResetConfirm: '/api/v2/auth/password-resets/confirm/',
 };
 
 const ADDRESSES_URL  = '/api/v2/auth/addresses/';
 const ADDRESS_URL    = (id) => `/api/v2/auth/addresses/${id}/`;
-const LOGOUT_ALL_URL = '/api/v2/auth/logout-all/';
+// F5 Tier B: logout-all is now DELETE /auth/sessions/ (was POST /logout-all/)
+const LOGOUT_ALL_URL = '/api/v2/auth/sessions/';
+
+// ─── Thunks ─── Session check ───────────────────────────────────────────
+
+/**
+ * Verifica si el usuario ya tiene sesion activa al cargar la app.
+ * Llama a /api/v2/auth/me/. En modo mock, el interceptor lee
+ * localStorage._mock_auth_type para responder sin JWT.
+ */
+export const checkAuth = createAsyncThunk(
+  'auth/checkAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiService.get(AUTH_URLS.me);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
 
 // ─── Thunks ─── Sprint 1 ─────────────────────────────────────────────
 
@@ -198,8 +222,8 @@ export const deactivateAccount = createAsyncThunk(
   'auth/deactivateAccount',
   async ({ password }, { rejectWithValue }) => {
     try {
-      const response = await apiService.post(
-        AUTH_URLS.deactivate, { password },
+      const response = await apiService.delete(
+        AUTH_URLS.deactivate, { body: { password } },
       );
       return response.data;
     } catch (err) {
@@ -267,7 +291,7 @@ export const logoutAllSessions = createAsyncThunk(
   'auth/logoutAllSessions',
   async (_, { rejectWithValue }) => {
     try {
-      await apiService.post(LOGOUT_ALL_URL, {});
+      await apiService.delete(LOGOUT_ALL_URL);
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
     }
@@ -336,6 +360,7 @@ const authSlice = createSlice({
   initialState: {
     user:            null,
     isAuthenticated: false,
+    sessionChecked:  false,
     isLoading:       false,
     error:           null,
   },
@@ -359,6 +384,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
+        state.sessionChecked = true;
         state.user = action.payload.user ?? action.payload;
         state.error = null;
         if (action.payload.access) apiService.setAuthToken(action.payload.access);
@@ -376,7 +402,27 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+        state.sessionChecked = true;
         state.error = null;
+      });
+
+    // checkAuth (session restore on page reload)
+    builder
+      .addCase(checkAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.sessionChecked = true;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.sessionChecked = true;
+        state.user = null;
       });
 
     // Register

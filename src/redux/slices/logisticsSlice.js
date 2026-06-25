@@ -16,7 +16,7 @@ export const confirmDelivery = createAsyncThunk(
   async (guideId, { rejectWithValue }) => {
     try {
       const res = await apiService.post(
-        `/api/v2/logistics/guides/${guideId}/confirm-delivery/`,
+        `/api/v2/shipments/${guideId}/deliveries/`,
         {},
       );
       return res.data;

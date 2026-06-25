@@ -8,12 +8,11 @@ import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import supportTicketsReducer from '@redux/slices/supportTicketsSlice';
 import AdminSupportPage from './AdminSupportPage';
 
@@ -45,11 +44,11 @@ const RESPONSE = {
   metrics: { open: 1, in_progress: 1, awaiting_user: 0, resolved: 0, closed: 1 },
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminSupportPage (UC-SUPP-05)', () => {
   it('muestra el titulo de la bandeja', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Bandeja de soporte/i })
@@ -57,7 +56,9 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
   });
 
   it('renderiza la tabla con todos los tickets', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(await screen.findByText('Pedido perdido')).toBeInTheDocument();
     expect(screen.getByText('Producto defectuoso')).toBeInTheDocument();
@@ -65,14 +66,18 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
   });
 
   it('muestra el email del comprador en cada fila', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(await screen.findByText('comprador@test.mx')).toBeInTheDocument();
     expect(screen.getByText('maria@test.mx')).toBeInTheDocument();
   });
 
   it('muestra el panel de metricas del periodo', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(await screen.findByText(/Abiertos/i)).toBeInTheDocument();
     expect(screen.getByText(/En proceso/i)).toBeInTheDocument();
@@ -80,22 +85,34 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
   });
 
   it('filtra el listado por estado al cambiar el selector', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminSupportPage />, makeStore()));
     await screen.findByText('Pedido perdido');
+
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, ({ request }) => {
+        lastUrl = request.url;
+        return HttpResponse.json(RESPONSE);
+      }),
+    );
 
     fireEvent.change(screen.getByLabelText(/Estado/i), { target: { value: 'OPEN' } });
 
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        expect.stringContaining('/admin/support/tickets/'),
-        expect.objectContaining({ params: expect.objectContaining({ status: 'OPEN' }) }),
-      );
+      expect(lastUrl).toContain('/admin/support/tickets/');
+      expect(lastUrl).toContain('status=OPEN');
     });
   });
 
   it('muestra estado vacio cuando no hay tickets', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], metrics: null } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () =>
+        HttpResponse.json({ results: [], metrics: null }),
+      ),
+    );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(
       await screen.findByText(/No se encontraron tickets/i)

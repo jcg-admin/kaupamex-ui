@@ -28,7 +28,7 @@ describe('ordersSlice — cancelOrder (UC-ORD-04)', () => {
       reason:      'Cambio de opinion',
     }));
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v2/orders/PY-2026-000001/cancel/',
+      '/api/v2/orders/PY-2026-000001/cancellations/',
       { reason: 'Cambio de opinion' },
     );
     const state = store.getState().orders;

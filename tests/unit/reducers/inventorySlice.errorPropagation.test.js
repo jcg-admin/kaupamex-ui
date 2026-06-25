@@ -5,7 +5,7 @@ import { configureStore } from '@reduxjs/toolkit';
 
 jest.mock('@services/apiService', () => ({
   __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
+  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
 }));
 
 import apiService from '@services/apiService';
@@ -42,7 +42,7 @@ describe('inventorySlice — propagacion de errores tipados', () => {
   });
 
   it('422 en adjustStockManually preserva validationErrors', async () => {
-    apiService.post.mockRejectedValue(
+    apiService.patch.mockRejectedValue(
       new ValidationError('Cantidad invalida', { new_quantity: ['negativa'] }),
     );
     const store = makeStore();

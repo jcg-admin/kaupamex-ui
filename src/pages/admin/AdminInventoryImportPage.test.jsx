@@ -54,16 +54,16 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
         download_url: '/media/reports/import-456.csv',
       },
     });
-    render(wrap(<AdminInventoryImportPage />, makeStore()));
+    const { container } = render(wrap(<AdminInventoryImportPage />, makeStore()));
     const file = new File(['sku,name,base_price,category_slug\nA1,Vela,10,vela'],
       'productos.csv', { type: 'text/csv' });
-    fireEvent.change(screen.getByLabelText(/Archivo CSV/i),
+    fireEvent.change(container.querySelector('input[type="file"]'),
       { target: { files: [file] } });
     fireEvent.click(screen.getByRole('button', { name: /Importar/i }));
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/inventory/import/',
+        '/api/v2/admin/inventory/imports/',
         expect.any(FormData),
       );
     });
@@ -77,9 +77,9 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
         download_url: '/media/reports/import-456.csv',
       },
     });
-    render(wrap(<AdminInventoryImportPage />, makeStore()));
+    const { container } = render(wrap(<AdminInventoryImportPage />, makeStore()));
     const file = new File(['x'], 'a.csv', { type: 'text/csv' });
-    fireEvent.change(screen.getByLabelText(/Archivo CSV/i),
+    fireEvent.change(container.querySelector('input[type="file"]'),
       { target: { files: [file] } });
     fireEvent.click(screen.getByRole('button', { name: /Importar/i }));
 
@@ -92,9 +92,9 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
     apiService.post.mockRejectedValue({
       body: { detail: 'CSV_HEADER_INVALID' }, message: '422',
     });
-    render(wrap(<AdminInventoryImportPage />, makeStore()));
+    const { container } = render(wrap(<AdminInventoryImportPage />, makeStore()));
     const file = new File(['x'], 'bad.csv', { type: 'text/csv' });
-    fireEvent.change(screen.getByLabelText(/Archivo CSV/i),
+    fireEvent.change(container.querySelector('input[type="file"]'),
       { target: { files: [file] } });
     fireEvent.click(screen.getByRole('button', { name: /Importar/i }));
 

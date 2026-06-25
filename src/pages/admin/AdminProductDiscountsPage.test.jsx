@@ -10,13 +10,11 @@ import { Provider }        from 'react-redux';
 import { MemoryRouter }    from 'react-router-dom';
 import { configureStore }  from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import productDiscountsReducer from '@redux/slices/productDiscountsSlice';
 import AdminProductDiscountsPage from './AdminProductDiscountsPage';
 
@@ -57,11 +55,13 @@ const wrap = (ui, store) => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Descuentos de Producto/i }),
@@ -69,7 +69,11 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   });
 
   it('renderiza la tabla con los descuentos clasificados', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     expect(await screen.findByText('Camiseta Yoruba')).toBeInTheDocument();
     expect(screen.getByText('Libro de gramatica')).toBeInTheDocument();
@@ -77,7 +81,11 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   });
 
   it('muestra los porcentajes y precios con descuento', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     await screen.findByText('Camiseta Yoruba');
     expect(screen.getByText(/15(\.0+)?%/)).toBeInTheDocument();
@@ -85,7 +93,11 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   });
 
   it('muestra mensaje cuando no hay descuentos', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     expect(
       await screen.findByText(/No hay descuentos activos/i),
@@ -93,7 +105,11 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   });
 
   it('expone un boton para crear un nuevo descuento', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     expect(
       await screen.findByRole('button', { name: /Nuevo descuento/i }),
@@ -101,7 +117,13 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
   });
 
   it('permite filtrar por estado de vigencia', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    let lastRequestUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, ({ request }) => {
+        lastRequestUrl = request.url;
+        return HttpResponse.json({ results: DISCOUNTS });
+      }),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     await screen.findByText('Camiseta Yoruba');
 
@@ -109,16 +131,16 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
     fireEvent.change(select, { target: { value: 'CURRENT' } });
 
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v2/admin/product-discounts/',
-        expect.objectContaining({ params: { status: 'CURRENT' } }),
-      );
+      expect(lastRequestUrl).toContain('/admin/product-discounts/');
+      expect(new URL(lastRequestUrl).searchParams.get('status')).toBe('CURRENT');
     });
   });
 
   it('muestra mensaje de error cuando la API falla', async () => {
-    apiService.get.mockRejectedValue(
-      Object.assign(new Error('Boom'), { code: 'INTERNAL_SERVER_ERROR' }),
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ detail: 'Error de servidor' }, { status: 400 }),
+      ),
     );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     expect(
@@ -129,7 +151,11 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 
 describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
   it('muestra un boton de desactivar por cada descuento', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     await screen.findByText('Camiseta Yoruba');
     expect(screen.getByRole('button', {
@@ -138,10 +164,16 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
   });
 
   it('llama al endpoint de desactivar al confirmar', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
-    apiService.post.mockResolvedValue({
-      data: { ...DISCOUNTS[0], is_active: false },
-    });
+    let lastPostUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, ({ request }) => {
+        lastPostUrl = request.url;
+        return HttpResponse.json({ ...DISCOUNTS[0], is_active: false });
+      }),
+    );
 
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
 
@@ -153,17 +185,23 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
     }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/product-discounts/1/deactivate/'),
-        expect.anything(),
-      );
+      expect(lastPostUrl).toContain('/admin/product-discounts/1/');
     });
 
     confirmSpy.mockRestore();
   });
 
   it('no llama al endpoint si el admin cancela la confirmacion', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    let postCalled = false;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, () => {
+        postCalled = true;
+        return HttpResponse.json({ ...DISCOUNTS[0], is_active: false });
+      }),
+    );
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
@@ -172,18 +210,19 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
     fireEvent.click(screen.getByRole('button', {
       name: /Desactivar descuento Camiseta Yoruba/i,
     }));
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(postCalled).toBe(false);
 
     confirmSpy.mockRestore();
   });
 
   it('muestra mensaje de error cuando la desactivacion falla', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
-    apiService.post.mockRejectedValue(
-      Object.assign(new Error('Conflict'), {
-        code: 'DISCOUNT_ALREADY_INACTIVE',
-        status: 409,
-      }),
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, () =>
+        HttpResponse.json({ detail: 'No se pudo desactivar' }, { status: 400 }),
+      ),
     );
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
 
@@ -204,7 +243,11 @@ describe('AdminProductDiscountsPage — desactivar (UC-DASH-03)', () => {
 
 describe('AdminProductDiscountsPage — crear (UC-DASH-01)', () => {
   it('abre el modal al pulsar Nuevo descuento', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     await screen.findByText('Camiseta Yoruba');
 
@@ -217,7 +260,11 @@ describe('AdminProductDiscountsPage — crear (UC-DASH-01)', () => {
 
 describe('AdminProductDiscountsPage — editar (UC-DASH-02)', () => {
   it('muestra un boton de editar por cada descuento', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     await screen.findByText('Camiseta Yoruba');
     expect(screen.getByRole('button', {
@@ -226,7 +273,11 @@ describe('AdminProductDiscountsPage — editar (UC-DASH-02)', () => {
   });
 
   it('abre el modal de edicion al pulsar Editar', async () => {
-    apiService.get.mockResolvedValue({ data: { results: DISCOUNTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ results: DISCOUNTS }),
+      ),
+    );
     render(wrap(<AdminProductDiscountsPage />, makeStore()));
     await screen.findByText('Camiseta Yoruba');
 

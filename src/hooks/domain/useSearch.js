@@ -15,7 +15,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const SEARCH_URL = '/api/v2/catalogue/search/';
+// F1 Tier A: catalogue/search/ unified into /api/v2/products/?q=
+const SEARCH_URL = '/api/v2/products/';
 export const SEARCH_KEY = ['catalog', 'search'];
 
 const MIN_LENGTH = 2;

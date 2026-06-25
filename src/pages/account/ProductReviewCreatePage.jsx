@@ -19,6 +19,7 @@ import {
   uploadReviewImages,
   clearReviewsActionState,
 } from '@redux/slices/reviewsSlice';
+import { ExternalDropZone, RatingInput } from '@components/common';
 import styles from './ProductReviewCreatePage.module.scss';
 
 const TITLE_MIN   = 5;
@@ -141,18 +142,13 @@ export default function ProductReviewCreatePage() {
 
       <form onSubmit={handleSubmit} noValidate className={styles.form}>
         <div className={styles.field}>
-          <label htmlFor="review-rating">Calificacion (1-5 estrellas)</label>
-          <select
-            id="review-rating"
-            value={rating}
-            onChange={(e) => setRating(e.target.value)}
-          >
-            <option value="5">5 - Excelente</option>
-            <option value="4">4 - Muy bueno</option>
-            <option value="3">3 - Regular</option>
-            <option value="2">2 - Malo</option>
-            <option value="1">1 - Muy malo</option>
-          </select>
+          <label>Calificacion (1-5 estrellas)</label>
+          <RatingInput
+            value={Number(rating)}
+            onChange={setRating}
+            max={5}
+            label="Calificacion"
+          />
         </div>
 
         <div className={styles.field}>
@@ -184,15 +180,23 @@ export default function ProductReviewCreatePage() {
           <label htmlFor="review-images">
             Fotos del producto (opcional, maximo {MAX_IMAGES})
           </label>
-          <input
-            ref={fileInputRef}
-            id="review-images"
-            type="file"
+          <ExternalDropZone
             accept="image/*"
             multiple
-            className={styles.fileInput}
-            onChange={handleImagesChange}
-          />
+            onChange={(files) => handleImagesChange({ target: { files } })}
+            hint={`Arrastra hasta ${MAX_IMAGES} fotos aquí o usa el selector`}
+            className={styles.dropZone}
+          >
+            <input
+              ref={fileInputRef}
+              id="review-images"
+              type="file"
+              accept="image/*"
+              multiple
+              className={styles.fileInput}
+              onChange={handleImagesChange}
+            />
+          </ExternalDropZone>
           {imagesError && (
             <span className={styles.fieldError}>{imagesError}</span>
           )}

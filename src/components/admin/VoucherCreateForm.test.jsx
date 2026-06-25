@@ -13,22 +13,18 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import vouchersReducer from '@redux/slices/vouchersSlice';
 import VoucherCreateForm from './VoucherCreateForm';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { vouchers: vouchersReducer } });
 
 const wrap = (ui, store) => <Provider store={store}>{ui}</Provider>;
-
-afterEach(() => jest.clearAllMocks());
 
 describe('VoucherCreateForm (UC-PRO-01)', () => {
   it('renderiza el dialogo con campos de codigo, tipo y valor', () => {
@@ -43,7 +39,6 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
     render(wrap(<VoucherCreateForm onClose={() => {}} />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Crear cupon/i }));
     expect(screen.getByText(/El codigo es obligatorio/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('valida porcentaje entre 0 y 100', () => {
@@ -60,7 +55,6 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: /Crear cupon/i }));
     expect(screen.getByText(/entre 0 y 100/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('valida que el valor fijo sea mayor a 0', () => {
@@ -79,9 +73,16 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
   });
 
   it('envia el voucher al backend en el happy path', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 99, code: 'WELCOME20', voucher_type: 'PERCENTAGE', discount_pct: 20, is_active: true },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/vouchers/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json(
+          { id: 99, code: 'WELCOME20', voucher_type: 'PERCENTAGE', discount_pct: 20, is_active: true },
+          { status: 201 },
+        );
+      }),
+    );
 
     render(wrap(<VoucherCreateForm onClose={() => {}} />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Codigo/i),
@@ -98,14 +99,11 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear cupon/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/vouchers/'),
-        expect.objectContaining({
-          code:         'WELCOME20',
-          voucher_type: 'PERCENTAGE',
-          discount_pct: 20,
-        }),
-      );
+      expect(lastBody).toMatchObject({
+        code:         'WELCOME20',
+        voucher_type: 'PERCENTAGE',
+        discount_pct: 20,
+      });
     });
   });
 

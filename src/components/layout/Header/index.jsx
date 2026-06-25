@@ -5,6 +5,7 @@
  * búsqueda, cuenta y carrito.
  */
 
+import { useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -30,6 +31,19 @@ export default function Header() {
   const cartCount    = useSelector(selectCartItemCount);
   const isSearchOpen = useSelector(selectIsSearchOpen);
 
+  useEffect(() => {
+    const onKey = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+      if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        dispatch(toggleSearch());
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [dispatch]);
+
   return (
     <header className={styles.header}>
       {/* ─── Top utility strip ─── */}
@@ -44,7 +58,7 @@ export default function Header() {
             <span>Atención L-V 10:00 — 19:00 · Envíos a toda la república</span>
           </div>
           <div className={styles.topStripRight}>
-            <Link to="/ayuda">Ayuda</Link>
+            <Link to="/help">Ayuda</Link>
             <Link to="/account/orders">Rastrear pedido</Link>
             <Link to="/contact">Contacto</Link>
           </div>

@@ -14,6 +14,7 @@ const INITIAL_STATE = {
   isAuthenticated: false,
   isLoading: false,
   error: null,
+  sessionChecked: false,
 };
 
 const MOCK_USER = {

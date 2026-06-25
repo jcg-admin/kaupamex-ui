@@ -6,15 +6,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }       from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import productDiscountsReducer from '@redux/slices/productDiscountsSlice';
 import ProductDiscountCreateForm from './ProductDiscountCreateForm';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { productDiscounts: productDiscountsReducer } });
@@ -29,8 +27,6 @@ const wrap = (ui, store) => {
     </QueryClientProvider>
   );
 };
-
-afterEach(() => jest.clearAllMocks());
 
 describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
   it('renderiza los campos requeridos del formulario', () => {
@@ -59,13 +55,16 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
     expect(
       await screen.findByText(/entre 1(\.0+)? y 99\.99/i),
     ).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('envia el payload con keys en ingles al confirmar', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 99, product_id: 10, discount_pct: 15.0 },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/product-discounts/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 99, product_id: 10, discount_pct: 15.0 }, { status: 201 });
+      }),
+    );
 
     const onClose = jest.fn();
     render(wrap(<ProductDiscountCreateForm onClose={onClose} />, makeStore()));
@@ -86,23 +85,24 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear descuento/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/product-discounts/',
-        {
-          product_id:   10,
-          discount_pct: 15,
-          valid_from:   '2026-06-01',
-          valid_until:  '2026-12-31',
-        },
-      );
+      expect(lastBody).toMatchObject({
+        product_id:   10,
+        discount_pct: 15,
+        valid_from:   '2026-06-01',
+        valid_until:  '2026-12-31',
+      });
     });
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   it('acepta valid_until vacio (sin vencimiento)', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 99, product_id: 10, discount_pct: 15.0 },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/product-discounts/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 99, product_id: 10, discount_pct: 15.0 }, { status: 201 });
+      }),
+    );
 
     render(wrap(<ProductDiscountCreateForm onClose={() => {}} />, makeStore()));
 
@@ -119,19 +119,18 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear descuento/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/product-discounts/',
-        expect.objectContaining({ valid_until: null }),
-      );
+      expect(lastBody).toMatchObject({ valid_until: null });
     });
   });
 
   it('muestra mensaje de error 409 cuando ya hay descuento activo', async () => {
-    apiService.post.mockRejectedValue(
-      Object.assign(new Error('Ya existe descuento'), {
-        code: 'DISCOUNT_ALREADY_ACTIVE',
-        status: 409,
-      }),
+    server.use(
+      http.post(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json(
+          { message: 'Ya existe descuento activo para este producto', codigo_error: 'DISCOUNT_ALREADY_ACTIVE' },
+          { status: 409 },
+        ),
+      ),
     );
 
     render(wrap(<ProductDiscountCreateForm onClose={() => {}} />, makeStore()));

@@ -6,7 +6,7 @@
   border-radius: $border-radius-lg;
   padding: 0;
   background: $bg-elevated;
-  box-shadow: $shadow-lg;
+  @include elevation(4);
   width: min(560px, 90vw);
   max-height: 85dvh;
   overflow: auto;

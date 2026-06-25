@@ -8,12 +8,11 @@ import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import returnsReducer from '@redux/slices/returnsSlice';
 import AdminReturnsPage from './AdminReturnsPage';
 
@@ -45,11 +44,11 @@ const RESPONSE = {
   metrics: { pendientes: 1, aprobadas: 1, pendiente_info: 1 },
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminReturnsPage (UC-RET-05)', () => {
   it('muestra el titulo de la bandeja', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReturnsPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Devoluciones pendientes/i })
@@ -57,7 +56,9 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
   });
 
   it('renderiza la tabla con todas las devoluciones', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReturnsPage />, makeStore()));
     expect(await screen.findByText('ORD-A')).toBeInTheDocument();
     expect(screen.getByText('ORD-B')).toBeInTheDocument();
@@ -65,14 +66,18 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
   });
 
   it('muestra el email del comprador en cada fila', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReturnsPage />, makeStore()));
     expect(await screen.findByText('demo@test.mx')).toBeInTheDocument();
     expect(screen.getByText('maria@test.mx')).toBeInTheDocument();
   });
 
   it('muestra el panel de métricas con los conteos por estado', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReturnsPage />, makeStore()));
     await screen.findByText('ORD-A');
     const metricsPanel = screen.getByLabelText(/Conteo por estado/i);
@@ -82,25 +87,35 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
   });
 
   it('filtra el listado por estado al cambiar el selector', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReturnsPage />, makeStore()));
     await screen.findByText('ORD-A');
+
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, ({ request }) => {
+        lastUrl = request.url;
+        return HttpResponse.json(RESPONSE);
+      }),
+    );
 
     fireEvent.change(screen.getByRole('combobox'),
       { target: { value: 'PENDING_REVIEW' } });
 
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        expect.stringContaining('/admin/returns/'),
-        expect.objectContaining({
-          params: expect.objectContaining({ status: 'PENDING_REVIEW' }),
-        }),
-      );
+      expect(lastUrl).toContain('/admin/return-requests/');
+      expect(lastUrl).toContain('status=PENDING_REVIEW');
     });
   });
 
   it('muestra estado vacio cuando no hay devoluciones', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], metrics: null } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () =>
+        HttpResponse.json({ results: [], metrics: null }),
+      ),
+    );
     render(wrap(<AdminReturnsPage />, makeStore()));
     expect(
       await screen.findByText(/No hay devoluciones pendientes/i)
@@ -108,7 +123,9 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
   });
 
   it('cada fila enlaza a su detalle admin', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReturnsPage />, makeStore()));
     const links = await screen.findAllByRole('link', { name: /Ver detalle/i });
     expect(links).toHaveLength(RETURNS.length);

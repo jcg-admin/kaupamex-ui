@@ -105,4 +105,25 @@
   --color-danger:         #b3261e;
   --color-danger-strong:  #8a1d18;
   --color-danger-bg:      #fdecea;
+
+  /* --- Semantic layout tokens (usados por mixins/componentes) --- */
+  --ec-bg-page:      var(--c-base);
+  --ec-text-primary: var(--c-ink);
+  --ec-border-color: var(--line-2);
+}
+
+/* Portado de ui-core-5.25.0/scss/_variables-dark.scss */
+/* Dark mode: ya es la paleta por defecto (Natural vivo es dark-first).  */
+/* Sobreescribir solo semantic aliases para contextos light embebidos.   */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ec-bg-page:      var(--c-base);
+    --ec-text-primary: var(--c-ink);
+    --ec-border-color: var(--line-2);
+    --color-surface:        #1a1a1a;
+    --color-text:           #f0f0f0;
+    --color-text-secondary: #b0b0b0;
+    --color-border:         #333;
+    --color-surface-muted:  #2a2a2a;
+  }
 }

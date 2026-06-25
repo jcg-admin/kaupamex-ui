@@ -17,8 +17,8 @@ import { serializeApiError } from '@utils/serializeApiError';
 const CONTACT_PUBLIC_URL       = '/api/v2/contact/messages/';
 const ADMIN_CONTACT_LIST_URL   = '/api/v2/admin/contact/messages/';
 const ADMIN_CONTACT_DETAIL_URL = (id) => `/api/v2/admin/contact/messages/${id}/`;
-const ADMIN_CONTACT_REPLY_URL  = (id) => `/api/v2/admin/contact/messages/${id}/reply/`;
-const ADMIN_CONTACT_READ_URL   = (id) => `/api/v2/admin/contact/messages/${id}/read/`;
+// F5 Tier B: reply path is now /replies/ (plural)
+const ADMIN_CONTACT_REPLY_URL  = (id) => `/api/v2/admin/contact/messages/${id}/replies/`;
 
 // =============================================================================
 // Thunks
@@ -50,7 +50,8 @@ export const markContactMessageRead = createAsyncThunk(
   'contact/markRead',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADMIN_CONTACT_READ_URL(id), {});
+      // F5 Tier B: was POST /read/; now PATCH detail with {is_read: true}
+      const res = await apiService.patch(ADMIN_CONTACT_DETAIL_URL(id), { is_read: true });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

@@ -1,12 +1,19 @@
 module.exports = {
-  testEnvironment: 'jsdom',
+  testEnvironment: '<rootDir>/jest.environment.cjs',
+  testEnvironmentOptions: {
+    customExportConditions: ['node', 'require', 'default'],
+  },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
   verbose: true,
 
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.(js|jsx|mjs|cjs|ts|tsx)$': 'babel-jest',
   },
+
+  transformIgnorePatterns: [
+    'node_modules/(?!(rettime|until-async|@open-draft/deferred-promise)/)',
+  ],
 
   moduleNameMapper: {
     '\\.(css|scss|less|sass)$': '<rootDir>/__mocks__/styleMock.js',

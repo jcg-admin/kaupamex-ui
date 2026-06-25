@@ -5,15 +5,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn(), delete: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import priceSyncReducer from '../../redux/slices/priceSyncSlice';
 import AdminPriceSyncPage from './AdminPriceSyncPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 // H-CICLO70-01: API shape es { session_id, preview: [...], valid_count, invalid_count }
 const PREVIEW = {
@@ -37,8 +35,6 @@ const renderPage = () => render(
   </Provider>,
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminPriceSyncPage (UC-CAT-12)', () => {
   it('muestra el titulo «Sincronizar precios» y las dos pestanas', () => {
     renderPage();
@@ -50,7 +46,13 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
   });
 
   it('CSV: previsualiza al cargar archivo y pulsar generar vista previa', async () => {
-    apiService.post.mockResolvedValueOnce({ data: PREVIEW });
+    let handlerCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, () => {
+        handlerCalled = true;
+        return HttpResponse.json(PREVIEW);
+      }),
+    );
     renderPage();
     const fileInput = screen.getByLabelText(/archivo csv/i);
     const blob = new Blob(['sku,price\nSKU-1,110\n'], { type: 'text/csv' });
@@ -59,16 +61,21 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     fireEvent.click(screen.getByRole('button', { name: /generar vista previa/i }));
     expect(await screen.findByText('SKU-1')).toBeInTheDocument();
     expect(screen.getByText('SKU-2')).toBeInTheDocument();
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v2/admin/price-sync/preview-csv/',
-      expect.any(FormData),
-    );
+    await waitFor(() => expect(handlerCalled).toBe(true));
   });
 
   it('CSV: confirma y aplica usando el token de la preview', async () => {
-    apiService.post
-      .mockResolvedValueOnce({ data: PREVIEW })
-      .mockResolvedValueOnce({ data: { updated: 1, skipped: 1 } });
+    let applyBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, async ({ request }) => {
+        const contentType = request.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          applyBody = await request.json();
+          return HttpResponse.json({ updated_count: 1 });
+        }
+        return HttpResponse.json(PREVIEW);
+      }),
+    );
     renderPage();
     const fileInput = screen.getByLabelText(/archivo csv/i);
     const csv = new File(['sku,price'], 'p.csv', { type: 'text/csv' });
@@ -77,10 +84,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     await screen.findByText('SKU-1');
     fireEvent.click(screen.getByRole('button', { name: /confirmar y aplicar/i }));
     await waitFor(() =>
-      expect(apiService.post).toHaveBeenLastCalledWith(
-        '/api/v2/admin/price-sync/apply-csv/',
-        { session_id: 'preview-session-abc' },
-      ),
+      expect(applyBody).toMatchObject({ session_id: 'preview-session-abc' }),
     );
     expect(await screen.findByRole('status')).toHaveTextContent(/precios actualizados/i);
   });
@@ -89,7 +93,11 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     // H-CICLO70-01: el componente muestra el conteo via invalid_count en el
     // resumen; no renderiza la columna "status" por fila (filas del preview
     // son siempre validas en la nueva API).
-    apiService.post.mockResolvedValueOnce({ data: PREVIEW });
+    server.use(
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, () =>
+        HttpResponse.json(PREVIEW),
+      ),
+    );
     renderPage();
     const csv = new File(['x'], 'x.csv', { type: 'text/csv' });
     fireEvent.change(screen.getByLabelText(/archivo csv/i), { target: { files: [csv] } });
@@ -99,7 +107,13 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
   });
 
   it('porcentaje: envia percentage + filtros al backend (Alt A)', async () => {
-    apiService.post.mockResolvedValueOnce({ data: PREVIEW });
+    let lastPostBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, async ({ request }) => {
+        lastPostBody = await request.json();
+        return HttpResponse.json(PREVIEW);
+      }),
+    );
     renderPage();
     fireEvent.click(screen.getByRole('tab', { name: /ajuste porcentual/i }));
     fireEvent.change(screen.getByLabelText(/porcentaje de ajuste/i), { target: { value: '5' } });
@@ -107,17 +121,18 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     fireEvent.change(screen.getByLabelText(/precio actual minimo/i), { target: { value: '100' } });
     fireEvent.click(screen.getByRole('button', { name: /generar vista previa/i }));
     await waitFor(() =>
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/price-sync/preview-percentage/',
-        expect.objectContaining({
-          pct: 5, category_id: 'collares', price_min: 100,
-        }),
-      ),
+      expect(lastPostBody).toMatchObject({
+        pct: 5, category_id: 'collares', price_min: 100,
+      }),
     );
   });
 
   it('muestra error si la API de preview falla (EX-01)', async () => {
-    apiService.post.mockRejectedValueOnce(new Error('csv invalido'));
+    server.use(
+      http.post(`${BASE}/api/v2/admin/price-syncs/`, () =>
+        HttpResponse.json({ detail: 'csv invalido' }, { status: 400 }),
+      ),
+    );
     renderPage();
     const csv = new File(['bad'], 'b.csv', { type: 'text/csv' });
     fireEvent.change(screen.getByLabelText(/archivo csv/i), { target: { files: [csv] } });

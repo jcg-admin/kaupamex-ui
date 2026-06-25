@@ -1,20 +1,30 @@
 /**
  * ProtectedRoute — PracticaYoruba
- * Requiere autenticación. Si no está autenticado, redirige a /auth/login
- * preservando la ruta original en el state para redirigir al volver.
+ * Requiere autenticación. Verifica sesión con /api/v2/auth/me/ en el
+ * primer montaje (cubre recarga de página donde el JWT en memoria se
+ * pierde). Redirige a /auth/login si no hay sesión activa.
  */
 
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { selectIsAuthenticated, selectAuthLoading } from '@redux/selectors';
+import { selectIsAuthenticated, selectSessionChecked } from '@redux/selectors';
+import { checkAuth } from '@redux/slices/authSlice';
 import PageLoader from '@components/shared/LazyLoad/PageLoader';
 
 export default function ProtectedRoute() {
+  const dispatch        = useDispatch();
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const isLoading       = useSelector(selectAuthLoading);
+  const sessionChecked  = useSelector(selectSessionChecked);
   const location        = useLocation();
 
-  if (isLoading) return <PageLoader />;
+  useEffect(() => {
+    if (!sessionChecked) {
+      dispatch(checkAuth());
+    }
+  }, [dispatch, sessionChecked]);
+
+  if (!sessionChecked) return <PageLoader />;
 
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;

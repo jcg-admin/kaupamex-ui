@@ -69,7 +69,8 @@ export function buildReportExportUrl(reportSlug, params = {}) {
     search.set(k, v);
   });
   const qs = search.toString();
-  return `${base}export/${qs ? `?${qs}` : ''}`;
+  // F5 Tier A: export/ → exports/ (plural canonical REST)
+  return `${base}exports/${qs ? `?${qs}` : ''}`;
 }
 
 export default useSalesReport;

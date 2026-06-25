@@ -27,7 +27,7 @@
   z-index: $z-modal;
   background: var(--ec-bg-page);
   padding: $spacing-6;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.22);
+  @include elevation(5);
   border-bottom: 2px solid var(--ec-accent);
   animation: slideDown 0.2s ease-out;
 }
@@ -86,5 +86,96 @@
 
   &:hover {
     background: var(--ec-bg-surface);
+  }
+}
+
+// ─── Live results dropdown ────────────────────────────────────────────────
+.results {
+  max-width: 720px;
+  margin: $spacing-4 auto 0;
+}
+
+.hint {
+  padding: $spacing-3 $spacing-2;
+  color: var(--ec-text-muted);
+  font-size: $font-size-sm;
+  text-align: center;
+}
+
+.resultList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--ec-border-color);
+  border-radius: $border-radius-sm;
+  overflow: hidden;
+  background: var(--ec-bg-surface);
+}
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-3 $spacing-4;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: var(--ec-bg-sunken);
+  }
+
+  & + & {
+    border-top: 1px solid var(--ec-border-color);
+  }
+}
+
+.resultThumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: $border-radius-sm;
+  flex-shrink: 0;
+  background: var(--ec-bg-sunken);
+}
+
+.resultInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.resultName {
+  font-size: $font-size-sm;
+  color: var(--ec-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultPrice {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $bronze;
+}
+
+.seeAll {
+  display: block;
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  margin-top: $spacing-2;
+  background: none;
+  border: 1px solid var(--ec-border-color);
+  border-radius: $border-radius-sm;
+  color: var(--ec-text-secondary);
+  font-size: $font-size-sm;
+  cursor: pointer;
+  text-align: center;
+  transition: $transition-colors;
+
+  &:hover {
+    border-color: $bronze;
+    color: $bronze;
   }
 }

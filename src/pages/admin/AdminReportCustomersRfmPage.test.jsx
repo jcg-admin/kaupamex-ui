@@ -5,13 +5,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import AdminReportCustomersRfmPage from './AdminReportCustomersRfmPage';
 
 const RESPONSE = {
@@ -32,11 +30,11 @@ const wrap = (ui) => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
   it('renderiza el titulo', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(
       await screen.findByRole('heading', { name: /Clientes \(RFM\)/i }),
@@ -44,7 +42,9 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
   });
 
   it('renderiza la tabla con compradores y su segmento', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByText('vip@example.com')).toBeInTheDocument();
     expect(screen.getByText('new@example.com')).toBeInTheDocument();
@@ -53,14 +53,22 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
   });
 
   it('muestra los filtros de segmento y periodo', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByRole('combobox', { name: /Periodo/i })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /Segmento/i })).toBeInTheDocument();
   });
 
   it('filtra por segmento al cambiar el selector', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        return HttpResponse.json(RESPONSE);
+      }),
+    );
     render(wrap(<AdminReportCustomersRfmPage />));
     await screen.findByText('vip@example.com');
     fireEvent.change(
@@ -68,17 +76,14 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
       { target: { value: 'CHAMPIONS' } },
     );
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v2/admin/reports/customers-rfm/',
-        expect.objectContaining({
-          params: expect.objectContaining({ segment: 'CHAMPIONS' }),
-        }),
-      );
+      expect(lastUrl?.searchParams.get('segment')).toBe('CHAMPIONS');
     });
   });
 
   it('muestra totales de nuevos vs recurrentes', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportCustomersRfmPage />));
     await screen.findByText('vip@example.com');
     const totals = screen.getByLabelText(/Totales de clientes/i);
@@ -87,13 +92,19 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
   });
 
   it('tiene boton de exportar', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByRole('link', { name: /Exportar CSV/i })).toBeInTheDocument();
   });
 
   it('estado vacio cuando no hay clientes', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], totals: { customer_count: 0, total_monetary: '0.00' } } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () =>
+        HttpResponse.json({ results: [], totals: { customer_count: 0, total_monetary: '0.00' } }),
+      ),
+    );
     render(wrap(<AdminReportCustomersRfmPage />));
     expect(await screen.findByText(/Sin clientes en el periodo/i)).toBeInTheDocument();
   });

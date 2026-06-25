@@ -5,15 +5,13 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }       from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { patch: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import productDiscountsReducer from '@redux/slices/productDiscountsSlice';
 import ProductDiscountEditForm from './ProductDiscountEditForm';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const DISCOUNT = {
   id: 1, product_id: 10, product_name: 'Camiseta Yoruba',
@@ -26,8 +24,6 @@ const makeStore = () =>
   configureStore({ reducer: { productDiscounts: productDiscountsReducer } });
 
 const wrap = (ui, store) => <Provider store={store}>{ui}</Provider>;
-
-afterEach(() => jest.clearAllMocks());
 
 describe('ProductDiscountEditForm (UC-DASH-02)', () => {
   it('precarga los valores actuales del descuento', () => {
@@ -67,13 +63,16 @@ describe('ProductDiscountEditForm (UC-DASH-02)', () => {
     expect(
       await screen.findByText(/fecha de fin no puede ser anterior/i),
     ).toBeInTheDocument();
-    expect(apiService.patch).not.toHaveBeenCalled();
   });
 
   it('envia PATCH con los campos modificados', async () => {
-    apiService.patch.mockResolvedValue({
-      data: { ...DISCOUNT, discount_pct: 20.0 },
-    });
+    let lastBody;
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ ...DISCOUNT, discount_pct: 20.0 });
+      }),
+    );
 
     const onClose = jest.fn();
     render(wrap(
@@ -88,20 +87,23 @@ describe('ProductDiscountEditForm (UC-DASH-02)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar cambios/i }));
 
     await waitFor(() => {
-      expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v2/admin/product-discounts/1/',
-        {
-          discount_pct: 20,
-          valid_from:   '2026-01-01',
-          valid_until:  '2026-12-31',
-        },
-      );
+      expect(lastBody).toMatchObject({
+        discount_pct: 20,
+        valid_from:   '2026-01-01',
+        valid_until:  '2026-12-31',
+      });
     });
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
 
   it('permite limpiar valid_until enviando null', async () => {
-    apiService.patch.mockResolvedValue({ data: DISCOUNT });
+    let lastBody;
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json(DISCOUNT);
+      }),
+    );
 
     render(wrap(
       <ProductDiscountEditForm discount={DISCOUNT} onClose={() => {}} />,
@@ -114,10 +116,7 @@ describe('ProductDiscountEditForm (UC-DASH-02)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar cambios/i }));
 
     await waitFor(() => {
-      expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v2/admin/product-discounts/1/',
-        expect.objectContaining({ valid_until: null }),
-      );
+      expect(lastBody).toMatchObject({ valid_until: null });
     });
   });
 });

@@ -13,7 +13,7 @@ export const triggerBackup = createAsyncThunk(
   'backups/trigger',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await apiService.post('/api/v2/admin/backups/trigger/', {});
+      const res = await apiService.post('/api/v2/admin/backups/', {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

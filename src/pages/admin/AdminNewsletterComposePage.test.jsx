@@ -2,19 +2,21 @@
  * Tests — AdminNewsletterComposePage
  * UC-NEW-04: el admin compone y envia (o programa) una campana.
  */
+// jsdom no implementa showModal() — polyfill para Modal
+HTMLDialogElement.prototype.showModal = jest.fn(function() { this.open = true; });
+HTMLDialogElement.prototype.close    = jest.fn(function() { this.open = false; });
+
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import newsletterReducer from '@redux/slices/newsletterSlice';
 import AdminNewsletterComposePage from './AdminNewsletterComposePage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { newsletter: newsletterReducer } });
@@ -25,8 +27,6 @@ const wrap = (ui, store) => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
   it('muestra el titulo del compositor', () => {
     render(wrap(<AdminNewsletterComposePage />, makeStore()));
@@ -36,16 +36,27 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
   });
 
   it('exige asunto, html y texto plano antes de enviar', () => {
+    let postCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, () => {
+        postCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(<AdminNewsletterComposePage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Enviar campa[nñ]a/i }));
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(postCalled).toBe(false);
     expect(screen.getByText(/El asunto es obligatorio/i)).toBeInTheDocument();
   });
 
   it('al enviar, hace POST a /api/v2/admin/newsletter/campaigns/', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 5, status: 'QUEUED', recipients_count: 120 },
-    });
+    let lastPostBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, async ({ request }) => {
+        lastPostBody = await request.json();
+        return HttpResponse.json({ id: 5, status: 'QUEUED', recipients_count: 120 }, { status: 201 });
+      }),
+    );
     render(wrap(<AdminNewsletterComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Asunto/i),
@@ -64,21 +75,21 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
       // Test antes asertaba {html_body, text_body, segment} soft-on-tests
       // del bug. UI ahora mapea html_body -> body + segment ALL_ACTIVE
       // -> audience_filter CONFIRMED (canon SubscriberStatus).
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/newsletter/campaigns/',
-        expect.objectContaining({
-          subject:         'Boletin de mayo',
-          body:            '<p>Hola</p>',
-          audience_filter: 'CONFIRMED',
-        }),
-      );
+      expect(lastPostBody).toMatchObject({
+        subject:         'Boletin de mayo',
+        body:            '<p>Hola</p>',
+        audience_filter: 'CONFIRMED',
+      });
     });
   });
 
   it('muestra el reporte de exito con el numero de destinatarios', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 5, status: 'QUEUED', recipients_count: 120 },
-    });
+    server.use(
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, async ({ request }) => {
+        await request.json();
+        return HttpResponse.json({ id: 5, status: 'QUEUED', recipients_count: 120 }, { status: 201 });
+      }),
+    );
     render(wrap(<AdminNewsletterComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Asunto/i),
@@ -102,7 +113,13 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
   // implemente scheduling. Anti-soft: el test antes asertaba
   // scheduled_at en payload que NO se enviaba al backend.
   it.skip('permite programar el envio futuro (deferred T-116b)', async () => {
-    apiService.post.mockResolvedValue({ data: { id: 6, status: 'SCHEDULED' } });
+    let lastPostBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, async ({ request }) => {
+        lastPostBody = await request.json();
+        return HttpResponse.json({ id: 6, status: 'SCHEDULED' }, { status: 201 });
+      }),
+    );
     render(wrap(<AdminNewsletterComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Asunto/i),
@@ -116,12 +133,9 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Enviar campa[nñ]a/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/newsletter/campaigns/',
-        expect.objectContaining({
-          scheduled_at: '2026-06-01T10:00',
-        }),
-      );
+      expect(lastPostBody).toMatchObject({
+        scheduled_at: '2026-06-01T10:00',
+      });
     });
   });
 });

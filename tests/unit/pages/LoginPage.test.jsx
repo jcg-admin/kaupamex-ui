@@ -42,7 +42,7 @@ describe('LoginPage', () => {
   it('renderiza el formulario de inicio de sesion', () => {
     renderPage();
     expect(screen.getByLabelText(/correo electr/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument();
   });
 

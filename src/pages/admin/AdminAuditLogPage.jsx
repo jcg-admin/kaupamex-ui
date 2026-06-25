@@ -8,6 +8,7 @@
  */
 import { useState } from 'react';
 import { useAuditLog } from '@hooks/domain/useAuditLog';
+import { DataTable } from '@components/common';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
 import styles from './AdminAuditLogPage.module.scss';
@@ -80,58 +81,46 @@ export default function AdminAuditLogPage() {
         <button type="submit">Filtrar</button>
       </form>
 
-      {isLoading && <p>Cargando auditoria…</p>}
       {isError && <p role="alert">No se pudo cargar el log.</p>}
 
-      {!isLoading && entries.length === 0 && !isError && (
-        <p>No hay entradas para los filtros aplicados.</p>
-      )}
+      <DataTable
+        columns={[
+          { key: 'timestamp',      header: 'Fecha',          sortable: true,
+            render: (e) => new Date(e.timestamp).toLocaleString('es-MX') },
+          { key: 'actor',          header: 'Actor',
+            render: (e) => e.actor_email ?? e.actor_id ?? '—' },
+          { key: 'action',         header: 'Accion',         sortable: true },
+          { key: 'resource',       header: 'Recurso',
+            render: (e) => e.resource_type ? `${e.resource_type}#${e.resource_id}` : '—' },
+          { key: 'correlation_id', header: 'Correlation ID',
+            render: (e) => <span className={styles.correlationCell}>{e.correlation_id}</span> },
+        ]}
+        rows={entries}
+        rowKey={(e) => e.id}
+        loading={isLoading}
+        emptyText="No hay entradas para los filtros aplicados."
+        caption="Registro de auditoria"
+        pageSize={0}
+      />
 
       {entries.length > 0 && (
-        <>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Actor</th>
-                <th>Accion</th>
-                <th>Recurso</th>
-                <th>Correlation ID</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((e) => (
-                <tr key={e.id}>
-                  <td>{new Date(e.timestamp).toLocaleString('es-MX')}</td>
-                  <td>{e.actor_email ?? e.actor_id ?? '—'}</td>
-                  <td>{e.action}</td>
-                  <td>
-                    {e.resource_type ? `${e.resource_type}#${e.resource_id}` : '—'}
-                  </td>
-                  <td className={styles.correlationCell}>{e.correlation_id}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className={styles.pagination}>
-            <span>{count} entradas · Pagina {page}</span>
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-            >
-              Anterior
-            </button>
-            <button
-              type="button"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!hasNext}
-            >
-              Siguiente
-            </button>
-          </div>
-        </>
+        <div className={styles.pagination}>
+          <span>{count} entradas · Pagina {page}</span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            Anterior
+          </button>
+          <button
+            type="button"
+            onClick={() => setPage((p) => p + 1)}
+            disabled={!hasNext}
+          >
+            Siguiente
+          </button>
+        </div>
       )}
     </section>
   );

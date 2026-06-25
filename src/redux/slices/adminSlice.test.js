@@ -2,19 +2,17 @@
  * Tests unitarios — adminSlice
  * UC-AUTH-11/12/13/14/15
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { configureStore } from '@reduxjs/toolkit';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
+import { waitFor } from '@testing-library/react';
 import adminReducer, {
   fetchAdminUsers, fetchAdminUser,
   suspendUser, reactivateUser, createAdminUser,
   setSearch, setPage, clearCurrentUser, clearActionState,
 } from './adminSlice';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { admin: adminReducer } });
@@ -23,8 +21,6 @@ const USER = {
   id: 42, username: 'buyer42', email: 'buyer42@test.mx',
   is_active: true, is_staff: false, date_joined: '2026-01-01T00:00:00Z',
 };
-
-afterEach(() => jest.clearAllMocks());
 
 // =============================================================================
 describe('adminSlice — reducers síncronos', () => {
@@ -61,17 +57,23 @@ describe('adminSlice — reducers síncronos', () => {
 // =============================================================================
 describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
   it('pending — isLoading=true, error=null', () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
+        new Promise(() => {}), // never resolves — simulate pending
+      ),
+    );
     const store = makeStore();
-    apiService.get.mockReturnValue(new Promise(() => {}));
     store.dispatch(fetchAdminUsers());
     expect(store.getState().admin.isLoading).toBe(true);
     expect(store.getState().admin.error).toBeNull();
   });
 
   it('fulfilled — hidrata users y paginación', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [USER], count: 1, next: null, previous: null },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
+        HttpResponse.json({ results: [USER], count: 1, next: null, previous: null }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUsers());
     const s = store.getState().admin;
@@ -83,7 +85,11 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
   });
 
   it('rejected — isLoading=false, error guardado', async () => {
-    apiService.get.mockRejectedValue(new Error('403 Forbidden'));
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
+        HttpResponse.json({ detail: '403 Forbidden' }, { status: 403 }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUsers());
     const s = store.getState().admin;
@@ -92,30 +98,42 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
   });
 
   it('llama a la URL correcta con params', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [], count: 0, next: null, previous: null },
-    });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ results: [], count: 0, next: null, previous: null });
+      }),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUsers({ search: 'ana', is_active: 'true' }));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/admin/users/',
-      { params: { search: 'ana', is_active: 'true' } }
-    );
+    await waitFor(() => expect(capturedUrl).toBeDefined());
+    const url = new URL(capturedUrl);
+    expect(url.searchParams.get('search')).toBe('ana');
+    expect(url.searchParams.get('is_active')).toBe('true');
   });
 });
 
 // =============================================================================
 describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
   it('pending — isLoadingUser=true, currentUser=null', () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
+        new Promise(() => {}),
+      ),
+    );
     const store = makeStore();
-    apiService.get.mockReturnValue(new Promise(() => {}));
     store.dispatch(fetchAdminUser(42));
     expect(store.getState().admin.isLoadingUser).toBe(true);
     expect(store.getState().admin.currentUser).toBeNull();
   });
 
   it('fulfilled — currentUser hidratado', async () => {
-    apiService.get.mockResolvedValue({ data: USER });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
+        HttpResponse.json(USER),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUser(42));
     expect(store.getState().admin.currentUser).toEqual(USER);
@@ -123,25 +141,42 @@ describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
   });
 
   it('rejected — userError guardado', async () => {
-    apiService.get.mockRejectedValue(new Error('404 Not Found'));
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/99999/`, () =>
+        HttpResponse.json({ detail: '404 Not Found' }, { status: 404 }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUser(99999));
     expect(store.getState().admin.userError).toBeDefined();
   });
 
   it('llama a la URL correcta', async () => {
-    apiService.get.mockResolvedValue({ data: USER });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/42/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(USER);
+      }),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUser(42));
-    expect(apiService.get).toHaveBeenCalledWith('/api/v2/admin/users/42/');
+    await waitFor(() => expect(capturedUrl).toBeDefined());
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/users/42/');
   });
 });
 
 // =============================================================================
 describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
   it('fulfilled — lastAction=suspended, is_active=false en currentUser', async () => {
-    apiService.get.mockResolvedValue({ data: USER });
-    apiService.post.mockResolvedValue({ data: { ...USER, is_active: false } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
+        HttpResponse.json(USER),
+      ),
+      http.post(`${BASE}/api/v2/admin/users/42/suspend/`, () =>
+        HttpResponse.json({ ...USER, is_active: false }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUser(42));
     await store.dispatch(suspendUser(42));
@@ -152,7 +187,11 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
   });
 
   it('rejected — actionError guardado', async () => {
-    apiService.post.mockRejectedValue(new Error('400 autoprotección'));
+    server.use(
+      http.post(`${BASE}/api/v2/admin/users/1/suspend/`, () =>
+        HttpResponse.json({ detail: '400 autoprotección' }, { status: 400 }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(suspendUser(1));
     expect(store.getState().admin.actionError).toBeDefined();
@@ -160,18 +199,31 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
   });
 
   it('llama a la URL correcta', async () => {
-    apiService.post.mockResolvedValue({ data: {} });
+    let capturedUrl;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/users/42/suspend/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({});
+      }),
+    );
     const store = makeStore();
     await store.dispatch(suspendUser(42));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v2/admin/users/42/suspend/', {});
+    await waitFor(() => expect(capturedUrl).toBeDefined());
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/users/42/suspend/');
   });
 });
 
 // =============================================================================
 describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
   it('fulfilled — lastAction=reactivated, is_active=true en currentUser', async () => {
-    apiService.get.mockResolvedValue({ data: { ...USER, is_active: false } });
-    apiService.post.mockResolvedValue({ data: { ...USER, is_active: true } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
+        HttpResponse.json({ ...USER, is_active: false }),
+      ),
+      http.post(`${BASE}/api/v2/admin/users/42/reactivate/`, () =>
+        HttpResponse.json({ ...USER, is_active: true }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchAdminUser(42));
     await store.dispatch(reactivateUser(42));
@@ -181,10 +233,17 @@ describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
   });
 
   it('llama a la URL correcta', async () => {
-    apiService.post.mockResolvedValue({ data: {} });
+    let capturedUrl;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/users/42/reactivate/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({});
+      }),
+    );
     const store = makeStore();
     await store.dispatch(reactivateUser(42));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v2/admin/users/42/reactivate/', {});
+    await waitFor(() => expect(capturedUrl).toBeDefined());
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/users/42/reactivate/');
   });
 });
 
@@ -193,7 +252,11 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
   it('fulfilled — lastAction=created, nuevo usuario prepend en lista', async () => {
     const newAdmin = { id: 99, username: 'newadmin', email: 'new@test.mx',
                        is_active: true, is_staff: true };
-    apiService.post.mockResolvedValue({ data: newAdmin });
+    server.use(
+      http.post(`${BASE}/api/v2/admin/users/`, () =>
+        HttpResponse.json(newAdmin),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(createAdminUser({
       username: 'newadmin', email: 'new@test.mx', password: 'Admin123!',
@@ -205,17 +268,28 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
   });
 
   it('rejected — actionError guardado', async () => {
-    apiService.post.mockRejectedValue(new Error('400 username en uso'));
+    server.use(
+      http.post(`${BASE}/api/v2/admin/users/`, () =>
+        HttpResponse.json({ detail: '400 username en uso' }, { status: 400 }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(createAdminUser({ username: 'dup', email: 'dup@test.mx', password: 'x' }));
     expect(store.getState().admin.actionError).toBeDefined();
   });
 
   it('llama a la URL correcta con los datos del usuario', async () => {
-    apiService.post.mockResolvedValue({ data: { id: 10 } });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/users/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 10 });
+      }),
+    );
     const store = makeStore();
     const payload = { username: 'adm', email: 'adm@test.mx', password: 'Adm123!' };
     await store.dispatch(createAdminUser(payload));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v2/admin/users/', payload);
+    await waitFor(() => expect(lastBody).toBeDefined());
+    expect(lastBody).toMatchObject(payload);
   });
 });

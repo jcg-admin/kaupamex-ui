@@ -3,7 +3,7 @@
  * UC-PRO-02: Listar / editar vouchers
  * UC-PRO-03: Desactivar voucher
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -11,6 +11,7 @@ import {
   clearVoucherActionState,
 } from '@redux/slices/vouchersSlice';
 import { useVouchers, VOUCHERS_QUERY_KEY } from '@hooks/domain/useVouchers';
+import { DataTable } from '@components/common';
 import VoucherCreateForm from '@components/admin/VoucherCreateForm';
 import VoucherEditForm from '@components/admin/VoucherEditForm';
 import styles from './AdminVouchersPage.module.scss';
@@ -40,8 +41,8 @@ export default function AdminVouchersPage() {
   const hasPrev = page > 1;
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.vouchers);
-  const [isCreateOpen, setCreateOpen]     = useState(false);
-  const [editVoucher,  setEditVoucher]    = useState(null);
+  const [isCreateOpen, setCreateOpen]  = useState(false);
+  const [editVoucher,  setEditVoucher] = useState(null);
 
   useEffect(() => {
     if (lastAction === 'created' || lastAction === 'updated' || lastAction === 'deactivated') {
@@ -60,6 +61,50 @@ export default function AdminVouchersPage() {
     dispatch(deactivateVoucher(voucher.id));
   };
 
+  const columns = useMemo(() => [
+    { key: 'code',         header: 'Codigo',        sortable: true },
+    { key: 'voucher_type', header: 'Tipo',           sortable: true,
+      render: (v) => TYPE_LABEL[v.voucher_type] ?? v.voucher_type },
+    { key: 'discount',     header: 'Valor',
+      render: (v) => formatValue(v) },
+    { key: 'max_uses',     header: 'Usos maximos',
+      render: (v) => v.max_uses ?? 'Sin limite' },
+    { key: 'valid_until',  header: 'Vigencia',
+      render: (v) => v.valid_until ? v.valid_until.slice(0, 10) : '—' },
+    { key: 'is_active',    header: 'Estado',
+      render: (v) => (
+        <span className={v.is_active ? styles.badgeActive : styles.badgeInactive}>
+          {v.is_active ? 'Activo' : 'Inactivo'}
+        </span>
+      ) },
+    { key: 'actions',      header: 'Acciones',
+      render: (v) => (
+        <>
+          <button
+            type="button"
+            className={styles.secondaryBtn}
+            aria-label={`Editar ${v.code}`}
+            onClick={() => setEditVoucher(v)}
+            disabled={isActioning}
+          >
+            Editar
+          </button>
+          {v.is_active && (
+            <button
+              type="button"
+              className={styles.dangerBtn}
+              aria-label={`Desactivar ${v.code}`}
+              onClick={() => handleDeactivate(v)}
+              disabled={isActioning}
+              style={{ marginLeft: '0.5rem' }}
+            >
+              Desactivar
+            </button>
+          )}
+        </>
+      ) },
+  ], [isActioning, setEditVoucher]); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <section className={styles.page} aria-labelledby="vouchers-title">
       <header className={styles.header}>
@@ -75,8 +120,6 @@ export default function AdminVouchersPage() {
         </button>
       </header>
 
-      {isLoading && <p>Cargando cupones…</p>}
-
       {isError && (
         <p role="alert" className={styles.error}>
           No se pudieron cargar los cupones. Intenta de nuevo.
@@ -91,66 +134,15 @@ export default function AdminVouchersPage() {
         </p>
       )}
 
-      {!isLoading && items.length === 0 && (
-        <p className={styles.empty}>No se encontraron cupones.</p>
-      )}
-
-      {items.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Codigo</th>
-              <th>Tipo</th>
-              <th>Valor</th>
-              <th>Usos maximos</th>
-              <th>Vigencia</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((v) => (
-              <tr key={v.id}>
-                <td>{v.code}</td>
-                <td>{TYPE_LABEL[v.voucher_type] ?? v.voucher_type}</td>
-                <td>{formatValue(v)}</td>
-                <td>{v.max_uses ?? 'Sin limite'}</td>
-                <td>{v.valid_until ? v.valid_until.slice(0, 10) : '—'}</td>
-                <td>
-                  <span
-                    className={v.is_active ? styles.badgeActive : styles.badgeInactive}
-                  >
-                    {v.is_active ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    type="button"
-                    className={styles.secondaryBtn}
-                    aria-label={`Editar ${v.code}`}
-                    onClick={() => setEditVoucher(v)}
-                    disabled={isActioning}
-                  >
-                    Editar
-                  </button>
-                  {v.is_active && (
-                    <button
-                      type="button"
-                      className={styles.dangerBtn}
-                      aria-label={`Desactivar ${v.code}`}
-                      onClick={() => handleDeactivate(v)}
-                      disabled={isActioning}
-                      style={{ marginLeft: '0.5rem' }}
-                    >
-                      Desactivar
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <DataTable
+        columns={columns}
+        rows={items}
+        rowKey={(v) => v.id}
+        loading={isLoading}
+        emptyText="No se encontraron cupones."
+        caption="Cupones de descuento"
+        pageSize={0}
+      />
 
       {/* H-CICLO106-01: controles de paginacion para navegar entre paginas
           de cupones cuando el total supera page_size=50 del API. */}

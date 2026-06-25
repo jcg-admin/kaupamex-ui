@@ -1,13 +1,9 @@
 /**
  * priceSyncSlice — UC-CAT-12.
  *
- * Mutaciones del flujo de sincronizacion de precios del admin:
- *   - previewCsv:          POST /api/v2/admin/price-sync/preview-csv/
- *                          (multipart, sin aplicar cambios)
- *   - applyCsv:            POST /api/v2/admin/price-sync/apply-csv/
- *                          (token retornado por preview, atomico)
- *   - previewPercentage:   POST /api/v2/admin/price-sync/preview-percentage/
- *   - applyPercentage:     POST /api/v2/admin/price-sync/apply-percentage/
+ * Mutaciones del flujo de sincronizacion de precios del admin.
+ * v2: todos los modos van a POST /api/v2/admin/price-syncs/ con
+ * { type: 'preview'|'apply', mode: 'csv'|'percentage', ...params }.
  *
  * Cada operacion devuelve `{ session_id, preview: [{ sku, old_price,
  * new_price, diff_pct, product_name }], valid_count, invalid_count }` cuando es
@@ -18,10 +14,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const PREVIEW_CSV_URL        = '/api/v2/admin/price-sync/preview-csv/';
-const APPLY_CSV_URL          = '/api/v2/admin/price-sync/apply-csv/';
-const PREVIEW_PERCENTAGE_URL = '/api/v2/admin/price-sync/preview-percentage/';
-const APPLY_PERCENTAGE_URL   = '/api/v2/admin/price-sync/apply-percentage/';
+const V2_PRICE_SYNCS_URL = '/api/v2/admin/price-syncs/';
 
 export const previewCsv = createAsyncThunk(
   'priceSync/previewCsv',
@@ -29,7 +22,9 @@ export const previewCsv = createAsyncThunk(
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await apiService.post(PREVIEW_CSV_URL, formData);
+      formData.append('type', 'preview');
+      formData.append('mode', 'csv');
+      const res = await apiService.post(V2_PRICE_SYNCS_URL, formData);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -41,7 +36,9 @@ export const applyCsv = createAsyncThunk(
   'priceSync/applyCsv',
   async ({ session_id }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(APPLY_CSV_URL, { session_id });
+      const res = await apiService.post(V2_PRICE_SYNCS_URL, {
+        type: 'apply', mode: 'csv', session_id,
+      });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -56,7 +53,9 @@ export const previewPercentage = createAsyncThunk(
   // maps them to the API field names expected by the backend (pct, category_id).
   async ({ percentage, category, price_min, price_max }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(PREVIEW_PERCENTAGE_URL, {
+      const res = await apiService.post(V2_PRICE_SYNCS_URL, {
+        type:        'preview',
+        mode:        'percentage',
         pct:         percentage,
         category_id: category   || undefined,
         price_min:   price_min  ?? undefined,
@@ -73,7 +72,9 @@ export const applyPercentage = createAsyncThunk(
   'priceSync/applyPercentage',
   async ({ session_id }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(APPLY_PERCENTAGE_URL, { session_id });
+      const res = await apiService.post(V2_PRICE_SYNCS_URL, {
+        type: 'apply', mode: 'percentage', session_id,
+      });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

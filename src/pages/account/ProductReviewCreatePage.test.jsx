@@ -6,15 +6,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import reviewsReducer from '@redux/slices/reviewsSlice';
 import ProductReviewCreatePage from './ProductReviewCreatePage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { reviews: reviewsReducer } });
@@ -32,34 +30,45 @@ const wrap = (path = '/account/orders/77/products/42/review') => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('ProductReviewCreatePage (UC-REV-01)', () => {
   it('muestra el formulario con selector de estrellas', () => {
     render(wrap());
     expect(
       screen.getByRole('heading', { name: /Dejar rese[nñ]a/i }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Calificaci[oó]n/i)).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: /Calificaci[oó]n/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/T[ií]tulo/i)).toBeInTheDocument();
   });
 
   it('exige titulo y texto con longitud minima', () => {
+    let postCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/products/42/reviews/`, () => {
+        postCalled = true;
+        return HttpResponse.json({ id: 11, status: 'PENDING_MODERATION' });
+      }),
+    );
+
     render(wrap());
     fireEvent.click(screen.getByRole('button', { name: /Enviar rese[nñ]a/i }));
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(postCalled).toBe(false);
     expect(
       screen.getByText(/T[ií]tulo y texto son obligatorios/i),
     ).toBeInTheDocument();
   });
 
   it('al enviar, hace POST al endpoint con order_id y rating', async () => {
-    apiService.post.mockResolvedValue({ data: { id: 11, status: 'PENDING_MODERATION' } });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/products/42/reviews/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 11, status: 'PENDING_MODERATION' });
+      }),
+    );
+
     render(wrap());
 
-    fireEvent.change(screen.getByLabelText(/Calificaci[oó]n/i), {
-      target: { value: '5' },
-    });
+    fireEvent.click(screen.getByRole('button', { name: '5 de 5 estrellas' }));
     fireEvent.change(screen.getByLabelText(/T[ií]tulo/i), {
       target: { value: 'Excelente producto' },
     });
@@ -69,24 +78,24 @@ describe('ProductReviewCreatePage (UC-REV-01)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Enviar rese[nñ]a/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/products/42/reviews/',
-        expect.objectContaining({
-          order_id: 77,
-          rating:   5,
-          title:    'Excelente producto',
-          body:     'Cumple con lo prometido y mas. Gran calidad.',
-        }),
-      );
+      expect(lastBody).toMatchObject({
+        order_id: 77,
+        rating:   5,
+        title:    'Excelente producto',
+        body:     'Cumple con lo prometido y mas. Gran calidad.',
+      });
     });
   });
 
   it('muestra confirmacion al recibir', async () => {
-    apiService.post.mockResolvedValue({ data: { id: 11, status: 'PENDING_MODERATION' } });
+    server.use(
+      http.post(`${BASE}/api/v2/products/42/reviews/`, async () => {
+        return HttpResponse.json({ id: 11, status: 'PENDING_MODERATION' });
+      }),
+    );
+
     render(wrap());
-    fireEvent.change(screen.getByLabelText(/Calificaci[oó]n/i), {
-      target: { value: '4' },
-    });
+    fireEvent.click(screen.getByRole('button', { name: '4 de 5 estrellas' }));
     fireEvent.change(screen.getByLabelText(/T[ií]tulo/i), {
       target: { value: 'Buen articulo' },
     });

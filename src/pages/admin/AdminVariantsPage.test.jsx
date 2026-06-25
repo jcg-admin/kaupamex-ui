@@ -6,16 +6,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: {
-    get: jest.fn(), post: jest.fn(), patch: jest.fn(),
-    put: jest.fn(), delete: jest.fn(),
-  },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import yorubaVariantsReducer from '@redux/slices/yorubaVariantsSlice';
 import AdminVariantsPage from './AdminVariantsPage';
 
@@ -40,11 +35,11 @@ const VARIANTS = [
   { id: 2, variant_type: 'Tamano', option_name: 'Grande', stock: 0,  price: 1800, is_active: false },
 ];
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminVariantsPage (UC-CHT-03)', () => {
   it('muestra el titulo del panel de variantes', async () => {
-    apiService.get.mockResolvedValue({ data: { results: VARIANTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+    );
     render(wrap(7, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Variantes del producto/i }),
@@ -52,7 +47,9 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
   });
 
   it('renderiza una fila por cada variante con tipo, opcion y stock', async () => {
-    apiService.get.mockResolvedValue({ data: { results: VARIANTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+    );
     render(wrap(7, makeStore()));
     expect(await screen.findByText('Chico')).toBeInTheDocument();
     expect(screen.getByText('Grande')).toBeInTheDocument();
@@ -60,7 +57,9 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
   });
 
   it('muestra estado vacio si no hay variantes', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: [] })),
+    );
     render(wrap(7, makeStore()));
     expect(
       await screen.findByText(/No hay variantes configuradas/i),
@@ -68,11 +67,19 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
   });
 
   it('permite crear una variante nueva enviando los datos al API', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
-    apiService.post.mockResolvedValue({
-      data: { id: 99, variant_type: 'Tamano', option_name: 'Mediano',
-              stock: 5, price: null, is_active: true },
-    });
+    let lastPostUrl;
+    let lastPostBody;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: [] })),
+      http.post(`${BASE}/api/v2/admin/products/7/variants/`, async ({ request }) => {
+        lastPostUrl = request.url;
+        lastPostBody = await request.json().catch(() => null);
+        return HttpResponse.json({
+          id: 99, variant_type: 'Tamano', option_name: 'Mediano',
+          stock: 5, price: null, is_active: true,
+        });
+      }),
+    );
     render(wrap(7, makeStore()));
     await screen.findByText(/No hay variantes configuradas/i);
 
@@ -85,22 +92,26 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear variante/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/products/7/variants/',
-        expect.objectContaining({
-          variant_type:  'Tamano',
-          option_name:   'Mediano',
-          initial_stock: 5,
-        }),
-      );
+      expect(lastPostUrl).toContain('/api/v2/admin/products/7/variants/');
+    });
+    expect(lastPostBody).toMatchObject({
+      variant_type:  'Tamano',
+      option_name:   'Mediano',
+      initial_stock: 5,
     });
   });
 
   it('permite alternar activo/inactivo en una variante existente', async () => {
-    apiService.get.mockResolvedValue({ data: { results: VARIANTS } });
-    apiService.patch.mockResolvedValue({
-      data: { ...VARIANTS[0], is_active: false },
-    });
+    let lastPatchUrl;
+    let lastPatchBody;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+      http.patch(`${BASE}/api/v2/admin/products/7/variants/1/`, async ({ request }) => {
+        lastPatchUrl = request.url;
+        lastPatchBody = await request.json().catch(() => null);
+        return HttpResponse.json({ ...VARIANTS[0], is_active: false });
+      }),
+    );
     render(wrap(7, makeStore()));
     await screen.findByText('Chico');
 
@@ -108,22 +119,24 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
     fireEvent.click(toggleBtns[0]);
 
     await waitFor(() => {
-      expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v2/admin/products/7/variants/1/',
-        expect.objectContaining({ is_active: false }),
-      );
+      expect(lastPatchUrl).toContain('/api/v2/admin/products/7/variants/1/');
     });
+    expect(lastPatchBody).toMatchObject({ is_active: false });
   });
 
   it('marca como Inactiva una variante con is_active=false', async () => {
-    apiService.get.mockResolvedValue({ data: { results: VARIANTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+    );
     render(wrap(7, makeStore()));
     await screen.findByText('Grande');
     expect(screen.getByText(/Inactiva/i)).toBeInTheDocument();
   });
 
   it('cada fila enlaza a la pagina de precio diferenciado', async () => {
-    apiService.get.mockResolvedValue({ data: { results: VARIANTS } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+    );
     render(wrap(7, makeStore()));
     const priceLinks = await screen.findAllByRole('link', { name: /Precio/i });
     expect(priceLinks[0]).toHaveAttribute('href', '/admin/variants/1/price');

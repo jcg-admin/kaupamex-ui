@@ -7,15 +7,13 @@ import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import inventoryReducer from '@redux/slices/inventorySlice';
 import AdminInventoryPage from './AdminInventoryPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { inventory: inventoryReducer } });
@@ -45,11 +43,20 @@ const RESPONSE = {
   summary: { productos_normales: 1, productos_bajo_stock: 1, productos_agotados: 1 },
 };
 
-afterEach(() => jest.clearAllMocks());
+let lastInventoryUrl;
+
+beforeEach(() => {
+  lastInventoryUrl = undefined;
+  server.use(
+    http.get(`${BASE}/api/v2/admin/inventory/`, ({ request }) => {
+      lastInventoryUrl = new URL(request.url);
+      return HttpResponse.json(RESPONSE);
+    }),
+  );
+});
 
 describe('AdminInventoryPage (UC-INV-01)', () => {
   it('muestra el titulo del panel de inventario', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminInventoryPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Inventario/i }),
@@ -57,7 +64,6 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
   });
 
   it('renderiza una fila por cada variante con su SKU y stock', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminInventoryPage />, makeStore()));
     expect(await screen.findByText('SKU-001')).toBeInTheDocument();
     expect(screen.getByText('SKU-002')).toBeInTheDocument();
@@ -66,7 +72,6 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
   });
 
   it('muestra el panel resumen con conteos por estado', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminInventoryPage />, makeStore()));
     await screen.findByText('SKU-001');
     const summary = screen.getByLabelText(/Resumen de inventario/i);
@@ -76,10 +81,8 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
   });
 
   it('marca visualmente las variantes BAJO y AGOTADO', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminInventoryPage />, makeStore()));
     await screen.findByText('SKU-001');
-    // Badges aparecen en la fila (no solo en el filtro)
     const bajoMatches    = screen.getAllByText('Bajo');
     const agotadoMatches = screen.getAllByText('Agotado');
     expect(bajoMatches.length).toBeGreaterThan(0);
@@ -87,7 +90,6 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
   });
 
   it('filtra por estado al cambiar el selector', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminInventoryPage />, makeStore()));
     await screen.findByText('SKU-001');
 
@@ -95,17 +97,11 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
       { target: { value: 'BAJO' } });
 
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v2/admin/inventory/',
-        expect.objectContaining({
-          params: expect.objectContaining({ status: 'BAJO' }),
-        }),
-      );
+      expect(lastInventoryUrl?.searchParams.get('status')).toBe('BAJO');
     });
   });
 
   it('cada fila enlaza a la pagina de ajuste y a movimientos', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
     render(wrap(<AdminInventoryPage />, makeStore()));
     const adjustLinks = await screen.findAllByRole('link', { name: /Ajustar/i });
     expect(adjustLinks[0]).toHaveAttribute('href', '/admin/inventory/10/adjust');
@@ -114,7 +110,11 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
   });
 
   it('muestra estado vacio si no hay variantes', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], summary: null } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/inventory/`, () =>
+        HttpResponse.json({ results: [], summary: null }),
+      ),
+    );
     render(wrap(<AdminInventoryPage />, makeStore()));
     expect(
       await screen.findByText(/No hay productos en inventario/i),

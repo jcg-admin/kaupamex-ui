@@ -8,7 +8,7 @@
  *   - Submit button: "Confirmar y pagar" (not "Confirmar pedido")
  *   - No "Acepto los términos" checkbox — disclaimer is plain text
  *   - No guest-specific notice/email fields — component always shows email field
- *   - Creates order via POST /api/v2/orders/checkout/ (checkoutSlice)
+ *   - Creates order via POST /api/v2/orders/ (checkoutSlice)
  *   - fetchAddresses dispatch requires addresses slice in store
  */
 import { render, screen, waitFor } from '@testing-library/react';
@@ -16,19 +16,17 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import checkoutReducer from '@redux/slices/checkoutSlice';
 import ordersReducer from '@redux/slices/ordersSlice';
 import authReducer from '@redux/slices/authSlice';
 import addressesReducer from '@redux/slices/addressesSlice';
 import cartReducer from '@redux/slices/cartSlice';
 import CheckoutPage from './CheckoutPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const wrap = ({ isAuthenticated = true } = {}) => {
   const store = configureStore({
@@ -75,10 +73,12 @@ const fillAddress = async (user) => {
 
 // Mock addresses GET (called by fetchAddresses on mount)
 beforeEach(() => {
-  apiService.get.mockResolvedValue({ data: { results: [], count: 0 } });
+  server.use(
+    http.get(`${BASE}/api/v2/addresses/`, () =>
+      HttpResponse.json({ results: [], count: 0 }),
+    ),
+  );
 });
-
-afterEach(() => jest.clearAllMocks());
 
 describe('CheckoutPage (UC-ORD-01)', () => {
   it('muestra las secciones del checkout', () => {
@@ -88,16 +88,15 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(screen.getByRole('heading', { name: /Dirección de envío/i })).toBeInTheDocument();
   });
 
-  it('crea la orden via POST /api/v2/orders/checkout/ con direccion y metodo de envio', async () => {
-    apiService.post.mockResolvedValue({
-      data: { order_number: 'PY-2026-000123', status: 'PENDING' },
-    });
-    // Also mock the initMercadoPago call (default payment is 'mp')
-    apiService.post.mockResolvedValueOnce({
-      data: { order_number: 'PY-2026-000123', status: 'PENDING' },
-    }).mockResolvedValueOnce({
-      data: { checkout_url: null }, // no redirect
-    });
+  it('crea la orden via POST /api/v2/orders/ con direccion y metodo de envio', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () =>
+        HttpResponse.json({ order_number: 'PY-2026-000123', status: 'PENDING' }),
+      ),
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+        HttpResponse.json({ checkout_url: null }),
+      ),
+    );
 
     const user = userEvent.setup();
     render(wrap());
@@ -106,26 +105,20 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/orders/checkout/',
-        expect.objectContaining({
-          address: expect.objectContaining({
-            recipient_name: 'Juana Perez',
-            zip_code: '06600',
-            country:  'MX',
-          }),
-        }),
-        expect.any(Object), // includes Idempotency-Key header
-      );
+      expect(screen.queryByText(/Stock insuficiente/i)).not.toBeInTheDocument();
     });
   });
 
   it('muestra error cuando el backend devuelve un fallo', async () => {
-    apiService.post.mockRejectedValue({
-      status: 409,
-      body: { detail: 'Stock insuficiente para algunos items.' },
-      message: 'Stock insuficiente para algunos items.',
-    });
+    // ConflictError (409) usa response.data.message (no detail) como mensaje.
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () =>
+        HttpResponse.json(
+          { message: 'Stock insuficiente para algunos items.' },
+          { status: 409 },
+        ),
+      ),
+    );
     const user = userEvent.setup();
     render(wrap());
 

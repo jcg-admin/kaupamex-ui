@@ -27,8 +27,8 @@ const CART_URL          = '/api/v2/cart/';
 const CART_ITEMS_URL    = '/api/v2/cart/items/';
 const CART_ITEM_URL     = (id) => `/api/v2/cart/items/${id}/`;
 const CART_VOUCHER_URL  = '/api/v2/cart/voucher/';
-const CART_SAVE_URL     = '/api/v2/cart/save/';
-const CART_SYNC_URL     = '/api/v2/cart/merge/';
+const CART_SAVE_URL     = '/api/v2/cart/snapshots/';
+const CART_SYNC_URL     = '/api/v2/cart/merges/';
 
 // ─── Thunks ───────────────────────────────────────────────────────────
 

@@ -7,18 +7,12 @@ import { Provider }    from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-// jest.mock se eleva (hoisting) antes que cualquier import.
-// El jest.fn() DENTRO del factory siempre funciona correctamente.
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-// Importar el mock YA reemplazado para usar .mockResolvedValue en los tests
-import apiService from '@services/apiService';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import catalogReducer, { setFilter } from '@redux/slices/catalogSlice';
 import CatalogPage from './CatalogPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 // --- Helpers ---
 const makeStore = () =>
@@ -49,79 +43,74 @@ const PRODUCTS = [
 ];
 
 const pageOf = (results = []) => ({
-  data: { results, count: results.length, next: null, previous: null, active_filters: {} },
+  results, count: results.length, next: null, previous: null, active_filters: {},
 });
 
 /**
- * Las llamadas de CatalogFilters a /api/v2/categories/ (UC-CAT-08)
- * comparten la misma instancia mockeada de apiService.get. Para que
- * los asserts de productos no se contaminen con nombres de categoria,
- * un beforeEach instala un interceptor por URL: cualquier path con
- * "/categories" devuelve un fixture neutro; el resto cae al
- * comportamiento de los tests (mockResolvedValueOnce + apiService.get).
+ * CatalogFilters calls /api/v2/catalogue/categories/ (UC-CAT-08).
+ * A neutral fixture avoids category names polluting product asserts.
  */
 const CATEGORIES_FIXTURE = [
   { id: 100, slug: 'cat-pruebas', name: 'CategoriaPruebas', product_count: 0, children: [] },
 ];
 
 beforeEach(() => {
-  // Atajo de categorias: si la URL trae /categories, devolver fixture
-  // antes de delegar al mock real para el resto de URLs.
-  const originalGet = apiService.get;
-  apiService.get = jest.fn((url, ...rest) => {
-    if (typeof url === 'string' && url.includes('/categories')) {
-      return Promise.resolve({ data: { results: CATEGORIES_FIXTURE, count: 1 } });
-    }
-    return originalGet(url, ...rest);
-  });
-  // Preservar API mock para los tests (mockResolvedValueOnce, etc.)
-  apiService.get.mockResolvedValue       = originalGet.mockResolvedValue.bind(originalGet);
-  apiService.get.mockResolvedValueOnce   = originalGet.mockResolvedValueOnce.bind(originalGet);
-  apiService.get.mockRejectedValue       = originalGet.mockRejectedValue.bind(originalGet);
-  apiService.get.mockReturnValue         = originalGet.mockReturnValue.bind(originalGet);
-  apiService.get.mockImplementation      = originalGet.mockImplementation.bind(originalGet);
-  apiService.get.mockReset               = originalGet.mockReset.bind(originalGet);
+  server.use(
+    http.get(`${BASE}/api/v2/catalogue/categories/`, () =>
+      HttpResponse.json({ results: CATEGORIES_FIXTURE, count: 1 }),
+    ),
+    http.get(`${BASE}/api/v2/catalogue/`, () =>
+      HttpResponse.json(pageOf()),
+    ),
+  );
 });
-
-afterEach(() => jest.clearAllMocks());
 
 // =============================================================================
 describe('CatalogPage — listado (UC-CAT-01)', () => {
   it('muestra el título del catálogo', async () => {
-    apiService.get.mockResolvedValue(pageOf());
     render(wrap(<CatalogPage />, makeStore()));
     expect(await screen.findByRole('heading', { name: /Objetos rituales/i }))
       .toBeInTheDocument();
   });
 
   it('muestra la barra de búsqueda', async () => {
-    apiService.get.mockResolvedValue(pageOf());
     render(wrap(<CatalogPage />, makeStore()));
     expect(await screen.findByRole('searchbox')).toBeInTheDocument();
   });
 
   it('renderiza los productos devueltos por la API', async () => {
-    apiService.get.mockResolvedValue(pageOf(PRODUCTS));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        HttpResponse.json(pageOf(PRODUCTS)),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     expect(await screen.findByText('Collar Oshun')).toBeInTheDocument();
     expect(await screen.findByText('Pulsera Yemaya')).toBeInTheDocument();
   });
 
   it('muestra mensaje de catálogo vacío', async () => {
-    apiService.get.mockResolvedValue(pageOf());
     render(wrap(<CatalogPage />, makeStore()));
     expect(await screen.findByText(/Catálogo vacío/i))
       .toBeInTheDocument();
   });
 
   it('muestra spinner al cargar', () => {
-    apiService.get.mockReturnValue(new Promise(() => {})); // nunca resuelve
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        new Promise(() => {}), // never resolves
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     expect(screen.getByText(/Cargando catálogo/i)).toBeInTheDocument();
   });
 
   it('muestra alerta de error si el API falla', async () => {
-    apiService.get.mockRejectedValue(new Error('Network error'));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        HttpResponse.json({ detail: 'Error' }, { status: 400 }),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     expect(await screen.findByRole('alert')).toBeInTheDocument();
   });
@@ -130,7 +119,6 @@ describe('CatalogPage — listado (UC-CAT-01)', () => {
 // =============================================================================
 describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
   it('muestra error de validación si el término tiene menos de 2 chars', async () => {
-    apiService.get.mockResolvedValue(pageOf());
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByRole('searchbox');
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'a' } });
@@ -141,7 +129,11 @@ describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
   });
 
   it('no muestra error con 2 o más caracteres', async () => {
-    apiService.get.mockResolvedValue(pageOf());
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/search/`, () =>
+        HttpResponse.json(pageOf()),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByRole('searchbox');
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'os' } });
@@ -152,9 +144,11 @@ describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
   });
 
   it('muestra "Resultados de búsqueda" tras una búsqueda', async () => {
-    apiService.get
-      .mockResolvedValueOnce(pageOf())              // fetchProducts al montar
-      .mockResolvedValueOnce(pageOf([PRODUCTS[0]])); // searchProducts
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/search/`, () =>
+        HttpResponse.json(pageOf([PRODUCTS[0]])),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByRole('searchbox');
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'oshun' } });
@@ -163,9 +157,11 @@ describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
   });
 
   it('muestra los productos encontrados', async () => {
-    apiService.get
-      .mockResolvedValueOnce(pageOf())
-      .mockResolvedValueOnce(pageOf([PRODUCTS[0]]));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/search/`, () =>
+        HttpResponse.json(pageOf([PRODUCTS[0]])),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByRole('searchbox');
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'oshun' } });
@@ -174,9 +170,11 @@ describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
   });
 
   it('muestra estado sin resultados cuando la API retorna 0', async () => {
-    apiService.get
-      .mockResolvedValueOnce(pageOf())
-      .mockResolvedValueOnce(pageOf());
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/search/`, () =>
+        HttpResponse.json(pageOf()),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByRole('searchbox');
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'xyzinexistente' } });
@@ -185,9 +183,11 @@ describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
   });
 
   it('muestra botón "Ver catálogo completo" en modo búsqueda', async () => {
-    apiService.get
-      .mockResolvedValueOnce(pageOf())
-      .mockResolvedValueOnce(pageOf([PRODUCTS[0]]));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/search/`, () =>
+        HttpResponse.json(pageOf([PRODUCTS[0]])),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByRole('searchbox');
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'oshun' } });
@@ -201,27 +201,43 @@ describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
 // =============================================================================
 describe('CatalogPage — ProductCard', () => {
   it('muestra badge Destacado cuando is_featured=true', async () => {
-    apiService.get.mockResolvedValue(pageOf([PRODUCTS[0]]));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        HttpResponse.json(pageOf([PRODUCTS[0]])),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     expect(await screen.findByText('Destacado')).toBeInTheDocument();
   });
 
   it('no muestra badge Destacado cuando is_featured=false', async () => {
-    apiService.get.mockResolvedValue(pageOf([PRODUCTS[1]]));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        HttpResponse.json(pageOf([PRODUCTS[1]])),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     await screen.findByText('Pulsera Yemaya');
     expect(screen.queryByText('Destacado')).not.toBeInTheDocument();
   });
 
   it('muestra el precio con IVA', async () => {
-    apiService.get.mockResolvedValue(pageOf([PRODUCTS[0]]));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        HttpResponse.json(pageOf([PRODUCTS[0]])),
+      ),
+    );
     render(wrap(<CatalogPage />, makeStore()));
     // Price component uses es-MX currency format: "$1,450"
     expect(await screen.findByText(/1,450/)).toBeInTheDocument();
   });
 
   it('cada tarjeta enlaza al detalle del producto', async () => {
-    apiService.get.mockResolvedValue(pageOf([PRODUCTS[0]]));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        HttpResponse.json(pageOf([PRODUCTS[0]])),
+      ),
+    );
     const { container } = render(wrap(<CatalogPage />, makeStore()));
     await screen.findByText('Collar Oshun');
     // ProductCard wraps image in a Link to /catalog/:slug
@@ -232,19 +248,26 @@ describe('CatalogPage — ProductCard', () => {
 
 // =============================================================================
 describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
-  // Reset to a clean direct mock for these tests to avoid beforeEach wrapper stacking
+  // Reset to a clean direct handler for these tests
   beforeEach(() => {
-    // Replace with a fresh jest.fn that handles both categories and catalogue
-    jest.resetAllMocks();
-    apiService.get.mockImplementation((url) => {
-      if (typeof url === 'string' && url.includes('/categories')) {
-        return Promise.resolve({ data: { results: CATEGORIES_FIXTURE, count: 1 } });
-      }
-      return Promise.resolve(pageOf(PRODUCTS));
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/categories/`, () =>
+        HttpResponse.json({ results: CATEGORIES_FIXTURE, count: 1 }),
+      ),
+      http.get(`${BASE}/api/v2/catalogue/`, () =>
+        HttpResponse.json(pageOf(PRODUCTS)),
+      ),
+    );
   });
 
   it('reenvia el param ?cat=<slug> a fetchProducts', async () => {
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(pageOf(PRODUCTS));
+      }),
+    );
     render(
       <Provider store={makeStore()}>
         <QueryClientProvider client={makeClient()}>
@@ -255,21 +278,19 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
       </Provider>,
     );
     await waitFor(() => {
-      // CatalogPage reads searchParams.get('cat') and passes as `category` param to fetchProducts
-      // All apiService.get calls are recorded; find one for catalogue with category param
-      const calls = apiService.get.mock.calls;
-      const catalogueCall = calls.find(
-        ([url, opts]) => typeof url === 'string' && url.includes('/api/v2/catalogue/')
-          && !url.includes('/search/')
-          && opts?.params?.category !== undefined,
-      );
-      expect(catalogueCall).toBeDefined();
-      expect(catalogueCall[1].params.category).toBe('collares');
+      expect(capturedUrl).toBeDefined();
+      expect(new URL(capturedUrl).searchParams.get('category')).toBe('collares');
     }, { timeout: 3000 });
   });
 
   it('reenvia price_min y price_max a fetchProducts (UC-CAT-05)', async () => {
-    // Use URL params to trigger price filters via Redux store directly
+    const capturedUrls = [];
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/`, ({ request }) => {
+        capturedUrls.push(request.url);
+        return HttpResponse.json(pageOf(PRODUCTS));
+      }),
+    );
     const store = makeStore();
     render(
       <Provider store={store}>
@@ -282,20 +303,19 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
     );
     // Wait for initial load
     await waitFor(() => {
-      expect(apiService.get.mock.calls.some(
-        ([url]) => typeof url === 'string' && url.includes('/api/v2/catalogue/')
-      )).toBe(true);
+      expect(capturedUrls.length).toBeGreaterThan(0);
     });
     // Dispatch filter directly to trigger re-fetch with price params
     store.dispatch(setFilter({ priceMin: 100, priceMax: 500 }));
     await waitFor(() => {
-      const calls = apiService.get.mock.calls;
-      const catalogueCall = calls.find(
-        ([url, opts]) => typeof url === 'string' && url.includes('/api/v2/catalogue/')
-          && (opts?.params?.price_min !== undefined),
-      );
-      expect(catalogueCall?.[1]?.params?.price_min).toBe(100);
-      expect(catalogueCall?.[1]?.params?.price_max).toBe(500);
+      const priceUrl = capturedUrls.find((url) => {
+        const params = new URL(url).searchParams;
+        return params.get('price_min') !== null;
+      });
+      expect(priceUrl).toBeDefined();
+      const params = new URL(priceUrl).searchParams;
+      expect(params.get('price_min')).toBe('100');
+      expect(params.get('price_max')).toBe('500');
     });
   });
 });

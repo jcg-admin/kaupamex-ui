@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { fetchProfile, updateProfile, uploadAvatar } from '@redux/slices/authSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Button, Field } from '@components/common/primitives';
+import { FileUpload } from '@components/common';
 import styles from './ProfilePage.module.scss';
 
 export default function ProfilePage() {
@@ -50,9 +51,8 @@ export default function ProfilePage() {
     }
   };
 
-  const handleAvatar = (e) => {
-    const file = e.target.files?.[0];
-    if (file) dispatch(uploadAvatar(file));
+  const handleAvatar = (files) => {
+    if (files[0]) dispatch(uploadAvatar(files[0]));
   };
 
   return (
@@ -84,10 +84,14 @@ export default function ProfilePage() {
               <div>
                 <div className={styles.avatarTitle}>Foto de perfil</div>
                 <div className={styles.avatarDesc}>JPG o PNG, máximo 5 MB. La redimensionamos a 800×800.</div>
-                <label className={styles.avatarBtn}>
-                  Subir nueva foto
-                  <input type="file" accept="image/jpeg,image/png" onChange={handleAvatar} hidden />
-                </label>
+                <FileUpload
+                  accept="image/jpeg,image/png"
+                  value={[]}
+                  onChange={handleAvatar}
+                  label="Subir nueva foto"
+                  hint="JPG o PNG, máximo 5 MB"
+                  maxSizeBytes={5 * 1024 * 1024}
+                />
               </div>
             </div>
 

@@ -10,7 +10,8 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { confirmPasswordReset } from '@redux/slices/authSlice';
-import { Button, Field, MetaTag } from '@components/common/primitives';
+import { Button, MetaTag } from '@components/common/primitives';
+import { PasswordInput } from '@components/common';
 import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './AuthSimplePage.module.scss';
 
@@ -63,21 +64,19 @@ export default function ResetPasswordPage() {
         </p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-          <Field
+          <PasswordInput
             label="Nueva contraseña"
-            type="password"
             value={pwd.next}
             onChange={(e) => setPwd({ ...pwd, next: e.target.value })}
-            required
             placeholder="mínimo 8 caracteres"
+            autoComplete="new-password"
           />
-          <Field
+          <PasswordInput
             label="Confirmar contraseña"
-            type="password"
             value={pwd.confirm}
             onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })}
-            required
             error={error}
+            autoComplete="new-password"
           />
           <div style={{ fontFamily: 'var(--f-mono)', fontSize: 11, color: 'var(--c-ink-mute)', lineHeight: 1.85 }}>
             · Mínimo 8 caracteres &nbsp;

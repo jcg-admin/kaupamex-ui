@@ -18,7 +18,7 @@ import { serializeApiError } from '@utils/serializeApiError';
 
 const WISHLIST_URL      = '/api/v2/wishlist/';
 const WISHLIST_ITEM_URL = (itemId) => `/api/v2/wishlist/${itemId}/`;
-const MOVE_TO_CART_URL  = (itemId) => `/api/v2/wishlist/${itemId}/move-to-cart/`;
+const MOVE_TO_CART_URL  = (itemId) => `/api/v2/wishlist/${itemId}/cart-transfers/`;
 
 // =============================================================================
 // Thunks

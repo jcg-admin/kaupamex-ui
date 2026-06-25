@@ -3,14 +3,12 @@
  */
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import { useWishlist } from './useWishlist';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeWrapper = () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -19,17 +17,18 @@ const makeWrapper = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('useWishlist (UC-WISH-02)', () => {
   it('devuelve items normalizados con total_items', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [{ id: 1, product_id: 7 }, { id: 2, product_id: 8 }],
-        total_items: 2,
-        items_out_of_stock: 1,
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
+        HttpResponse.json({
+          results: [{ id: 1, product_id: 7 }, { id: 2, product_id: 8 }],
+          total_items: 2,
+          items_out_of_stock: 1,
+        }),
+      ),
+    );
+
     const { result } = renderHook(() => useWishlist(), {
       wrapper: makeWrapper(),
     });
@@ -37,21 +36,23 @@ describe('useWishlist (UC-WISH-02)', () => {
     expect(result.current.data.items).toHaveLength(2);
     expect(result.current.data.total_items).toBe(2);
     expect(result.current.data.items_out_of_stock).toBe(1);
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/wishlist/',
-      expect.objectContaining({ params: {} }),
-    );
   });
 
   it('propaga params de filtro disponibilidad', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/wishlist/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ results: [] });
+      }),
+    );
+
     renderHook(() => useWishlist({ availability: 'IN_STOCK' }), {
       wrapper: makeWrapper(),
     });
-    await waitFor(() => expect(apiService.get).toHaveBeenCalled());
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/wishlist/',
-      expect.objectContaining({ params: { availability: 'IN_STOCK' } }),
-    );
+    await waitFor(() => expect(capturedUrl).toBeDefined());
+    await waitFor(() => {
+      expect(new URL(capturedUrl).searchParams.get('availability')).toBe('IN_STOCK');
+    });
   });
 });

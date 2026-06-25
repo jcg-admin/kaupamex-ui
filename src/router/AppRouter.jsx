@@ -47,6 +47,7 @@ const RegisterPage    = lazy(() => import('@pages/auth/RegisterPage'));
 const ForgotPasswordPage = lazy(() => import('@pages/auth/ForgotPasswordPage'));
 const ResetPasswordPage  = lazy(() => import('@pages/auth/ResetPasswordPage'));
 const VerifyEmailPage    = lazy(() => import('@pages/auth/VerifyEmailPage'));
+const TwoFactorPage      = lazy(() => import('@pages/auth/TwoFactorPage'));
 
 // Lazy pages — Cuenta del comprador
 const AccountPage     = lazy(() => import('@pages/account/AccountPage'));
@@ -182,6 +183,8 @@ export default function AppRouter() {
             <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
             {/* UC-AUTH-10 — Verificar email (token en query string) */}
             <Route path="verify-email"             element={<VerifyEmailPage />} />
+            {/* UC-AUTH-2FA — Verificacion en dos pasos (OTP) */}
+            <Route path="two-factor"               element={<TwoFactorPage />} />
           </Route>
 
           {/* --- Checkout: requiere autenticacion --- */}

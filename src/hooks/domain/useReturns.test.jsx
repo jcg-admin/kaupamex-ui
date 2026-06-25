@@ -3,14 +3,12 @@
  */
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import { useReturns, useReturn, useAdminReturns } from './useReturns';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeWrapper = () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -19,27 +17,38 @@ const makeWrapper = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('useReturns hooks', () => {
   it('useReturns retorna la lista', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [{ id: 7 }] } });
+    server.use(
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
+        HttpResponse.json({ results: [{ id: 7 }] }),
+      ),
+    );
+
     const { result } = renderHook(() => useReturns(), { wrapper: makeWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([{ id: 7 }]);
   });
 
   it('useReturn(id) carga el detalle', async () => {
-    apiService.get.mockResolvedValue({ data: { id: 7, status: 'PENDING_REVIEW' } });
+    server.use(
+      http.get(`${BASE}/api/v2/return-requests/7/`, () =>
+        HttpResponse.json({ id: 7, status: 'PENDING_REVIEW' }),
+      ),
+    );
+
     const { result } = renderHook(() => useReturn(7), { wrapper: makeWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data.status).toBe('PENDING_REVIEW');
   });
 
   it('useAdminReturns con filtro de estado', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [], metrics: { pendientes: 3 } },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () =>
+        HttpResponse.json({ results: [], metrics: { pendientes: 3 } }),
+      ),
+    );
+
     const { result } = renderHook(
       () => useAdminReturns({ status: 'PENDING_REVIEW' }),
       { wrapper: makeWrapper() },

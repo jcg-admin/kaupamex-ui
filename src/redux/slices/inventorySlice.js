@@ -14,10 +14,10 @@ import { serializeApiError } from '@utils/serializeApiError';
 
 const STOCK_URL      = '/api/v2/admin/inventory/';
 const MOVEMENTS      = (variantId) => `/api/v2/admin/inventory/variants/${variantId}/movements/`;
-const ADJUST         = (variantId) => `/api/v2/admin/inventory/variants/${variantId}/adjust/`;
+const ADJUST         = (variantId) => `/api/v2/admin/inventory/variants/${variantId}/`;
 // H-CICLO110-03: endpoint para productos sin variante.
-const ADJUST_PRODUCT = (productId) => `/api/v2/admin/inventory/${productId}/adjust/`;
-const IMPORT_CSV     = '/api/v2/admin/inventory/import/';
+const ADJUST_PRODUCT = (productId) => `/api/v2/admin/inventory/${productId}/`;
+const IMPORT_CSV     = '/api/v2/admin/inventory/imports/';
 
 // =============================================================================
 // Thunks
@@ -54,7 +54,7 @@ export const adjustStockManually = createAsyncThunk(
   'inventory/adjustStock',
   async ({ variantId, newQuantity, reason, observations = '' }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADJUST(variantId), {
+      const res = await apiService.patch(ADJUST(variantId), {
         new_quantity: newQuantity,
         reason,
         observations,
@@ -75,7 +75,7 @@ export const adjustProductStockManually = createAsyncThunk(
   'inventory/adjustProductStock',
   async ({ productId, delta, reason, notes = '' }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADJUST_PRODUCT(productId), {
+      const res = await apiService.patch(ADJUST_PRODUCT(productId), {
         delta,
         reason,
         notes,

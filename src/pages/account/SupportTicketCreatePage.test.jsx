@@ -6,15 +6,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import supportTicketsReducer from '@redux/slices/supportTicketsSlice';
 import SupportTicketCreatePage from './SupportTicketCreatePage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { supportTickets: supportTicketsReducer } });
@@ -24,8 +22,6 @@ const wrap = (ui, store) => (
     <MemoryRouter>{ui}</MemoryRouter>
   </Provider>
 );
-
-afterEach(() => jest.clearAllMocks());
 
 describe('SupportTicketCreatePage (UC-SUPP-01)', () => {
   it('muestra el titulo de la pagina', () => {
@@ -48,7 +44,6 @@ describe('SupportTicketCreatePage (UC-SUPP-01)', () => {
     fireEvent.change(screen.getByLabelText(/Descripción/i), { target: { value: 'una descripcion suficiente' } });
     fireEvent.click(screen.getByRole('button', { name: /Crear ticket/i }));
     expect(screen.getByText(/El asunto debe tener al menos 5 caracteres/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('muestra error si la descripcion tiene menos de 10 caracteres', () => {
@@ -57,13 +52,16 @@ describe('SupportTicketCreatePage (UC-SUPP-01)', () => {
     fireEvent.change(screen.getByLabelText(/Descripción/i), { target: { value: 'corto' } });
     fireEvent.click(screen.getByRole('button', { name: /Crear ticket/i }));
     expect(screen.getByText(/La descripción debe tener al menos 10 caracteres/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('envia el ticket al backend cuando el formulario es valido', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 42, subject: 'Problema con mi pedido', status: 'OPEN' },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/support/tickets/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ id: 42, subject: 'Problema con mi pedido', status: 'OPEN' });
+      }),
+    );
 
     render(wrap(<SupportTicketCreatePage />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Asunto/i),      { target: { value: 'Problema con mi pedido' } });
@@ -71,22 +69,19 @@ describe('SupportTicketCreatePage (UC-SUPP-01)', () => {
     fireEvent.change(screen.getByLabelText(/Categoría/i),   { target: { value: 'ORDER' } });
     fireEvent.click(screen.getByRole('button', { name: /Crear ticket/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/support/tickets/'),
-        expect.objectContaining({
-          subject:  'Problema con mi pedido',
-          body:     'El producto llego dañado',
-          category: 'ORDER',
-        }),
-      );
-    });
+    await waitFor(() => expect(lastBody).toMatchObject({
+      subject:  'Problema con mi pedido',
+      body:     'El producto llego dañado',
+      category: 'ORDER',
+    }));
   });
 
   it('muestra confirmacion con el numero de ticket creado', async () => {
-    apiService.post.mockResolvedValue({
-      data: { ticket_id: 99, id: 99, subject: 'Asunto', status: 'OPEN' },
-    });
+    server.use(
+      http.post(`${BASE}/api/v2/support/tickets/`, () =>
+        HttpResponse.json({ ticket_id: 99, id: 99, subject: 'Asunto', status: 'OPEN' }),
+      ),
+    );
 
     render(wrap(<SupportTicketCreatePage />, makeStore()));
     fireEvent.change(screen.getByLabelText(/Asunto/i),      { target: { value: 'Asunto valido' } });

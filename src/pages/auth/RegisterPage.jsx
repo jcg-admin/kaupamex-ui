@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
+import { PasswordInput } from '@components/common';
 import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from '../auth/LoginPage.module.scss';
 
@@ -91,13 +92,11 @@ export default function RegisterPage() {
             </div>
             <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} error={errors.email} required autoComplete="email" data-testid="register-email" />
             <Field label="Nombre de usuario" value={form.username} onChange={set('username')} error={errors.username} required placeholder="manuel_ortega" autoComplete="username" data-testid="register-username" />
-            <Field
+            <PasswordInput
               label="Contraseña"
-              type="password"
               value={form.password}
               onChange={set('password')}
               error={errors.password}
-              required
               hint="· Mínimo 8 caracteres · No similar a tu usuario · No demasiado común"
               autoComplete="new-password"
               data-testid="register-password"

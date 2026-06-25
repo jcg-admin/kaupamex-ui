@@ -5,13 +5,11 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import AdminReportDashboardPage from './AdminReportDashboardPage';
 
 const RESPONSE = {
@@ -41,11 +39,11 @@ const wrap = (ui) => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminReportDashboardPage (UC-REP-03)', () => {
   it('renderiza el titulo', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportDashboardPage />));
     expect(
       await screen.findByRole('heading', { name: /Dashboard analítico/i }),
@@ -53,7 +51,9 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
   });
 
   it('muestra los KPIs del dia', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportDashboardPage />));
     await screen.findByText(/850\.00/);
     const todayPanel = screen.getByLabelText(/KPIs del día/i);
@@ -62,7 +62,9 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
   });
 
   it('muestra el numero de tickets abiertos', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportDashboardPage />));
     await screen.findByText('Falda Yoruba');
     expect(screen.getByText(/Tickets de soporte abiertos/i)).toBeInTheDocument();
@@ -72,20 +74,26 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
   });
 
   it('muestra alertas de stock bajo', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportDashboardPage />));
     expect(await screen.findByText(/Alertas de stock bajo/i)).toBeInTheDocument();
   });
 
   it('renderiza el top 5 productos del mes', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportDashboardPage />));
     expect(await screen.findByText('Falda Yoruba')).toBeInTheDocument();
     expect(screen.getByText('Camisa Africana')).toBeInTheDocument();
   });
 
   it('tiene accesos directos a los reportes detallados', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportDashboardPage />));
     await screen.findByText('Falda Yoruba');
     expect(screen.getByRole('link', { name: /Ver reporte de ventas/i }))
@@ -97,7 +105,11 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
   });
 
   it('estado de error si la API falla', async () => {
-    apiService.get.mockRejectedValue(new Error('boom'));
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () =>
+        HttpResponse.json({ detail: 'Error de servidor' }, { status: 400 }),
+      ),
+    );
     render(wrap(<AdminReportDashboardPage />));
     expect(
       await screen.findByText(/No se pudo cargar el dashboard/i),

@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { deactivateAccount } from '@redux/slices/authSlice';
+import { PasswordInput } from '@components/common';
 import styles from './DeactivateAccountPage.module.scss';
 
 export default function DeactivateAccountPage() {
@@ -92,10 +93,9 @@ export default function DeactivateAccountPage() {
 
         <form onSubmit={handleSubmit} noValidate className={styles.form}>
           <div className={styles.field}>
-            <label htmlFor="deactivate-password">Contrasena actual</label>
-            <input
+            <PasswordInput
               id="deactivate-password"
-              type="password"
+              label="Contrasena actual"
               autoComplete="current-password"
               value={password}
               onChange={(ev) => setPassword(ev.target.value)}

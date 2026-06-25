@@ -13,10 +13,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const PUBLIC_ASK_URL              = (productId) => `/api/v2/products/${productId}/questions/`;
-const ADMIN_ANSWER_URL            = (id) => `/api/v2/admin/questions/${id}/answer/`;
-const ADMIN_MODERATE_APPROVE_URL  = (id) => `/api/v2/admin/questions/${id}/approve/`;
-const ADMIN_MODERATE_REJECT_URL   = (id) => `/api/v2/admin/questions/${id}/reject/`;
+const PUBLIC_ASK_URL            = (productId) => `/api/v2/products/${productId}/questions/`;
+// F3 Tier B: answer path is now /answers/ (plural)
+const ADMIN_ANSWER_URL          = (id) => `/api/v2/admin/questions/${id}/answers/`;
+// F3 Tier B: approve/reject merged into PATCH /admin/questions/<id>/status/
+const ADMIN_MODERATE_STATUS_URL = (id) => `/api/v2/admin/questions/${id}/status/`;
 
 // =============================================================================
 // Thunks
@@ -57,7 +58,8 @@ export const approveProductQuestion = createAsyncThunk(
   'questions/approve',
   async ({ id, editedBody }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADMIN_MODERATE_APPROVE_URL(id), {
+      const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), {
+        status:      'APPROVED',
         edited_body: editedBody || null,
       });
       return res.data;
@@ -72,7 +74,8 @@ export const rejectProductQuestion = createAsyncThunk(
   'questions/reject',
   async ({ id, reason }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(ADMIN_MODERATE_REJECT_URL(id), {
+      const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), {
+        status: 'REJECTED',
         reason: reason || 'INAPPROPRIATE',
       });
       return res.data;

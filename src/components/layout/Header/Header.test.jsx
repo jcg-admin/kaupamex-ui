@@ -18,13 +18,6 @@ import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
-
 // Slices necesarios para selectores
 import authReducer from '@redux/slices/authSlice';
 import cartReducer from '@redux/slices/cartSlice';
@@ -76,8 +69,6 @@ function renderHeader({ isAuthenticated = false, cartCount = 0 } = {}) {
     </Provider>,
   );
 }
-
-afterEach(() => jest.clearAllMocks());
 
 describe('Header — navegación y estado de autenticación', () => {
   it('renderiza el logo con enlace a inicio', () => {

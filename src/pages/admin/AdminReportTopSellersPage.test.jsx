@@ -5,13 +5,11 @@
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import AdminReportTopSellersPage from './AdminReportTopSellersPage';
 
 const RESPONSE = {
@@ -31,11 +29,11 @@ const wrap = (ui) => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminReportTopSellersPage (UC-REP-02)', () => {
   it('renderiza el titulo', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     expect(
       await screen.findByRole('heading', { name: /Top sellers/i }),
@@ -43,7 +41,9 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
   });
 
   it('renderiza el ranking en una tabla', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByText('Falda Yoruba')).toBeInTheDocument();
     expect(screen.getByText('Camisa Africana')).toBeInTheDocument();
@@ -51,14 +51,22 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
   });
 
   it('muestra los filtros de periodo y limite', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByRole('combobox', { name: /Periodo/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Top N/i)).toBeInTheDocument();
   });
 
   it('cambia los parametros al cambiar el periodo', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        return HttpResponse.json(RESPONSE);
+      }),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     await screen.findByText('Falda Yoruba');
     fireEvent.change(
@@ -66,30 +74,33 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
       { target: { value: 'quarter' } },
     );
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v2/admin/reports/top-sellers/',
-        expect.objectContaining({
-          params: expect.objectContaining({ period: 'quarter' }),
-        }),
-      );
+      expect(lastUrl?.searchParams.get('period')).toBe('quarter');
     });
   });
 
   it('muestra el porcentaje de productos sin ventas', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByText(/18\.5/)).toBeInTheDocument();
   });
 
   it('tiene boton de exportar', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByRole('link', { name: /Exportar CSV/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Exportar PDF/i })).toBeInTheDocument();
   });
 
   it('estado vacio cuando no hay ventas', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], inactive_no_sales_pct: 0 } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () =>
+        HttpResponse.json({ results: [], inactive_no_sales_pct: 0 }),
+      ),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByText(/Sin ventas en el periodo/i)).toBeInTheDocument();
   });
@@ -97,7 +108,9 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
   // Migración a DataTable: el ranking se renderiza en una tabla reutilizable
   // con ordenamiento por columna (cliente). Verifica la interacción de sort.
   it('ordena el ranking por producto al hacer clic en el header', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminReportTopSellersPage />));
     await screen.findByText('Falda Yoruba');
 

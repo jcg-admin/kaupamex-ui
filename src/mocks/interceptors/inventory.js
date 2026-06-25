@@ -4,8 +4,8 @@
  * Cubre UC-INV-01..05 sobre los endpoints:
  *   GET    /api/v2/admin/inventory/
  *   GET    /api/v2/admin/inventory/variants/<id>/movements/
- *   POST   /api/v2/admin/inventory/variants/<id>/adjust/
- *   POST   /api/v2/admin/inventory/import/
+ *   PATCH  /api/v2/admin/inventory/variants/<id>/
+ *   POST   /api/v2/admin/inventory/imports/
  *
  * Contrato:
  *   - JSON keys en ingles (DEC-DOC-005).
@@ -16,7 +16,7 @@
 
 const STOCK_PREFIX     = '/api/v2/admin/inventory/';
 const VARIANTS_PREFIX  = '/api/v2/admin/inventory/variants/';
-const IMPORT_PREFIX    = '/api/v2/admin/inventory/import/';
+const IMPORT_PREFIX    = '/api/v2/admin/inventory/imports/';
 
 const ok       = (data, status = 200) => ({ status, data });
 const created  = (data)               => ({ status: 201, data });
@@ -65,7 +65,7 @@ function variantIdFromMovements(url) {
 }
 
 function variantIdFromAdjust(url) {
-  const m = url.split('?')[0].match(/^\/api\/v2\/admin\/inventory\/variants\/(\d+)\/adjust\/$/);
+  const m = url.split('?')[0].match(/^\/api\/v2\/admin\/inventory\/variants\/(\d+)\/$/);
   return m ? Number(m[1]) : null;
 }
 
@@ -97,7 +97,7 @@ export function interceptInventory(url, options = {}) {
   }
 
   const adjustId = variantIdFromAdjust(url);
-  if (adjustId !== null && method === 'POST') {
+  if (adjustId !== null && method === 'PATCH') {
     const item = state.items.find((i) => i.variant_id === adjustId);
     if (!item) return error(404, 'Variante no encontrada.');
     const newQty = body?.new_quantity;

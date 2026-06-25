@@ -9,7 +9,16 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInventory } from '@hooks/domain/useInventory';
+import { DataTable } from '@components/common';
+import { exportToCsv } from '@lib/csvExporter';
 import styles from './AdminInventoryPage.module.scss';
+
+const CSV_COLUMNS = [
+  { key: 'sku',          header: 'SKU' },
+  { key: 'product_name', header: 'Nombre' },
+  { key: 'stock',        header: 'Stock' },
+  { key: 'status',       header: 'Estado' },
+];
 
 const STATUS_OPTIONS = [
   { value: '',         label: 'Todos los estados' },
@@ -53,9 +62,18 @@ export default function AdminInventoryPage() {
         <h1 id="admin-inventory-title" className={styles.title}>
           Inventario
         </h1>
-        <Link to="/admin/inventory/import" className={styles.importLink}>
-          Importar CSV
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            type="button"
+            onClick={() => exportToCsv(CSV_COLUMNS, items, 'inventario.csv')}
+            disabled={items.length === 0}
+          >
+            Exportar CSV
+          </button>
+          <Link to="/admin/inventory/import" className={styles.importLink}>
+            Importar CSV
+          </Link>
+        </div>
       </header>
 
       <div className={styles.summary} aria-label="Resumen de inventario">
@@ -87,76 +105,56 @@ export default function AdminInventoryPage() {
         </label>
       </div>
 
-      {isLoading && <p>Cargando inventario…</p>}
-
       {isError && (
         <p role="alert" className={styles.error}>
           No se pudo cargar el inventario. Intenta de nuevo.
         </p>
       )}
 
-      {!isLoading && items.length === 0 && (
-        <p className={styles.empty}>No hay productos en inventario.</p>
-      )}
-
-      {items.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>SKU</th>
-              <th>Producto</th>
-              <th>Stock</th>
-              <th>Umbral</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((it) => (
-              /* H-CICLO23-06: productos sin variantes tienen variant_id=null;
-                 usar null como key React causa colisiones. Se construye una
-                 key única combinando product_id y variant_id. */
-              <tr key={it.variant_id != null ? `v-${it.variant_id}` : `p-${it.product_id}`}>
-                <td>{it.sku}</td>
-                <td>{it.product_name}</td>
-                <td>{it.stock}</td>
-                <td>{it.threshold}</td>
-                <td>
-                  <span className={styles[STATUS_CLASS[it.status]] || styles.badgeNormal}>
-                    {STATUS_LABEL[it.status] ?? it.status}
-                  </span>
-                </td>
-                <td>
-                  {it.variant_id != null ? (
-                    <>
-                      <Link to={`/admin/inventory/${it.variant_id}/adjust`}
-                            className={styles.actionLink}>
-                        Ajustar
-                      </Link>
-                      {' · '}
-                      <Link to={`/admin/inventory/${it.variant_id}/movements`}
-                            className={styles.actionLink}>
-                        Movimientos
-                      </Link>
-                    </>
-                  ) : (
-                    /* H-CICLO110-03: productos sin variante tienen endpoint
-                       propio /api/v2/admin/inventory/<product_pk>/adjust/.
-                       Antes se mostraba "Sin variante" sin enlace, dejando al
-                       admin sin forma de ajustar el stock desde la UI. */
-                    <Link
-                      to={`/admin/inventory/product/${it.product_id}/adjust`}
-                      className={styles.actionLink}
-                    >
-                      Ajustar
-                    </Link>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <DataTable
+        columns={[
+          { key: 'sku',          header: 'SKU',      sortable: true },
+          { key: 'product_name', header: 'Producto', sortable: true },
+          { key: 'stock',        header: 'Stock',    sortable: true },
+          { key: 'threshold',    header: 'Umbral' },
+          { key: 'status',       header: 'Estado',
+            render: (it) => (
+              <span className={styles[STATUS_CLASS[it.status]] || styles.badgeNormal}>
+                {STATUS_LABEL[it.status] ?? it.status}
+              </span>
+            ) },
+          { key: 'actions',      header: 'Acciones',
+            render: (it) => it.variant_id != null ? (
+              <>
+                <Link to={`/admin/inventory/${it.variant_id}/adjust`}
+                      className={styles.actionLink}>
+                  Ajustar
+                </Link>
+                {' · '}
+                <Link to={`/admin/inventory/${it.variant_id}/movements`}
+                      className={styles.actionLink}>
+                  Movimientos
+                </Link>
+              </>
+            ) : (
+              /* H-CICLO110-03: productos sin variante usan endpoint propio */
+              <Link
+                to={`/admin/inventory/product/${it.product_id}/adjust`}
+                className={styles.actionLink}
+              >
+                Ajustar
+              </Link>
+            ) },
+        ]}
+        /* H-CICLO23-06: productos sin variantes tienen variant_id=null;
+           construir key única para evitar colisiones en React. */
+        rowKey={(it) => it.variant_id != null ? `v-${it.variant_id}` : `p-${it.product_id}`}
+        rows={items}
+        loading={isLoading}
+        emptyText="No hay productos en inventario."
+        caption="Inventario de productos"
+        pageSize={0}
+      />
 
       {/* H-CICLO104-06: controles de paginacion. Sin ellos el usuario solo
           ve la primera pagina (50 items) y no puede acceder al resto del

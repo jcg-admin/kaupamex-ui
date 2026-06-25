@@ -6,15 +6,13 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import notificationsReducer from '@redux/slices/notificationsSlice';
 import AdminNotificationComposePage from './AdminNotificationComposePage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { notifications: notificationsReducer } });
@@ -24,8 +22,6 @@ const wrap = (ui, store) => (
     <MemoryRouter>{ui}</MemoryRouter>
   </Provider>
 );
-
-afterEach(() => jest.clearAllMocks());
 
 describe('AdminNotificationComposePage (UC-NOT-07)', () => {
   it('muestra el titulo del compositor', () => {
@@ -47,16 +43,27 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
   });
 
   it('requiere asunto y mensaje antes de enviar', () => {
+    let postCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/notifications/`, () => {
+        postCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(<AdminNotificationComposePage />, makeStore()));
     fireEvent.click(screen.getByRole('button', { name: /Enviar notificaci[oó]n/i }));
-    expect(apiService.post).not.toHaveBeenCalled();
+    expect(postCalled).toBe(false);
     expect(screen.getByText(/El asunto es obligatorio/i)).toBeInTheDocument();
   });
 
   it('al enviar, hace POST con destinatario, asunto y mensaje', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 99, recipients_count: 1, status: 'SENT' },
-    });
+    let lastPostBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/notifications/`, async ({ request }) => {
+        lastPostBody = await request.json();
+        return HttpResponse.json({ id: 99, recipients_count: 1, status: 'SENT' }, { status: 201 });
+      }),
+    );
     render(wrap(<AdminNotificationComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Tipo de destinatario/i),
@@ -70,22 +77,22 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Enviar notificaci[oó]n/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/notifications/manual/',
-        expect.objectContaining({
-          recipient_type:       'USER',
-          recipient_identifier: 'cliente@example.com',
-          subject:              'Su pedido ha sido revisado',
-          message:              'Hola, le confirmamos que su caso ya fue atendido.',
-        }),
-      );
+      expect(lastPostBody).toMatchObject({
+        recipient_type:       'USER',
+        recipient_identifier: 'cliente@example.com',
+        subject:              'Su pedido ha sido revisado',
+        message:              'Hola, le confirmamos que su caso ya fue atendido.',
+      });
     });
   });
 
   it('muestra mensaje de exito tras un envio correcto', async () => {
-    apiService.post.mockResolvedValue({
-      data: { id: 99, recipients_count: 1, status: 'SENT' },
-    });
+    server.use(
+      http.post(`${BASE}/api/v2/admin/notifications/`, async ({ request }) => {
+        await request.json();
+        return HttpResponse.json({ id: 99, recipients_count: 1, status: 'SENT' }, { status: 201 });
+      }),
+    );
     render(wrap(<AdminNotificationComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Identificador del destinatario/i),
@@ -102,7 +109,14 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
   });
 
   it('muestra el conteo de destinatarios cuando se elige PRODUCT_BUYERS', async () => {
-    apiService.get.mockResolvedValue({ data: { count: 42 } });
+    let capturedParams;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/notifications/audience-count/`, ({ request }) => {
+        const url = new URL(request.url);
+        capturedParams = Object.fromEntries(url.searchParams.entries());
+        return HttpResponse.json({ count: 42 });
+      }),
+    );
     render(wrap(<AdminNotificationComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Tipo de destinatario/i),
@@ -112,25 +126,23 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Calcular destinatarios/i }));
 
     await waitFor(() => {
-      expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v2/admin/notifications/audience-count/',
-        expect.objectContaining({
-          params: expect.objectContaining({
-            recipient_type: 'PRODUCT_BUYERS',
-            product_id:     '7',
-          }),
-        }),
-      );
+      expect(capturedParams).toMatchObject({
+        recipient_type: 'PRODUCT_BUYERS',
+        product_id:     '7',
+      });
     });
     expect(await screen.findByText(/42 destinatarios/i)).toBeInTheDocument();
   });
 
   it('muestra error si el backend rechaza con DESTINATARIO_INVALIDO', async () => {
-    apiService.post.mockRejectedValue({
-      message: 'El destinatario no puede recibir notificaciones',
-      code:    'RECIPIENT_INVALID',
-      status:  422,
-    });
+    server.use(
+      http.post(`${BASE}/api/v2/admin/notifications/`, () =>
+        HttpResponse.json(
+          { message: 'El destinatario no puede recibir notificaciones', code: 'RECIPIENT_INVALID' },
+          { status: 422 },
+        ),
+      ),
+    );
     render(wrap(<AdminNotificationComposePage />, makeStore()));
 
     fireEvent.change(screen.getByLabelText(/Identificador del destinatario/i),

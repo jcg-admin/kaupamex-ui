@@ -8,9 +8,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchAdminOrders } from '@redux/slices/adminSlice';
 import { MetaTag, Button, Price } from '@components/common/primitives';
+import { DataTable } from '@components/common';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
+import { exportToCsv } from '@lib/csvExporter';
 import styles from './AdminTablePage.module.scss';
+
+const CSV_COLUMNS = [
+  { key: 'order_number', header: 'Orden' },
+  { key: 'created_at',   header: 'Fecha' },
+  { key: 'cliente',      header: 'Cliente' },
+  { key: 'total',        header: 'Total' },
+  { key: 'status',       header: 'Estado' },
+];
 
 const STATUS_FILTERS = [
   { id: 'all',               label: 'Todos' },
@@ -71,7 +81,23 @@ export default function AdminOrdersPage() {
           <h1 className={styles.title}>Pedidos</h1>
         </div>
         <div className={styles.headerActions}>
-          <Button variant="secondary">Exportar CSV</Button>
+          <Button
+            variant="secondary"
+            onClick={() => exportToCsv(
+              CSV_COLUMNS,
+              orders.map((o) => ({
+                order_number: o.order_number,
+                created_at:   new Date(o.created_at).toLocaleDateString('es-MX'),
+                cliente:      o.user_username ?? o.guest_email ?? '—',
+                total:        o.value?.total ?? '',
+                status:       o.status_display || o.status,
+              })),
+              'pedidos.csv',
+            )}
+            disabled={orders.length === 0}
+          >
+            Exportar CSV
+          </Button>
         </div>
       </header>
 
@@ -107,51 +133,45 @@ export default function AdminOrdersPage() {
       </div>
 
       <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Pedido</th>
-              <th>Fecha</th>
-              <th>Cliente</th>
-              <th>Items</th>
-              <th>Total</th>
-              <th>Estado</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && <tr><td colSpan={7} className={styles.loading}>Cargando pedidos…</td></tr>}
-            {!isLoading && orders.length === 0 && (
-              <tr><td colSpan={7} className={styles.empty}>Sin pedidos que coincidan</td></tr>
-            )}
-            {!isLoading && orders.map((o) => (
-              <tr key={o.order_number}>
-                <td>
-                  <Link to={`/admin/pedidos/${o.order_number}`} className={`${styles.itemName} ${styles.mono}`}>
-                    {o.order_number}
-                  </Link>
-                </td>
-                <td className={styles.mono}>
-                  {new Date(o.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
-                </td>
-                <td>
+        <DataTable
+          columns={[
+            { key: 'order_number', header: 'Pedido',
+              render: (o) => (
+                <Link to={`/admin/pedidos/${o.order_number}`} className={`${styles.itemName} ${styles.mono}`}>
+                  {o.order_number}
+                </Link>
+              ) },
+            { key: 'created_at',   header: 'Fecha',   sortable: true,
+              render: (o) => new Date(o.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) },
+            { key: 'cliente',      header: 'Cliente',
+              render: (o) => (
+                <>
                   <div>{o.user_username ?? o.guest_email ?? '—'}</div>
                   <div className={styles.muted}>{o.user_email ?? o.guest_email ?? ''}</div>
-                </td>
-                <td className={styles.mono}>{o.items?.length ?? 0}</td>
-                <td className={styles.right}><Price amount={o.value?.total} size="sm" /></td>
-                <td>
-                  <span className={`${styles.statusPill} ${styles[`pill_${STATUS_TONE[o.status] || 'muted'}`]}`}>
-                    {o.status_display || o.status}
-                  </span>
-                </td>
-                <td className={styles.actions}>
-                  <Link to={`/admin/pedidos/${o.order_number}`} className={styles.actionBtn} title="Ver">→</Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </>
+              ) },
+            { key: 'items',        header: 'Items',
+              render: (o) => o.items?.length ?? 0 },
+            { key: 'total',        header: 'Total',
+              render: (o) => <Price amount={o.value?.total} size="sm" /> },
+            { key: 'status',       header: 'Estado',
+              render: (o) => (
+                <span className={`${styles.statusPill} ${styles[`pill_${STATUS_TONE[o.status] || 'muted'}`]}`}>
+                  {o.status_display || o.status}
+                </span>
+              ) },
+            { key: 'actions',      header: '',
+              render: (o) => (
+                <Link to={`/admin/pedidos/${o.order_number}`} className={styles.actionBtn} title="Ver">→</Link>
+              ) },
+          ]}
+          rows={orders}
+          rowKey={(o) => o.order_number}
+          loading={isLoading}
+          emptyText="Sin pedidos que coincidan"
+          caption="Pedidos de clientes"
+          pageSize={0}
+        />
       </div>
 
       {ordersPagination.totalPages > 1 && (

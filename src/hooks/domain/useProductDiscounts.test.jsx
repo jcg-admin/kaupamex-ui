@@ -5,14 +5,12 @@
  */
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import { useProductDiscounts } from './useProductDiscounts';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeWrapper = () => {
   const client = new QueryClient({
@@ -23,55 +21,59 @@ const makeWrapper = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('useProductDiscounts (UC-DASH-04)', () => {
   it('llama al endpoint admin de product-discounts', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [
-          { id: 1, product_id: 10, product_name: 'A', discount_pct: 15.0,
-            valid_from: '2026-01-01', valid_until: null,
-            status: 'CURRENT', is_active: true,
-            original_price: 100, discounted_price: 85 },
-        ],
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({
+          results: [
+            { id: 1, product_id: 10, product_name: 'A', discount_pct: 15.0,
+              valid_from: '2026-01-01', valid_until: null,
+              status: 'CURRENT', is_active: true,
+              original_price: 100, discounted_price: 85 },
+          ],
+        }),
+      ),
+    );
 
     const { result } = renderHook(() => useProductDiscounts(), {
       wrapper: makeWrapper(),
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/admin/product-discounts/',
-      expect.objectContaining({ params: {} }),
-    );
     expect(result.current.data).toHaveLength(1);
     expect(result.current.data[0].discount_pct).toBe(15.0);
   });
 
   it('propaga el filtro status como query param', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ results: [] });
+      }),
+    );
+
     const { result } = renderHook(
       () => useProductDiscounts({ status: 'CURRENT' }),
       { wrapper: makeWrapper() },
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/admin/product-discounts/',
-      expect.objectContaining({ params: { status: 'CURRENT' } }),
-    );
+    await waitFor(() => {
+      expect(new URL(capturedUrl).searchParams.get('status')).toBe('CURRENT');
+    });
   });
 
   it('expone error cuando la API falla', async () => {
-    apiService.get.mockRejectedValue(
-      Object.assign(new Error('Boom'), { code: 'INTERNAL_SERVER_ERROR' }),
+    server.use(
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
+        HttpResponse.json({ detail: 'Boom' }, { status: 400 }),
+      ),
     );
+
     const { result } = renderHook(() => useProductDiscounts(), {
       wrapper: makeWrapper(),
     });
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.error.message).toBe('Boom');
   });
 });

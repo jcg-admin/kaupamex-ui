@@ -12,16 +12,14 @@ import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn().mockResolvedValue({ data: { results: [] } }) },
-}));
-
-import apiService from '@services/apiService';
 import catalogReducer from '@redux/slices/catalogSlice';
 import authReducer from '@redux/slices/authSlice';
 import HomePage from './HomePage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 function makeStore(featured = []) {
   return configureStore({
@@ -54,6 +52,11 @@ function makeStore(featured = []) {
 }
 
 function renderHome(featured = []) {
+  server.use(
+    http.get(`${BASE}/api/v2/catalogue/`, () =>
+      HttpResponse.json({ results: featured, count: featured.length, next: null, previous: null }),
+    ),
+  );
   return render(
     <Provider store={makeStore(featured)}>
       <MemoryRouter>
@@ -92,10 +95,6 @@ describe('HomePage — landing anonima', () => {
       { id: 1, slug: 'collar-1', name: 'Collar 1', base_price: 100, price_with_tax: 116, stock: 5, highlighted_name: 'Collar 1' },
       { id: 2, slug: 'pulsera-2', name: 'Pulsera 2', base_price: 50, price_with_tax: 58, stock: 0, highlighted_name: 'Pulsera 2' },
     ];
-    // Mock apiService.get to return the featured products for the catalogue endpoint
-    apiService.get.mockResolvedValue({
-      data: { results: FEATURED, count: FEATURED.length, next: null, previous: null },
-    });
     renderHome(FEATURED);
     // ProductCard renders names via dangerouslySetInnerHTML from highlighted_name
     expect(await screen.findByText(/Collar 1/i)).toBeInTheDocument();

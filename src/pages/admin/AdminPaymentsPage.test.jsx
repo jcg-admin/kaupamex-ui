@@ -6,12 +6,11 @@ import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter }  from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import AdminPaymentsPage from './AdminPaymentsPage';
 
 const makeClient = () => new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -32,11 +31,11 @@ const RESPONSE = {
   totals: { approved: 1000, refunded: 300, net: 700 },
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminPaymentsPage (UC-PAY-11)', () => {
   it('muestra el titulo del reporte', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminPaymentsPage />));
     expect(
       await screen.findByRole('heading', { name: /Reporte de transacciones/i })
@@ -44,7 +43,9 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
   });
 
   it('lista los pagos con sus estados, gateways y montos', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminPaymentsPage />));
     expect(await screen.findByText('ORD-1')).toBeInTheDocument();
     expect(screen.getByText('ORD-2')).toBeInTheDocument();
@@ -55,7 +56,9 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
   });
 
   it('muestra los totales del periodo (cobros / reembolsos / neto)', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminPaymentsPage />));
     expect(await screen.findByText(/Aprobados:/i)).toBeInTheDocument();
     expect(screen.getByText(/Reembolsados:/i)).toBeInTheDocument();
@@ -63,7 +66,9 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
   });
 
   it('integra DateRangePicker (B2) en vez de inputs type=date crudos', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+    );
     const { container } = render(wrap(<AdminPaymentsPage />));
     await screen.findByText('ORD-1');
     expect(container.querySelector('input[type="date"]')).toBeNull();
@@ -72,30 +77,44 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
   });
 
   it('aplica filtro por estado y por gateway al endpoint', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminPaymentsPage />));
     await screen.findByText('ORD-1');
+
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, ({ request }) => {
+        lastUrl = request.url;
+        return HttpResponse.json(RESPONSE);
+      }),
+    );
 
     fireEvent.change(screen.getByLabelText(/Estado/i), { target: { value: 'APPROVED' } });
     fireEvent.change(screen.getByLabelText(/Gateway/i), { target: { value: 'mercadopago' } });
 
-    expect(apiService.get).toHaveBeenLastCalledWith(
-      '/api/v2/admin/payments/',
-      expect.objectContaining({
-        params: expect.objectContaining({ status: 'APPROVED', gateway: 'mercadopago' }),
-      })
-    );
+    await screen.findByText('ORD-1');
+    expect(lastUrl).toContain('/api/v2/admin/payments/');
+    expect(lastUrl).toContain('status=APPROVED');
+    expect(lastUrl).toContain('gateway=mercadopago');
   });
 
   it('muestra enlace para procesar reembolso en pagos APPROVED', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminPaymentsPage />));
     const refundLink = await screen.findByRole('link', { name: /Procesar reembolso/i });
     expect(refundLink).toHaveAttribute('href', '/admin/payments/1/refund');
   });
 
   it('estado vacio cuando no hay transacciones', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [], count: 0, totals: null } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () =>
+        HttpResponse.json({ results: [], count: 0, totals: null }),
+      ),
+    );
     render(wrap(<AdminPaymentsPage />));
     expect(await screen.findByText(/No hay transacciones/i)).toBeInTheDocument();
   });
@@ -103,7 +122,9 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
   // Migración a DataTable (US-2.1): la lista se renderiza en la tabla
   // reutilizable con ordenamiento por columna (cliente, monto numérico).
   it('ordena las transacciones por monto al hacer clic en el header', async () => {
-    apiService.get.mockResolvedValue({ data: RESPONSE });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/`, () => HttpResponse.json(RESPONSE)),
+    );
     render(wrap(<AdminPaymentsPage />));
     await screen.findByText('ORD-1');
 

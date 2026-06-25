@@ -2,20 +2,18 @@
  * Tests — ReturnsPage
  * UC-RET-04: Listar devoluciones del comprador
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { render, screen } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import returnsReducer from '@redux/slices/returnsSlice';
 import ReturnsPage from './ReturnsPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { returns: returnsReducer } });
@@ -38,11 +36,13 @@ const RETURNS = [
   { id: 13, order_id: 'ORD-004', status: 'REJECTED',          created_at: '2026-04-25T10:00:00Z' },
 ];
 
-afterEach(() => jest.clearAllMocks());
-
 describe('ReturnsPage (UC-RET-04 listado)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: RETURNS } });
+    server.use(
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
+        HttpResponse.json({ results: RETURNS }),
+      ),
+    );
     render(wrap(<ReturnsPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Mis devoluciones/i })
@@ -50,7 +50,11 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
   });
 
   it('renderiza las devoluciones del comprador', async () => {
-    apiService.get.mockResolvedValue({ data: { results: RETURNS } });
+    server.use(
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
+        HttpResponse.json({ results: RETURNS }),
+      ),
+    );
     render(wrap(<ReturnsPage />, makeStore()));
     expect(await screen.findByText('ORD-001')).toBeInTheDocument();
     expect(screen.getByText('ORD-002')).toBeInTheDocument();
@@ -58,7 +62,11 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
   });
 
   it('muestra los estados en español', async () => {
-    apiService.get.mockResolvedValue({ data: { results: RETURNS } });
+    server.use(
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
+        HttpResponse.json({ results: RETURNS }),
+      ),
+    );
     render(wrap(<ReturnsPage />, makeStore()));
     expect(await screen.findByText(/Pendiente de revisión/i)).toBeInTheDocument();
     expect(screen.getByText(/^Aprobada$/i)).toBeInTheDocument();
@@ -69,7 +77,11 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
   });
 
   it('muestra estado vacio cuando no hay devoluciones', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
     render(wrap(<ReturnsPage />, makeStore()));
     expect(
       await screen.findByText(/No tienes devoluciones/i)
@@ -77,7 +89,11 @@ describe('ReturnsPage (UC-RET-04 listado)', () => {
   });
 
   it('muestra enlace para crear una nueva devolucion', async () => {
-    apiService.get.mockResolvedValue({ data: { results: RETURNS } });
+    server.use(
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
+        HttpResponse.json({ results: RETURNS }),
+      ),
+    );
     render(wrap(<ReturnsPage />, makeStore()));
     const link = await screen.findByRole('link', { name: /Solicitar devoluci/i });
     expect(link).toHaveAttribute('href', '/account/returns/new');

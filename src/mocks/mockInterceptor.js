@@ -15,7 +15,7 @@
  *   Orders:    /api/v2/orders/*
  *   Checkout:  /api/v2/payments/*
  *   Wishlist:  /api/v2/wishlist/*
- *   Returns:   /api/v2/returns/*, /api/v2/admin/returns/*   (D-007)
+ *   Returns:   /api/v2/return-requests/*, /api/v2/admin/return-requests/*   (D-007)
  *   Inventory: /api/v2/admin/inventory/*                    (D-007)
  */
 
@@ -34,15 +34,16 @@ class MockInterceptor {
    */
   async intercept(url, options = {}) {
     const method = (options.method || 'GET').toUpperCase();
-    const body   = options.body ? JSON.parse(options.body) : null;
 
     if (process.env.NODE_ENV !== 'development') return null;
+
+    const body = options.body && typeof options.body === 'string'
+      ? JSON.parse(options.body)
+      : null;
 
     if (process.env.NODE_ENV === 'development') {
       console.log(`[MOCK] ${method} ${url}`, this._sanitize(body));
     }
-
-    await this._delay(this.delay);
 
     // ─── Auth ───────────────────────────────────────────────────
     if (url.includes('/api/v2/auth/login/'))         return this._login(body);
@@ -51,7 +52,7 @@ class MockInterceptor {
     if (url.includes('/api/v2/auth/register/')) return this._register(body);
     // DEC-AUM-04 (T-103 D-01-10 + D-02-10): handlers para
     // verify-email + resend-verification. UC-AUTH-10 mantenimiento.
-    if (url.match(/\/api\/v1\/auth\/verify-email\//)) 
+    if (url.match(/\/api\/v2\/auth\/verify-email\//)) 
       return this._verifyEmail(url);
     if (url.includes('/api/v2/auth/resend-verification/'))
       return this._resendVerification();
@@ -60,11 +61,11 @@ class MockInterceptor {
       return this._changePassword(body);
 
     // ─── Direcciones (D-03-07) ───────────────────────────────────
-    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\/set-default\//) && method === 'POST')
+    if (url.match(/\/api\/v2\/auth\/addresses\/\d+\/set-default\//) && method === 'POST')
       return this._setDefaultAddress(url);
-    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\//) && method === 'PATCH')
+    if (url.match(/\/api\/v2\/auth\/addresses\/\d+\//) && method === 'PATCH')
       return this._updateAddress(url, body);
-    if (url.match(/\/api\/v1\/auth\/addresses\/\d+\//) && method === 'DELETE')
+    if (url.match(/\/api\/v2\/auth\/addresses\/\d+\//) && method === 'DELETE')
       return this._deleteAddress(url);
     if (url.includes('/api/v2/auth/addresses/') && method === 'POST')
       return this._createAddress(body);
@@ -72,22 +73,23 @@ class MockInterceptor {
       return this._listAddresses();
 
     // ─── Catálogo ────────────────────────────────────────────────
+    if (url.includes('/api/v2/categories/'))                return this._categories();
     if (url.includes('/api/v2/catalogue/search/'))          return this._searchProducts(url);
     if (url.includes('/api/v2/catalogue/categories/'))      return this._categories();
-    if (url.match(/\/api\/v1\/catalogue\/[^/]+\//))         return this._productDetail(url);
+    if (url.match(/\/api\/v2\/catalogue\/[^/]+\//))         return this._productDetail(url);
     if (url.includes('/api/v2/catalogue/'))                 return this._productList(url);
 
     // ─── Carrito ─────────────────────────────────────────────────
     if (url.includes('/api/v2/cart/voucher/') && method === 'POST')   return this._applyVoucher(body);
     if (url.includes('/api/v2/cart/voucher/') && method === 'DELETE') return this._removeVoucher();
-    if (url.match(/\/api\/v1\/cart\/items\/\d+\//) && method === 'PATCH')  return this._updateItem(url, body);
-    if (url.match(/\/api\/v1\/cart\/items\/\d+\//) && method === 'DELETE') return this._removeItem(url);
+    if (url.match(/\/api\/v2\/cart\/items\/\d+\//) && method === 'PATCH')  return this._updateItem(url, body);
+    if (url.match(/\/api\/v2\/cart\/items\/\d+\//) && method === 'DELETE') return this._removeItem(url);
     if (url.includes('/api/v2/cart/items/') && method === 'POST') return this._addItem(body);
     if (url.includes('/api/v2/cart/'))            return this._getCart();
 
     // ─── Órdenes ─────────────────────────────────────────────────
-    if (url.match(/\/api\/v1\/orders\/\d+\/cancel\//)) return this._cancelOrder(url);
-    if (url.match(/\/api\/v1\/orders\/\d+\//))          return this._orderDetail(url);
+    if (url.match(/\/api\/v2\/orders\/\d+\/cancel\//)) return this._cancelOrder(url);
+    if (url.match(/\/api\/v2\/orders\/\d+\//))          return this._orderDetail(url);
     if (url.includes('/api/v2/orders/') && method === 'POST') return this._createOrder(body);
     if (url.includes('/api/v2/orders/'))               return this._orderList();
 
@@ -96,7 +98,7 @@ class MockInterceptor {
     if (url.includes('/api/v2/payments/paypal/create/'))      return this._initPayPal(body);
 
     // ─── Wishlist ────────────────────────────────────────────────
-    if (url.match(/\/api\/v1\/wishlist\/\d+\//) && method === 'DELETE') return this._removeWishlist(url);
+    if (url.match(/\/api\/v2\/wishlist\/\d+\//) && method === 'DELETE') return this._removeWishlist(url);
     if (url.includes('/api/v2/wishlist/') && method === 'POST') return this._addWishlist(body);
     if (url.includes('/api/v2/wishlist/')) return this._getWishlist();
 
@@ -115,17 +117,37 @@ class MockInterceptor {
 
   _login(body) {
     if (!body?.username || !body?.password) return this._error(400, 'Credenciales requeridas.');
-    if (body.username === 'comprador@test.mx' && body.password === 'Test1234!') {
-      return this._ok({ user: this._mockUser(1, false) });
+    const isBuyer =
+      (body.username === 'comprador@test.mx' ||
+       body.username === 'testbuyer@example.com' ||
+       body.username === 'buyer@e-commerce.test') &&
+      body.password === 'Test1234!';
+    if (isBuyer) {
+      try { window.localStorage.setItem('_mock_auth_type', 'buyer'); } catch (e) {}
+      return this._ok({ user: this._mockUser(1, false, 'testbuyer@example.com') });
     }
-    if (body.username === 'admin@practicayoruba.mx' && body.password === 'Admin1234!') {
-      return this._ok({ user: this._mockUser(2, true) });
+    const isAdmin =
+      (body.username === 'admin@practicayoruba.mx' || body.username === 'testadmin@example.com') &&
+      body.password === 'Admin1234!';
+    if (isAdmin) {
+      try { window.localStorage.setItem('_mock_auth_type', 'admin'); } catch (e) {}
+      return this._ok({ user: this._mockUser(2, true, 'testadmin@example.com') });
     }
     return this._error(401, 'Credenciales inválidas.');
   }
 
-  _logout()   { return this._ok({ detail: 'Sesión cerrada.' }); }
-  _me()       { return this._ok(this._mockUser(1, false)); }
+  _logout() {
+    try { window.localStorage.removeItem('_mock_auth_type'); } catch (e) {}
+    return this._ok({ detail: 'Sesión cerrada.' });
+  }
+
+  _me() {
+    let type = null;
+    try { type = window.localStorage.getItem('_mock_auth_type'); } catch (e) {}
+    if (type === 'admin') return this._ok(this._mockUser(2, true, 'testadmin@example.com'));
+    if (type === 'buyer') return this._ok(this._mockUser(1, false, 'testbuyer@example.com'));
+    return this._error(401, 'No autenticado.');
+  }
   _register(body) {
     if (!body?.email || !body?.password) return this._error(400, 'Email y contraseña requeridos.');
     return { status: 201, data: { user: this._mockUser(99, false, body.email) } };
@@ -134,7 +156,7 @@ class MockInterceptor {
   // DEC-AUM-04 (T-103 D-01-10): mock para POST /verify-email/<token>/.
   // Backend espera token en path; mock acepta cualquier path no vacio.
   _verifyEmail(url) {
-    const m = url.match(/\/api\/v1\/auth\/verify-email\/([^/?]+)\/?/);
+    const m = url.match(/\/api\/v2\/auth\/verify-email\/([^/?]+)\/?/);
     if (!m || !m[1]) return this._error(400, 'Token requerido.');
     return this._ok({ verified: true, message: 'Email verificado correctamente.' });
   }

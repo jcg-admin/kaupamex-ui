@@ -9,19 +9,17 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import authReducer       from '@redux/slices/authSlice';
 import uiReducer         from '@redux/slices/uiSlice';
 import logisticsReducer  from '@redux/slices/logisticsSlice';
 import AdminLayout       from './AdminLayout';
 import AdminLogisticsPage from '@pages/admin/AdminLogisticsPage';
 import AdminConfigPage    from '@pages/admin/AdminConfigPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 function buildStore() {
   return configureStore({
@@ -61,11 +59,13 @@ function renderApp(initialRoute = '/admin') {
   );
 }
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
   it('navega de Dashboard a /admin/logistics y renderiza la pagina (no 404)', async () => {
-    apiService.get.mockResolvedValue({ data: { group_a: [], group_b: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/logistics/`, () =>
+        HttpResponse.json({ group_a: [], group_b: [] }),
+      ),
+    );
     renderApp('/admin');
 
     fireEvent.click(screen.getByRole('link', { name: /^Log(í|i)stica$/i }));

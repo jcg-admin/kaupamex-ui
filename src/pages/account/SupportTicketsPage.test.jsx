@@ -2,20 +2,18 @@
  * Tests — SupportTicketsPage
  * UC-SUPP-02: Listar tickets del comprador
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { render, screen } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import supportTicketsReducer from '@redux/slices/supportTicketsSlice';
 import SupportTicketsPage from './SupportTicketsPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { supportTickets: supportTicketsReducer } });
@@ -37,11 +35,13 @@ const TICKETS = [
   { id: 3, subject: 'Caso resuelto',       status: 'CLOSED',        created_at: '2026-05-01T10:00:00Z' },
 ];
 
-afterEach(() => jest.clearAllMocks());
-
 describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TICKETS } });
+    server.use(
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
+        HttpResponse.json({ results: TICKETS }),
+      ),
+    );
     render(wrap(<SupportTicketsPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Mis tickets de soporte/i })
@@ -49,7 +49,11 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
   });
 
   it('renderiza los tickets del comprador', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TICKETS } });
+    server.use(
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
+        HttpResponse.json({ results: TICKETS }),
+      ),
+    );
     render(wrap(<SupportTicketsPage />, makeStore()));
     expect(await screen.findByText('Pedido tardio')).toBeInTheDocument();
     expect(screen.getByText('Producto defectuoso')).toBeInTheDocument();
@@ -57,7 +61,11 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
   });
 
   it('muestra los estados de cada ticket en español', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TICKETS } });
+    server.use(
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
+        HttpResponse.json({ results: TICKETS }),
+      ),
+    );
     render(wrap(<SupportTicketsPage />, makeStore()));
     expect(await screen.findByText('Abierto')).toBeInTheDocument();
     // AWAITING_USER maps to 'Esperando respuesta' in STATUS_LABEL
@@ -66,7 +74,11 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
   });
 
   it('muestra estado vacio cuando no hay tickets', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
     render(wrap(<SupportTicketsPage />, makeStore()));
     expect(
       await screen.findByText(/No tienes tickets de soporte/i)
@@ -74,7 +86,11 @@ describe('SupportTicketsPage (UC-SUPP-02 lista)', () => {
   });
 
   it('muestra enlace para abrir un nuevo ticket', async () => {
-    apiService.get.mockResolvedValue({ data: { results: TICKETS } });
+    server.use(
+      http.get(`${BASE}/api/v2/support/tickets/`, () =>
+        HttpResponse.json({ results: TICKETS }),
+      ),
+    );
     render(wrap(<SupportTicketsPage />, makeStore()));
     const link = await screen.findByRole('link', { name: /Abrir nuevo ticket/i });
     expect(link).toBeInTheDocument();

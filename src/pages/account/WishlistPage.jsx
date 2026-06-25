@@ -5,7 +5,7 @@
  * Endpoints:
  *   GET /wishlist/
  *   DELETE /wishlist/{pk}/
- *   POST /wishlist/{pk}/move-to-cart/
+ *   POST /wishlist/{pk}/cart-transfers/
  */
 
 import { useEffect } from 'react';
@@ -28,7 +28,7 @@ export default function WishlistPage() {
         <nav className={styles.breadcrumb}>
           <Link to="/account">Mi cuenta</Link>
           <span>/</span>
-          <span className={styles.bcCurrent}>Lista de deseos</span>
+          <span className={styles.bcCurrent}>Mis deseos</span>
         </nav>
 
         <div className={styles.layout}>

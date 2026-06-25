@@ -10,7 +10,7 @@ import styles from './AccountSidebar.module.scss';
 const NAV = [
   { id: 'dashboard', to: '/account',              label: 'Resumen' },
   { id: 'orders',    to: '/account/orders',        label: 'Mis pedidos',     counter: 'orders' },
-  { id: 'wishlist',  to: '/account/wishlist',      label: 'Lista de deseos', counter: 'wishlist' },
+  { id: 'wishlist',  to: '/account/wishlist',      label: 'Mis deseos',      counter: 'wishlist' },
   { id: 'addresses', to: '/account/addresses',     label: 'Mis direcciones', counter: 'addresses' },
   { id: 'profile',   to: '/account/profile',       label: 'Datos personales' },
   { id: 'security',  to: '/account/security',      label: 'Seguridad' },

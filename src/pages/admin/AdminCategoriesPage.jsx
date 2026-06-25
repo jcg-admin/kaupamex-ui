@@ -21,6 +21,7 @@ import {
   createCategory, updateCategory, deactivateCategory,
   clearCategoriesActionState,
 } from '@redux/slices/categoriesSlice';
+import { DataTable } from '@components/common';
 import styles from './AdminCategoriesPage.module.scss';
 
 // H-CICLO92-02: se elimina icon_url del formulario. El campo era enviado al
@@ -179,66 +180,63 @@ export default function AdminCategoriesPage() {
         </div>
       </form>
 
-      {isLoading && <p>Cargando categorias…</p>}
       {isError && <p role="alert">No se pudo cargar el listado.</p>}
 
-      {!isLoading && categories.length > 0 && (
-        <>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>ID</th><th>Nombre</th><th>Padre</th><th>Estado</th><th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categories.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.id}</td>
-                  <td>{c.name}</td>
-                  <td>{c.parent?.name ?? '—'}</td>
-                  <td>{c.is_active === false ? 'Inactiva' : 'Activa'}</td>
-                  <td>
-                    <button type="button" onClick={() => handleEdit(c)}>
-                      Editar
-                    </button>
-                    {c.is_active !== false && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeactivate(c.id)}
-                        disabled={isActioning}
-                      >
-                        Desactivar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <DataTable
+        columns={[
+          { key: 'id',        header: 'ID',      sortable: true },
+          { key: 'name',      header: 'Nombre',  sortable: true },
+          { key: 'parent',    header: 'Padre',
+            render: (c) => c.parent?.name ?? '—' },
+          { key: 'is_active', header: 'Estado',
+            render: (c) => c.is_active === false ? 'Inactiva' : 'Activa' },
+          { key: 'actions',   header: 'Acciones',
+            render: (c) => (
+              <>
+                <button type="button" onClick={() => handleEdit(c)}>
+                  Editar
+                </button>
+                {c.is_active !== false && (
+                  <button
+                    type="button"
+                    onClick={() => handleDeactivate(c.id)}
+                    disabled={isActioning}
+                  >
+                    Desactivar
+                  </button>
+                )}
+              </>
+            ) },
+        ]}
+        rows={categories}
+        rowKey={(c) => c.id}
+        loading={isLoading}
+        emptyText="Sin categorias registradas."
+        caption="Categorias del catalogo"
+        pageSize={0}
+      />
 
-          {/* H-CICLO105-03: pagination controls for paginated category list */}
-          {totalPages > 1 && (
-            <nav className={styles.pagination} aria-label="Paginas de categorias">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-              >
-                ← Anterior
-              </button>
-              <span className={styles.pageInfo}>
-                Pagina {page} de {totalPages} ({totalCount} categorias)
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-              >
-                Siguiente →
-              </button>
-            </nav>
-          )}
-        </>
+      {/* H-CICLO105-03: pagination controls for paginated category list */}
+      {totalPages > 1 && (
+        <nav className={styles.pagination} aria-label="Paginas de categorias">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+          >
+            ← Anterior
+          </button>
+          <span className={styles.pageInfo}>
+            Pagina {page} de {totalPages} ({totalCount} categorias)
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+          >
+            Siguiente →
+          </button>
+        </nav>
       )}
     </section>
   );

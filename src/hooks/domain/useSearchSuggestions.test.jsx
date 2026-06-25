@@ -4,22 +4,20 @@
  * Autocomplete con sugerencias en vivo. El hook:
  *   - aplica debounce (~250ms) al termino antes de consultar,
  *   - exige minimo 2 caracteres (query deshabilitada por debajo),
- *   - llama GET /api/v2/catalogue/autocomplete/?q=,
+ *   - llama GET /api/v2/products/?q=,
  *   - mapea el array de productos {id,name,slug} a sus nombres,
  *   - expone { suggestions, isLoading }.
  *
- * TDD estricto: mock de apiService, timers falsos para el debounce.
+ * TDD estricto: MSW v2, timers falsos para el debounce.
  */
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import useSearchSuggestions, { SUGGESTIONS_KEY, SUGGESTIONS_URL } from './useSearchSuggestions';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeWrapper = () => {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -30,7 +28,6 @@ const makeWrapper = () => {
 
 beforeEach(() => {
   jest.useFakeTimers();
-  apiService.get.mockReset();
 });
 
 afterEach(() => {
@@ -49,31 +46,42 @@ describe('useSearchSuggestions (UC-SRCH-02)', () => {
   });
 
   it('NO consulta con menos de 2 caracteres', () => {
+    let requestMade = false;
+    server.use(
+      http.get(`${BASE}/api/v2/products/`, () => {
+        requestMade = true;
+        return HttpResponse.json([]);
+      }),
+    );
+
     renderHook(() => useSearchSuggestions('a'), { wrapper: makeWrapper() });
     act(() => { jest.advanceTimersByTime(500); });
-    expect(apiService.get).not.toHaveBeenCalled();
+    expect(requestMade).toBe(false);
   });
 
-  it('consulta GET /api/v2/catalogue/autocomplete/ tras el debounce', async () => {
-    apiService.get.mockResolvedValue({
-      data: [{ id: 1, name: 'Collar Oshun', slug: 'collar-oshun' }],
-    });
+  it('consulta GET /api/v2/products/ tras el debounce', async () => {
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json([{ id: 1, name: 'Collar Oshun', slug: 'collar-oshun' }]);
+      }),
+    );
 
     const { result } = renderHook(() => useSearchSuggestions('col'), {
       wrapper: makeWrapper(),
     });
 
     // Antes del debounce no hay llamada.
-    expect(apiService.get).not.toHaveBeenCalled();
+    expect(capturedUrl).toBeUndefined();
 
     act(() => { jest.advanceTimersByTime(250); });
 
-    await waitFor(() => expect(apiService.get).toHaveBeenCalled());
+    await waitFor(() => expect(capturedUrl).toBeDefined());
 
-    expect(apiService.get).toHaveBeenCalledWith(
-      SUGGESTIONS_URL,
-      expect.objectContaining({ params: expect.objectContaining({ q: 'col' }) }),
-    );
+    await waitFor(() => {
+      expect(new URL(capturedUrl).searchParams.get('q')).toBe('col');
+    });
 
     await waitFor(() =>
       expect(result.current.suggestions).toEqual(['Collar Oshun']),
@@ -81,7 +89,15 @@ describe('useSearchSuggestions (UC-SRCH-02)', () => {
   });
 
   it('aplica debounce: cambios rapidos solo consultan con el ultimo termino', async () => {
-    apiService.get.mockResolvedValue({ data: [] });
+    let requestCount = 0;
+    let lastCapturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
+        requestCount++;
+        lastCapturedUrl = request.url;
+        return HttpResponse.json([]);
+      }),
+    );
 
     const { rerender } = renderHook(({ q }) => useSearchSuggestions(q), {
       wrapper: makeWrapper(),
@@ -93,17 +109,20 @@ describe('useSearchSuggestions (UC-SRCH-02)', () => {
 
     act(() => { jest.advanceTimersByTime(250); });
 
-    await waitFor(() => expect(apiService.get).toHaveBeenCalledTimes(1));
-    expect(apiService.get).toHaveBeenCalledWith(
-      SUGGESTIONS_URL,
-      expect.objectContaining({ params: expect.objectContaining({ q: 'coll' }) }),
-    );
+    await waitFor(() => expect(requestCount).toBeGreaterThanOrEqual(1));
+    // Only 1 request should have been made (last debounced term)
+    expect(requestCount).toBe(1);
+    await waitFor(() => {
+      expect(new URL(lastCapturedUrl).searchParams.get('q')).toBe('coll');
+    });
   });
 
   it('mapea respuesta paginada {results:[...]} a nombres', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ id: 2, name: 'Pulsera Yemaya', slug: 'pulsera-yemaya' }] },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/products/`, () =>
+        HttpResponse.json({ results: [{ id: 2, name: 'Pulsera Yemaya', slug: 'pulsera-yemaya' }] }),
+      ),
+    );
 
     const { result } = renderHook(() => useSearchSuggestions('pul'), {
       wrapper: makeWrapper(),

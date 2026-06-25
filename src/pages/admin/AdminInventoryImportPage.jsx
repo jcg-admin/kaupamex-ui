@@ -11,6 +11,7 @@ import {
   clearImportReport,
 } from '@redux/slices/inventorySlice';
 import { DataTable } from '@components/common/DataTable/DataTable';
+import { FileUpload, ExternalDropZone } from '@components/common';
 import styles from './AdminInventoryImportPage.module.scss';
 
 export default function AdminInventoryImportPage() {
@@ -25,9 +26,8 @@ export default function AdminInventoryImportPage() {
     dispatch(clearImportReport());
   }, [dispatch]);
 
-  const handleFileChange = (event) => {
-    const next = event.target.files?.[0] ?? null;
-    setFile(next);
+  const handleFileChange = (files) => {
+    setFile(files[0] ?? null);
   };
 
   const handleSubmit = (event) => {
@@ -68,13 +68,21 @@ export default function AdminInventoryImportPage() {
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.field}>
-          <label htmlFor="csv-file">Archivo CSV</label>
-          <input
-            id="csv-file"
-            type="file"
-            accept=".csv,text/csv"
+          <label className={styles.fieldLabel}>Archivo CSV</label>
+          <ExternalDropZone
+            accept=".csv"
+            multiple={false}
             onChange={handleFileChange}
-          />
+            hint="Arrastra tu archivo CSV aquí"
+          >
+            <FileUpload
+              accept=".csv,text/csv"
+              value={file ? [file] : []}
+              onChange={handleFileChange}
+              label="Seleccionar CSV"
+              hint="Encabezados requeridos: sku, name, base_price, category_slug"
+            />
+          </ExternalDropZone>
         </div>
 
         {errorMessage && (

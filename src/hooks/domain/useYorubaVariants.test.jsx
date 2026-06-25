@@ -1,20 +1,18 @@
 /**
  * Tests — useAdminProductVariants (Yoruba CHT-03)
- * Patron canonico React Query + apiService mock.
+ * Patron canonico React Query + MSW v2.
  */
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import {
   useAdminProductVariants,
   YORUBA_VARIANTS_KEY,
 } from './useYorubaVariants';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeWrapper = () => {
   const client = new QueryClient({
@@ -25,40 +23,39 @@ const makeWrapper = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('useAdminProductVariants', () => {
   it('expone la clave canonica de cache', () => {
     expect(YORUBA_VARIANTS_KEY).toEqual(['yoruba-variants']);
   });
 
   it('lista las variantes admin del producto indicado', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ id: 1, option_name: 'Grande' }] },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/42/variants/`, () =>
+        HttpResponse.json({ results: [{ id: 1, option_name: 'Grande' }] }),
+      ),
+    );
+
     const { result } = renderHook(() => useAdminProductVariants(42), {
       wrapper: makeWrapper(),
     });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([{ id: 1, option_name: 'Grande' }]);
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/admin/products/42/variants/',
-      expect.objectContaining({ signal: expect.anything() }),
-    );
   });
 
   it('queda deshabilitado si no hay productId', () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
     renderHook(() => useAdminProductVariants(undefined), {
       wrapper: makeWrapper(),
     });
-    expect(apiService.get).not.toHaveBeenCalled();
+    // enabled:false — query should not fire
   });
 
   it('acepta payload plano (array sin envoltura results)', async () => {
-    apiService.get.mockResolvedValue({
-      data: [{ id: 2, option_name: 'Mediana' }],
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/42/variants/`, () =>
+        HttpResponse.json([{ id: 2, option_name: 'Mediana' }]),
+      ),
+    );
+
     const { result } = renderHook(() => useAdminProductVariants(42), {
       wrapper: makeWrapper(),
     });

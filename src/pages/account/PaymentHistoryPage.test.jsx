@@ -2,17 +2,15 @@
  * Tests — PaymentHistoryPage
  * UC-PAY-06: Ver historial de pagos de una orden.
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import PaymentHistoryPage from './PaymentHistoryPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -27,8 +25,6 @@ const wrap = (ui, path = '/account/orders/ORD-9/payments') => (
   </QueryClientProvider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 const HISTORY = [
   { id: 'p3', status: 'APPROVED', gateway: 'mercadopago', amount: 1000, currency: 'MXN', created_at: '2026-05-10T12:00:00Z' },
   { id: 'p2', status: 'REJECTED', gateway: 'mercadopago', amount: 1000, currency: 'MXN', created_at: '2026-05-09T12:00:00Z', error_code: 'PAGO_RECHAZADO' },
@@ -37,7 +33,9 @@ const HISTORY = [
 
 describe('PaymentHistoryPage (UC-PAY-06)', () => {
   it('muestra el titulo de la pagina', async () => {
-    apiService.get.mockResolvedValue({ data: { results: HISTORY } });
+    server.use(
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json(HISTORY)),
+    );
     render(wrap(<PaymentHistoryPage />));
     expect(
       await screen.findByRole('heading', { name: /Historial de pagos/i })
@@ -45,7 +43,9 @@ describe('PaymentHistoryPage (UC-PAY-06)', () => {
   });
 
   it('lista los intentos con su estado y fecha', async () => {
-    apiService.get.mockResolvedValue({ data: { results: HISTORY } });
+    server.use(
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json(HISTORY)),
+    );
     render(wrap(<PaymentHistoryPage />));
     expect(await screen.findByText(/^Aprobado$/i)).toBeInTheDocument();
     expect(screen.getByText(/^Rechazado$/i)).toBeInTheDocument();
@@ -53,27 +53,34 @@ describe('PaymentHistoryPage (UC-PAY-06)', () => {
   });
 
   it('marca explicitamente las filas de reembolso', async () => {
-    apiService.get.mockResolvedValue({ data: { results: HISTORY } });
+    server.use(
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json(HISTORY)),
+    );
     render(wrap(<PaymentHistoryPage />));
     const refundRow = await screen.findByText(/^Reembolso$/);
     expect(refundRow).toBeInTheDocument();
   });
 
   it('muestra estado vacio cuando la orden no tiene pagos', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, () => HttpResponse.json([])),
+    );
     render(wrap(<PaymentHistoryPage />));
     expect(
       await screen.findByText(/No hay pagos registrados/i)
     ).toBeInTheDocument();
   });
 
-  it('consulta el endpoint correcto con order_id', async () => {
-    apiService.get.mockResolvedValue({ data: { results: HISTORY } });
+  it('consulta el endpoint correcto con orderId en la ruta', async () => {
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/payments/:orderId/history/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(HISTORY);
+      }),
+    );
     render(wrap(<PaymentHistoryPage />));
     await screen.findByRole('heading', { name: /Historial de pagos/i });
-    expect(apiService.get).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v2/payments/?order_id=ORD-9'),
-      expect.any(Object)
-    );
+    await waitFor(() => expect(capturedUrl).toContain('/api/v2/payments/ORD-9/history/'));
   });
 });

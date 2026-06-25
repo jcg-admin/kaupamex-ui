@@ -2,20 +2,18 @@
  * Tests — NotificationsPage
  * UC-NOT-01..05: Bandeja de notificaciones del comprador
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import notificationsReducer from '@redux/slices/notificationsSlice';
 import NotificationsPage from './NotificationsPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { notifications: notificationsReducer } });
@@ -50,11 +48,13 @@ const NOTIFICATIONS = [
   },
 ];
 
-afterEach(() => jest.clearAllMocks());
-
 describe('NotificationsPage (UC-NOT-01..05)', () => {
   it('muestra el título de la página', async () => {
-    apiService.get.mockResolvedValue({ data: { results: NOTIFICATIONS } });
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ results: NOTIFICATIONS }),
+      ),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     expect(
       await screen.findByRole('heading', { name: /Mis notificaciones/i }),
@@ -62,14 +62,22 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
   });
 
   it('muestra la lista de notificaciones', async () => {
-    apiService.get.mockResolvedValue({ data: { results: NOTIFICATIONS } });
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ results: NOTIFICATIONS }),
+      ),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     expect(await screen.findByText('Orden confirmada #ORD-001')).toBeInTheDocument();
     expect(screen.getByText('Devolución aprobada — #ORD-001')).toBeInTheDocument();
   });
 
   it('muestra mensaje vacío cuando no hay notificaciones', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ results: [] }),
+      ),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     expect(
       await screen.findByText(/No tienes notificaciones/i),
@@ -77,7 +85,12 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
   });
 
   it('muestra error cuando falla la carga', async () => {
-    apiService.get.mockRejectedValue(new Error('Network Error'));
+    // Use 400 (not 500/503) to avoid apiService retry delays (RETRYABLE_STATUS).
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ detail: 'Network Error' }, { status: 400 }),
+      ),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     expect(
       await screen.findByRole('alert'),
@@ -85,7 +98,11 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
   });
 
   it('muestra botón "Marcar todas como leídas" solo si hay no leídas', async () => {
-    apiService.get.mockResolvedValue({ data: { results: NOTIFICATIONS } });
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ results: NOTIFICATIONS }),
+      ),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     await screen.findByText('Orden confirmada #ORD-001');
     expect(
@@ -95,7 +112,11 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
 
   it('no muestra "Marcar todas" si todas ya están leídas', async () => {
     const allRead = NOTIFICATIONS.map((n) => ({ ...n, is_read: true }));
-    apiService.get.mockResolvedValue({ data: { results: allRead } });
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ results: allRead }),
+      ),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     await screen.findByText('Orden confirmada #ORD-001');
     expect(
@@ -104,29 +125,47 @@ describe('NotificationsPage (UC-NOT-01..05)', () => {
   });
 
   it('llama al endpoint correcto al marcar como leída', async () => {
-    apiService.get.mockResolvedValue({ data: { results: NOTIFICATIONS } });
-    apiService.post.mockResolvedValue({ data: {} });
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ results: NOTIFICATIONS }),
+      ),
+    );
+    let lastBody;
+    server.use(
+      http.patch(`${BASE}/api/v2/notifications/1/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     const btn = await screen.findByRole('button', {
       name: /Marcar notificación "Orden confirmada #ORD-001" como leída/i,
     });
     fireEvent.click(btn);
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/notifications/1/read/',
-        {},
-      );
+      expect(lastBody).toMatchObject({});
     });
   });
 
   it('llama al endpoint correcto al marcar todas como leídas', async () => {
-    apiService.get.mockResolvedValue({ data: { results: NOTIFICATIONS } });
-    apiService.post.mockResolvedValue({ data: {} });
+    server.use(
+      http.get(`${BASE}/api/v2/notifications/`, () =>
+        HttpResponse.json({ results: NOTIFICATIONS }),
+      ),
+    );
+    let readAllCalled = false;
+    server.use(
+      http.patch(`${BASE}/api/v2/notifications/`, async ({ request }) => {
+        await request.json();
+        readAllCalled = true;
+        return HttpResponse.json({});
+      }),
+    );
     render(wrap(<NotificationsPage />, makeStore()));
     const btn = await screen.findByRole('button', { name: /Marcar todas las notificaciones como leídas/i });
     fireEvent.click(btn);
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith('/api/v2/notifications/read-all/', {});
+      expect(readAllCalled).toBe(true);
     });
   });
 });

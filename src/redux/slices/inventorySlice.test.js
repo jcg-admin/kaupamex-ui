@@ -2,14 +2,10 @@
  * Tests unitarios — inventorySlice
  * UC-INV-01..05
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { configureStore } from '@reduxjs/toolkit';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
+import { waitFor } from '@testing-library/react';
 import inventoryReducer, {
   fetchInventory,
   fetchStockMovements,
@@ -19,6 +15,8 @@ import inventoryReducer, {
   clearImportReport,
 } from './inventorySlice';
 
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 const makeStore = () =>
   configureStore({ reducer: { inventory: inventoryReducer } });
 
@@ -27,16 +25,16 @@ const ITEM = {
   sku: 'SKU-001', stock: 3, min_threshold: 5, status: 'BAJO',
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
   it('fulfilled — hidrata items y summary', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [ITEM],
-        summary: { productos_normales: 0, productos_bajo_stock: 1, productos_agotados: 0 },
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/inventory/`, () =>
+        HttpResponse.json({
+          results: [ITEM],
+          summary: { productos_normales: 0, productos_bajo_stock: 1, productos_agotados: 0 },
+        }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchInventory({ status: 'BAJO' }));
     const s = store.getState().inventory;
@@ -47,31 +45,45 @@ describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
   });
 
   it('rejected — guarda error', async () => {
-    apiService.get.mockRejectedValue(new Error('Network'));
+    server.use(
+      http.get(`${BASE}/api/v2/admin/inventory/`, () =>
+        HttpResponse.json({ detail: 'Network' }, { status: 503 }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchInventory());
     expect(store.getState().inventory.error).toBeDefined();
   });
 
   it('llama a la URL admin con params', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/inventory/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ results: [] });
+      }),
+    );
     const store = makeStore();
     await store.dispatch(fetchInventory({ status: 'AGOTADO' }));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/admin/inventory/',
-      { params: { status: 'AGOTADO' } },
-    );
+    await waitFor(() => expect(capturedUrl).toBeDefined());
+    const url = new URL(capturedUrl);
+    expect(url.pathname).toBe('/api/v2/admin/inventory/');
+    expect(url.searchParams.get('status')).toBe('AGOTADO');
   });
 });
 
 describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
   it('fulfilled — pobla movements', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [
-        { id: 1, type: 'SALE',         delta: -2, stock_after: 3 },
-        { id: 2, type: 'CANCELLATION', delta:  2, stock_after: 5 },
-      ] },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
+        HttpResponse.json({
+          results: [
+            { id: 1, type: 'SALE',         delta: -2, stock_after: 3 },
+            { id: 2, type: 'CANCELLATION', delta:  2, stock_after: 5 },
+          ],
+        }),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(fetchStockMovements(10));
     const s = store.getState().inventory;
@@ -80,20 +92,29 @@ describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
   });
 
   it('llama a la URL de movimientos por variante', async () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    let capturedUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/inventory/variants/99/movements/`, ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({ results: [] });
+      }),
+    );
     const store = makeStore();
     await store.dispatch(fetchStockMovements(99));
-    expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v2/admin/inventory/variants/99/movements/',
-    );
+    await waitFor(() => expect(capturedUrl).toBeDefined());
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/inventory/variants/99/movements/');
   });
 });
 
 describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
   it('fulfilled — marca lastAction y aplica el nuevo stock al item', async () => {
-    apiService.post.mockResolvedValue({
-      data: { variant_id: 10, new_stock: 25, previous_stock: 3, delta: 22, movement_id: 99 },
-    });
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
+        HttpResponse.json({
+          variant_id: 10, new_stock: 25, previous_stock: 3, delta: 22, movement_id: 99,
+        }),
+      ),
+    );
     const store = makeStore();
     // seed
     store.dispatch({ type: 'inventory/fetchInventory/fulfilled',
@@ -108,9 +129,14 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
   });
 
   it('rejected — guarda actionError', async () => {
-    apiService.post.mockRejectedValue({
-      body: { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' }, message: '422',
-    });
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
+        HttpResponse.json(
+          { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' },
+          { status: 422 },
+        ),
+      ),
+    );
     const store = makeStore();
     await store.dispatch(adjustStockManually({
       variantId: 10, newQuantity: -1, reason: 'LOSS',
@@ -131,13 +157,15 @@ describe('inventorySlice — adjustStockManually (UC-INV-04)', () => {
 
 describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
   it('fulfilled — guarda importReport y lastAction=imported', async () => {
-    apiService.post.mockResolvedValue({
-      data: {
-        products_created: 8, products_failed: 2,
-        error_report: [{ row: 3, field: 'sku', reason: 'duplicado' }],
-        download_url: '/media/reports/import-123.csv',
-      },
-    });
+    server.use(
+      http.post(`${BASE}/api/v2/admin/inventory/imports/`, () =>
+        HttpResponse.json({
+          products_created: 8, products_failed: 2,
+          error_report: [{ row: 3, field: 'sku', reason: 'duplicado' }],
+          download_url: '/media/reports/import-123.csv',
+        }),
+      ),
+    );
     const store = makeStore();
     const file = new File(['sku,name'], 'p.csv', { type: 'text/csv' });
     await store.dispatch(importProductsCsv({ file }));
@@ -148,9 +176,14 @@ describe('inventorySlice — importProductsCsv (UC-INV-05)', () => {
   });
 
   it('rejected — guarda actionError', async () => {
-    apiService.post.mockRejectedValue({
-      body: { detail: 'CSV_HEADER_INVALID' }, message: '422',
-    });
+    server.use(
+      http.post(`${BASE}/api/v2/admin/inventory/imports/`, () =>
+        HttpResponse.json(
+          { detail: 'CSV_HEADER_INVALID' },
+          { status: 422 },
+        ),
+      ),
+    );
     const store = makeStore();
     const file = new File([''], 'bad.csv', { type: 'text/csv' });
     await store.dispatch(importProductsCsv({ file }));

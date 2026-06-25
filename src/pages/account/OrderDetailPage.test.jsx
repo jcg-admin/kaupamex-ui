@@ -1,21 +1,18 @@
 /**
  * Tests — OrderDetailPage (UC-ORD-02 / UC-ORD-04 / UC-ORD-05 / UC-ORD-06)
  */
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import ordersReducer from '@redux/slices/ordersSlice';
 import OrderDetailPage from './OrderDetailPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -57,11 +54,11 @@ const ORDER = {
   },
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('OrderDetailPage (UC-ORD-02 detalle)', () => {
   it('muestra el numero de orden como titulo', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+    );
     render(wrap(<OrderDetailPage />));
     expect(
       await screen.findByRole('heading', { name: /PY-2026-000001/i })
@@ -69,7 +66,9 @@ describe('OrderDetailPage (UC-ORD-02 detalle)', () => {
   });
 
   it('renderiza items, totales y direccion', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+    );
     render(wrap(<OrderDetailPage />));
     expect(await screen.findByText(/Camisa Yoruba/)).toBeInTheDocument();
     expect(screen.getByText(/Juana Perez/)).toBeInTheDocument();
@@ -79,7 +78,9 @@ describe('OrderDetailPage (UC-ORD-02 detalle)', () => {
 
 describe('OrderDetailPage (UC-ORD-04 cancelar)', () => {
   it('comprador cancela un pedido PENDING via POST /cancel/', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+    );
     render(wrap(<OrderDetailPage />));
     // The cancel functionality is not present in the current component implementation;
     // verify order loads and heading is displayed
@@ -88,7 +89,11 @@ describe('OrderDetailPage (UC-ORD-04 cancelar)', () => {
   });
 
   it('no muestra boton de cancelar para pedidos enviados', async () => {
-    apiService.get.mockResolvedValue({ data: { ...ORDER, status: 'SHIPPED' } });
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () =>
+        HttpResponse.json({ ...ORDER, status: 'SHIPPED' }),
+      ),
+    );
     render(wrap(<OrderDetailPage />));
     await screen.findByRole('heading', { name: /PY-2026-000001/i });
     expect(screen.queryByRole('button', { name: /Cancelar este pedido/i })).not.toBeInTheDocument();
@@ -97,7 +102,9 @@ describe('OrderDetailPage (UC-ORD-04 cancelar)', () => {
 
 describe('OrderDetailPage (UC-ORD-05 editar direccion)', () => {
   it('actualiza la direccion via PATCH /address/', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+    );
     render(wrap(<OrderDetailPage />));
     // The edit-address functionality is not present in the current component implementation;
     // verify address data is rendered
@@ -109,7 +116,9 @@ describe('OrderDetailPage (UC-ORD-05 editar direccion)', () => {
 
 describe('OrderDetailPage (UC-ORD-06 cambiar envio)', () => {
   it('cambia el metodo de envio via PATCH /shipping/', async () => {
-    apiService.get.mockResolvedValue({ data: ORDER });
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+    );
     render(wrap(<OrderDetailPage />));
     // The change-shipping functionality is not present in the current component implementation;
     // verify order detail renders correctly

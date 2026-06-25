@@ -17,17 +17,14 @@ import { Provider }       from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import catalogReducer from '@redux/slices/catalogSlice';
 import cartReducer from '@redux/slices/cartSlice';
 import yorubaVariantsReducer from '@redux/slices/yorubaVariantsSlice';
 import ProductPage from './ProductPage';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({
@@ -74,11 +71,13 @@ const PRODUCT = {
   discount: null,
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   beforeEach(() => {
-    apiService.get.mockResolvedValue({ data: PRODUCT });
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json(PRODUCT),
+      ),
+    );
   });
 
   it('muestra el nombre del producto', async () => {
@@ -108,17 +107,21 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   });
 
   it('muestra "Sin stock" cuando availability=OUT_OF_STOCK', async () => {
-    apiService.get.mockResolvedValue({
-      data: { ...PRODUCT, availability: 'OUT_OF_STOCK', stock: 0 },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json({ ...PRODUCT, availability: 'OUT_OF_STOCK', stock: 0 }),
+      ),
+    );
     render(wrap('collar-oshun-dorado', makeStore()));
     expect(await screen.findByText(/Agotado/i)).toBeInTheDocument();
   });
 
   it('deshabilita el botón de carrito cuando sin stock', async () => {
-    apiService.get.mockResolvedValue({
-      data: { ...PRODUCT, availability: 'OUT_OF_STOCK', stock: 0 },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json({ ...PRODUCT, availability: 'OUT_OF_STOCK', stock: 0 }),
+      ),
+    );
     render(wrap('collar-oshun-dorado', makeStore()));
     // Component shows "Sin stock" button when no stock
     const btn = await screen.findByRole('button', { name: /Sin stock/i });
@@ -150,14 +153,22 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   });
 
   it('muestra spinner mientras carga', () => {
-    apiService.get.mockReturnValue(new Promise(() => {}));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        new Promise(() => {}), // never resolves
+      ),
+    );
     render(wrap('collar-oshun-dorado', makeStore()));
     // Component shows "Cargando…" while loading
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
   });
 
   it('muestra "Producto no disponible" si el API falla', async () => {
-    apiService.get.mockRejectedValue(new Error('404'));
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json({ detail: 'Not found' }, { status: 400 }),
+      ),
+    );
     render(wrap('collar-oshun-dorado', makeStore()));
     // When API fails, isLoading=false and product=null → shows loading div forever
     // unless the component has error handling. Currently it shows the loading div.
@@ -184,7 +195,11 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   });
 
   it('no muestra badge Destacado cuando is_featured=false', async () => {
-    apiService.get.mockResolvedValue({ data: { ...PRODUCT, is_featured: false } });
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json({ ...PRODUCT, is_featured: false }),
+      ),
+    );
     render(wrap('collar-oshun-dorado', makeStore()));
     await screen.findByRole('heading', { name: /Collar Oshun dorado/i });
     expect(screen.queryByText('Destacado')).not.toBeInTheDocument();
@@ -193,15 +208,17 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   // ── UC-CHT-01: integración del selector de variantes en la ficha ──────
   // Variants in the real contract use `label` field (not legacy `name`)
   it('UC-CHT-01: renderiza el selector de variantes cuando el producto las trae', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        ...PRODUCT,
-        variants: [
-          { id: 1, label: 'Chico',   stock: 5, is_active: true },
-          { id: 2, label: 'Mediano', stock: 3, is_active: true },
-        ],
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json({
+          ...PRODUCT,
+          variants: [
+            { id: 1, label: 'Chico',   stock: 5, is_active: true },
+            { id: 2, label: 'Mediano', stock: 3, is_active: true },
+          ],
+        }),
+      ),
+    );
     render(wrap('collar-oshun-dorado', makeStore()));
     // Component renders variant buttons with v.label
     expect(await screen.findByRole('button', { name: /Chico/ })).toBeInTheDocument();
@@ -209,16 +226,22 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   });
 
   it('UC-CHT-02: al hacer click sobre Agregar a la bolsa con variante seleccionada llama al API', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        ...PRODUCT,
-        variants: [
-          { id: 1, label: 'Chico',   stock: 4, is_active: true },
-          { id: 2, label: 'Mediano', stock: 3, is_active: true },
-        ],
-      },
-    });
-    apiService.post.mockResolvedValue({ data: { items: [], voucher: null } });
+    let lastCartBody;
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json({
+          ...PRODUCT,
+          variants: [
+            { id: 1, label: 'Chico',   stock: 4, is_active: true },
+            { id: 2, label: 'Mediano', stock: 3, is_active: true },
+          ],
+        }),
+      ),
+      http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
+        lastCartBody = await request.json();
+        return HttpResponse.json({ items: [], voucher: null });
+      }),
+    );
     const store = makeStore();
     render(wrap('collar-oshun-dorado', store));
 
@@ -228,26 +251,25 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     // Component calls addToCart thunk → POST /api/v2/cart/items/
     await screen.findByText('Carrito');
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v2/cart/items/',
-      expect.objectContaining({
-        product_id: PRODUCT.id,
-        variant_id: 1,
-        quantity:   1,
-      }),
-    );
+    expect(lastCartBody).toMatchObject({
+      product_id: PRODUCT.id,
+      variant_id: 1,
+      quantity:   1,
+    });
   });
 
   it('UC-CHT-01: el CTA muestra "Agregar a la bolsa" cuando hay variantes y una está seleccionada', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        ...PRODUCT,
-        variants: [
-          { id: 1, label: 'Chico',   stock: 4, is_active: true },
-          { id: 2, label: 'Mediano', stock: 3, is_active: true },
-        ],
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+        HttpResponse.json({
+          ...PRODUCT,
+          variants: [
+            { id: 1, label: 'Chico',   stock: 4, is_active: true },
+            { id: 2, label: 'Mediano', stock: 3, is_active: true },
+          ],
+        }),
+      ),
+    );
     render(wrap('collar-oshun-dorado', makeStore()));
     // First variant is auto-selected by useEffect
     expect(
@@ -285,7 +307,11 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     const productWithRealVariants = { ...PRODUCT, variants: REAL_VARIANTS };
 
     it('renderiza el label real (no el legacy field name) por variante', async () => {
-      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      server.use(
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+          HttpResponse.json(productWithRealVariants),
+        ),
+      );
       render(wrap('collar-oshun-dorado', makeStore()));
       expect(await screen.findByRole('button', { name: /Chico/ })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Mediano/ })).toBeInTheDocument();
@@ -293,7 +319,11 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     });
 
     it('muestra el precio base del producto mientras no hay price_override en variante', async () => {
-      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      server.use(
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+          HttpResponse.json(productWithRealVariants),
+        ),
+      );
       render(wrap('collar-oshun-dorado', makeStore()));
       await screen.findByRole('button', { name: /Chico/ });
       // Component uses variant.price_override ?? product.price_with_tax
@@ -302,7 +332,11 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     });
 
     it('al seleccionar una variante, el precio sigue siendo product.price_with_tax', async () => {
-      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      server.use(
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+          HttpResponse.json(productWithRealVariants),
+        ),
+      );
       const store = makeStore();
       render(wrap('collar-oshun-dorado', store));
 
@@ -314,7 +348,11 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     });
 
     it('cambiar entre dos variantes no cambia el precio (sin price_override)', async () => {
-      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      server.use(
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+          HttpResponse.json(productWithRealVariants),
+        ),
+      );
       const store = makeStore();
       render(wrap('collar-oshun-dorado', store));
       await screen.findByRole('button', { name: /Chico/ });
@@ -327,7 +365,11 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     });
 
     it('la variante con stock=0 se renderiza pero puede no estar deshabilitada', async () => {
-      apiService.get.mockResolvedValue({ data: productWithRealVariants });
+      server.use(
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+          HttpResponse.json(productWithRealVariants),
+        ),
+      );
       render(wrap('collar-oshun-dorado', makeStore()));
       // Component renders all variant buttons; stock-0 variants are shown
       // (the component does not disable individual variant buttons based on stock)
@@ -339,8 +381,16 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     });
 
     it('el POST al carrito incluye el variant_id seleccionado del contrato real', async () => {
-      apiService.get.mockResolvedValue({ data: productWithRealVariants });
-      apiService.post.mockResolvedValue({ data: { items: [], voucher: null } });
+      let lastCartBody;
+      server.use(
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
+          HttpResponse.json(productWithRealVariants),
+        ),
+        http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
+          lastCartBody = await request.json();
+          return HttpResponse.json({ items: [], voucher: null });
+        }),
+      );
       const store = makeStore();
       render(wrap('collar-oshun-dorado', store));
 
@@ -348,14 +398,11 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
       fireEvent.click(screen.getByRole('button', { name: /Agregar a la bolsa/i }));
 
       await screen.findByText('Carrito');
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/cart/items/',
-        expect.objectContaining({
-          product_id: PRODUCT.id,
-          variant_id: 12,
-          quantity:   1,
-        }),
-      );
+      expect(lastCartBody).toMatchObject({
+        product_id: PRODUCT.id,
+        variant_id: 12,
+        quantity:   1,
+      });
     });
   });
 });

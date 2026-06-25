@@ -6,13 +6,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import inventoryReducer from '@redux/slices/inventorySlice';
 import AdminInventoryAdjustPage from './AdminInventoryAdjustPage';
 
@@ -29,8 +27,6 @@ const wrap = (store) => (
     </MemoryRouter>
   </Provider>
 );
-
-afterEach(() => jest.clearAllMocks());
 
 describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
   it('muestra el formulario de ajuste con cantidad nueva y motivo', () => {
@@ -52,10 +48,18 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
     expect(select).toHaveTextContent(/Otro/i);
   });
 
-  it('al enviar, hace POST al endpoint /adjust con la nueva cantidad y motivo', async () => {
-    apiService.post.mockResolvedValue({
-      data: { variant_id: 10, previous_stock: 5, new_stock: 12, delta: 7, movement_id: 42 },
-    });
+  it('al enviar, hace PATCH al endpoint v2 con la nueva cantidad y motivo', async () => {
+    let lastPostUrl;
+    let lastPostBody;
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, async ({ request }) => {
+        lastPostUrl = request.url;
+        lastPostBody = await request.json().catch(() => null);
+        return HttpResponse.json({
+          variant_id: 10, previous_stock: 5, new_stock: 12, delta: 7, movement_id: 42,
+        });
+      }),
+    );
     render(wrap(makeStore()));
     fireEvent.change(screen.getByLabelText(/Cantidad nueva/i),
       { target: { value: '12' } });
@@ -64,20 +68,22 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Aplicar ajuste/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/inventory/variants/10/adjust/',
-        expect.objectContaining({
-          new_quantity: 12,
-          reason: 'PHYSICAL_COUNT',
-        }),
-      );
+      expect(lastPostUrl).toContain('/api/v2/admin/inventory/variants/10/');
+    });
+    expect(lastPostBody).toMatchObject({
+      new_quantity: 12,
+      reason: 'PHYSICAL_COUNT',
     });
   });
 
   it('muestra un mensaje de exito tras un ajuste correcto', async () => {
-    apiService.post.mockResolvedValue({
-      data: { variant_id: 10, previous_stock: 5, new_stock: 12, delta: 7, movement_id: 42 },
-    });
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
+        HttpResponse.json({
+          variant_id: 10, previous_stock: 5, new_stock: 12, delta: 7, movement_id: 42,
+        }),
+      ),
+    );
     render(wrap(makeStore()));
     fireEvent.change(screen.getByLabelText(/Cantidad nueva/i),
       { target: { value: '12' } });
@@ -88,9 +94,14 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
   });
 
   it('muestra error si el backend rechaza con STOCK_NEGATIVO_NO_PERMITIDO', async () => {
-    apiService.post.mockRejectedValue({
-      body: { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' }, message: '422',
-    });
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/inventory/variants/10/`, () =>
+        HttpResponse.json(
+          { detail: 'NEGATIVE_STOCK_NOT_ALLOWED' },
+          { status: 422 },
+        ),
+      ),
+    );
     render(wrap(makeStore()));
     fireEvent.change(screen.getByLabelText(/Cantidad nueva/i),
       { target: { value: '0' } });

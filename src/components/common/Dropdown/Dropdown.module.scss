@@ -10,7 +10,7 @@
   background: $bg-elevated;
   border: 1px solid $border-color;
   border-radius: $border-radius-md;
-  box-shadow: $shadow-md;
+  @include elevation(3);
   padding: $spacing-1 0;
   min-width: 160px;
 

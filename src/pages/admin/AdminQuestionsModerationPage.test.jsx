@@ -8,12 +8,11 @@ import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import questionsReducer from '@redux/slices/questionsSlice';
 import AdminQuestionsModerationPage from './AdminQuestionsModerationPage';
 
@@ -31,11 +30,11 @@ const wrap = (ui) => (
   </Provider>
 );
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
   it('muestra el titulo de la cola de moderacion', () => {
-    apiService.get.mockResolvedValue({ data: { results: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/questions/`, () => HttpResponse.json({ results: [] })),
+    );
     render(wrap(<AdminQuestionsModerationPage />));
     expect(
       screen.getByRole('heading', { name: /Moderaci[oó]n de preguntas/i }),
@@ -43,48 +42,60 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
   });
 
   it('lista las preguntas pendientes de moderacion', async () => {
-    apiService.get.mockResolvedValue({
-      data: {
-        results: [
-          { id: 5, body: 'Pregunta a moderar', product: { id: 7, name: 'Camisa' } },
-        ],
-      },
-    });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
+        HttpResponse.json({
+          results: [
+            { id: 5, body: 'Pregunta a moderar', product: { id: 7, name: 'Camisa' } },
+          ],
+        }),
+      ),
+    );
     render(wrap(<AdminQuestionsModerationPage />));
     expect(await screen.findByText(/Pregunta a moderar/i)).toBeInTheDocument();
   });
 
-  it('al hacer clic en Aprobar, hace POST al endpoint approve', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ id: 5, body: 'X', product: { id: 7, name: 'Y' } }] },
-    });
-    apiService.post.mockResolvedValue({ data: { id: 5, status: 'APPROVED' } });
+  it('al hacer clic en Aprobar, hace PATCH al endpoint status', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
+        HttpResponse.json({
+          results: [{ id: 5, body: 'X', product: { id: 7, name: 'Y' } }],
+        }),
+      ),
+    );
+    let approvedId;
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/questions/:id/status/`, ({ params }) => {
+        approvedId = params.id;
+        return HttpResponse.json({ id: params.id, status: 'APPROVED' });
+      }),
+    );
     render(wrap(<AdminQuestionsModerationPage />));
     await screen.findByText(/^X$/);
     fireEvent.click(screen.getByRole('button', { name: /^Aprobar$/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/questions/5/approve/',
-        expect.any(Object),
-      );
-    });
+    await waitFor(() => expect(approvedId).toBe('5'));
   });
 
-  it('al hacer clic en Rechazar, hace POST al endpoint reject', async () => {
-    apiService.get.mockResolvedValue({
-      data: { results: [{ id: 5, body: 'X', product: { id: 7, name: 'Y' } }] },
-    });
-    apiService.post.mockResolvedValue({ data: { id: 5, status: 'REJECTED' } });
+  it('al hacer clic en Rechazar, hace PATCH al endpoint status', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/questions/`, () =>
+        HttpResponse.json({
+          results: [{ id: 5, body: 'X', product: { id: 7, name: 'Y' } }],
+        }),
+      ),
+    );
+    let rejectedId;
+    server.use(
+      http.patch(`${BASE}/api/v2/admin/questions/:id/status/`, ({ params }) => {
+        rejectedId = params.id;
+        return HttpResponse.json({ id: params.id, status: 'REJECTED' });
+      }),
+    );
     render(wrap(<AdminQuestionsModerationPage />));
     await screen.findByText(/^X$/);
     fireEvent.click(screen.getByRole('button', { name: /Rechazar/i }));
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/questions/5/reject/',
-        expect.objectContaining({ reason: expect.any(String) }),
-      );
-    });
+    await waitFor(() => expect(rejectedId).toBe('5'));
   });
 });

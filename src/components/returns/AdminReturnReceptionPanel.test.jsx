@@ -5,15 +5,13 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider }      from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
-
-import apiService from '@services/apiService';
 import returnsReducer from '@redux/slices/returnsSlice';
 import AdminReturnReceptionPanel from './AdminReturnReceptionPanel';
+
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { returns: returnsReducer } });
@@ -29,8 +27,6 @@ const APPROVED = {
 };
 
 const COMPLETED = { id: 300, status: 'RECEIVED', received_at: '2026-05-11T10:00:00Z' };
-
-afterEach(() => jest.clearAllMocks());
 
 describe('AdminReturnReceptionPanel (UC-RET-03)', () => {
   it('no se renderiza si la devolucion no esta en estado APROBADA', () => {
@@ -48,9 +44,13 @@ describe('AdminReturnReceptionPanel (UC-RET-03)', () => {
   });
 
   it('registra la recepción con el estado del producto y observaciones', async () => {
-    apiService.post.mockResolvedValue({
-      data: { ...APPROVED, status: 'RECEIVED' },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/admin/return-requests/300/reception/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ ...APPROVED, status: 'RECEIVED' });
+      }),
+    );
 
     render(wrap(<AdminReturnReceptionPanel returnRequest={APPROVED} />, makeStore()));
 
@@ -61,13 +61,10 @@ describe('AdminReturnReceptionPanel (UC-RET-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Registrar recepci/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/admin/returns/300/reception/'),
-        expect.objectContaining({
-          product_condition: 'DAMAGED',
-          observations:      'Caja golpeada y producto rayado.',
-        }),
-      );
+      expect(lastBody).toMatchObject({
+        product_condition: 'DAMAGED',
+        observations:      'Caja golpeada y producto rayado.',
+      });
     });
   });
 });

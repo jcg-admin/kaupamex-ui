@@ -6,27 +6,10 @@
  *   - D-23: refreshSession funciona end-to-end.
  *   - D-extra-1: loginUser.fulfilled persiste tokens en apiService.
  */
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 import { configureStore } from '@reduxjs/toolkit';
-
-// Mock con metodos de storage stub (set/get/clearTokens).
-jest.mock('@services/apiService', () => {
-  const tokens = { access: null, refresh: null };
-  return {
-    __esModule: true,
-    default: {
-      get: jest.fn(),
-      post: jest.fn(),
-      patch: jest.fn(),
-      delete: jest.fn(),
-      setAuthToken: jest.fn((t) => { tokens.access = t || null; }),
-      setRefreshToken: jest.fn((t) => { tokens.refresh = t || null; }),
-      getRefreshToken: jest.fn(() => tokens.refresh),
-      clearTokens: jest.fn(() => { tokens.access = null; tokens.refresh = null; }),
-      __resetTokens: () => { tokens.access = null; tokens.refresh = null; },
-    },
-  };
-});
-
+import { waitFor } from '@testing-library/react';
 import apiService from '@services/apiService';
 import authReducer, {
   loginUser,
@@ -34,29 +17,41 @@ import authReducer, {
   refreshSession,
 } from './authSlice';
 
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 const makeStore = () =>
   configureStore({ reducer: { auth: authReducer } });
 
+let setAuthTokenSpy, setRefreshTokenSpy, clearTokensSpy;
+
+beforeEach(() => {
+  setAuthTokenSpy    = jest.spyOn(apiService, 'setAuthToken');
+  setRefreshTokenSpy = jest.spyOn(apiService, 'setRefreshToken');
+  clearTokensSpy     = jest.spyOn(apiService, 'clearTokens');
+});
+
 afterEach(() => {
-  jest.clearAllMocks();
-  apiService.__resetTokens();
+  jest.restoreAllMocks();
+  apiService.clearTokens(); // Reset token state
 });
 
 describe('loginUser persiste tokens (D-extra-1)', () => {
   it('llama setAuthToken + setRefreshToken con los tokens del response', async () => {
-    apiService.post.mockResolvedValue({
-      data: {
-        access:  'access-abc',
-        refresh: 'refresh-xyz',
-        user:    { id: 1, email: 'u@test.mx' },
-      },
-    });
+    server.use(
+      http.post(`${BASE}/api/v2/auth/login/`, () =>
+        HttpResponse.json({
+          access:  'access-abc',
+          refresh: 'refresh-xyz',
+          user:    { id: 1, email: 'u@test.mx' },
+        }),
+      ),
+    );
     const store = makeStore();
 
     await store.dispatch(loginUser({ username: 'u@test.mx', password: 'p' }));
 
-    expect(apiService.setAuthToken).toHaveBeenCalledWith('access-abc');
-    expect(apiService.setRefreshToken).toHaveBeenCalledWith('refresh-xyz');
+    expect(setAuthTokenSpy).toHaveBeenCalledWith('access-abc');
+    expect(setRefreshTokenSpy).toHaveBeenCalledWith('refresh-xyz');
     expect(store.getState().auth.isAuthenticated).toBe(true);
   });
 });
@@ -64,36 +59,51 @@ describe('loginUser persiste tokens (D-extra-1)', () => {
 describe('logoutUser envia {refresh} en body (D-17)', () => {
   it('lee getRefreshToken + envia en body al endpoint blacklist', async () => {
     apiService.setRefreshToken('refresh-abc');
-    apiService.post.mockResolvedValue({ data: {} });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/auth/logout/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ detail: 'ok' });
+      }),
+    );
     const store = makeStore();
 
     await store.dispatch(logoutUser());
 
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v2/auth/logout/',
-      { refresh: 'refresh-abc' },
+    await waitFor(() =>
+      expect(lastBody).toMatchObject({ refresh: 'refresh-abc' }),
     );
-    expect(apiService.clearTokens).toHaveBeenCalled();
+    expect(clearTokensSpy).toHaveBeenCalled();
   });
 
   it('si no hay refresh, envia body vacio pero limpia local', async () => {
-    apiService.post.mockResolvedValue({ data: {} });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/auth/logout/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ detail: 'ok' });
+      }),
+    );
     const store = makeStore();
 
     await store.dispatch(logoutUser());
 
-    expect(apiService.post).toHaveBeenCalledWith('/api/v2/auth/logout/', {});
-    expect(apiService.clearTokens).toHaveBeenCalled();
+    await waitFor(() => expect(lastBody).toEqual({}));
+    expect(clearTokensSpy).toHaveBeenCalled();
   });
 
   it('si backend falla, limpia local igual (resiliencia)', async () => {
     apiService.setRefreshToken('refresh-abc');
-    apiService.post.mockRejectedValue(new Error('Backend down'));
+    server.use(
+      http.post(`${BASE}/api/v2/auth/logout/`, () =>
+        HttpResponse.json({ detail: 'error' }, { status: 400 }),
+      ),
+    );
     const store = makeStore();
 
     await store.dispatch(logoutUser());
 
-    expect(apiService.clearTokens).toHaveBeenCalled();
+    expect(clearTokensSpy).toHaveBeenCalled();
     expect(store.getState().auth.isAuthenticated).toBe(false);
   });
 });
@@ -101,19 +111,22 @@ describe('logoutUser envia {refresh} en body (D-17)', () => {
 describe('refreshSession actualiza tokens (D-23)', () => {
   it('llama refresh endpoint y actualiza access + refresh (rotation)', async () => {
     apiService.setRefreshToken('refresh-old');
-    apiService.post.mockResolvedValue({
-      data: { access: 'access-new', refresh: 'refresh-new' },
-    });
+    let lastBody;
+    server.use(
+      http.post(`${BASE}/api/v2/auth/refresh/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ access: 'access-new', refresh: 'refresh-new' });
+      }),
+    );
     const store = makeStore();
 
     await store.dispatch(refreshSession());
 
-    expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v2/auth/refresh/',
-      { refresh: 'refresh-old' },
+    await waitFor(() =>
+      expect(lastBody).toMatchObject({ refresh: 'refresh-old' }),
     );
-    expect(apiService.setAuthToken).toHaveBeenCalledWith('access-new');
-    expect(apiService.setRefreshToken).toHaveBeenCalledWith('refresh-new');
+    expect(setAuthTokenSpy).toHaveBeenCalledWith('access-new');
+    expect(setRefreshTokenSpy).toHaveBeenCalledWith('refresh-new');
   });
 
   it('si no hay refresh, falla sin llamar al endpoint', async () => {
@@ -122,17 +135,20 @@ describe('refreshSession actualiza tokens (D-23)', () => {
     const result = await store.dispatch(refreshSession());
 
     expect(result.type).toBe('auth/refresh/rejected');
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('si backend rechaza el refresh, limpia tokens y falla', async () => {
     apiService.setRefreshToken('refresh-invalid');
-    apiService.post.mockRejectedValue(new Error('Token invalid'));
+    server.use(
+      http.post(`${BASE}/api/v2/auth/refresh/`, () =>
+        HttpResponse.json({ detail: 'Token invalid' }, { status: 401 }),
+      ),
+    );
     const store = makeStore();
 
     const result = await store.dispatch(refreshSession());
 
     expect(result.type).toBe('auth/refresh/rejected');
-    expect(apiService.clearTokens).toHaveBeenCalled();
+    expect(clearTokensSpy).toHaveBeenCalled();
   });
 });

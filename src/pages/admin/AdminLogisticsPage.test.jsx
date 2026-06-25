@@ -10,12 +10,11 @@ import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn() },
-}));
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-import apiService from '@services/apiService';
+const BASE = process.env.API_URL || 'http://localhost:8000';
+
 import logisticsReducer from '@redux/slices/logisticsSlice';
 import AdminLogisticsPage from './AdminLogisticsPage';
 
@@ -75,11 +74,11 @@ const wrap = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminLogisticsPage (UC-LOG-08)', () => {
   it('muestra el titulo de Logistica y los dos grupos', async () => {
-    apiService.get.mockResolvedValue({ data: PANEL });
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
+    );
     render(wrap());
     expect(
       await screen.findByRole('heading', { name: /Logistica/i, level: 1 }),
@@ -91,7 +90,9 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
   });
 
   it('lista las ordenes del Grupo A con accion Crear guia', async () => {
-    apiService.get.mockResolvedValue({ data: PANEL });
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
+    );
     render(wrap());
     expect(await screen.findByText('ORD-0501')).toBeInTheDocument();
     expect(screen.getByText('ORD-0502')).toBeInTheDocument();
@@ -99,7 +100,9 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
   });
 
   it('lista los envios del Grupo B con courier y tracking', async () => {
-    apiService.get.mockResolvedValue({ data: PANEL });
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
+    );
     render(wrap());
     expect(await screen.findByText('ORD-0490')).toBeInTheDocument();
     // H-CICLO36-03: la UI muestra courier_code (no courier_name)
@@ -109,24 +112,31 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
   });
 
   it('confirma entrega manual via POST /api/v2/logistics/guides/:id/confirm-delivery/', async () => {
-    apiService.get.mockResolvedValue({ data: PANEL });
-    apiService.post.mockResolvedValue({ data: { ok: true } });
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
+    );
+    let confirmedGuideId;
+    server.use(
+      http.post(`${BASE}/api/v2/shipments/:guideId/deliveries/`, ({ params }) => {
+        confirmedGuideId = params.guideId;
+        return HttpResponse.json({ ok: true });
+      }),
+    );
     render(wrap());
     await screen.findByText('ORD-0490');
 
     const buttons = screen.getAllByRole('button', { name: /Confirmar entrega/i });
     fireEvent.click(buttons[0]);
 
-    await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/logistics/guides/700/confirm-delivery/',
-        {},
-      );
-    });
+    await waitFor(() => expect(confirmedGuideId).toBe('700'));
   });
 
   it('muestra mensaje cuando ambos grupos estan vacios', async () => {
-    apiService.get.mockResolvedValue({ data: { pending_pickup: [], in_transit: [] } });
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/`, () =>
+        HttpResponse.json({ pending_pickup: [], in_transit: [] }),
+      ),
+    );
     render(wrap());
     expect(
       await screen.findByText(/No hay envios pendientes/i),
@@ -134,7 +144,11 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
   });
 
   it('muestra error cuando falla la consulta', async () => {
-    apiService.get.mockRejectedValue(new Error('boom'));
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/`, () =>
+        HttpResponse.json({ detail: 'Error de servidor' }, { status: 400 }),
+      ),
+    );
     render(wrap());
     expect(
       await screen.findByText(/No se pudo cargar el panel/i),

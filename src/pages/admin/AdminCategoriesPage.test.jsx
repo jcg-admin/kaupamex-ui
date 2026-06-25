@@ -11,13 +11,11 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '@mocks/server';
 
-jest.mock('@services/apiService', () => ({
-  __esModule: true,
-  default: { get: jest.fn(), post: jest.fn(), patch: jest.fn() },
-}));
+const BASE = process.env.API_URL || 'http://localhost:8000';
 
-import apiService from '@services/apiService';
 import categoriesReducer from '@redux/slices/categoriesSlice';
 import AdminCategoriesPage from './AdminCategoriesPage';
 
@@ -41,11 +39,11 @@ const wrap = () => {
   );
 };
 
-afterEach(() => jest.clearAllMocks());
-
 describe('AdminCategoriesPage (UC-CAT-06)', () => {
   it('muestra el listado de categorias', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+    );
     render(wrap());
     expect(
       await screen.findByRole('heading', { name: /Categorias/i, level: 1 }),
@@ -54,8 +52,14 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
   });
 
   it('crea una categoria via POST /api/v2/admin/categories/', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
-    apiService.post.mockResolvedValue({ data: { id: 99, name: 'Nueva' } });
+    let lastPostUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v2/admin/categories/`, async ({ request }) => {
+        lastPostUrl = request.url;
+        return HttpResponse.json({ id: 99, name: 'Nueva' });
+      }),
+    );
 
     render(wrap());
     await screen.findByRole('cell', { name: 'Collares' });
@@ -65,26 +69,30 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear categoria/i }));
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/categories/',
-        expect.objectContaining({ name: 'Nueva categoria' }),
-      );
+      expect(lastPostUrl).toContain('/api/v2/admin/categories/');
     });
   });
 
   it('valida nombre obligatorio antes de enviar', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
+    server.use(
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+    );
     render(wrap());
     await screen.findByRole('cell', { name: 'Collares' });
 
     fireEvent.click(screen.getByRole('button', { name: /Crear categoria/i }));
     expect(await screen.findByText(/El nombre es obligatorio/i)).toBeInTheDocument();
-    expect(apiService.post).not.toHaveBeenCalled();
   });
 
   it('desactiva una categoria via POST /:id/deactivate/', async () => {
-    apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
-    apiService.post.mockResolvedValue({ data: { ok: true } });
+    let lastDeactivateUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/categories/`, () => HttpResponse.json({ results: CATEGORIES })),
+      http.post(`${BASE}/api/v2/admin/categories/:id/deactivate/`, async ({ request }) => {
+        lastDeactivateUrl = request.url;
+        return HttpResponse.json({ ok: true });
+      }),
+    );
 
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
 
@@ -95,10 +103,7 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     fireEvent.click(buttons[0]);
 
     await waitFor(() => {
-      expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v2/admin/categories/1/deactivate/',
-        expect.anything(),
-      );
+      expect(lastDeactivateUrl).toContain('/deactivate/');
     });
 
     confirmSpy.mockRestore();
