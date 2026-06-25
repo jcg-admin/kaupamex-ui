@@ -4,7 +4,7 @@
  * Autocomplete con sugerencias en vivo. El hook:
  *   - aplica debounce (~250ms) al termino antes de consultar,
  *   - exige minimo 2 caracteres (query deshabilitada por debajo),
- *   - llama GET /api/v1/catalogue/autocomplete/?q=,
+ *   - llama GET /api/v2/catalogue/autocomplete/?q=,
  *   - mapea el array de productos {id,name,slug} a sus nombres,
  *   - expone { suggestions, isLoading }.
  *

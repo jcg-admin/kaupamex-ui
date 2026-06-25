@@ -1,7 +1,7 @@
 /**
  * useAuditLog — UC-ADM-03
  *
- * GET /api/v1/admin/audit-log/
+ * GET /api/v2/admin/audit-log/
  *
  * params opcionales: page, actor_id, action, resource_type, from, to.
  */

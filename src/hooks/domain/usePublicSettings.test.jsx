@@ -3,7 +3,7 @@
  *
  * Lectura tolerante a fallos de la configuracion del sitio para el
  * storefront. El hook:
- *   - llama GET /api/v1/config/settings/,
+ *   - llama GET /api/v2/config/settings/,
  *   - fusiona la respuesta sobre el `fallback`,
  *   - degrada al `fallback` (y expone `error`) si el endpoint falla,
  *   - expone { settings, isLoading, error } sin exigir QueryClientProvider.

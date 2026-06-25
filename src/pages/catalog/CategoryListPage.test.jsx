@@ -2,7 +2,7 @@
  * Tests — CategoryListPage (UC-CAT-08).
  *
  * Listado publico del arbol jerarquico de categorias. Read-only,
- * React Query contra GET /api/v1/categories/.
+ * React Query contra GET /api/v2/categories/.
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';

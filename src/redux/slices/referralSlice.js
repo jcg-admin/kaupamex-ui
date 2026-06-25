@@ -4,13 +4,13 @@
  *
  * Endpoints (backend api@24245e8):
  *
- *   GET  /api/v1/account/referral/
+ *   GET  /api/v2/account/referral/
  *     -> 200 { code, share_link, total_referrals, completed_referrals,
  *              rewards_earned }
  *     -> 404 codigo_error=NOT_FOUND  (programa deshabilitado)
  *     -> 401 sin autenticar
  *
- *   POST /api/v1/account/referral/redeem/   body { code }
+ *   POST /api/v2/account/referral/redeem/   body { code }
  *     -> 201 canje exitoso
  *     -> 422 codigo_error SELF_REFERRAL_NOT_ALLOWED | VOUCHER_INACTIVE
  *     -> 404 codigo_error NOT_FOUND      (codigo desconocido)

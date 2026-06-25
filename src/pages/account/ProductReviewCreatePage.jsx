@@ -4,9 +4,9 @@
  * UC-REV-02 cap6: adjunta hasta 3 fotos a la resena.
  *
  * Captura calificacion (1-5), titulo, texto y hasta 3 imagenes.
- * Paso 1: POST a `/api/v1/products/:productId/reviews/` con order_id.
+ * Paso 1: POST a `/api/v2/products/:productId/reviews/` con order_id.
  * Paso 2 (opcional): por cada imagen seleccionada, POST multipart a
- *   `/api/v1/products/:productId/reviews/:reviewId/images/`.
+ *   `/api/v2/products/:productId/reviews/:reviewId/images/`.
  *
  * No silencia errores (DEC-DOC-008): cada error de validacion se
  * renderiza visiblemente; errores del API via `serializeApiError`.

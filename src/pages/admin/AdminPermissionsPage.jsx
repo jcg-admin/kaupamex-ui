@@ -3,10 +3,10 @@
  *
  * Matriz de roles x permisos. El admin puede marcar/desmarcar
  * permisos de cada rol y guarda los cambios via PUT a
- * /api/v1/admin/roles/:role/permissions/.
+ * /api/v2/admin/roles/:role/permissions/.
  *
- *   GET  /api/v1/admin/permissions/
- *   PUT  /api/v1/admin/roles/:role/permissions/
+ *   GET  /api/v2/admin/permissions/
+ *   PUT  /api/v2/admin/roles/:role/permissions/
  */
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';

@@ -28,7 +28,7 @@ describe('ordersSlice — updateOrderShipping (UC-ORD-06)', () => {
       shippingMethodId: 3,
     }));
     expect(apiService.patch).toHaveBeenCalledWith(
-      '/api/v1/orders/PY-2026-000001/shipping/',
+      '/api/v2/orders/PY-2026-000001/shipping/',
       { shipping_method_id: 3 },
     );
     const state = store.getState().orders;

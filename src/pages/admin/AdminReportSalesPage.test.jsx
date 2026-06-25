@@ -149,7 +149,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
       const csvLink = screen.getByRole('link', { name: /Exportar CSV/i });
       expect(csvLink).toHaveAttribute(
         'href',
-        '/api/v1/admin/reports/sales/export/?period=year&format=csv',
+        '/api/v2/admin/reports/sales/export/?period=year&format=csv',
       );
     });
   });

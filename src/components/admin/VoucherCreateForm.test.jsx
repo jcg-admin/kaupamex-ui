@@ -8,7 +8,7 @@
  *   - Payload sent: { code, voucher_type, max_uses, valid_from, valid_until,
  *                    discount_pct (for PERCENTAGE) or discount_value (for FIXED) }
  *   - valid_from is required (separate validation error)
- *   - API URL: /api/v1/admin/vouchers/
+ *   - API URL: /api/v2/admin/vouchers/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';

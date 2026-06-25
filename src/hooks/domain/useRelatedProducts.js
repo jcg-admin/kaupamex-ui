@@ -5,7 +5,7 @@
  * producto dado. La logica de seleccion (misma categoria, productos
  * activos con stock, exclusion del producto actual) vive en el backend.
  *
- * Endpoint esperado: GET /api/v1/products/<slug>/related/
+ * Endpoint esperado: GET /api/v2/products/<slug>/related/
  *   → { results: Product[], fallback: 'category' | 'recent' | 'best_sellers' }
  *
  * Errores: la pagina contenedora oculta la seccion silenciosamente

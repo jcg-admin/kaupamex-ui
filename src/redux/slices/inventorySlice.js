@@ -68,7 +68,7 @@ export const adjustStockManually = createAsyncThunk(
 
 /**
  * H-CICLO110-03: UC-INV-04 para productos sin variante.
- * Llama a POST /api/v1/admin/inventory/<productId>/adjust/ con delta en
+ * Llama a POST /api/v2/admin/inventory/<productId>/adjust/ con delta en
  * lugar de new_quantity (StockAdjustSerializer espera delta, notes, reason).
  */
 export const adjustProductStockManually = createAsyncThunk(

@@ -18,7 +18,7 @@ const makeStore = () =>
 afterEach(() => jest.clearAllMocks());
 
 describe('ordersSlice — adminCancelOrder (UC-ORD-08)', () => {
-  it('llama POST /api/v1/admin/orders/:n/cancel/ con reason', async () => {
+  it('llama POST /api/v2/admin/orders/:n/cancel/ con reason', async () => {
     apiService.post.mockResolvedValue({
       data: { order_number: 'PY-2026-000101', status: 'CANCELLED' },
     });
@@ -28,7 +28,7 @@ describe('ordersSlice — adminCancelOrder (UC-ORD-08)', () => {
       reason:      'Cliente abandono el pedido tras 48h sin pago',
     }));
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/admin/orders/PY-2026-000101/cancel/',
+      '/api/v2/admin/orders/PY-2026-000101/cancel/',
       { reason: 'Cliente abandono el pedido tras 48h sin pago' },
     );
     const state = store.getState().orders;

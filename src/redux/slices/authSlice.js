@@ -13,7 +13,7 @@
  *     refreshSession y reintenta. Si refresh falla, dispatch
  *     'py:unauthorized' event que UnauthorizedListener captura.
  *
- * Sprint 2: URLs corregidas a /api/v1/, thunks de perfil añadidos.
+ * Sprint 2: URLs corregidas a /api/v2/, thunks de perfil añadidos.
  * Sprint 5: address CRUD + logout-all-sessions añadidos.
  * Sprint 6: password reset + avatar upload añadidos.
  */

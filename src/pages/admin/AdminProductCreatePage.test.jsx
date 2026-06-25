@@ -2,7 +2,7 @@
  * Tests — AdminProductCreatePage (UC-CAT-09)
  *
  * Formulario admin para crear un nuevo producto en el catalogo.
- *   POST /api/v1/admin/products/
+ *   POST /api/v2/admin/products/
  *
  * Cobertura:
  *   - Render del formulario con todos los campos requeridos

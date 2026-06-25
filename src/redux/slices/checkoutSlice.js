@@ -30,7 +30,7 @@ export const createOrder = createAsyncThunk(
 
 /**
  * UC-PAY-01: inicia pago con Mercado Pago.
- * DEC-BC-09: POST /api/v1/payments/initiate/ con gateway: MERCADOPAGO.
+ * DEC-BC-09: POST /api/v2/payments/initiate/ con gateway: MERCADOPAGO.
  * Acepta { order_number, installments? }.
  */
 export const initMercadoPago = createAsyncThunk(
@@ -65,7 +65,7 @@ export const initPayPal = createAsyncThunk(
 
 /**
  * UC-ORD-01-EXT: verifica elegibilidad para checkout express.
- * GET /api/v1/checkout/eligibility/ → { express_available, default_address, ... }
+ * GET /api/v2/checkout/eligibility/ → { express_available, default_address, ... }
  * H-CICLO114-03: thunk faltante — ExpressCheckoutPage lo importaba pero no
  * existia en el slice, causando crash al montar la pagina.
  */
@@ -83,7 +83,7 @@ export const fetchExpressEligibility = createAsyncThunk(
 
 /**
  * UC-ORD-01-EXT: confirma el checkout express (one-click).
- * POST /api/v1/checkout/express/ → { order_number, ... }
+ * POST /api/v2/checkout/express/ → { order_number, ... }
  * H-CICLO114-03: thunk faltante — ExpressCheckoutPage lo importaba pero no
  * existia en el slice, causando crash al montar la pagina.
  */

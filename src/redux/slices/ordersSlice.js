@@ -10,8 +10,8 @@
  *   UC-ORD-08 — Cancelar orden (admin)
  *
  * Lecturas (listado, detalle):
- *   fetchOrders      — GET /api/v1/orders/?status={filter}
- *   fetchOrderDetail — GET /api/v1/orders/{order_number}/
+ *   fetchOrders      — GET /api/v2/orders/?status={filter}
+ *   fetchOrderDetail — GET /api/v2/orders/{order_number}/
  */
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';

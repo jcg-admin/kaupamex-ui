@@ -119,11 +119,11 @@ describe('useReports hooks', () => {
 
   it('buildReportExportUrl produce la URL con filtros y formato', () => {
     const url = buildReportExportUrl('sales', { period: 'month', format: 'csv' });
-    expect(url).toBe('/api/v1/admin/reports/sales/export/?period=month&format=csv');
+    expect(url).toBe('/api/v2/admin/reports/sales/export/?period=month&format=csv');
   });
 
   it('buildReportExportUrl omite valores nulos/vacios', () => {
     const url = buildReportExportUrl('top-sellers', { period: '', limit: 10, format: 'pdf' });
-    expect(url).toBe('/api/v1/admin/reports/top-sellers/export/?limit=10&format=pdf');
+    expect(url).toBe('/api/v2/admin/reports/top-sellers/export/?limit=10&format=pdf');
   });
 });

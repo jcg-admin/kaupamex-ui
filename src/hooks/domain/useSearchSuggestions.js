@@ -8,7 +8,7 @@
  * cancela las peticiones obsoletas al cambiar la queryKey.
  *
  * Endpoint (AutocompleteView, permission_classes=[AllowAny]):
- *   GET /api/v1/catalogue/autocomplete/?q=<term>
+ *   GET /api/v2/catalogue/autocomplete/?q=<term>
  *     -> [ { id, name, slug }, ... ]   (array de productos)
  *
  * El backend devuelve objetos de producto; este hook extrae el `name` para

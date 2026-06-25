@@ -60,7 +60,7 @@ function decorate(item) {
 }
 
 function variantIdFromMovements(url) {
-  const m = url.split('?')[0].match(/^\/api\/v1\/admin\/inventory\/variants\/(\d+)\/movements\/$/);
+  const m = url.split('?')[0].match(/^\/api\/v2\/admin\/inventory\/variants\/(\d+)\/movements\/$/);
   return m ? Number(m[1]) : null;
 }
 

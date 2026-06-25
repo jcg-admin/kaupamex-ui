@@ -1,8 +1,8 @@
 /**
  * Tests — AdminBackupsPage (UC-ADM-05)
  *
- *   GET  /api/v1/admin/backups/
- *   POST /api/v1/admin/backups/trigger/
+ *   GET  /api/v2/admin/backups/
+ *   POST /api/v2/admin/backups/trigger/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';

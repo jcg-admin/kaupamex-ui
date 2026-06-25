@@ -10,12 +10,12 @@
  *   - Estado por accion (lastAction, isActioning, actionError) para UI
  *
  * API endpoints (English keys per DEC-DOC-005):
- *   GET    /api/v1/cart/            — leer carrito
- *   POST /api/v1/cart/items/      — agregar producto (UC-CART-01)
- *   PATCH /api/v1/cart/items/:id/  — cambiar cantidad
- *   DELETE /api/v1/cart/items/:id/  — eliminar item
- *   POST /api/v1/cart/voucher/    — aplicar cupon
- *   DELETE /api/v1/cart/voucher/    — quitar cupon
+ *   GET    /api/v2/cart/            — leer carrito
+ *   POST /api/v2/cart/items/      — agregar producto (UC-CART-01)
+ *   PATCH /api/v2/cart/items/:id/  — cambiar cantidad
+ *   DELETE /api/v2/cart/items/:id/  — eliminar item
+ *   POST /api/v2/cart/voucher/    — aplicar cupon
+ *   DELETE /api/v2/cart/voucher/    — quitar cupon
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';

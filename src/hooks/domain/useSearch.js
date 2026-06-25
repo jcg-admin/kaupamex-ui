@@ -5,7 +5,7 @@
  * catalogo. Combinable con filtros (UC-CAT-03-EXT) y paginacion.
  *
  * Endpoint esperado:
- *   GET /api/v1/catalogue/search/?q=<term>&category=<slug>
+ *   GET /api/v2/catalogue/search/?q=<term>&category=<slug>
  *                                  &price_min=&price_max=&page=
  *   → { results, count, next, previous, active_filters, normalized_query }
  *

@@ -1,7 +1,7 @@
 /**
  * useAdminUsers — UC-ADM-01
  *
- * GET /api/v1/admin/users/
+ * GET /api/v2/admin/users/
  *
  * Soporta filtros opcionales: ?role=, ?is_active=, ?search=, ?page=.
  */

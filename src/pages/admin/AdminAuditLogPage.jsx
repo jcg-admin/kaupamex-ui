@@ -4,7 +4,7 @@
  * Visor paginado de auditoria. Soporta filtros por accion y rango
  * temporal. Lectura via React Query.
  *
- *   GET /api/v1/admin/audit-log/?action=&actor_id=&from=&to=&page=
+ *   GET /api/v2/admin/audit-log/?action=&actor_id=&from=&to=&page=
  */
 import { useState } from 'react';
 import { useAuditLog } from '@hooks/domain/useAuditLog';

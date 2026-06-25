@@ -1,10 +1,10 @@
 /**
  * Tests — AdminCategoriesPage (UC-CAT-06)
  *
- *   GET   /api/v1/admin/categories/
- *   POST  /api/v1/admin/categories/
- *   PATCH /api/v1/admin/categories/:id/
- *   POST  /api/v1/admin/categories/:id/deactivate/
+ *   GET   /api/v2/admin/categories/
+ *   POST  /api/v2/admin/categories/
+ *   PATCH /api/v2/admin/categories/:id/
+ *   POST  /api/v2/admin/categories/:id/deactivate/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';

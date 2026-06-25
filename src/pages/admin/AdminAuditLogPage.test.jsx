@@ -1,7 +1,7 @@
 /**
  * Tests — AdminAuditLogPage (UC-ADM-03)
  *
- *   GET /api/v1/admin/audit-log/
+ *   GET /api/v2/admin/audit-log/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

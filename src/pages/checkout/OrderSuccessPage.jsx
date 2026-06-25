@@ -4,7 +4,7 @@
  * Ruta: /order/:id/confirmation
  *
  * Endpoints:
- *   GET /api/v1/orders/{id}/
+ *   GET /api/v2/orders/{id}/
  */
 
 import { useEffect, useState } from 'react';

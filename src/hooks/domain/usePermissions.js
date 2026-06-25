@@ -1,7 +1,7 @@
 /**
  * usePermissions — UC-ADM-02
  *
- * GET /api/v1/admin/permissions/   (lista de roles + permisos disponibles)
+ * GET /api/v2/admin/permissions/   (lista de roles + permisos disponibles)
  *
  * Devuelve { roles: [{ role, permissions: [...] }], permissions: [...] }.
  */

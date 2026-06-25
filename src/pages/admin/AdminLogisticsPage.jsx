@@ -1,8 +1,8 @@
 /**
  * AdminLogisticsPage — UC-LOG-08
  *
- *   GET  /api/v1/logistics/                                — panel de envios
- *   POST /api/v1/logistics/guides/:guideId/confirm-delivery/  — UC-LOG-05
+ *   GET  /api/v2/logistics/                                — panel de envios
+ *   POST /api/v2/logistics/guides/:guideId/confirm-delivery/  — UC-LOG-05
  *
  * Punto de entrada operacional del backoffice de logistica. Presenta
  * dos grupos de trabajo:

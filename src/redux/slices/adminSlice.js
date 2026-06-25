@@ -112,7 +112,7 @@ export const makeUserAdmin = createAsyncThunk(
 /**
  * UC-ADM-02: Editar permisos de un usuario (is_staff / is_superuser / groups).
  *
- * POST /api/v1/admin/users/:pk/permissions/ con body parcial — solo se
+ * POST /api/v2/admin/users/:pk/permissions/ con body parcial — solo se
  * envían las claves presentes en `changes`. La API responde el detalle
  * completo del usuario en éxito y con clave `codigo_error` en error
  * (INVALID_PAYLOAD, USER_NOT_FOUND, CANNOT_DEMOTE_SELF). El guard

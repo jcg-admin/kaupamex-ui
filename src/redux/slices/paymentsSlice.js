@@ -16,7 +16,7 @@ import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
 // DEC-BC-09 (2026-05-21): backend tiene UN SOLO endpoint
-// /api/v1/payments/initiate/ que acepta `gateway: MERCADOPAGO|PAYPAL`.
+// /api/v2/payments/initiate/ que acepta `gateway: MERCADOPAGO|PAYPAL`.
 // Las constantes anteriores /mercadopago/checkout + /paypal/checkout
 // eran 404 en produccion (audit T-101 U-04 + U-05). Single endpoint
 // alineado a InitiatePaymentSerializer (apps/payments/serializers.py:25-29).

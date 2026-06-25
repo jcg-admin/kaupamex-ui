@@ -1,8 +1,8 @@
 /**
  * Tests — AdminSystemSettingsPage (UC-ADM-04)
  *
- *   GET   /api/v1/admin/settings/
- *   PATCH /api/v1/admin/settings/
+ *   GET   /api/v2/admin/settings/
+ *   PATCH /api/v2/admin/settings/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';

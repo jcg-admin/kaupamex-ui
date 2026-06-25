@@ -1,9 +1,9 @@
 /**
  * Tests — AdminProductEditPage (UC-CAT-10 + UC-CAT-11)
  *
- *   GET   /api/v1/admin/products/:id/
- *   PATCH /api/v1/admin/products/:id/
- *   POST  /api/v1/admin/products/:id/deactivate/
+ *   GET   /api/v2/admin/products/:id/
+ *   PATCH /api/v2/admin/products/:id/
+ *   POST  /api/v2/admin/products/:id/deactivate/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';

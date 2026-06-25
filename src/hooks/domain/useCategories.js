@@ -1,8 +1,8 @@
 /**
  * useCategories — hooks de React Query para el arbol de categorias.
  *
- *   useCategories()          GET    /api/v1/categories/        (listado publico/admin)
- *   useAdminCategories()     GET    /api/v1/admin/categories/  (incluye inactivas)
+ *   useCategories()          GET    /api/v2/categories/        (listado publico/admin)
+ *   useAdminCategories()     GET    /api/v2/admin/categories/  (incluye inactivas)
  *
  * Las mutaciones (crear / editar / desactivar) viven en categoriesSlice
  * para usar el patron canonico con serializeApiError. UC-CAT-06.

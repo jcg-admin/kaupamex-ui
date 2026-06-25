@@ -1,8 +1,8 @@
 /**
  * Tests — AdminPermissionsPage (UC-ADM-02)
  *
- *   GET /api/v1/admin/permissions/
- *   PUT /api/v1/admin/roles/:role/permissions/
+ *   GET /api/v2/admin/permissions/
+ *   PUT /api/v2/admin/roles/:role/permissions/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';

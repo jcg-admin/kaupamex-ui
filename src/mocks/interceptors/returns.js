@@ -2,8 +2,8 @@
  * Returns mock interceptor — PracticaYoruba (D-007).
  *
  * Cubre UC-RET-01..06 sobre los endpoints:
- *   /api/v1/returns/             (comprador: listar, detalle, crear)
- *   /api/v1/admin/returns/       (admin: bandeja, detalle, acciones)
+ *   /api/v2/returns/             (comprador: listar, detalle, crear)
+ *   /api/v2/admin/returns/       (admin: bandeja, detalle, acciones)
  *
  * El interceptor responde como el contrato real:
  *   - JSON keys en ingles (DEC-DOC-005).
@@ -15,8 +15,8 @@
  * sea coherente entre pantallas (aprobar -> aparecer en bandeja).
  */
 
-const CUSTOMER_PREFIX = '/api/v1/returns/';
-const ADMIN_PREFIX    = '/api/v1/admin/returns/';
+const CUSTOMER_PREFIX = '/api/v2/returns/';
+const ADMIN_PREFIX    = '/api/v2/admin/returns/';
 
 const ok       = (data, status = 200) => ({ status, data });
 const created  = (data)               => ({ status: 201, data });

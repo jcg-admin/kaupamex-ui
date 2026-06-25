@@ -2,7 +2,7 @@
  * useAdminProducts — hook de React Query para el listado admin de
  * productos (UC-CAT-09..12).
  *
- * GET /api/v1/admin/products/
+ * GET /api/v2/admin/products/
  *
  * params soportados (todos opcionales):
  *   page       int   — pagina (1-based)

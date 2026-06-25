@@ -58,7 +58,7 @@ export function useAnalyticsDashboard(params = {}) {
  * directamente y el backend devuelve el blob con Content-Disposition.
  *
  *   buildReportExportUrl('sales', { period: 'month', format: 'csv' })
- *     -> '/api/v1/admin/reports/sales/export/?period=month&format=csv'
+ *     -> '/api/v2/admin/reports/sales/export/?period=month&format=csv'
  */
 export function buildReportExportUrl(reportSlug, params = {}) {
   const base = REPORT_PATHS[reportSlug];

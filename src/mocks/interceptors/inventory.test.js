@@ -15,8 +15,8 @@ import {
 beforeEach(() => __resetInventoryState());
 
 describe('mocks/interceptors/inventory', () => {
-  it('GET /api/v1/admin/inventory/ retorna results + summary con keys en ingles', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/', { method: 'GET' });
+  it('GET /api/v2/admin/inventory/ retorna results + summary con keys en ingles', () => {
+    const r = interceptInventory('/api/v2/admin/inventory/', { method: 'GET' });
     expect(r.status).toBe(200);
     expect(Array.isArray(r.data.results)).toBe(true);
     expect(r.data).toHaveProperty('summary');
@@ -26,13 +26,13 @@ describe('mocks/interceptors/inventory', () => {
   });
 
   it('cada item incluye status calculado (NORMAL/BAJO/AGOTADO)', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/', { method: 'GET' });
+    const r = interceptInventory('/api/v2/admin/inventory/', { method: 'GET' });
     const statuses = r.data.results.map((i) => i.status);
     expect(statuses).toEqual(expect.arrayContaining(['NORMAL', 'BAJO', 'AGOTADO']));
   });
 
   it('GET variants/<id>/movements/ retorna movimientos con type en ingles', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/variants/1/movements/', { method: 'GET' });
+    const r = interceptInventory('/api/v2/admin/inventory/variants/1/movements/', { method: 'GET' });
     expect(r.status).toBe(200);
     expect(Array.isArray(r.data.results)).toBe(true);
     expect(r.data.results[0]).toHaveProperty('type');
@@ -40,7 +40,7 @@ describe('mocks/interceptors/inventory', () => {
   });
 
   it('GET movements de variante sin movimientos retorna lista vacia', () => {
-    const r = interceptInventory('/api/v1/admin/inventory/variants/9999/movements/', { method: 'GET' });
+    const r = interceptInventory('/api/v2/admin/inventory/variants/9999/movements/', { method: 'GET' });
     expect(r.status).toBe(200);
     expect(r.data.results).toEqual([]);
   });
@@ -54,7 +54,7 @@ describe('mocks/interceptors/inventory', () => {
     expect(r.data.new_stock).toBe(15);
     expect(r.data.movement.type).toBe('MANUAL');
     // El listado debe reflejar el cambio.
-    const list = interceptInventory('/api/v1/admin/inventory/', { method: 'GET' });
+    const list = interceptInventory('/api/v2/admin/inventory/', { method: 'GET' });
     const v1   = list.data.results.find((i) => i.variant_id === 1);
     expect(v1.stock).toBe(15);
   });
@@ -97,7 +97,7 @@ describe('mocks/interceptors/inventory', () => {
   });
 
   it('retorna null para URLs fuera del dominio inventory', () => {
-    expect(interceptInventory('/api/v1/orders/', { method: 'GET' })).toBeNull();
+    expect(interceptInventory('/api/v2/orders/', { method: 'GET' })).toBeNull();
     expect(interceptInventory('/api/auth/me/', { method: 'GET' })).toBeNull();
   });
 });
