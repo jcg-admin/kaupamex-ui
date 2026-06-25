@@ -12,12 +12,12 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const STOCK_URL      = '/api/v1/admin/inventory/';
-const MOVEMENTS      = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/movements/`;
-const ADJUST         = (variantId) => `/api/v1/admin/inventory/variants/${variantId}/adjust/`;
+const STOCK_URL      = '/api/v2/admin/inventory/';
+const MOVEMENTS      = (variantId) => `/api/v2/admin/inventory/variants/${variantId}/movements/`;
+const ADJUST         = (variantId) => `/api/v2/admin/inventory/variants/${variantId}/adjust/`;
 // H-CICLO110-03: endpoint para productos sin variante.
-const ADJUST_PRODUCT = (productId) => `/api/v1/admin/inventory/${productId}/adjust/`;
-const IMPORT_CSV     = '/api/v1/admin/inventory/import/';
+const ADJUST_PRODUCT = (productId) => `/api/v2/admin/inventory/${productId}/adjust/`;
+const IMPORT_CSV     = '/api/v2/admin/inventory/import/';
 
 // =============================================================================
 // Thunks
@@ -68,7 +68,7 @@ export const adjustStockManually = createAsyncThunk(
 
 /**
  * H-CICLO110-03: UC-INV-04 para productos sin variante.
- * Llama a POST /api/v1/admin/inventory/<productId>/adjust/ con delta en
+ * Llama a POST /api/v2/admin/inventory/<productId>/adjust/ con delta en
  * lugar de new_quantity (StockAdjustSerializer espera delta, notes, reason).
  */
 export const adjustProductStockManually = createAsyncThunk(

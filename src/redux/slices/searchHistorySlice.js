@@ -13,8 +13,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const HISTORY_URL      = '/api/v1/search/history/';
-const HISTORY_ITEM_URL = (id) => `/api/v1/search/history/${id}/`;
+const HISTORY_URL      = '/api/v2/search/history/';
+const HISTORY_ITEM_URL = (id) => `/api/v2/search/history/${id}/`;
 
 export const removeSearchHistoryEntry = createAsyncThunk(
   'searchHistory/removeEntry',

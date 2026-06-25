@@ -6,7 +6,7 @@
  *   1. Muestra advertencia explicita: baja logica + posibilidad de
  *      reactivar via UC-AUTH-01 Alt-A.2 (re-registro).
  *   2. Pide password actual + confirmacion explicita (checkbox).
- *   3. POST /api/v1/auth/me/deactivate/ via authSlice.deactivateAccount.
+ *   3. POST /api/v2/auth/me/deactivate/ via authSlice.deactivateAccount.
  *   4. En exito: limpia estado de auth, redirige al home, muestra toast.
  *   5. En error de password: muestra error inline sin limpiar campo.
  */

@@ -12,7 +12,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const ADMIN_USERS_URL = '/api/v1/admin/users/';
+const ADMIN_USERS_URL = '/api/v2/admin/users/';
 
 // =============================================================================
 // Thunks
@@ -112,7 +112,7 @@ export const makeUserAdmin = createAsyncThunk(
 /**
  * UC-ADM-02: Editar permisos de un usuario (is_staff / is_superuser / groups).
  *
- * POST /api/v1/admin/users/:pk/permissions/ con body parcial — solo se
+ * POST /api/v2/admin/users/:pk/permissions/ con body parcial — solo se
  * envían las claves presentes en `changes`. La API responde el detalle
  * completo del usuario en éxito y con clave `codigo_error` en error
  * (INVALID_PAYLOAD, USER_NOT_FOUND, CANNOT_DEMOTE_SELF). El guard
@@ -141,12 +141,12 @@ export const updateUserPermissions = createAsyncThunk(
   }
 );
 
-const ADMIN_ORDERS_URL   = '/api/v1/admin/orders/';
-const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
-// H-CICLO95-01: /api/v1/admin/metrics/ never existed — 404 on every load.
+const ADMIN_ORDERS_URL   = '/api/v2/admin/orders/';
+const ADMIN_PRODUCTS_URL = '/api/v2/admin/products/';
+// H-CICLO95-01: /api/v2/admin/metrics/ never existed — 404 on every load.
 // The actual dashboard snapshot is served by DashboardReportView at
-// /api/v1/admin/reports/dashboard/ (build_dashboard_payload in apps/reports).
-const ADMIN_METRICS_URL  = '/api/v1/admin/reports/dashboard/';
+// /api/v2/admin/reports/dashboard/ (build_dashboard_payload in apps/reports).
+const ADMIN_METRICS_URL  = '/api/v2/admin/reports/dashboard/';
 
 /** UC-ADM-01: KPIs del panel de administración */
 export const fetchAdminMetrics = createAsyncThunk(

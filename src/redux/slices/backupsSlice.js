@@ -1,7 +1,7 @@
 /**
  * backupsSlice — UC-ADM-05
  *
- *   triggerBackup   POST  /api/v1/admin/backups/trigger/
+ *   triggerBackup   POST  /api/v2/admin/backups/trigger/
  *
  * Listado lo expone `useBackups`.
  */
@@ -13,7 +13,7 @@ export const triggerBackup = createAsyncThunk(
   'backups/trigger',
   async (_, { rejectWithValue }) => {
     try {
-      const res = await apiService.post('/api/v1/admin/backups/trigger/', {});
+      const res = await apiService.post('/api/v2/admin/backups/trigger/', {});
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

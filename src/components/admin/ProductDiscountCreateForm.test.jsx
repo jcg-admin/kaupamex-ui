@@ -87,7 +87,7 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/product-discounts/',
+        '/api/v2/admin/product-discounts/',
         {
           product_id:   10,
           discount_pct: 15,
@@ -120,7 +120,7 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/product-discounts/',
+        '/api/v2/admin/product-discounts/',
         expect.objectContaining({ valid_until: null }),
       );
     });

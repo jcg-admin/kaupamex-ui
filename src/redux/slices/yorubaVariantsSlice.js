@@ -18,8 +18,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const ADMIN_VARIANTS_URL = (productId) => `/api/v1/admin/products/${productId}/variants/`;
-const ADMIN_VARIANT_PRICE_URL = (variantId) => `/api/v1/admin/variants/${variantId}/price/`;
+const ADMIN_VARIANTS_URL = (productId) => `/api/v2/admin/products/${productId}/variants/`;
+const ADMIN_VARIANT_PRICE_URL = (variantId) => `/api/v2/admin/variants/${variantId}/price/`;
 
 // =============================================================================
 // Thunks (Admin)

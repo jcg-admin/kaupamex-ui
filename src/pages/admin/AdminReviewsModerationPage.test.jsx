@@ -76,7 +76,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/reviews/5/approve/',
+        '/api/v2/admin/reviews/5/approve/',
         expect.any(Object),
       );
     });
@@ -97,7 +97,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/reviews/5/reject/',
+        '/api/v2/admin/reviews/5/reject/',
         expect.objectContaining({ reason: expect.any(String) }),
       );
     });

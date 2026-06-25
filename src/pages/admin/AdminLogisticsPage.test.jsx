@@ -1,8 +1,8 @@
 /**
  * Tests — AdminLogisticsPage (UC-LOG-08)
  *
- *   GET  /api/v1/logistics/                                — panel de envios pendientes
- *   POST /api/v1/logistics/guides/:guideId/confirm-delivery/ — UC-LOG-05
+ *   GET  /api/v2/logistics/                                — panel de envios pendientes
+ *   POST /api/v2/logistics/guides/:guideId/confirm-delivery/ — UC-LOG-05
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -108,7 +108,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     expect(screen.getByText('DHL')).toBeInTheDocument();
   });
 
-  it('confirma entrega manual via POST /api/v1/logistics/guides/:id/confirm-delivery/', async () => {
+  it('confirma entrega manual via POST /api/v2/logistics/guides/:id/confirm-delivery/', async () => {
     apiService.get.mockResolvedValue({ data: PANEL });
     apiService.post.mockResolvedValue({ data: { ok: true } });
     render(wrap());
@@ -119,7 +119,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/logistics/guides/700/confirm-delivery/',
+        '/api/v2/logistics/guides/700/confirm-delivery/',
         {},
       );
     });

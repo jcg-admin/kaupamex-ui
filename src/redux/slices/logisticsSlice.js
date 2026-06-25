@@ -1,7 +1,7 @@
 /**
  * logisticsSlice — UC-LOG-08 (acciones operacionales desde el panel)
  *
- *   confirmDelivery   POST /api/v1/logistics/guides/:guideId/confirm-delivery/
+ *   confirmDelivery   POST /api/v2/logistics/guides/:guideId/confirm-delivery/
  *
  * La lectura del panel (grupos A y B) la expone `useLogistics`.
  * Las acciones de UC-LOG-01 (crear guia) y UC-LOG-02 (registrar
@@ -16,7 +16,7 @@ export const confirmDelivery = createAsyncThunk(
   async (guideId, { rejectWithValue }) => {
     try {
       const res = await apiService.post(
-        `/api/v1/logistics/guides/${guideId}/confirm-delivery/`,
+        `/api/v2/logistics/guides/${guideId}/confirm-delivery/`,
         {},
       );
       return res.data;

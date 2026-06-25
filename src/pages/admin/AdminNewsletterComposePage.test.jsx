@@ -42,7 +42,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
     expect(screen.getByText(/El asunto es obligatorio/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/admin/newsletter/campaigns/', async () => {
+  it('al enviar, hace POST a /api/v2/admin/newsletter/campaigns/', async () => {
     apiService.post.mockResolvedValue({
       data: { id: 5, status: 'QUEUED', recipients_count: 120 },
     });
@@ -65,7 +65,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
       // del bug. UI ahora mapea html_body -> body + segment ALL_ACTIVE
       // -> audience_filter CONFIRMED (canon SubscriberStatus).
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/newsletter/campaigns/',
+        '/api/v2/admin/newsletter/campaigns/',
         expect.objectContaining({
           subject:         'Boletin de mayo',
           body:            '<p>Hola</p>',
@@ -117,7 +117,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/newsletter/campaigns/',
+        '/api/v2/admin/newsletter/campaigns/',
         expect.objectContaining({
           scheduled_at: '2026-06-01T10:00',
         }),

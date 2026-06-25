@@ -2,7 +2,7 @@
  * useAdminProducts — hook de React Query para el listado admin de
  * productos (UC-CAT-09..12).
  *
- * GET /api/v1/admin/products/
+ * GET /api/v2/admin/products/
  *
  * params soportados (todos opcionales):
  *   page       int   — pagina (1-based)
@@ -15,7 +15,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const ADMIN_PRODUCTS_URL = '/api/v1/admin/products/';
+const ADMIN_PRODUCTS_URL = '/api/v2/admin/products/';
 
 export const ADMIN_PRODUCTS_KEY = ['admin', 'products'];
 

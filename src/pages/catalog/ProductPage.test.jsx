@@ -226,10 +226,10 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Chico/ }));
     fireEvent.click(screen.getByRole('button', { name: /Agregar a la bolsa/i }));
 
-    // Component calls addToCart thunk → POST /api/v1/cart/items/
+    // Component calls addToCart thunk → POST /api/v2/cart/items/
     await screen.findByText('Carrito');
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/cart/items/',
+      '/api/v2/cart/items/',
       expect.objectContaining({
         product_id: PRODUCT.id,
         variant_id: 1,
@@ -349,7 +349,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
       await screen.findByText('Carrito');
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/cart/items/',
+        '/api/v2/cart/items/',
         expect.objectContaining({
           product_id: PRODUCT.id,
           variant_id: 12,

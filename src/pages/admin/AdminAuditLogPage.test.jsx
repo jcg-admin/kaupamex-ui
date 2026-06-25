@@ -1,7 +1,7 @@
 /**
  * Tests — AdminAuditLogPage (UC-ADM-03)
  *
- *   GET /api/v1/admin/audit-log/
+ *   GET /api/v2/admin/audit-log/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -47,12 +47,12 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
     expect(await screen.findByRole('heading', { name: /Auditoria/i })).toBeInTheDocument();
   });
 
-  it('llama al endpoint /api/v1/admin/audit-log/ al montar', async () => {
+  it('llama al endpoint /api/v2/admin/audit-log/ al montar', async () => {
     apiService.get.mockResolvedValue({ data: { results: ENTRIES, count: 2 } });
     render(wrap());
     await waitFor(() => {
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/audit-log/',
+        '/api/v2/admin/audit-log/',
         expect.objectContaining({ params: expect.objectContaining({ page: 1 }) }),
       );
     });
@@ -87,7 +87,7 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/audit-log/',
+        '/api/v2/admin/audit-log/',
         expect.objectContaining({
           params: expect.objectContaining({ action: 'product.created' }),
         }),

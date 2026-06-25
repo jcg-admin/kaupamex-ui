@@ -1,8 +1,8 @@
 /**
  * AdminBackupsPage — UC-ADM-05
  *
- *   GET  /api/v1/admin/backups/
- *   POST /api/v1/admin/backups/trigger/
+ *   GET  /api/v2/admin/backups/
+ *   POST /api/v2/admin/backups/trigger/
  *
  * UC-ADM-05 es un cron — esta pagina permite ver el historial y
  * disparar un backup manual on-demand.

@@ -44,7 +44,7 @@ describe('useProductDiscounts (UC-DASH-04)', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/product-discounts/',
+      '/api/v2/admin/product-discounts/',
       expect.objectContaining({ params: {} }),
     );
     expect(result.current.data).toHaveLength(1);
@@ -59,7 +59,7 @@ describe('useProductDiscounts (UC-DASH-04)', () => {
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/product-discounts/',
+      '/api/v2/admin/product-discounts/',
       expect.objectContaining({ params: { status: 'CURRENT' } }),
     );
   });

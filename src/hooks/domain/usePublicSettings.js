@@ -6,7 +6,7 @@
  * branding. Devuelve siempre un objeto plano combinando un `fallback` con
  * la respuesta del backend.
  *
- *   GET /api/v1/config/settings/   (SiteSettingsView)
+ *   GET /api/v2/config/settings/   (SiteSettingsView)
  *
  * Diseno tolerante a fallos (NO usa React Query a proposito): el consumidor
  * tipico (Footer / banner de envio gratis) se monta en casi todas las vistas
@@ -28,7 +28,7 @@
 import { useEffect, useState } from 'react';
 import apiService from '@services/apiService';
 
-export const PUBLIC_SETTINGS_URL = '/api/v1/config/settings/';
+export const PUBLIC_SETTINGS_URL = '/api/v2/config/settings/';
 
 export function usePublicSettings(fallback = {}) {
   const [settings, setSettings] = useState(fallback);

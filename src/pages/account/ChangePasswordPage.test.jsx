@@ -109,7 +109,7 @@ describe('ChangePasswordPage (UC-AUTH-08)', () => {
     fireEvent.click(screen.getByRole('button', { name: /guardar cambio/i }));
     await waitFor(() =>
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/auth/change-password/',
+        '/api/v2/auth/change-password/',
         {
           current_password: 'OldPass1!',
           new_password: 'NewPass1!',

@@ -71,7 +71,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/notifications/manual/',
+        '/api/v2/admin/notifications/manual/',
         expect.objectContaining({
           recipient_type:       'USER',
           recipient_identifier: 'cliente@example.com',
@@ -113,7 +113,7 @@ describe('AdminNotificationComposePage (UC-NOT-07)', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/notifications/audience-count/',
+        '/api/v2/admin/notifications/audience-count/',
         expect.objectContaining({
           params: expect.objectContaining({
             recipient_type: 'PRODUCT_BUYERS',

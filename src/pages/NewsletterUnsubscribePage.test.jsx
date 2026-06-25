@@ -38,7 +38,7 @@ describe('NewsletterUnsubscribePage (UC-NEW-02)', () => {
     expect(screen.getByLabelText(/Motivo/i)).toBeInTheDocument();
   });
 
-  it('al confirmar, hace POST a /api/v1/newsletter/unsubscribe/ con el token', async () => {
+  it('al confirmar, hace POST a /api/v2/newsletter/unsubscribe/ con el token', async () => {
     apiService.post.mockResolvedValue({ data: { ok: true } });
     render(wrap());
 
@@ -48,7 +48,7 @@ describe('NewsletterUnsubscribePage (UC-NEW-02)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/newsletter/unsubscribe/',
+        '/api/v2/newsletter/unsubscribe/',
         expect.objectContaining({
           token:  'abc123',
           reason: 'TOO_FREQUENT',

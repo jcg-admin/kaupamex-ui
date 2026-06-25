@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
 const ADMIN_VARIANTS_URL = (productId) =>
-  `/api/v1/admin/products/${productId}/variants/`;
+  `/api/v2/admin/products/${productId}/variants/`;
 
 export const YORUBA_VARIANTS_KEY = ['yoruba-variants'];
 

@@ -10,7 +10,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const WISHLIST_URL = '/api/v1/wishlist/';
+const WISHLIST_URL = '/api/v2/wishlist/';
 
 export const WISHLIST_KEY = ['wishlist'];
 

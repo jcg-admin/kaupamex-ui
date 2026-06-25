@@ -1,14 +1,14 @@
 /**
  * useAdminUsers — UC-ADM-01
  *
- * GET /api/v1/admin/users/
+ * GET /api/v2/admin/users/
  *
  * Soporta filtros opcionales: ?role=, ?is_active=, ?search=, ?page=.
  */
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const URL = '/api/v1/admin/users/';
+const URL = '/api/v2/admin/users/';
 export const ADMIN_USERS_KEY = ['admin', 'users'];
 
 export function useAdminUsers(params = {}) {

@@ -67,7 +67,7 @@ describe('AdminContactMessagesPage (UC-COM-02)', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/contact/messages/',
+        '/api/v2/admin/contact/messages/',
         expect.objectContaining({
           params: expect.any(Object),
         }),

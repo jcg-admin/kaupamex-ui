@@ -115,7 +115,7 @@ describe('AdminUserDetailPage — acciones de cuenta (UC-AUTH-13/14)', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Desactivar cuenta/i }));
     await waitFor(() =>
       expect(apiService.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/v1/admin/users/42/'),
+        expect.stringContaining('/api/v2/admin/users/42/'),
         expect.anything(),
       )
     );

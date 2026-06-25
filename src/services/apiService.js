@@ -93,7 +93,7 @@ class APIService {
 
   // DEC-BC-07: X-Cart-Token management. Propaga sesion anonima del
   // carrito cross-request. Backend setea header en response;
-  // siguientes requests a /api/v1/cart/ envian el token.
+  // siguientes requests a /api/v2/cart/ envian el token.
   setCartToken(token) {
     this._cartToken = token || null;
   }
@@ -145,8 +145,8 @@ class APIService {
       delete config.headers['Content-Type'];
     }
     // DEC-BC-07: si hay _cartToken activo, propagarlo en requests a
-    // /api/v1/cart/ para mantener la sesion anonima cross-request.
-    if (this._cartToken && path.includes('/api/v1/cart/')) {
+    // /api/v2/cart/ para mantener la sesion anonima cross-request.
+    if (this._cartToken && path.includes('/api/v2/cart/')) {
       config.headers['X-Cart-Token'] = this._cartToken;
     }
     for (const fn of this._interceptors.request) {
@@ -199,7 +199,7 @@ class APIService {
         if (canRetry) {
           this._isRefreshing = true;
           try {
-            const refreshUrl = `${this.baseURL}/api/v1/auth/refresh/`;
+            const refreshUrl = `${this.baseURL}/api/v2/auth/refresh/`;
             const refreshRes = await fetch(refreshUrl, {
               method:  'POST',
               headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },

@@ -10,8 +10,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const ADMIN_SUBSCRIBERS_URL = '/api/v1/admin/newsletter/subscribers/';
-const ADMIN_CAMPAIGNS_URL   = '/api/v1/admin/newsletter/campaigns/';
+const ADMIN_SUBSCRIBERS_URL = '/api/v2/admin/newsletter/subscribers/';
+const ADMIN_CAMPAIGNS_URL   = '/api/v2/admin/newsletter/campaigns/';
 
 export const NEWSLETTER_SUBSCRIBERS_KEY = ['newsletter', 'admin', 'subscribers'];
 export const NEWSLETTER_CAMPAIGNS_KEY   = ['newsletter', 'admin', 'campaigns'];

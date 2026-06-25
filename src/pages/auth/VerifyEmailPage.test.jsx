@@ -42,7 +42,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
     apiService.post.mockResolvedValue({ data: { status: 'OK' } });
     renderPage('?token=abc123');
     await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/verify-email/',
+      '/api/v2/auth/verify-email/',
       { token: 'abc123' },
     ));
   });
@@ -100,7 +100,7 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
     fireEvent.click(screen.getByRole('button', { name: /reenviar correo/i }));
 
     await waitFor(() => expect(apiService.post).toHaveBeenLastCalledWith(
-      '/api/v1/auth/resend-verification/',
+      '/api/v2/auth/resend-verification/',
       { email: 'demo@test.mx' },
     ));
   });

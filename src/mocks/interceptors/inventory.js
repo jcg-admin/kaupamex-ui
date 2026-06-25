@@ -2,10 +2,10 @@
  * Inventory mock interceptor — PracticaYoruba (D-007).
  *
  * Cubre UC-INV-01..05 sobre los endpoints:
- *   GET    /api/v1/admin/inventory/
- *   GET    /api/v1/admin/inventory/variants/<id>/movements/
- *   POST   /api/v1/admin/inventory/variants/<id>/adjust/
- *   POST   /api/v1/admin/inventory/import/
+ *   GET    /api/v2/admin/inventory/
+ *   GET    /api/v2/admin/inventory/variants/<id>/movements/
+ *   POST   /api/v2/admin/inventory/variants/<id>/adjust/
+ *   POST   /api/v2/admin/inventory/import/
  *
  * Contrato:
  *   - JSON keys en ingles (DEC-DOC-005).
@@ -14,9 +14,9 @@
  *   - Status codes consistentes con apiService (200/201/400/404/409).
  */
 
-const STOCK_PREFIX     = '/api/v1/admin/inventory/';
-const VARIANTS_PREFIX  = '/api/v1/admin/inventory/variants/';
-const IMPORT_PREFIX    = '/api/v1/admin/inventory/import/';
+const STOCK_PREFIX     = '/api/v2/admin/inventory/';
+const VARIANTS_PREFIX  = '/api/v2/admin/inventory/variants/';
+const IMPORT_PREFIX    = '/api/v2/admin/inventory/import/';
 
 const ok       = (data, status = 200) => ({ status, data });
 const created  = (data)               => ({ status: 201, data });
@@ -60,12 +60,12 @@ function decorate(item) {
 }
 
 function variantIdFromMovements(url) {
-  const m = url.split('?')[0].match(/^\/api\/v1\/admin\/inventory\/variants\/(\d+)\/movements\/$/);
+  const m = url.split('?')[0].match(/^\/api\/v2\/admin\/inventory\/variants\/(\d+)\/movements\/$/);
   return m ? Number(m[1]) : null;
 }
 
 function variantIdFromAdjust(url) {
-  const m = url.split('?')[0].match(/^\/api\/v1\/admin\/inventory\/variants\/(\d+)\/adjust\/$/);
+  const m = url.split('?')[0].match(/^\/api\/v2\/admin\/inventory\/variants\/(\d+)\/adjust\/$/);
   return m ? Number(m[1]) : null;
 }
 

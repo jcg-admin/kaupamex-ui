@@ -66,7 +66,7 @@ describe('ProductQuestionsListPage (UC-QST-02)', () => {
     render(wrap());
     await screen.findByText(/Aun no hay preguntas/i);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/products/42/questions/',
+      '/api/v2/products/42/questions/',
       expect.any(Object),
     );
   });

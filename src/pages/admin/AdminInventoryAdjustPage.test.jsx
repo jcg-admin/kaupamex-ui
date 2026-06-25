@@ -65,7 +65,7 @@ describe('AdminInventoryAdjustPage (UC-INV-04)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/inventory/variants/10/adjust/',
+        '/api/v2/admin/inventory/variants/10/adjust/',
         expect.objectContaining({
           new_quantity: 12,
           reason: 'PHYSICAL_COUNT',

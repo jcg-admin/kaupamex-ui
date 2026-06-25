@@ -70,7 +70,7 @@ describe('logoutUser envia {refresh} en body (D-17)', () => {
     await store.dispatch(logoutUser());
 
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/logout/',
+      '/api/v2/auth/logout/',
       { refresh: 'refresh-abc' },
     );
     expect(apiService.clearTokens).toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe('logoutUser envia {refresh} en body (D-17)', () => {
 
     await store.dispatch(logoutUser());
 
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/auth/logout/', {});
+    expect(apiService.post).toHaveBeenCalledWith('/api/v2/auth/logout/', {});
     expect(apiService.clearTokens).toHaveBeenCalled();
   });
 
@@ -109,7 +109,7 @@ describe('refreshSession actualiza tokens (D-23)', () => {
     await store.dispatch(refreshSession());
 
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/refresh/',
+      '/api/v2/auth/refresh/',
       { refresh: 'refresh-old' },
     );
     expect(apiService.setAuthToken).toHaveBeenCalledWith('access-new');

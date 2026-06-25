@@ -42,7 +42,7 @@ describe('useNotifications hooks', () => {
       previous: null,
     });
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/notifications/',
+      '/api/v2/notifications/',
       expect.objectContaining({ params: {} }),
     );
   });
@@ -55,7 +55,7 @@ describe('useNotifications hooks', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toBe(7);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/notifications/unread-count/',
+      '/api/v2/notifications/unread-count/',
       expect.any(Object),
     );
   });

@@ -32,7 +32,7 @@ describe('useInventory hooks', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data.summary).toEqual({ agotados: 0 });
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/inventory/',
+      '/api/v2/admin/inventory/',
       expect.objectContaining({ params: { status: 'BAJO' } }),
     );
   });

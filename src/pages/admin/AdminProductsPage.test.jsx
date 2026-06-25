@@ -53,12 +53,12 @@ describe('AdminProductsPage (D-011 listado)', () => {
     ).toBeInTheDocument();
   });
 
-  it('llama a GET /api/v1/admin/products/ al montar', async () => {
+  it('llama a GET /api/v2/admin/products/ al montar', async () => {
     apiService.get.mockResolvedValue({ data: RESPONSE_PAGE_1 });
     render(wrap(<AdminProductsPage />));
     await screen.findByText('Collar Oshun dorado');
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/products/',
+      '/api/v2/admin/products/',
       expect.anything(),
     );
   });
@@ -100,7 +100,7 @@ describe('AdminProductsPage — busqueda', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/products/',
+        '/api/v2/admin/products/',
         expect.objectContaining({
           params: expect.objectContaining({ search: 'oshun' }),
         }),
@@ -119,7 +119,7 @@ describe('AdminProductsPage — filtro por estado', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/products/',
+        '/api/v2/admin/products/',
         expect.objectContaining({
           params: expect.objectContaining({ filter: 'published' }),
         }),

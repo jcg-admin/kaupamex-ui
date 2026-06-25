@@ -58,12 +58,12 @@ const renderSection = (slug = 'producto-base') => {
 afterEach(() => jest.clearAllMocks());
 
 describe('RelatedProductsSection (UC-CAT-07)', () => {
-  it('llama a GET /api/v1/products/:slug/related/', async () => {
+  it('llama a GET /api/v2/products/:slug/related/', async () => {
     apiService.get.mockResolvedValue({ data: { results: [], fallback: null } });
     renderSection('mi-producto');
     await waitFor(() =>
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/products/mi-producto/related/',
+        '/api/v2/products/mi-producto/related/',
         expect.any(Object),
       ),
     );

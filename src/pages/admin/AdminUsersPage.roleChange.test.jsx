@@ -65,7 +65,7 @@ describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
     fireEvent.click(screen.getByRole('button', { name: /Compradores/i }));
     await waitFor(() => {
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/users/',
+        '/api/v2/admin/users/',
         expect.objectContaining({
           params: expect.objectContaining({ is_staff: 'false' }),
         }),
@@ -82,7 +82,7 @@ describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
     fireEvent.click(screen.getByRole('button', { name: /Administradores/i }));
     await waitFor(() => {
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/users/',
+        '/api/v2/admin/users/',
         expect.objectContaining({
           params: expect.objectContaining({ is_staff: 'true' }),
         }),

@@ -73,7 +73,7 @@ describe('AdminQuestionsAnswerPage (UC-QST-03)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/questions/1/answer/',
+        '/api/v2/admin/questions/1/answer/',
         expect.objectContaining({ answer_body: 'Las tallas son S, M, L y XL.' }),
       );
     });

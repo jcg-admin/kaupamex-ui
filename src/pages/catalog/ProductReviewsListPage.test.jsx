@@ -46,7 +46,7 @@ describe('ProductReviewsListPage (UC-REV-02)', () => {
     render(wrap());
     await screen.findByText(/A[uú]n no hay rese[nñ]as/i);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/products/42/reviews/',
+      '/api/v2/products/42/reviews/',
       expect.any(Object),
     );
   });

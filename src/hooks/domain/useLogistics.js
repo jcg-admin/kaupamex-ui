@@ -1,7 +1,7 @@
 /**
  * useLogistics — UC-LOG-08
  *
- * GET /api/v1/logistics/
+ * GET /api/v2/logistics/
  *
  * Devuelve los dos grupos de trabajo del panel de envios:
  *   - pending_pickup: ordenes en PAGO_CONFIRMADO / EN_PREPARACION sin
@@ -20,7 +20,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const URL = '/api/v1/logistics/';
+const URL = '/api/v2/logistics/';
 export const LOGISTICS_KEY = ['admin', 'logistics'];
 
 export function useLogistics(params = {}) {

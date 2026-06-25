@@ -4,7 +4,7 @@
  *
  * H-CICLO110-03: AdminInventoryPage mostraba "Sin variante" sin enlace
  * de accion para productos sin variantes. El API tiene el endpoint
- * POST /api/v1/admin/inventory/<productId>/adjust/ (StockAdjustView)
+ * POST /api/v2/admin/inventory/<productId>/adjust/ (StockAdjustView)
  * que acepta delta + reason + notes, pero la UI carecia de ruta y pagina.
  * Este componente cubre ese hueco usando adjustProductStockManually.
  */

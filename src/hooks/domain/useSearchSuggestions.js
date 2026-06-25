@@ -8,7 +8,7 @@
  * cancela las peticiones obsoletas al cambiar la queryKey.
  *
  * Endpoint (AutocompleteView, permission_classes=[AllowAny]):
- *   GET /api/v1/catalogue/autocomplete/?q=<term>
+ *   GET /api/v2/catalogue/autocomplete/?q=<term>
  *     -> [ { id, name, slug }, ... ]   (array de productos)
  *
  * El backend devuelve objetos de producto; este hook extrae el `name` para
@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-export const SUGGESTIONS_URL = '/api/v1/catalogue/autocomplete/';
+export const SUGGESTIONS_URL = '/api/v2/catalogue/autocomplete/';
 export const SUGGESTIONS_KEY = ['catalog', 'search', 'autocomplete'];
 
 const MIN_LENGTH  = 2;

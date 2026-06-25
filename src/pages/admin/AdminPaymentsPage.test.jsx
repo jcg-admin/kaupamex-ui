@@ -80,7 +80,7 @@ describe('AdminPaymentsPage (UC-PAY-11)', () => {
     fireEvent.change(screen.getByLabelText(/Gateway/i), { target: { value: 'mercadopago' } });
 
     expect(apiService.get).toHaveBeenLastCalledWith(
-      '/api/v1/admin/payments/',
+      '/api/v2/admin/payments/',
       expect.objectContaining({
         params: expect.objectContaining({ status: 'APPROVED', gateway: 'mercadopago' }),
       })

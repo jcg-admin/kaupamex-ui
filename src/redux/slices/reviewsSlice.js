@@ -15,10 +15,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const PUBLIC_CREATE_URL          = (productId) => `/api/v1/products/${productId}/reviews/`;
-const REVIEW_IMAGES_URL          = (productId, reviewId) => `/api/v1/products/${productId}/reviews/${reviewId}/images/`;
-const ADMIN_MODERATE_APPROVE_URL = (id) => `/api/v1/admin/reviews/${id}/approve/`;
-const ADMIN_MODERATE_REJECT_URL  = (id) => `/api/v1/admin/reviews/${id}/reject/`;
+const PUBLIC_CREATE_URL          = (productId) => `/api/v2/products/${productId}/reviews/`;
+const REVIEW_IMAGES_URL          = (productId, reviewId) => `/api/v2/products/${productId}/reviews/${reviewId}/images/`;
+const ADMIN_MODERATE_APPROVE_URL = (id) => `/api/v2/admin/reviews/${id}/approve/`;
+const ADMIN_MODERATE_REJECT_URL  = (id) => `/api/v2/admin/reviews/${id}/reject/`;
 
 // =============================================================================
 // Thunks

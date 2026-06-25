@@ -98,7 +98,7 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
     const store = makeStore();
     await store.dispatch(fetchAdminUsers({ search: 'ana', is_active: 'true' }));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/users/',
+      '/api/v2/admin/users/',
       { params: { search: 'ana', is_active: 'true' } }
     );
   });
@@ -133,7 +133,7 @@ describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
     apiService.get.mockResolvedValue({ data: USER });
     const store = makeStore();
     await store.dispatch(fetchAdminUser(42));
-    expect(apiService.get).toHaveBeenCalledWith('/api/v1/admin/users/42/');
+    expect(apiService.get).toHaveBeenCalledWith('/api/v2/admin/users/42/');
   });
 });
 
@@ -163,7 +163,7 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
     apiService.post.mockResolvedValue({ data: {} });
     const store = makeStore();
     await store.dispatch(suspendUser(42));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/suspend/', {});
+    expect(apiService.post).toHaveBeenCalledWith('/api/v2/admin/users/42/suspend/', {});
   });
 });
 
@@ -184,7 +184,7 @@ describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
     apiService.post.mockResolvedValue({ data: {} });
     const store = makeStore();
     await store.dispatch(reactivateUser(42));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/42/reactivate/', {});
+    expect(apiService.post).toHaveBeenCalledWith('/api/v2/admin/users/42/reactivate/', {});
   });
 });
 
@@ -216,6 +216,6 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
     const store = makeStore();
     const payload = { username: 'adm', email: 'adm@test.mx', password: 'Adm123!' };
     await store.dispatch(createAdminUser(payload));
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/admin/users/', payload);
+    expect(apiService.post).toHaveBeenCalledWith('/api/v2/admin/users/', payload);
   });
 });

@@ -73,12 +73,12 @@ describe('AdminOrdersDashboardPage (UC-ORD-10)', () => {
     expect(link).toHaveAttribute('href', '/admin/orders/PY-2026-000999');
   });
 
-  it('llama al endpoint /api/v1/admin/dashboard/', async () => {
+  it('llama al endpoint /api/v2/admin/dashboard/', async () => {
     apiService.get.mockResolvedValue({ data: DATA });
     render(wrap(<AdminOrdersDashboardPage />));
     await screen.findByRole('heading', { name: /Dashboard transaccional/i });
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/dashboard/',
+      '/api/v2/admin/dashboard/',
       expect.any(Object),
     );
   });

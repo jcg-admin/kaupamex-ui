@@ -110,7 +110,7 @@ describe('AdminProductDiscountsPage — listado (UC-DASH-04)', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/product-discounts/',
+        '/api/v2/admin/product-discounts/',
         expect.objectContaining({ params: { status: 'CURRENT' } }),
       );
     });

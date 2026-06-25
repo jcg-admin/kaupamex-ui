@@ -15,7 +15,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const URL_BASE = '/api/v1/admin/product-discounts/';
+const URL_BASE = '/api/v2/admin/product-discounts/';
 
 // =============================================================================
 // Thunks

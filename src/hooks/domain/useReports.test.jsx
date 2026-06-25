@@ -44,7 +44,7 @@ describe('useReports hooks', () => {
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/sales/',
+      '/api/v2/admin/reports/sales/',
       expect.objectContaining({ params: { period: 'month' } }),
     );
     expect(result.current.data.totals.orders).toBe(12);
@@ -60,7 +60,7 @@ describe('useReports hooks', () => {
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/top-sellers/',
+      '/api/v2/admin/reports/top-sellers/',
       expect.objectContaining({ params: { period: 'week', limit: 10 } }),
     );
     expect(result.current.data.results).toHaveLength(1);
@@ -76,7 +76,7 @@ describe('useReports hooks', () => {
     );
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/customers-rfm/',
+      '/api/v2/admin/reports/customers-rfm/',
       expect.objectContaining({ params: { segment: 'VIP' } }),
     );
     expect(result.current.data.results[0].segment).toBe('VIP');
@@ -95,7 +95,7 @@ describe('useReports hooks', () => {
     const { result } = renderHook(() => useAnalyticsDashboard(), { wrapper: makeWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/reports/dashboard/',
+      '/api/v2/admin/reports/dashboard/',
       expect.objectContaining({ params: {} }),
     );
     expect(result.current.data.today.orders).toBe(4);
@@ -103,11 +103,11 @@ describe('useReports hooks', () => {
 
   it('buildReportExportUrl produce la URL con filtros y formato', () => {
     const url = buildReportExportUrl('sales', { period: 'month', format: 'csv' });
-    expect(url).toBe('/api/v1/admin/reports/sales/export/?period=month&format=csv');
+    expect(url).toBe('/api/v2/admin/reports/sales/export/?period=month&format=csv');
   });
 
   it('buildReportExportUrl omite valores nulos/vacios', () => {
     const url = buildReportExportUrl('top-sellers', { period: '', limit: 10, format: 'pdf' });
-    expect(url).toBe('/api/v1/admin/reports/top-sellers/export/?limit=10&format=pdf');
+    expect(url).toBe('/api/v2/admin/reports/top-sellers/export/?limit=10&format=pdf');
   });
 });

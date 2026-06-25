@@ -83,7 +83,7 @@ describe('AdminUserPermissions — guardar (éxito)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/users/42/permissions/',
+        '/api/v2/admin/users/42/permissions/',
         expect.objectContaining({
           is_staff: true,
           is_superuser: false,
@@ -103,7 +103,7 @@ describe('AdminUserPermissions — guardar (éxito)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar permisos/i }));
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/users/42/permissions/',
+        '/api/v2/admin/users/42/permissions/',
         expect.objectContaining({ groups: [3, 5] }),
       );
     });

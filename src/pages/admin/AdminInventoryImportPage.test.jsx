@@ -63,7 +63,7 @@ describe('AdminInventoryImportPage (UC-INV-05)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/inventory/import/',
+        '/api/v2/admin/inventory/import/',
         expect.any(FormData),
       );
     });

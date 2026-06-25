@@ -89,7 +89,7 @@ describe('ProductDiscountEditForm (UC-DASH-02)', () => {
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/product-discounts/1/',
+        '/api/v2/admin/product-discounts/1/',
         {
           discount_pct: 20,
           valid_from:   '2026-01-01',
@@ -115,7 +115,7 @@ describe('ProductDiscountEditForm (UC-DASH-02)', () => {
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/product-discounts/1/',
+        '/api/v2/admin/product-discounts/1/',
         expect.objectContaining({ valid_until: null }),
       );
     });

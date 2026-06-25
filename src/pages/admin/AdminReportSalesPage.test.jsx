@@ -78,7 +78,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
     );
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/reports/sales/',
+        '/api/v2/admin/reports/sales/',
         expect.objectContaining({ params: { period: 'week' } }),
       );
     });
@@ -137,7 +137,7 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
       const csvLink = screen.getByRole('link', { name: /Exportar CSV/i });
       expect(csvLink).toHaveAttribute(
         'href',
-        '/api/v1/admin/reports/sales/export/?period=year&format=csv',
+        '/api/v2/admin/reports/sales/export/?period=year&format=csv',
       );
     });
   });

@@ -141,7 +141,7 @@ export default function AdminInventoryPage() {
                     </>
                   ) : (
                     /* H-CICLO110-03: productos sin variante tienen endpoint
-                       propio /api/v1/admin/inventory/<product_pk>/adjust/.
+                       propio /api/v2/admin/inventory/<product_pk>/adjust/.
                        Antes se mostraba "Sin variante" sin enlace, dejando al
                        admin sin forma de ajustar el stock desde la UI. */
                     <Link

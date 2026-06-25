@@ -1,10 +1,10 @@
 /**
  * Tests — AdminCategoriesPage (UC-CAT-06)
  *
- *   GET   /api/v1/admin/categories/
- *   POST  /api/v1/admin/categories/
- *   PATCH /api/v1/admin/categories/:id/
- *   POST  /api/v1/admin/categories/:id/deactivate/
+ *   GET   /api/v2/admin/categories/
+ *   POST  /api/v2/admin/categories/
+ *   PATCH /api/v2/admin/categories/:id/
+ *   POST  /api/v2/admin/categories/:id/deactivate/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -53,7 +53,7 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     expect(await screen.findByRole('cell', { name: 'Collares' })).toBeInTheDocument();
   });
 
-  it('crea una categoria via POST /api/v1/admin/categories/', async () => {
+  it('crea una categoria via POST /api/v2/admin/categories/', async () => {
     apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
     apiService.post.mockResolvedValue({ data: { id: 99, name: 'Nueva' } });
 
@@ -66,7 +66,7 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/categories/',
+        '/api/v2/admin/categories/',
         expect.objectContaining({ name: 'Nueva categoria' }),
       );
     });
@@ -96,7 +96,7 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/categories/1/deactivate/',
+        '/api/v2/admin/categories/1/deactivate/',
         expect.anything(),
       );
     });

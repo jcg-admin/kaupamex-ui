@@ -53,7 +53,7 @@ const pageOf = (results = []) => ({
 });
 
 /**
- * Las llamadas de CatalogFilters a /api/v1/categories/ (UC-CAT-08)
+ * Las llamadas de CatalogFilters a /api/v2/categories/ (UC-CAT-08)
  * comparten la misma instancia mockeada de apiService.get. Para que
  * los asserts de productos no se contaminen con nombres de categoria,
  * un beforeEach instala un interceptor por URL: cualquier path con
@@ -259,7 +259,7 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
       // All apiService.get calls are recorded; find one for catalogue with category param
       const calls = apiService.get.mock.calls;
       const catalogueCall = calls.find(
-        ([url, opts]) => typeof url === 'string' && url.includes('/api/v1/catalogue/')
+        ([url, opts]) => typeof url === 'string' && url.includes('/api/v2/catalogue/')
           && !url.includes('/search/')
           && opts?.params?.category !== undefined,
       );
@@ -283,7 +283,7 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
     // Wait for initial load
     await waitFor(() => {
       expect(apiService.get.mock.calls.some(
-        ([url]) => typeof url === 'string' && url.includes('/api/v1/catalogue/')
+        ([url]) => typeof url === 'string' && url.includes('/api/v2/catalogue/')
       )).toBe(true);
     });
     // Dispatch filter directly to trigger re-fetch with price params
@@ -291,7 +291,7 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
     await waitFor(() => {
       const calls = apiService.get.mock.calls;
       const catalogueCall = calls.find(
-        ([url, opts]) => typeof url === 'string' && url.includes('/api/v1/catalogue/')
+        ([url, opts]) => typeof url === 'string' && url.includes('/api/v2/catalogue/')
           && (opts?.params?.price_min !== undefined),
       );
       expect(catalogueCall?.[1]?.params?.price_min).toBe(100);

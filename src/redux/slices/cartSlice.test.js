@@ -29,7 +29,7 @@ describe('cartSlice (UC-CART-01)', () => {
     await store.dispatch(addToCart({ productId: 4321, variantId: 87, quantity: 2 }));
 
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/cart/items/',
+      '/api/v2/cart/items/',
       { product_id: 4321, variant_id: 87, quantity: 2 },
     );
   });
@@ -81,7 +81,7 @@ describe('cartSlice (UC-CART-01)', () => {
     const store = makeStore();
     await store.dispatch(syncCartOnLogin());
 
-    expect(apiService.post).toHaveBeenCalledWith('/api/v1/cart/merge/', {});
+    expect(apiService.post).toHaveBeenCalledWith('/api/v2/cart/merge/', {});
     const state = store.getState().cart;
     expect(state.items).toHaveLength(2);
     expect(state.lastAction).toBe('synced');

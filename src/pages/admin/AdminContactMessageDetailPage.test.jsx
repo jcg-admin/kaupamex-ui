@@ -75,7 +75,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
     expect(screen.getByText(/La respuesta es obligatoria/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/admin/contact/messages/<id>/reply/', async () => {
+  it('al enviar, hace POST a /api/v2/admin/contact/messages/<id>/reply/', async () => {
     apiService.get.mockResolvedValue({
       data: { id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z' },
     });
@@ -91,7 +91,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/contact/messages/7/reply/',
+        '/api/v2/admin/contact/messages/7/reply/',
         expect.objectContaining({
           reply_body:    'Gracias por escribirnos, el envio tarda 3 dias.',
           internal_note: 'cliente recurrente',

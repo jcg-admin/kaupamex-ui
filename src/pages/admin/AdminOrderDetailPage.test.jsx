@@ -77,7 +77,7 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/orders/PY-2026-000101/status/',
+        '/api/v2/admin/orders/PY-2026-000101/status/',
         expect.objectContaining({
           new_status: 'PROCESSING',
         }),
@@ -111,7 +111,7 @@ describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/orders/PY-2026-000101/cancel/',
+        '/api/v2/admin/orders/PY-2026-000101/cancel/',
         expect.objectContaining({
           reason: expect.stringMatching(/Cliente solicito/),
         }),

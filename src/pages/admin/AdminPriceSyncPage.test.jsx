@@ -60,7 +60,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     expect(await screen.findByText('SKU-1')).toBeInTheDocument();
     expect(screen.getByText('SKU-2')).toBeInTheDocument();
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/admin/price-sync/preview-csv/',
+      '/api/v2/admin/price-sync/preview-csv/',
       expect.any(FormData),
     );
   });
@@ -78,7 +78,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     fireEvent.click(screen.getByRole('button', { name: /confirmar y aplicar/i }));
     await waitFor(() =>
       expect(apiService.post).toHaveBeenLastCalledWith(
-        '/api/v1/admin/price-sync/apply-csv/',
+        '/api/v2/admin/price-sync/apply-csv/',
         { session_id: 'preview-session-abc' },
       ),
     );
@@ -108,7 +108,7 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     fireEvent.click(screen.getByRole('button', { name: /generar vista previa/i }));
     await waitFor(() =>
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/price-sync/preview-percentage/',
+        '/api/v2/admin/price-sync/preview-percentage/',
         expect.objectContaining({
           pct: 5, category_id: 'collares', price_min: 100,
         }),

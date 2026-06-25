@@ -67,7 +67,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
     );
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/reports/top-sellers/',
+        '/api/v2/admin/reports/top-sellers/',
         expect.objectContaining({
           params: expect.objectContaining({ period: 'quarter' }),
         }),

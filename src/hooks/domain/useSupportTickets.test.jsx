@@ -39,7 +39,7 @@ describe('useSupportTickets hooks', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual({ id: 42, subject: 'x' });
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/support/tickets/42/',
+      '/api/v2/support/tickets/42/',
       expect.objectContaining({ signal: expect.any(Object) }),
     );
   });

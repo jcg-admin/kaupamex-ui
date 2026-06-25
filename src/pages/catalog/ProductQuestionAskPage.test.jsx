@@ -58,7 +58,7 @@ describe('ProductQuestionAskPage (UC-QST-01)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/products/42/questions/',
+        '/api/v2/products/42/questions/',
         expect.objectContaining({
           body:        'Cual es la talla recomendada para mediana?',
           asker_email: 'visitante@example.com',

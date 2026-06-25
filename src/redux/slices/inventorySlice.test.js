@@ -58,7 +58,7 @@ describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
     const store = makeStore();
     await store.dispatch(fetchInventory({ status: 'AGOTADO' }));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/inventory/',
+      '/api/v2/admin/inventory/',
       { params: { status: 'AGOTADO' } },
     );
   });
@@ -84,7 +84,7 @@ describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
     const store = makeStore();
     await store.dispatch(fetchStockMovements(99));
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/inventory/variants/99/movements/',
+      '/api/v2/admin/inventory/variants/99/movements/',
     );
   });
 });

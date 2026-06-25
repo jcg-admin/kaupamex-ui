@@ -69,7 +69,7 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/admin/501/refund/',
+        '/api/v2/payments/admin/501/refund/',
         { amount: 500, reason: 'Reembolso de cortesia por incidente' }
       );
     });

@@ -78,7 +78,7 @@ describe('NotificationPreferencesPage (UC-NOT-06)', () => {
 
     await waitFor(() => {
       expect(apiService.put).toHaveBeenCalledWith(
-        '/api/v1/notifications/preferences/',
+        '/api/v2/notifications/preferences/',
         expect.objectContaining({
           preferences: expect.arrayContaining([
             expect.objectContaining({ type: 'MARKETING', enabled: true }),

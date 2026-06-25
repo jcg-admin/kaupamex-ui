@@ -8,9 +8,9 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const STOCK_URL = '/api/v1/admin/inventory/';
+const STOCK_URL = '/api/v2/admin/inventory/';
 const MOVEMENTS = (variantId) =>
-  `/api/v1/admin/inventory/variants/${variantId}/movements/`;
+  `/api/v2/admin/inventory/variants/${variantId}/movements/`;
 
 export const INVENTORY_KEY           = ['inventory'];
 export const INVENTORY_MOVEMENTS_KEY = ['inventory', 'movements'];

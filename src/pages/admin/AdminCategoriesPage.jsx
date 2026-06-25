@@ -2,10 +2,10 @@
  * AdminCategoriesPage — UC-CAT-06
  *
  * Gestion del arbol de categorias del catalogo. CRUD admin:
- *   GET   /api/v1/admin/categories/
- *   POST  /api/v1/admin/categories/
- *   PATCH /api/v1/admin/categories/:id/
- *   POST  /api/v1/admin/categories/:id/deactivate/
+ *   GET   /api/v2/admin/categories/
+ *   POST  /api/v2/admin/categories/
+ *   PATCH /api/v2/admin/categories/:id/
+ *   POST  /api/v2/admin/categories/:id/deactivate/
  *
  * La jerarquia se persiste con parent_id. La validacion de ciclos vive
  * en el backend (BR-013). El UI muestra el formulario inline para crear
@@ -24,7 +24,7 @@ import {
 import styles from './AdminCategoriesPage.module.scss';
 
 // H-CICLO92-02: se elimina icon_url del formulario. El campo era enviado al
-// endpoint PATCH /api/v1/admin/categories/:id/ como JSON, pero CategoryAdminSerializer
+// endpoint PATCH /api/v2/admin/categories/:id/ como JSON, pero CategoryAdminSerializer
 // expone `image` (ImageField, requiere multipart) y nunca tuvo campo icon_url.
 // El valor era silenciosamente descartado por DRF en cada submit, sin efecto.
 const EMPTY_FORM = { name: '', description: '', parent_id: '' };

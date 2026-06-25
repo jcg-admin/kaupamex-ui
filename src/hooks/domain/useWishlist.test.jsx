@@ -38,7 +38,7 @@ describe('useWishlist (UC-WISH-02)', () => {
     expect(result.current.data.total_items).toBe(2);
     expect(result.current.data.items_out_of_stock).toBe(1);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/wishlist/',
+      '/api/v2/wishlist/',
       expect.objectContaining({ params: {} }),
     );
   });
@@ -50,7 +50,7 @@ describe('useWishlist (UC-WISH-02)', () => {
     });
     await waitFor(() => expect(apiService.get).toHaveBeenCalled());
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/wishlist/',
+      '/api/v2/wishlist/',
       expect.objectContaining({ params: { availability: 'IN_STOCK' } }),
     );
   });

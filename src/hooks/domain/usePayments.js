@@ -11,9 +11,9 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const PAYMENTS_BY_ORDER_URL = (orderId) => `/api/v1/payments/?order_id=${encodeURIComponent(orderId)}`;
-const PAYMENT_STATUS_URL    = (orderId) => `/api/v1/payments/?order_id=${encodeURIComponent(orderId)}&latest=true`;
-const ADMIN_PAYMENTS_URL    = '/api/v1/admin/payments/';
+const PAYMENTS_BY_ORDER_URL = (orderId) => `/api/v2/payments/?order_id=${encodeURIComponent(orderId)}`;
+const PAYMENT_STATUS_URL    = (orderId) => `/api/v2/payments/?order_id=${encodeURIComponent(orderId)}&latest=true`;
+const ADMIN_PAYMENTS_URL    = '/api/v2/admin/payments/';
 
 export const PAYMENTS_KEY            = ['payments'];
 export const PAYMENT_STATUS_KEY      = ['payments', 'status'];
