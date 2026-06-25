@@ -127,7 +127,7 @@ class MockInterceptor {
       return this._ok({ user: this._mockUser(1, false, 'testbuyer@example.com') });
     }
     const isAdmin =
-      (body.username === 'admin@practicayoruba.mx' || body.username === 'testadmin@example.com') &&
+      (body.username === 'admin@practicayoruba.com' || body.username === 'testadmin@example.com') &&
       body.password === 'Admin1234!';
     if (isAdmin) {
       try { window.localStorage.setItem('_mock_auth_type', 'admin'); } catch (e) {}
