@@ -119,7 +119,7 @@ describe('AdminUsersPage — búsqueda', () => {
     fireEvent.change(searchbox, { target: { value: 'buyer1' } });
     await waitFor(() =>
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/users/',
+        '/api/v2/admin/users/',
         expect.objectContaining({ params: expect.objectContaining({ search: 'buyer1' }) })
       )
     );

@@ -3,8 +3,8 @@
  *
  * Formulario de configuracion del sistema (settings_app).
  *
- *   GET   /api/v1/admin/settings/
- *   PATCH /api/v1/admin/settings/
+ *   GET   /api/v2/admin/settings/
+ *   PATCH /api/v2/admin/settings/
  *
  * Los campos expuestos son ortogonales: el admin edita lo que necesita
  * y se envia solo el delta via PATCH.

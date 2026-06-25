@@ -1,8 +1,8 @@
 /**
  * Tests — AdminSystemSettingsPage (UC-ADM-04)
  *
- *   GET   /api/v1/admin/settings/
- *   PATCH /api/v1/admin/settings/
+ *   GET   /api/v2/admin/settings/
+ *   PATCH /api/v2/admin/settings/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -53,7 +53,7 @@ describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
     expect(screen.getByDisplayValue('hola@yoruba.mx')).toBeInTheDocument();
   });
 
-  it('envia PATCH /api/v1/admin/settings/ con los cambios', async () => {
+  it('envia PATCH /api/v2/admin/settings/ con los cambios', async () => {
     apiService.get.mockResolvedValue({ data: SETTINGS });
     apiService.patch.mockResolvedValue({ data: SETTINGS });
 
@@ -64,7 +64,7 @@ describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/settings/',
+        '/api/v2/admin/settings/',
         expect.objectContaining({ site_name: 'PracticaYoruba MX' }),
       );
     });

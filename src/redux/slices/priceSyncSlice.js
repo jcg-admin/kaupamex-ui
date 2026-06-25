@@ -2,12 +2,12 @@
  * priceSyncSlice — UC-CAT-12.
  *
  * Mutaciones del flujo de sincronizacion de precios del admin:
- *   - previewCsv:          POST /api/v1/admin/price-sync/preview-csv/
+ *   - previewCsv:          POST /api/v2/admin/price-sync/preview-csv/
  *                          (multipart, sin aplicar cambios)
- *   - applyCsv:            POST /api/v1/admin/price-sync/apply-csv/
+ *   - applyCsv:            POST /api/v2/admin/price-sync/apply-csv/
  *                          (token retornado por preview, atomico)
- *   - previewPercentage:   POST /api/v1/admin/price-sync/preview-percentage/
- *   - applyPercentage:     POST /api/v1/admin/price-sync/apply-percentage/
+ *   - previewPercentage:   POST /api/v2/admin/price-sync/preview-percentage/
+ *   - applyPercentage:     POST /api/v2/admin/price-sync/apply-percentage/
  *
  * Cada operacion devuelve `{ session_id, preview: [{ sku, old_price,
  * new_price, diff_pct, product_name }], valid_count, invalid_count }` cuando es
@@ -18,10 +18,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const PREVIEW_CSV_URL        = '/api/v1/admin/price-sync/preview-csv/';
-const APPLY_CSV_URL          = '/api/v1/admin/price-sync/apply-csv/';
-const PREVIEW_PERCENTAGE_URL = '/api/v1/admin/price-sync/preview-percentage/';
-const APPLY_PERCENTAGE_URL   = '/api/v1/admin/price-sync/apply-percentage/';
+const PREVIEW_CSV_URL        = '/api/v2/admin/price-sync/preview-csv/';
+const APPLY_CSV_URL          = '/api/v2/admin/price-sync/apply-csv/';
+const PREVIEW_PERCENTAGE_URL = '/api/v2/admin/price-sync/preview-percentage/';
+const APPLY_PERCENTAGE_URL   = '/api/v2/admin/price-sync/apply-percentage/';
 
 export const previewCsv = createAsyncThunk(
   'priceSync/previewCsv',

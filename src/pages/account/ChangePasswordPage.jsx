@@ -5,7 +5,7 @@
  * Flujo:
  *   1. Captura contrasena actual + nueva + confirmacion.
  *   2. Valida fortaleza con usePasswordStrength.
- *   3. POST /api/v1/auth/change-password/ via authSlice.changePassword.
+ *   3. POST /api/v2/auth/change-password/ via authSlice.changePassword.
  *   4. Confirma exito e indica que sesiones en otros dispositivos
  *      quedaron invalidadas (POST-02).
  */

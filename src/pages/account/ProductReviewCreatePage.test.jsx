@@ -70,7 +70,7 @@ describe('ProductReviewCreatePage (UC-REV-01)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/products/42/reviews/',
+        '/api/v2/products/42/reviews/',
         expect.objectContaining({
           order_id: 77,
           rating:   5,

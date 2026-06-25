@@ -8,9 +8,9 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const PUBLIC_LIST_URL          = (productId) => `/api/v1/products/${productId}/questions/`;
-const ADMIN_PENDING_ANSWER_URL = '/api/v1/admin/questions/?status=APPROVED_PENDING_ANSWER';
-const ADMIN_MODERATION_URL     = '/api/v1/admin/questions/?status=PENDING_MODERATION';
+const PUBLIC_LIST_URL          = (productId) => `/api/v2/products/${productId}/questions/`;
+const ADMIN_PENDING_ANSWER_URL = '/api/v2/admin/questions/?status=APPROVED_PENDING_ANSWER';
+const ADMIN_MODERATION_URL     = '/api/v2/admin/questions/?status=PENDING_MODERATION';
 
 export const PRODUCT_QUESTIONS_KEY      = ['questions', 'product'];
 export const ADMIN_QUESTIONS_ANSWER_KEY = ['questions', 'admin', 'pending-answer'];

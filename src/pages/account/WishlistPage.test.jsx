@@ -123,7 +123,7 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
       screen.getByRole('button', { name: /quitar de deseos/i }),
     );
     await waitFor(() =>
-      expect(apiService.delete).toHaveBeenCalledWith('/api/v1/wishlist/1/'),
+      expect(apiService.delete).toHaveBeenCalledWith('/api/v2/wishlist/1/'),
     );
   });
 
@@ -140,7 +140,7 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
     );
     await waitFor(() =>
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/wishlist/1/move-to-cart/',
+        '/api/v2/wishlist/1/move-to-cart/',
         { quantity: 1, keep_in_wishlist: false },
       ),
     );

@@ -6,7 +6,7 @@
  * Endpoints:
  *   GET /auth/addresses/
  *   POST /checkout/
- *   POST /api/v1/payments/initiate/ (gateway: MERCADOPAGO | PAYPAL)
+ *   POST /api/v2/payments/initiate/ (gateway: MERCADOPAGO | PAYPAL)
  *   SPEI: sin llamada a /initiate/ — pedido queda PENDING, CLABE por correo.
  */
 

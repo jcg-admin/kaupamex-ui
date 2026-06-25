@@ -3,7 +3,7 @@
  *
  * Panel para que un superadministrador edite los permisos de un usuario:
  * is_staff, is_superuser y groups (ids). Hace POST a
- * /api/v1/admin/users/:pk/permissions/ vía el thunk `updateUserPermissions`.
+ * /api/v2/admin/users/:pk/permissions/ vía el thunk `updateUserPermissions`.
  *
  * Maneja:
  *   - éxito (refleja el detalle devuelto por la API en el store);

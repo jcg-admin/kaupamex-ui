@@ -14,8 +14,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const PRODUCT_REVIEWS_URL = (productId) => `/api/v1/products/${productId}/reviews/`;
-const ADMIN_MODERATION_URL = '/api/v1/admin/reviews/?status=PENDING_MODERATION';
+const PRODUCT_REVIEWS_URL = (productId) => `/api/v2/products/${productId}/reviews/`;
+const ADMIN_MODERATION_URL = '/api/v2/admin/reviews/?status=PENDING_MODERATION';
 
 export const PRODUCT_REVIEWS_KEY = ['reviews', 'product'];
 export const ADMIN_REVIEWS_MOD_KEY = ['reviews', 'admin', 'moderation'];

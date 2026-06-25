@@ -42,7 +42,7 @@ describe('NewsletterSubscribePage (UC-NEW-01)', () => {
     expect(screen.getByText(/El email es obligatorio/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/newsletter/subscribe/', async () => {
+  it('al enviar, hace POST a /api/v2/newsletter/subscribe/', async () => {
     apiService.post.mockResolvedValue({ data: { id: 1, status: 'PENDING' } });
     render(wrap(<NewsletterSubscribePage />, makeStore()));
 
@@ -52,7 +52,7 @@ describe('NewsletterSubscribePage (UC-NEW-01)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/newsletter/subscribe/',
+        '/api/v2/newsletter/subscribe/',
         expect.objectContaining({
           email:  'lector@example.com',
           source: 'page',

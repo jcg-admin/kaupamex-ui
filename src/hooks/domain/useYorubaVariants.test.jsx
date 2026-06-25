@@ -42,7 +42,7 @@ describe('useAdminProductVariants', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([{ id: 1, option_name: 'Grande' }]);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/products/42/variants/',
+      '/api/v2/admin/products/42/variants/',
       expect.objectContaining({ signal: expect.anything() }),
     );
   });

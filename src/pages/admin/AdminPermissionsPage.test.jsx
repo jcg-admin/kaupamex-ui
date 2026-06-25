@@ -1,8 +1,8 @@
 /**
  * Tests — AdminPermissionsPage (UC-ADM-02)
  *
- *   GET /api/v1/admin/permissions/
- *   PUT /api/v1/admin/roles/:role/permissions/
+ *   GET /api/v2/admin/permissions/
+ *   PUT /api/v2/admin/roles/:role/permissions/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -58,7 +58,7 @@ describe('AdminPermissionsPage (UC-ADM-02)', () => {
     expect(screen.getByLabelText('orders.manage para staff')).not.toBeChecked();
   });
 
-  it('guarda cambios via PUT /api/v1/admin/roles/:role/permissions/', async () => {
+  it('guarda cambios via PUT /api/v2/admin/roles/:role/permissions/', async () => {
     apiService.get.mockResolvedValue({ data: DATA });
     apiService.put.mockResolvedValue({ data: { ok: true } });
     render(wrap());
@@ -69,7 +69,7 @@ describe('AdminPermissionsPage (UC-ADM-02)', () => {
 
     await waitFor(() => {
       expect(apiService.put).toHaveBeenCalledWith(
-        '/api/v1/admin/roles/staff/permissions/',
+        '/api/v2/admin/roles/staff/permissions/',
         expect.objectContaining({
           permissions: expect.arrayContaining(['catalog.manage', 'orders.manage']),
         }),

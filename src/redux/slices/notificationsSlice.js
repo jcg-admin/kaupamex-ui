@@ -12,11 +12,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const PREFERENCES_URL          = '/api/v1/notifications/preferences/';
-const MARK_AS_READ_URL         = (id) => `/api/v1/notifications/${id}/read/`;
-const MARK_ALL_AS_READ_URL     = '/api/v1/notifications/read-all/';
-const ADMIN_MANUAL_NOTIFY_URL  = '/api/v1/admin/notifications/manual/';
-const ADMIN_AUDIENCE_COUNT_URL = '/api/v1/admin/notifications/audience-count/';
+const PREFERENCES_URL          = '/api/v2/notifications/preferences/';
+const MARK_AS_READ_URL         = (id) => `/api/v2/notifications/${id}/read/`;
+const MARK_ALL_AS_READ_URL     = '/api/v2/notifications/read-all/';
+const ADMIN_MANUAL_NOTIFY_URL  = '/api/v2/admin/notifications/manual/';
+const ADMIN_AUDIENCE_COUNT_URL = '/api/v2/admin/notifications/audience-count/';
 
 // =============================================================================
 // Thunks

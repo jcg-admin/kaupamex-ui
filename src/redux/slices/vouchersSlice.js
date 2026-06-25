@@ -10,7 +10,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const ADMIN_VOUCHERS_URL = '/api/v1/admin/vouchers/';
+const ADMIN_VOUCHERS_URL = '/api/v2/admin/vouchers/';
 
 // =============================================================================
 // Thunks

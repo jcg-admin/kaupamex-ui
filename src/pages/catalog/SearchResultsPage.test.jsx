@@ -85,7 +85,7 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
     expect(await screen.findByText(/collar/i)).toBeInTheDocument();
   });
 
-  it('llama a /api/v1/catalogue/search/ con el termino normalizado', async () => {
+  it('llama a /api/v2/catalogue/search/ con el termino normalizado', async () => {
     renderAt('?q=oshun');
     await waitFor(() => {
       const call = apiService.get.mock.calls.find(

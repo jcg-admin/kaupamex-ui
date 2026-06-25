@@ -5,7 +5,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const ADDRESSES_URL = '/api/v1/auth/addresses/';
+const ADDRESSES_URL = '/api/v2/auth/addresses/';
 
 export const ADDRESSES_KEY = ['addresses'];
 

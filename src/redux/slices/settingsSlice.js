@@ -1,7 +1,7 @@
 /**
  * settingsSlice — UC-ADM-04
  *
- *   updateSettings   PATCH  /api/v1/admin/settings/
+ *   updateSettings   PATCH  /api/v2/admin/settings/
  *
  * La lectura del payload actual la expone `useSystemSettings`.
  */
@@ -13,7 +13,7 @@ export const updateSettings = createAsyncThunk(
   'settings/update',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await apiService.patch('/api/v1/admin/settings/', payload);
+      const res = await apiService.patch('/api/v2/admin/settings/', payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

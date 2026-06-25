@@ -106,7 +106,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/orders/',
+        '/api/v2/admin/orders/',
         expect.objectContaining({
           params: expect.objectContaining({
             status: 'PROCESSING',
@@ -127,7 +127,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/orders/',
+        '/api/v2/admin/orders/',
         expect.objectContaining({
           params: expect.objectContaining({
             from: '2026-05-01',

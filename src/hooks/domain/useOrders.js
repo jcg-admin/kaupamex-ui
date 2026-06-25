@@ -10,11 +10,11 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const CUSTOMER_LIST_URL    = '/api/v1/orders/';
-const CUSTOMER_DETAIL_URL  = (orderNumber) => `/api/v1/orders/${orderNumber}/`;
-const ADMIN_LIST_URL       = '/api/v1/admin/orders/';
-const ADMIN_DETAIL_URL     = (orderNumber) => `/api/v1/admin/orders/${orderNumber}/`;
-const ADMIN_DASHBOARD_URL  = '/api/v1/admin/dashboard/';
+const CUSTOMER_LIST_URL    = '/api/v2/orders/';
+const CUSTOMER_DETAIL_URL  = (orderNumber) => `/api/v2/orders/${orderNumber}/`;
+const ADMIN_LIST_URL       = '/api/v2/admin/orders/';
+const ADMIN_DETAIL_URL     = (orderNumber) => `/api/v2/admin/orders/${orderNumber}/`;
+const ADMIN_DASHBOARD_URL  = '/api/v2/admin/dashboard/';
 
 export const ORDERS_LIST_KEY        = ['orders', 'list'];
 export const ORDERS_DETAIL_KEY      = ['orders', 'detail'];

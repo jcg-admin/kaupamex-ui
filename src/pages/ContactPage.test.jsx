@@ -43,7 +43,7 @@ describe('ContactPage (UC-COM-01)', () => {
     expect(screen.getByText(/El email es obligatorio/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/contact/messages/', async () => {
+  it('al enviar, hace POST a /api/v2/contact/messages/', async () => {
     apiService.post.mockResolvedValue({ data: { id: 1 } });
     render(wrap(<ContactPage />, makeStore()));
 
@@ -59,7 +59,7 @@ describe('ContactPage (UC-COM-01)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/contact/messages/',
+        '/api/v2/contact/messages/',
         expect.objectContaining({
           name:    'Visitante Uno',
           email:   'visitante@example.com',

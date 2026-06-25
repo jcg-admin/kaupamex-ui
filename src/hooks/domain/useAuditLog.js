@@ -1,14 +1,14 @@
 /**
  * useAuditLog — UC-ADM-03
  *
- * GET /api/v1/admin/audit-log/
+ * GET /api/v2/admin/audit-log/
  *
  * params opcionales: page, actor_id, action, resource_type, from, to.
  */
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const URL = '/api/v1/admin/audit-log/';
+const URL = '/api/v2/admin/audit-log/';
 export const AUDIT_LOG_KEY = ['admin', 'audit-log'];
 
 export function useAuditLog(params = {}) {

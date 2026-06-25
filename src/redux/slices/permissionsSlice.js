@@ -1,7 +1,7 @@
 /**
  * permissionsSlice — UC-ADM-02
  *
- *   updateRolePermissions   PUT  /api/v1/admin/roles/:role/permissions/
+ *   updateRolePermissions   PUT  /api/v2/admin/roles/:role/permissions/
  *
  * Listados (roles + permisos) los expone `usePermissions`.
  */
@@ -14,7 +14,7 @@ export const updateRolePermissions = createAsyncThunk(
   async ({ role, permissions }, { rejectWithValue }) => {
     try {
       const res = await apiService.put(
-        `/api/v1/admin/roles/${role}/permissions/`,
+        `/api/v2/admin/roles/${role}/permissions/`,
         { permissions },
       );
       return res.data;

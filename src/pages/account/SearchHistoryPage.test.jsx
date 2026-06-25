@@ -72,18 +72,18 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
     ).toBeInTheDocument();
   });
 
-  it('eliminar una entrada llama DELETE /api/v1/search/history/:id/ (Alt A)', async () => {
+  it('eliminar una entrada llama DELETE /api/v2/search/history/:id/ (Alt A)', async () => {
     apiService.get.mockResolvedValue({ data: { results: [ENTRY_1], count: 1 } });
     apiService.delete.mockResolvedValue({ data: null });
     renderPage();
     const btn = await screen.findByRole('button', { name: /eliminar "oshun" del historial/i });
     fireEvent.click(btn);
     await waitFor(() =>
-      expect(apiService.delete).toHaveBeenCalledWith('/api/v1/search/history/1/'),
+      expect(apiService.delete).toHaveBeenCalledWith('/api/v2/search/history/1/'),
     );
   });
 
-  it('borrar todo llama DELETE /api/v1/search/history/ (Alt B)', async () => {
+  it('borrar todo llama DELETE /api/v2/search/history/ (Alt B)', async () => {
     apiService.get.mockResolvedValue({ data: { results: [ENTRY_1], count: 1 } });
     apiService.delete.mockResolvedValue({ data: null });
     const originalConfirm = window.confirm;
@@ -92,7 +92,7 @@ describe('SearchHistoryPage (UC-SRCH-03)', () => {
     const btn = await screen.findByRole('button', { name: /borrar todo el historial/i });
     fireEvent.click(btn);
     await waitFor(() =>
-      expect(apiService.delete).toHaveBeenCalledWith('/api/v1/search/history/'),
+      expect(apiService.delete).toHaveBeenCalledWith('/api/v2/search/history/'),
     );
     window.confirm = originalConfirm;
   });

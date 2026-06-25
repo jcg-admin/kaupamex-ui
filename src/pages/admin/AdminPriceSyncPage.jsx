@@ -88,7 +88,7 @@ export default function AdminPriceSyncPage() {
 
   const handleDownloadTemplate = () => {
     // Alt C — link de descarga directa servido por el backend.
-    window.location.href = '/api/v1/admin/price-sync/template.csv';
+    window.location.href = '/api/v2/admin/price-sync/template.csv';
   };
 
   // H-CICLO70-01: API preview shape is { session_id, preview: [...], valid_count,

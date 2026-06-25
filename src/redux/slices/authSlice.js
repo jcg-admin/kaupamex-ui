@@ -13,7 +13,7 @@
  *     refreshSession y reintenta. Si refresh falla, dispatch
  *     'py:unauthorized' event que UnauthorizedListener captura.
  *
- * Sprint 2: URLs corregidas a /api/v1/, thunks de perfil añadidos.
+ * Sprint 2: URLs corregidas a /api/v2/, thunks de perfil añadidos.
  * Sprint 5: address CRUD + logout-all-sessions añadidos.
  * Sprint 6: password reset + avatar upload añadidos.
  */
@@ -24,22 +24,22 @@ import { serializeApiError } from '@utils/serializeApiError';
 
 // ─── URL Constants ───────────────────────────────────────────────────────
 const AUTH_URLS = {
-  login:                '/api/v1/auth/login/',
-  logout:               '/api/v1/auth/logout/',
-  refresh:              '/api/v1/auth/refresh/',
-  register:             '/api/v1/auth/register/',
-  profile:              '/api/v1/auth/profile/',
-  changePassword:       '/api/v1/auth/change-password/',
-  verifyEmail:          '/api/v1/auth/verify-email/',
-  resendVerification:   '/api/v1/auth/resend-verification/',
-  deactivate:           '/api/v1/auth/me/deactivate/',
-  passwordReset:        '/api/v1/auth/password-reset/',
-  passwordResetConfirm: '/api/v1/auth/password-reset/confirm/',
+  login:                '/api/v2/auth/login/',
+  logout:               '/api/v2/auth/logout/',
+  refresh:              '/api/v2/auth/refresh/',
+  register:             '/api/v2/auth/register/',
+  profile:              '/api/v2/auth/profile/',
+  changePassword:       '/api/v2/auth/change-password/',
+  verifyEmail:          '/api/v2/auth/verify-email/',
+  resendVerification:   '/api/v2/auth/resend-verification/',
+  deactivate:           '/api/v2/auth/me/deactivate/',
+  passwordReset:        '/api/v2/auth/password-reset/',
+  passwordResetConfirm: '/api/v2/auth/password-reset/confirm/',
 };
 
-const ADDRESSES_URL  = '/api/v1/auth/addresses/';
-const ADDRESS_URL    = (id) => `/api/v1/auth/addresses/${id}/`;
-const LOGOUT_ALL_URL = '/api/v1/auth/logout-all/';
+const ADDRESSES_URL  = '/api/v2/auth/addresses/';
+const ADDRESS_URL    = (id) => `/api/v2/auth/addresses/${id}/`;
+const LOGOUT_ALL_URL = '/api/v2/auth/logout-all/';
 
 // ─── Thunks ─── Sprint 1 ─────────────────────────────────────────────
 

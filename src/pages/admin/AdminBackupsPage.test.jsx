@@ -1,8 +1,8 @@
 /**
  * Tests — AdminBackupsPage (UC-ADM-05)
  *
- *   GET  /api/v1/admin/backups/
- *   POST /api/v1/admin/backups/trigger/
+ *   GET  /api/v2/admin/backups/
+ *   POST /api/v2/admin/backups/trigger/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -46,7 +46,7 @@ describe('AdminBackupsPage (UC-ADM-05)', () => {
     expect(screen.getByText('MANUAL')).toBeInTheDocument();
   });
 
-  it('dispara backup manual via POST /api/v1/admin/backups/trigger/', async () => {
+  it('dispara backup manual via POST /api/v2/admin/backups/trigger/', async () => {
     apiService.get.mockResolvedValue({ data: { results: BACKUPS } });
     apiService.post.mockResolvedValue({ data: { ok: true } });
     render(wrap());
@@ -55,7 +55,7 @@ describe('AdminBackupsPage (UC-ADM-05)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Generar backup ahora/i }));
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/backups/trigger/',
+        '/api/v2/admin/backups/trigger/',
         expect.anything(),
       );
     });

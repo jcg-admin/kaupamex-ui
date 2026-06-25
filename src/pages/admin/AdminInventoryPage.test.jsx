@@ -96,7 +96,7 @@ describe('AdminInventoryPage (UC-INV-01)', () => {
 
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/inventory/',
+        '/api/v2/admin/inventory/',
         expect.objectContaining({
           params: expect.objectContaining({ status: 'BAJO' }),
         }),

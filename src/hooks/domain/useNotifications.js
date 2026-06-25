@@ -9,9 +9,9 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const LIST_URL          = '/api/v1/notifications/';
-const UNREAD_COUNT_URL  = '/api/v1/notifications/unread-count/';
-const PREFERENCES_URL   = '/api/v1/notifications/preferences/';
+const LIST_URL          = '/api/v2/notifications/';
+const UNREAD_COUNT_URL  = '/api/v2/notifications/unread-count/';
+const PREFERENCES_URL   = '/api/v2/notifications/preferences/';
 
 export const NOTIFICATIONS_KEY              = ['notifications'];
 export const NOTIFICATIONS_UNREAD_COUNT_KEY = ['notifications', 'unread-count'];

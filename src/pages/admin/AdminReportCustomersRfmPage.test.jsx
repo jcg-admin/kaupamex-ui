@@ -69,7 +69,7 @@ describe('AdminReportCustomersRfmPage (UC-REP-04)', () => {
     );
     await waitFor(() => {
       expect(apiService.get).toHaveBeenLastCalledWith(
-        '/api/v1/admin/reports/customers-rfm/',
+        '/api/v2/admin/reports/customers-rfm/',
         expect.objectContaining({
           params: expect.objectContaining({ segment: 'CHAMPIONS' }),
         }),

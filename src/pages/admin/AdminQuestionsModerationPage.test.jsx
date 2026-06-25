@@ -65,7 +65,7 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/questions/5/approve/',
+        '/api/v2/admin/questions/5/approve/',
         expect.any(Object),
       );
     });
@@ -82,7 +82,7 @@ describe('AdminQuestionsModerationPage (UC-QST-04)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/questions/5/reject/',
+        '/api/v2/admin/questions/5/reject/',
         expect.objectContaining({ reason: expect.any(String) }),
       );
     });

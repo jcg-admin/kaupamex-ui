@@ -7,7 +7,7 @@
  * Uso en createResilientService:
  *   const service = createResilientService({
  *     id: 'catalog',
- *     endpoint: '/api/v1/products/',
+ *     endpoint: '/api/v2/products/',
  *     mockDataLoader: () => loadMock('catalog'),
  *     shouldUseMock: () => process.env.PY_CATALOG_SOURCE === 'mock',
  *   });

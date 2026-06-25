@@ -54,7 +54,7 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
     render(wrap(<PaymentStatusPage />));
     await screen.findByRole('heading', { name: /Estado del pago/i });
     expect(apiService.get).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v1/payments/?order_id=ORD-1&latest=true'),
+      expect.stringContaining('/api/v2/payments/?order_id=ORD-1&latest=true'),
       expect.any(Object)
     );
   });

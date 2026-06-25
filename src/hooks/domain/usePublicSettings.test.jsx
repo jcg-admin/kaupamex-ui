@@ -3,7 +3,7 @@
  *
  * Lectura tolerante a fallos de la configuracion del sitio para el
  * storefront. El hook:
- *   - llama GET /api/v1/config/settings/,
+ *   - llama GET /api/v2/config/settings/,
  *   - fusiona la respuesta sobre el `fallback`,
  *   - degrada al `fallback` (y expone `error`) si el endpoint falla,
  *   - expone { settings, isLoading, error } sin exigir QueryClientProvider.
@@ -27,7 +27,7 @@ describe('usePublicSettings', () => {
     renderHook(() => usePublicSettings());
 
     await waitFor(() => expect(apiService.get).toHaveBeenCalledWith(PUBLIC_SETTINGS_URL));
-    expect(PUBLIC_SETTINGS_URL).toBe('/api/v1/config/settings/');
+    expect(PUBLIC_SETTINGS_URL).toBe('/api/v2/config/settings/');
   });
 
   it('fusiona la respuesta del backend sobre el fallback', async () => {

@@ -14,11 +14,11 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const CONTACT_PUBLIC_URL       = '/api/v1/contact/messages/';
-const ADMIN_CONTACT_LIST_URL   = '/api/v1/admin/contact/messages/';
-const ADMIN_CONTACT_DETAIL_URL = (id) => `/api/v1/admin/contact/messages/${id}/`;
-const ADMIN_CONTACT_REPLY_URL  = (id) => `/api/v1/admin/contact/messages/${id}/reply/`;
-const ADMIN_CONTACT_READ_URL   = (id) => `/api/v1/admin/contact/messages/${id}/read/`;
+const CONTACT_PUBLIC_URL       = '/api/v2/contact/messages/';
+const ADMIN_CONTACT_LIST_URL   = '/api/v2/admin/contact/messages/';
+const ADMIN_CONTACT_DETAIL_URL = (id) => `/api/v2/admin/contact/messages/${id}/`;
+const ADMIN_CONTACT_REPLY_URL  = (id) => `/api/v2/admin/contact/messages/${id}/reply/`;
+const ADMIN_CONTACT_READ_URL   = (id) => `/api/v2/admin/contact/messages/${id}/read/`;
 
 // =============================================================================
 // Thunks

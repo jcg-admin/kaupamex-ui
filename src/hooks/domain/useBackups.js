@@ -1,14 +1,14 @@
 /**
  * useBackups — UC-ADM-05
  *
- * GET /api/v1/admin/backups/
+ * GET /api/v2/admin/backups/
  *
  * Devuelve la lista de backups generados (cron + manuales).
  */
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const URL = '/api/v1/admin/backups/';
+const URL = '/api/v2/admin/backups/';
 export const BACKUPS_KEY = ['admin', 'backups'];
 
 export function useBackups(params = {}) {

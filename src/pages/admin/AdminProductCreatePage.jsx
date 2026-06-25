@@ -2,7 +2,7 @@
  * AdminProductCreatePage — UC-CAT-09
  *
  * Pantalla admin para crear un nuevo producto en el catalogo Yoruba.
- *   POST /api/v1/admin/products/
+ *   POST /api/v2/admin/products/
  *
  * Reutiliza `AdminProductForm` (mode='create'). Las imagenes se envian
  * como FormData cuando hay archivo seleccionado; en caso contrario,

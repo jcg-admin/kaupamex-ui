@@ -2,7 +2,7 @@
  * Tests — AdminProductCreatePage (UC-CAT-09)
  *
  * Formulario admin para crear un nuevo producto en el catalogo.
- *   POST /api/v1/admin/products/
+ *   POST /api/v2/admin/products/
  *
  * Cobertura:
  *   - Render del formulario con todos los campos requeridos
@@ -74,7 +74,7 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
     render(wrap(<AdminProductCreatePage />, makeStore()));
     await waitFor(() => {
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/categories/',
+        '/api/v2/admin/categories/',
         expect.any(Object),
       );
     });
@@ -90,7 +90,7 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
     expect(apiService.post).not.toHaveBeenCalled();
   });
 
-  it('envia POST /api/v1/admin/products/ con los datos del formulario', async () => {
+  it('envia POST /api/v2/admin/products/ con los datos del formulario', async () => {
     apiService.get.mockResolvedValue({ data: { results: CATEGORIES } });
     apiService.post.mockResolvedValue({ data: { id: 99, sku: 'NEW-001' } });
 
@@ -114,7 +114,7 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/products/',
+        '/api/v2/admin/products/',
         expect.any(Object),
       );
     });

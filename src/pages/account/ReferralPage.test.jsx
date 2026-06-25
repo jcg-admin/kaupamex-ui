@@ -86,7 +86,7 @@ describe('ReferralPage', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/account/referral/redeem/',
+        '/api/v2/account/referral/redeem/',
         { code: 'FRIEND-CODE' },
       );
     });

@@ -60,7 +60,7 @@ describe('referralSlice — fetchReferral', () => {
     await store.dispatch(fetchReferral());
     const { referral } = store.getState();
 
-    expect(apiService.get).toHaveBeenCalledWith('/api/v1/account/referral/');
+    expect(apiService.get).toHaveBeenCalledWith('/api/v2/account/referral/');
     expect(referral.code).toBe('YORUBA-42');
     expect(referral.shareLink).toBe('https://practicayoruba.test/r/YORUBA-42');
     expect(referral.totalReferrals).toBe(5);
@@ -121,7 +121,7 @@ describe('referralSlice — redeemReferral', () => {
     const { referral } = store.getState();
 
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/account/referral/redeem/',
+      '/api/v2/account/referral/redeem/',
       { code: 'YORUBA-99' },
     );
     expect(referral.lastRedeemSucceeded).toBe(true);

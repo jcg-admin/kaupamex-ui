@@ -72,7 +72,7 @@ describe('PaymentHistoryPage (UC-PAY-06)', () => {
     render(wrap(<PaymentHistoryPage />));
     await screen.findByRole('heading', { name: /Historial de pagos/i });
     expect(apiService.get).toHaveBeenCalledWith(
-      expect.stringContaining('/api/v1/payments/?order_id=ORD-9'),
+      expect.stringContaining('/api/v2/payments/?order_id=ORD-9'),
       expect.any(Object)
     );
   });

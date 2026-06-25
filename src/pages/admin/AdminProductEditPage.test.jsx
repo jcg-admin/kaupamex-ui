@@ -1,9 +1,9 @@
 /**
  * Tests — AdminProductEditPage (UC-CAT-10 + UC-CAT-11)
  *
- *   GET   /api/v1/admin/products/:id/
- *   PATCH /api/v1/admin/products/:id/
- *   POST  /api/v1/admin/products/:id/deactivate/
+ *   GET   /api/v2/admin/products/:id/
+ *   PATCH /api/v2/admin/products/:id/
+ *   POST  /api/v2/admin/products/:id/deactivate/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -58,9 +58,9 @@ const wrap = (store) => {
 afterEach(() => jest.clearAllMocks());
 
 describe('AdminProductEditPage (UC-CAT-10)', () => {
-  it('carga el producto desde /api/v1/admin/products/:id/', async () => {
+  it('carga el producto desde /api/v2/admin/products/:id/', async () => {
     apiService.get.mockImplementation((url) => {
-      if (url === '/api/v1/admin/products/7/') return Promise.resolve({ data: PRODUCT });
+      if (url === '/api/v2/admin/products/7/') return Promise.resolve({ data: PRODUCT });
       return Promise.resolve({ data: { results: CATEGORIES } });
     });
     render(wrap(makeStore()));
@@ -70,7 +70,7 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
 
   it('envia PATCH con los cambios al producto', async () => {
     apiService.get.mockImplementation((url) => {
-      if (url === '/api/v1/admin/products/7/') return Promise.resolve({ data: PRODUCT });
+      if (url === '/api/v2/admin/products/7/') return Promise.resolve({ data: PRODUCT });
       return Promise.resolve({ data: { results: CATEGORIES } });
     });
     apiService.patch.mockResolvedValue({ data: { ...PRODUCT, name: 'Nuevo' } });
@@ -82,7 +82,7 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/products/7/',
+        '/api/v2/admin/products/7/',
         expect.objectContaining({ name: 'Nuevo nombre' }),
       );
     });
@@ -90,7 +90,7 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
 
   it('UC-CAT-11: desactiva el producto via POST /deactivate/', async () => {
     apiService.get.mockImplementation((url) => {
-      if (url === '/api/v1/admin/products/7/') return Promise.resolve({ data: PRODUCT });
+      if (url === '/api/v2/admin/products/7/') return Promise.resolve({ data: PRODUCT });
       return Promise.resolve({ data: { results: CATEGORIES } });
     });
     apiService.post.mockResolvedValue({ data: { ok: true } });
@@ -101,7 +101,7 @@ describe('AdminProductEditPage (UC-CAT-10)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/products/7/deactivate/',
+        '/api/v2/admin/products/7/deactivate/',
         expect.anything(),
       );
     });

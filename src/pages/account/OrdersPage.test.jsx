@@ -86,12 +86,12 @@ describe('OrdersPage (UC-ORD-03 listado)', () => {
     ).toBeInTheDocument();
   });
 
-  it('llama al endpoint /api/v1/orders/', async () => {
+  it('llama al endpoint /api/v2/orders/', async () => {
     apiService.get.mockResolvedValue({ data: { results: ORDERS, count: 3 } });
     render(wrap(<OrdersPage />));
     await screen.findByText('PY-2026-000001');
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/orders/',
+      '/api/v2/orders/',
       expect.objectContaining({ params: {} }),
     );
   });

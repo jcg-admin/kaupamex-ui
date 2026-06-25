@@ -57,7 +57,7 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
 
     await waitFor(() => {
       expect(apiService.put).toHaveBeenCalledWith(
-        '/api/v1/admin/variants/1/price/',
+        '/api/v2/admin/variants/1/price/',
         expect.objectContaining({ price: 1999 }),
       );
     });
@@ -90,7 +90,7 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
 
     await waitFor(() => {
       expect(apiService.delete).toHaveBeenCalledWith(
-        '/api/v1/admin/variants/1/price/',
+        '/api/v2/admin/variants/1/price/',
       );
     });
   });
@@ -118,7 +118,7 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
 
     await waitFor(() => {
       expect(apiService.put).toHaveBeenCalledWith(
-        '/api/v1/admin/variants/1/price/',
+        '/api/v2/admin/variants/1/price/',
         expect.objectContaining({ price: 0 }),
       );
     });

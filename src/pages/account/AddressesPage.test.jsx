@@ -118,7 +118,7 @@ describe('AddressesPage (UC-AUTH-07)', () => {
     fireEvent.click(screen.getByRole('button', { name: /guardar dirección/i }));
 
     await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/addresses/',
+      '/api/v2/auth/addresses/',
       expect.objectContaining({
         alias: 'Casa',
         recipient_name: 'Demo Yoruba',
@@ -151,7 +151,7 @@ describe('AddressesPage (UC-AUTH-07)', () => {
       screen.getByRole('button', { name: /eliminar/i }),
     );
     await waitFor(() => expect(apiService.delete).toHaveBeenCalledWith(
-      '/api/v1/auth/addresses/2/',
+      '/api/v2/auth/addresses/2/',
     ));
   });
 
@@ -163,7 +163,7 @@ describe('AddressesPage (UC-AUTH-07)', () => {
       screen.getByRole('button', { name: /hacer predeterminada/i }),
     );
     await waitFor(() => expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/auth/addresses/2/set-default/',
+      '/api/v2/auth/addresses/2/set-default/',
       {},
     ));
   });

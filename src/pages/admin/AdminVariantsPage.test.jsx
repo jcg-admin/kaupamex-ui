@@ -86,7 +86,7 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/products/7/variants/',
+        '/api/v2/admin/products/7/variants/',
         expect.objectContaining({
           variant_type:  'Tamano',
           option_name:   'Mediano',
@@ -109,7 +109,7 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
 
     await waitFor(() => {
       expect(apiService.patch).toHaveBeenCalledWith(
-        '/api/v1/admin/products/7/variants/1/',
+        '/api/v2/admin/products/7/variants/1/',
         expect.objectContaining({ is_active: false }),
       );
     });

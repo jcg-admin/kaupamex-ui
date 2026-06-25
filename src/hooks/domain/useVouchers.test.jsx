@@ -34,7 +34,7 @@ describe('useVouchers', () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data.results).toEqual([{ id: 1, code: 'X' }]);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/vouchers/',
+      '/api/v2/admin/vouchers/',
       expect.objectContaining({ params: {} }),
     );
   });

@@ -5,7 +5,7 @@
  * de productos activos. Cada nodo es un enlace a UC-CAT-01 (catalogo
  * filtrado por categoria, via `/catalog?category=<slug>`).
  *
- * Stack: React Query (useCategories) sobre GET /api/v1/categories/.
+ * Stack: React Query (useCategories) sobre GET /api/v2/categories/.
  * No hay mutaciones — el admin las gestiona en UC-CAT-06.
  */
 import { useState, useCallback } from 'react';

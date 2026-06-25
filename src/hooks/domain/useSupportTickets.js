@@ -11,8 +11,8 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 
-const TICKETS_URL       = '/api/v1/support/tickets/';
-const ADMIN_TICKETS_URL = '/api/v1/admin/support/tickets/';
+const TICKETS_URL       = '/api/v2/support/tickets/';
+const ADMIN_TICKETS_URL = '/api/v2/admin/support/tickets/';
 
 export const SUPPORT_TICKETS_KEY       = ['supportTickets'];
 export const ADMIN_SUPPORT_TICKETS_KEY = ['supportTickets', 'admin'];

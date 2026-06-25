@@ -62,7 +62,7 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
     render(wrap(<AdminNewsletterSubscribersPage />));
     await waitFor(() => {
       expect(apiService.get).toHaveBeenCalledWith(
-        '/api/v1/admin/newsletter/subscribers/',
+        '/api/v2/admin/newsletter/subscribers/',
         expect.objectContaining({ params: expect.any(Object) }),
       );
     });
@@ -87,7 +87,7 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/admin/newsletter/subscribers/1/unsubscribe/',
+        '/api/v2/admin/newsletter/subscribers/1/unsubscribe/',
         expect.objectContaining({ reason: 'SOLICITUD_MANUAL' }),
       );
     });

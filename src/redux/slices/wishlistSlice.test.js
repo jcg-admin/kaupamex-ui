@@ -49,7 +49,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
       { id: 1, product_id: 7 },
     ]);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/wishlist/',
+      '/api/v2/wishlist/',
       expect.objectContaining({ params: {} }),
     );
   });
@@ -72,7 +72,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
     const store = makeStore();
     await store.dispatch(addToWishlist({ productId: 7 }));
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/wishlist/',
+      '/api/v2/wishlist/',
       { product_id: 7 },
     );
     expect(store.getState().wishlist.items[0]).toEqual({
@@ -86,7 +86,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
     const store = makeStore();
     await store.dispatch(addToWishlist({ productId: 7, variantId: 3 }));
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/wishlist/',
+      '/api/v2/wishlist/',
       { product_id: 7, variant_id: 3 },
     );
   });
@@ -124,7 +124,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
     await store.dispatch(fetchWishlist());
     await store.dispatch(moveWishlistItemToCart({ itemId: 5 }));
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/wishlist/5/move-to-cart/',
+      '/api/v2/wishlist/5/move-to-cart/',
       { quantity: 1, keep_in_wishlist: false },
     );
     expect(store.getState().wishlist.items).toEqual([]);

@@ -81,7 +81,7 @@ describe('AdminInventoryMovementsPage (UC-INV-02 / UC-INV-03)', () => {
     render(wrap(makeStore()));
     await screen.findByText(/Sin movimientos/i);
     expect(apiService.get).toHaveBeenCalledWith(
-      '/api/v1/admin/inventory/variants/10/movements/',
+      '/api/v2/admin/inventory/variants/10/movements/',
       expect.anything(),
     );
   });

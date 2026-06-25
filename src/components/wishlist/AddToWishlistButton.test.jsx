@@ -77,7 +77,7 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
     );
     expect(screen.getByText(/en tu lista/i)).toBeInTheDocument();
     expect(apiService.post).toHaveBeenCalledWith(
-      '/api/v1/wishlist/',
+      '/api/v2/wishlist/',
       { product_id: 7 },
     );
   });
@@ -88,7 +88,7 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
     fireEvent.click(screen.getByRole('button'));
     await waitFor(() =>
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/wishlist/',
+        '/api/v2/wishlist/',
         { product_id: 7, variant_id: 3 },
       ),
     );

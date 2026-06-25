@@ -4,8 +4,8 @@
  * Ruta: /order/:id/payment-failed
  *
  * Endpoints:
- *   GET /api/v1/orders/{id}/
- *   GET /api/v1/payments/{id}/history/
+ *   GET /api/v2/orders/{id}/
+ *   GET /api/v2/payments/{id}/history/
  */
 
 import { useEffect, useState } from 'react';
@@ -33,8 +33,8 @@ export default function PaymentFailedPage() {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    apiService.get(`/api/v1/orders/${id}/`).then(res => setOrder(res.data)).catch(() => {});
-    apiService.get(`/api/v1/payments/${id}/history/`).then(res => setHistory(res?.data || [])).catch(() => {});
+    apiService.get(`/api/v2/orders/${id}/`).then(res => setOrder(res.data)).catch(() => {});
+    apiService.get(`/api/v2/payments/${id}/history/`).then(res => setHistory(res?.data || [])).catch(() => {});
   }, [id]);
 
   if (!order) return <div className={styles.loading}>Cargando…</div>;

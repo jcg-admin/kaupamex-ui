@@ -51,7 +51,7 @@ describe('PaymentSelectionPage', () => {
 
   it('UC-PAY-01: inicia pago MP y redirige al checkout_url', async () => {
     // DEC-BC-09: backend devuelve `checkout_url` (unificado) en endpoint
-    // unico `/api/v1/payments/initiate/` con body
+    // unico `/api/v2/payments/initiate/` con body
     // `{ order_number, gateway: 'MERCADOPAGO', installments? }`.
     apiService.post.mockResolvedValue({
       data: {
@@ -67,7 +67,7 @@ describe('PaymentSelectionPage', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/initiate/',
+        '/api/v2/payments/initiate/',
         { order_number: 'ORD-001', gateway: 'MERCADOPAGO' }
       );
     });
@@ -86,7 +86,7 @@ describe('PaymentSelectionPage', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/initiate/',
+        '/api/v2/payments/initiate/',
         { order_number: 'ORD-001', gateway: 'MERCADOPAGO', installments: 6 }
       );
     });
@@ -107,7 +107,7 @@ describe('PaymentSelectionPage', () => {
 
     await waitFor(() => {
       expect(apiService.post).toHaveBeenCalledWith(
-        '/api/v1/payments/initiate/',
+        '/api/v2/payments/initiate/',
         { order_number: 'ORD-001', gateway: 'PAYPAL' }
       );
     });

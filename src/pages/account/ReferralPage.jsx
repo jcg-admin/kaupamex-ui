@@ -7,8 +7,8 @@
  * formulario para canjear el codigo de otro comprador.
  *
  * Endpoints (via referralSlice):
- *   GET  /api/v1/account/referral/         -> fetchReferral
- *   POST /api/v1/account/referral/redeem/  -> redeemReferral
+ *   GET  /api/v2/account/referral/         -> fetchReferral
+ *   POST /api/v2/account/referral/redeem/  -> redeemReferral
  */
 
 import { useEffect, useState } from 'react';

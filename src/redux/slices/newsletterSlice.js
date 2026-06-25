@@ -13,10 +13,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const SUBSCRIBE_URL                 = '/api/v1/newsletter/subscribe/';
-const UNSUBSCRIBE_URL               = '/api/v1/newsletter/unsubscribe/';
-const ADMIN_UNSUBSCRIBE_MANUAL_URL  = (id) => `/api/v1/admin/newsletter/subscribers/${id}/unsubscribe/`;
-const ADMIN_BROADCAST_URL           = '/api/v1/admin/newsletter/campaigns/';
+const SUBSCRIBE_URL                 = '/api/v2/newsletter/subscribe/';
+const UNSUBSCRIBE_URL               = '/api/v2/newsletter/unsubscribe/';
+const ADMIN_UNSUBSCRIBE_MANUAL_URL  = (id) => `/api/v2/admin/newsletter/subscribers/${id}/unsubscribe/`;
+const ADMIN_BROADCAST_URL           = '/api/v2/admin/newsletter/campaigns/';
 
 // =============================================================================
 // Thunks
