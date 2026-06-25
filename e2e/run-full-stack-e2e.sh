@@ -60,10 +60,10 @@ wait_http() {  # wait_http <url> <segundos>
     done
 }
 
-# ─── Gate Node 20 (L-012): nvm no se auto-carga en shell nuevo ──────────────
+# ─── Gate Node 22 (L-012): nvm no se auto-carga en shell nuevo ──────────────
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 ( cd "$UI_DIR" && nvm use >/dev/null 2>&1 || true )
-node -v | grep -q '^v20\.' || { echo "Node != v20 — corre 'nvm use 20'"; exit 1; }
+node -v | grep -q '^v22\.' || { echo "Node != v22 — corre 'nvm use 22'"; exit 1; }
 
 # ─── 1) DB: MariaDB socket + migrate + seed (usuarios + catálogo) ────────────
 log "1/4 db: arrancando MariaDB + migrate + seed"

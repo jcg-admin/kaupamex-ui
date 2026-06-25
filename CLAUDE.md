@@ -14,7 +14,7 @@ superproyecto y aplica también aquí:
   - `timestamps-iso8601-obligatorios.md` — `date -u +"%Y-%m-%dT%H:%M:%S"`, nunca a mano.
   - `react-verification-gate.md` — toda afirmación de estado deriva de una Observation real.
   - `no-lazy-imports.md` — aplica también a `ui/` (`import`/`require` a top-level; excepción: `React.lazy` para code splitting).
-  - `test-execution-protocol.md` — gate de Node v20 antes de jest (ver Comandos).
+  - `test-execution-protocol.md` — gate de Node v22 antes de jest (ver Comandos).
 
 ## Stack (verificado en package.json)
 
@@ -25,17 +25,17 @@ superproyecto y aplica también aquí:
 - Jest `^29.7.0` + @testing-library/react `^16.3.2` (+ jest-dom, user-event)
 - @playwright/test `^1.49.0` (E2E)
 - sass `^1.99.0` + sass-loader `^16.0.7` · framer-motion `^12.38.0` · recharts `^2.15.0` · dompurify `^3.4.1`
-- engines: node `>=20.0.0`, npm `>=10.0.0` · package version `1.0.0`
+- engines: node `>=22.0.0`, npm `>=10.0.0` · package version `1.0.0`
 
 ## Comandos (scripts de package.json)
 
-GATE DURO de Node ANTES de `npm ci` / `npm test` (L-012). `.nvmrc` fija `20`,
+GATE DURO de Node ANTES de `npm ci` / `npm test` (L-012). `.nvmrc` fija `22`,
 pero NO lo carga; en shell nuevo `node` cae al del sistema:
 
 ```bash
 export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-nvm use                                # lee .nvmrc (=20)
-node -v | grep -q '^v20\.' || { echo "Node != v20; PARAR"; exit 1; }
+nvm use                                # lee .nvmrc (=22)
+node -v | grep -q '^v22\.' || { echo "Node != v22; PARAR"; exit 1; }
 npm ci --ignore-scripts                # --ignore-scripts evita husky en CI
 ```
 
@@ -54,8 +54,8 @@ npm ci --ignore-scripts                # --ignore-scripts evita husky en CI
 
 ## Convenciones locales / gotchas
 
-- **Node v22 ≠ v20:** este contenedor tiene `node -v` = `v22.22.2`; `.nvmrc` = `20`.
-  Cargar nvm y `nvm use` antes de instalar/test, o el gate jest mide la toolchain equivocada.
+- **Node v22:** `.nvmrc` = `22`; el contenedor ya corre `v22.22.2` de forma nativa.
+  Cargar nvm y `nvm use` antes de instalar/test para fijar la versión exacta.
 - **devServer proxy:** webpack `:3001` proxea `/api` → `process.env.API_URL || http://localhost:8000` (`webpack.config.js:264-273`).
 - **JWT en memoria de módulo:** tokens de auth en memory del módulo, NO localStorage/sessionStorage por XSS (DEC-AUTH-2, `src/services/apiService.js:55-60`); reload pierde sesión. Igual para `X-Cart-Token` (DEC-BC-07).
 - **Playwright baseURL:** `PW_BASE_URL || http://localhost:3001`; testMatch `**/*.e2e.js` (no colisiona con jest). El verde autoritativo es WSL, no el contenedor (L-010).
