@@ -9,6 +9,7 @@ import { serializeApiError } from '@utils/serializeApiError';
 
 const CREATE_ORDER_URL       = '/api/v2/orders/';
 const PAYMENTS_URL           = '/api/v2/payments/initiate/';
+const SHIPPING_METHODS_URL   = '/api/v2/shipping-methods/';
 const ELIGIBILITY_URL        = '/api/v2/checkout/eligibility/';
 const EXPRESS_CHECKOUT_URL   = '/api/v2/checkout/express/';
 
@@ -57,6 +58,23 @@ export const initPayPal = createAsyncThunk(
     try {
       const res = await apiService.post(PAYMENTS_URL, { order_number, gateway: 'PAYPAL' });
       return res.data; // { payment_id, checkout_url, order_number, amount, installments }
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
+
+/**
+ * GAP-C1: fetch active shipping methods for checkout.
+ * GET /api/v2/shipping-methods/ → [{ id, name, cost, estimated_days, free_threshold }]
+ * Public endpoint — no auth required.
+ */
+export const fetchShippingMethods = createAsyncThunk(
+  'checkout/fetchShippingMethods',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(SHIPPING_METHODS_URL);
+      return res.data;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
     }
@@ -191,6 +209,12 @@ const checkoutSlice = createSlice({
       .addCase(initPayPal.rejected, (state, action) => {
         state.isLoading = false;
         state.error     = action.payload;
+      });
+
+    // GAP-C1: shipping methods loaded from API (UC-CFG-02 buyer side).
+    builder
+      .addCase(fetchShippingMethods.fulfilled, (state, action) => {
+        state.shippingOptions = action.payload;
       });
 
     // H-CICLO114-03: express checkout thunks (UC-ORD-01-EXT).
