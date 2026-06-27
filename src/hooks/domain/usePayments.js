@@ -11,14 +11,16 @@
 import { useQuery } from '@tanstack/react-query';
 import apiService, { getPaymentMethods } from '@services/apiService';
 
-const PAYMENT_HISTORY_URL   = (orderId) => `/api/v2/payments/${orderId}/history/`;
-const PAYMENT_STATUS_URL    = (orderId) => `/api/v2/payments/${orderId}/status/`;
-const ADMIN_PAYMENTS_URL    = '/api/v2/admin/payments/';
+const PAYMENT_HISTORY_URL      = (orderId) => `/api/v2/payments/${orderId}/history/`;
+const PAYMENT_STATUS_URL       = (orderId) => `/api/v2/payments/${orderId}/status/`;
+const ADMIN_PAYMENTS_URL       = '/api/v2/admin/payments/';
+const ADMIN_PAYMENT_REFUNDS_URL = (paymentId) => `/api/v1/admin/payments/${paymentId}/refunds/`;
 
-export const PAYMENTS_KEY            = ['payments'];
-export const PAYMENT_STATUS_KEY      = ['payments', 'status'];
-export const PAYMENT_HISTORY_KEY     = ['payments', 'history'];
-export const ADMIN_PAYMENTS_KEY      = ['payments', 'admin'];
+export const PAYMENTS_KEY              = ['payments'];
+export const PAYMENT_STATUS_KEY        = ['payments', 'status'];
+export const PAYMENT_HISTORY_KEY       = ['payments', 'history'];
+export const ADMIN_PAYMENTS_KEY        = ['payments', 'admin'];
+export const ADMIN_PAYMENT_REFUNDS_KEY = ['payments', 'admin', 'refunds'];
 
 /**
  * UC-PAY-05: estado actual del pago de una orden propia.
@@ -81,6 +83,21 @@ export function useAdminPayment(paymentId) {
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(`${ADMIN_PAYMENTS_URL}${paymentId}/`, { signal });
       return data;
+    },
+  });
+}
+
+/**
+ * T-16-D: lista los reembolsos registrados para un Payment (admin).
+ * GET /api/v1/admin/payments/<id>/refunds/
+ */
+export function useAdminPaymentRefunds(paymentId) {
+  return useQuery({
+    queryKey: [...ADMIN_PAYMENT_REFUNDS_KEY, paymentId],
+    enabled:  Boolean(paymentId),
+    queryFn:  async ({ signal }) => {
+      const { data } = await apiService.get(ADMIN_PAYMENT_REFUNDS_URL(paymentId), { signal });
+      return Array.isArray(data) ? data : [];
     },
   });
 }

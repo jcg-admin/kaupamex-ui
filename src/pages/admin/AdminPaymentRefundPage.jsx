@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAdminPayment, ADMIN_PAYMENTS_KEY } from '@hooks/domain/usePayments';
+import { useAdminPayment, useAdminPaymentRefunds, ADMIN_PAYMENTS_KEY } from '@hooks/domain/usePayments';
 import {
   requestAdminRefund,
   clearPaymentsActionState,
@@ -29,6 +29,7 @@ export default function AdminPaymentRefundPage() {
   const dispatch      = useDispatch();
   const queryClient   = useQueryClient();
   const { data: payment, isLoading, isError } = useAdminPayment(paymentId);
+  const { data: refunds = [] } = useAdminPaymentRefunds(paymentId);
   const { isActioning, actionError, lastAction } = useSelector((s) => s.payments);
 
   const [amount, setAmount] = useState('');
@@ -105,6 +106,32 @@ export default function AdminPaymentRefundPage() {
         <div><dt>Gateway</dt><dd>{payment.gateway === 'paypal' ? 'PayPal' : 'Mercado Pago'}</dd></div>
         <div><dt>Estado</dt><dd>{payment.status}</dd></div>
       </dl>
+
+      {refunds.length > 0 && (
+        <section className={styles.refundHistory} aria-label="Reembolsos anteriores">
+          <h2 className={styles.historyTitle}>Reembolsos anteriores</h2>
+          <table className={styles.historyTable}>
+            <thead>
+              <tr>
+                <th>Monto</th>
+                <th>Estado</th>
+                <th>ID Gateway</th>
+                <th>Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {refunds.map((r) => (
+                <tr key={r.id}>
+                  <td>{formatCurrency(r.amount)}</td>
+                  <td>{r.status}</td>
+                  <td className={styles.mono}>{r.gateway_refund_id ?? '—'}</td>
+                  <td>{r.reason || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
 
       {actionError && (
         <p role="alert" className={styles.error}>

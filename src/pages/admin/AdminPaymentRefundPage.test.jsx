@@ -141,6 +141,35 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
     expect(await screen.findByText(/Reembolso procesado/i)).toBeInTheDocument();
   });
 
+  it('muestra historial de reembolsos anteriores', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v1/admin/payments/501/refunds/`, () =>
+        HttpResponse.json([
+          { id: 1, amount: '200.00', status: 'APPROVED', gateway_refund_id: 'REF-001', reason: 'Parcial' },
+          { id: 2, amount: '100.00', status: 'APPROVED', gateway_refund_id: 'REF-002', reason: '' },
+        ]),
+      ),
+    );
+    render(wrap(<AdminPaymentRefundPage />, makeStore()));
+    await screen.findByRole('heading', { name: /Procesar reembolso/i });
+    expect(await screen.findByRole('region', { name: /Reembolsos anteriores/i })).toBeInTheDocument();
+    expect(screen.getByText('REF-001')).toBeInTheDocument();
+    expect(screen.getByText('REF-002')).toBeInTheDocument();
+    expect(screen.getByText('Parcial')).toBeInTheDocument();
+  });
+
+  it('no muestra seccion de historial si no hay reembolsos', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+      http.get(`${BASE}/api/v1/admin/payments/501/refunds/`, () => HttpResponse.json([])),
+    );
+    render(wrap(<AdminPaymentRefundPage />, makeStore()));
+    await screen.findByRole('heading', { name: /Procesar reembolso/i });
+    await new Promise((r) => setTimeout(r, 50));
+    expect(screen.queryByRole('region', { name: /Reembolsos anteriores/i })).not.toBeInTheDocument();
+  });
+
   it('muestra error si el gateway rechaza el reembolso', async () => {
     server.use(
       http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
