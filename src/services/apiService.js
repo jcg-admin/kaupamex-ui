@@ -260,3 +260,7 @@ class APIService {
 const apiService = new APIService();
 export default apiService;
 export { APIService };
+
+export function getMpCustomer() {
+  return apiService.get('/api/v2/payments/customer/');
+}
