@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAdminPayment, useAdminPaymentRefunds, ADMIN_PAYMENTS_KEY } from '@hooks/domain/usePayments';
 import {
   requestAdminRefund,
+  adminCancelPayment,
   clearPaymentsActionState,
 } from '@redux/slices/paymentsSlice';
 import { formatCurrency as formatCurrencyIntl } from '@lib/intl';
@@ -39,7 +40,7 @@ export default function AdminPaymentRefundPage() {
   useEffect(() => () => { dispatch(clearPaymentsActionState()); }, [dispatch]);
 
   useEffect(() => {
-    if (lastAction === 'refunded') {
+    if (lastAction === 'refunded' || lastAction === 'cancelled') {
       queryClient.invalidateQueries({ queryKey: ADMIN_PAYMENTS_KEY });
     }
   }, [lastAction, queryClient]);
@@ -135,12 +136,31 @@ export default function AdminPaymentRefundPage() {
 
       {actionError && (
         <p role="alert" className={styles.error}>
-          {actionError.code || actionError.message || 'No se pudo procesar el reembolso.'}
+          {actionError.code || actionError.message || 'No se pudo procesar la accion.'}
         </p>
       )}
 
       {lastAction === 'refunded' && (
         <p className={styles.success}>Reembolso procesado correctamente.</p>
+      )}
+
+      {lastAction === 'cancelled' && (
+        <p className={styles.success}>Pago cancelado correctamente.</p>
+      )}
+
+      {payment.status === 'PENDING' && lastAction !== 'cancelled' && (
+        <section aria-label="Cancelar pago" className={styles.cancelSection}>
+          <h2 className={styles.cancelTitle}>Cancelar pago</h2>
+          <p>Este pago está pendiente y puede cancelarse antes de que sea procesado.</p>
+          <button
+            type="button"
+            className={styles.dangerBtn}
+            disabled={isActioning}
+            onClick={() => dispatch(adminCancelPayment({ payment_id: paymentId }))}
+          >
+            {isActioning ? 'Cancelando…' : 'Cancelar pago'}
+          </button>
+        </section>
       )}
 
       <form onSubmit={onSubmit} className={styles.form} aria-label="Formulario de reembolso">

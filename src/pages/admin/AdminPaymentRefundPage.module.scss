@@ -49,3 +49,13 @@
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
+.cancelSection {
+  background: $danger-bg; border: 1px solid $danger-deep; border-radius: .5rem;
+  padding: 1.25rem; margin-bottom: 1.5rem;
+}
+.cancelTitle { font-size: 1.1rem; margin: 0 0 .5rem; color: $danger-deep; }
+.dangerBtn {
+  background: $danger-deep; color: #fff; border: 0;
+  padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
+  &:disabled { opacity: .55; cursor: not-allowed; }
+}

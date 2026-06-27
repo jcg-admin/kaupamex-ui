@@ -22,6 +22,7 @@ const V1_INITIATE_URL  = '/api/v1/payments/initiate/';
 // Used for MercadoPago CardForm (ADR-018).
 const V2_CHECKOUT_API_URL = '/api/v2/payments/initiate/';
 const ADMIN_REFUND_URL    = '/api/v2/payments/admin';
+const ADMIN_CANCEL_URL    = (paymentId) => `/api/v1/admin/payments/${paymentId}/cancel/`;
 
 // =============================================================================
 // Thunks
@@ -131,6 +132,22 @@ export const initiateMercadoPagoPayment = createAsyncThunk(
 );
 
 /**
+ * T-CAN: el admin cancela proactivamente un pago PENDING.
+ * Acepta `{ payment_id }`.
+ */
+export const adminCancelPayment = createAsyncThunk(
+  'payments/adminCancel',
+  async ({ payment_id }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(ADMIN_CANCEL_URL(payment_id));
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/**
  * UC-PAY-09: el admin procesa manualmente un reembolso sobre un Payment APPROVED.
  * Acepta `{ payment_id, amount, reason }`.
  */
@@ -152,11 +169,12 @@ export const requestAdminRefund = createAsyncThunk(
 // =============================================================================
 
 const initialState = {
-  isActioning:    false,
-  actionError:    null,
-  lastAction:     null, // 'mp_checkout_api' | 'paypal_initiated' | 'retried' | 'refunded'
-  lastInitiation: null, // response shape varies by gateway
-  lastRefund:     null,
+  isActioning:      false,
+  actionError:      null,
+  lastAction:       null, // 'mp_checkout_api' | 'paypal_initiated' | 'retried' | 'refunded' | 'cancelled'
+  lastInitiation:   null, // response shape varies by gateway
+  lastRefund:       null,
+  lastCancellation: null,
 };
 
 const paymentsSlice = createSlice({
@@ -165,10 +183,11 @@ const paymentsSlice = createSlice({
 
   reducers: {
     clearPaymentsActionState(state) {
-      state.actionError    = null;
-      state.lastAction     = null;
-      state.lastInitiation = null;
-      state.lastRefund     = null;
+      state.actionError      = null;
+      state.lastAction       = null;
+      state.lastInitiation   = null;
+      state.lastRefund       = null;
+      state.lastCancellation = null;
     },
   },
 
@@ -250,6 +269,22 @@ const paymentsSlice = createSlice({
         state.lastInitiation = action.payload;
       })
       .addCase(retryPayment.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      })
+
+      // adminCancelPayment (T-CAN)
+      .addCase(adminCancelPayment.pending, (state) => {
+        state.isActioning      = true;
+        state.actionError      = null;
+        state.lastCancellation = null;
+      })
+      .addCase(adminCancelPayment.fulfilled, (state, action) => {
+        state.isActioning      = false;
+        state.lastAction       = 'cancelled';
+        state.lastCancellation = action.payload;
+      })
+      .addCase(adminCancelPayment.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       })

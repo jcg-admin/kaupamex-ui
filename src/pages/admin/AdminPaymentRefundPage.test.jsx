@@ -170,6 +170,42 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
     expect(screen.queryByRole('region', { name: /Reembolsos anteriores/i })).not.toBeInTheDocument();
   });
 
+  it('muestra boton cancelar solo para pagos PENDING', async () => {
+    const pendingPayment = { ...APPROVED_PAYMENT, status: 'PENDING' };
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(pendingPayment)),
+    );
+    render(wrap(<AdminPaymentRefundPage />, makeStore()));
+    await screen.findByRole('heading', { name: /Procesar reembolso/i });
+    expect(screen.getByRole('button', { name: /Cancelar pago/i })).toBeInTheDocument();
+  });
+
+  it('no muestra boton cancelar para pagos APPROVED', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
+    );
+    render(wrap(<AdminPaymentRefundPage />, makeStore()));
+    await screen.findByRole('heading', { name: /Procesar reembolso/i });
+    expect(screen.queryByRole('button', { name: /Cancelar pago/i })).not.toBeInTheDocument();
+  });
+
+  it('cancela el pago y muestra confirmacion', async () => {
+    const pendingPayment = { ...APPROVED_PAYMENT, id: 502, status: 'PENDING' };
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/502/`, () => HttpResponse.json(pendingPayment)),
+      http.post(`${BASE}/api/v1/admin/payments/502/cancel/`, () =>
+        HttpResponse.json({ ...pendingPayment, status: 'CANCELLED' }),
+      ),
+    );
+    const store = makeStore();
+    render(wrap(<AdminPaymentRefundPage />, store, '/admin/payments/502/refund'));
+
+    await screen.findByRole('button', { name: /Cancelar pago/i });
+    fireEvent.click(screen.getByRole('button', { name: /Cancelar pago/i }));
+
+    expect(await screen.findByText(/Pago cancelado correctamente/i)).toBeInTheDocument();
+  });
+
   it('muestra error si el gateway rechaza el reembolso', async () => {
     server.use(
       http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
@@ -190,5 +226,24 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Procesar reembolso/i }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/GATEWAY_ERROR/);
+  });
+
+  it('muestra error si la cancelacion falla', async () => {
+    const pendingPayment = { ...APPROVED_PAYMENT, id: 503, status: 'PENDING' };
+    server.use(
+      http.get(`${BASE}/api/v2/admin/payments/503/`, () => HttpResponse.json(pendingPayment)),
+      http.post(`${BASE}/api/v1/admin/payments/503/cancel/`, () =>
+        HttpResponse.json(
+          { codigo_error: 'GATEWAY_UNAVAILABLE', detail: 'MP down' },
+          { status: 400 },
+        ),
+      ),
+    );
+    render(wrap(<AdminPaymentRefundPage />, makeStore(), '/admin/payments/503/refund'));
+
+    await screen.findByRole('button', { name: /Cancelar pago/i });
+    fireEvent.click(screen.getByRole('button', { name: /Cancelar pago/i }));
+
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
   });
 });
