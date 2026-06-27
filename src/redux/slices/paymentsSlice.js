@@ -15,34 +15,36 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-// DEC-BC-09 (2026-05-21): backend tiene UN SOLO endpoint
-// /api/v1/payments/initiate/ que acepta `gateway: MERCADOPAGO|PAYPAL`.
-// Las constantes anteriores /mercadopago/checkout + /paypal/checkout
-// eran 404 en produccion (audit T-101 U-04 + U-05). Single endpoint
-// alineado a InitiatePaymentSerializer (apps/payments/serializers.py:25-29).
-const PAYMENTS_INITIATE_URL = '/api/v2/payments/initiate/';
-const ADMIN_REFUND_URL      = '/api/v2/payments/admin';
+// V1 endpoint: Checkout Pro (redirect). Accepts { order_number, gateway }.
+// Used for PayPal and legacy MP Checkout Pro.
+const V1_INITIATE_URL  = '/api/v1/payments/initiate/';
+// V2 endpoint: Checkout API (on-site). Requires { order_number, token, ... }.
+// Used for MercadoPago CardForm (ADR-018).
+const V2_CHECKOUT_API_URL = '/api/v2/payments/initiate/';
+const ADMIN_REFUND_URL    = '/api/v2/payments/admin';
 
 // =============================================================================
 // Thunks
 // =============================================================================
 
 /**
- * UC-PAY-01: inicia el pago con Mercado Pago.
+ * UC-PAY-01-V2: inicia pago MP con Checkout API (on-site, CardForm).
  *
- * DEC-BC-09: contract alineado al backend canonico.
- * Acepta `{ order_number, installments }` (installments opcional —
- * UC-PAY-01-EXT MSI). Envia body `{ order_number, gateway: 'MERCADOPAGO',
- * installments? }`. Respuesta backend: `{ payment_id, checkout_url,
- * order_number, amount, installments }`.
+ * ADR-018: el frontend tokeniza con MP.js y envía el token al backend.
+ * El backend procesa sincrónicamente y devuelve el resultado final.
+ * No hay redirect — la respuesta es el resultado del pago.
+ *
+ * Payload: { order_number, token, payment_method_id?, issuer_id?,
+ *            installments?, payer_email?, payer_identification_type?,
+ *            payer_identification_number? }
+ * Respuesta: { payment_id, gateway_payment_id, status, status_detail,
+ *              order_number, amount, installments }
  */
-export const initiateMercadoPagoPayment = createAsyncThunk(
-  'payments/initiateMercadoPago',
-  async ({ order_number, installments }, { rejectWithValue }) => {
+export const initiateCheckoutApiPayment = createAsyncThunk(
+  'payments/initiateCheckoutApi',
+  async (payload, { rejectWithValue }) => {
     try {
-      const payload = { order_number, gateway: 'MERCADOPAGO' };
-      if (installments) payload.installments = Number(installments);
-      const res = await apiService.post(PAYMENTS_INITIATE_URL, payload);
+      const res = await apiService.post(V2_CHECKOUT_API_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -51,18 +53,17 @@ export const initiateMercadoPagoPayment = createAsyncThunk(
 );
 
 /**
- * UC-PAY-02: inicia el pago con PayPal.
+ * UC-PAY-02: inicia el pago con PayPal (Checkout Pro — redirect).
  *
- * DEC-BC-09: mismo endpoint que MP, diferencia por `gateway`.
- * Acepta `{ order_number }`. Envia `{ order_number, gateway: 'PAYPAL' }`.
- * Respuesta backend: igual shape que MP (checkout_url, etc.).
+ * Usa V1 endpoint: PayPal no tiene CardForm, se paga por redirect.
+ * Acepta `{ order_number }`. Respuesta: `{ checkout_url, ... }`.
  */
 export const initiatePayPalPayment = createAsyncThunk(
   'payments/initiatePayPal',
   async ({ order_number }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(
-        PAYMENTS_INITIATE_URL,
+        V1_INITIATE_URL,
         { order_number, gateway: 'PAYPAL' }
       );
       return res.data;
@@ -74,16 +75,32 @@ export const initiatePayPalPayment = createAsyncThunk(
 
 /**
  * UC-PAY-08: reintenta el pago de una orden, permitiendo cambiar el
- * gateway. Retry = re-initiate: no hay endpoint separado.
- *
- * DEC-BC-09: contract alineado a backend. Envia `{ order_number,
- * gateway }`. Respuesta canonica `{ checkout_url, ... }`.
+ * gateway. Retry = re-initiate via v1 (Checkout Pro) para PayPal;
+ * para MP usar initiateCheckoutApiPayment con nuevo token.
  */
 export const retryPayment = createAsyncThunk(
   'payments/retry',
   async ({ order_number, gateway }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(PAYMENTS_INITIATE_URL, { order_number, gateway });
+      const res = await apiService.post(V1_INITIATE_URL, { order_number, gateway });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/**
+ * UC-PAY-01 (legacy Checkout Pro): inicia pago MP con redirect.
+ * Kept for backward compatibility with pages that use Checkout Pro flow.
+ */
+export const initiateMercadoPagoPayment = createAsyncThunk(
+  'payments/initiateMercadoPago',
+  async ({ order_number, installments }, { rejectWithValue }) => {
+    try {
+      const payload = { order_number, gateway: 'MERCADOPAGO' };
+      if (installments) payload.installments = Number(installments);
+      const res = await apiService.post(V1_INITIATE_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -115,8 +132,8 @@ export const requestAdminRefund = createAsyncThunk(
 const initialState = {
   isActioning:    false,
   actionError:    null,
-  lastAction:     null, // 'mp_initiated' | 'paypal_initiated' | 'retried' | 'refunded'
-  lastInitiation: null, // { gateway, checkout_url, payment_id, order_number, amount, installments } (DEC-BC-09)
+  lastAction:     null, // 'mp_checkout_api' | 'paypal_initiated' | 'retried' | 'refunded'
+  lastInitiation: null, // response shape varies by gateway
   lastRefund:     null,
 };
 
@@ -135,7 +152,23 @@ const paymentsSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // initiateMercadoPagoPayment (UC-PAY-01)
+      // initiateCheckoutApiPayment (UC-PAY-01-V2, ADR-018 Checkout API)
+      .addCase(initiateCheckoutApiPayment.pending, (state) => {
+        state.isActioning    = true;
+        state.actionError    = null;
+        state.lastInitiation = null;
+      })
+      .addCase(initiateCheckoutApiPayment.fulfilled, (state, action) => {
+        state.isActioning    = false;
+        state.lastAction     = 'mp_checkout_api';
+        state.lastInitiation = { gateway: 'mercadopago', ...action.payload };
+      })
+      .addCase(initiateCheckoutApiPayment.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      })
+
+      // initiateMercadoPagoPayment (legacy Checkout Pro)
       .addCase(initiateMercadoPagoPayment.pending, (state) => {
         state.isActioning    = true;
         state.actionError    = null;

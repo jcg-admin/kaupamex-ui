@@ -18,11 +18,48 @@ const mockPaymentResult = {
 };
 
 export const paymentsHandlers = [
-  // MercadoPago preference
+  // MercadoPago preference (legacy)
   http.post(`${BASE}/api/v1/payments/mercadopago/create-preference/`, async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({ ...mockMpPreference, order_id: body.order_id }, { status: 201 });
   }),
+
+  // V1 initiate — Checkout Pro (PayPal + legacy MP redirect)
+  http.post(`${BASE}/api/v1/payments/initiate/`, async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json({
+      payment_id:   'pp-pay-99999',
+      checkout_url: mockMpPreference.sandbox_init_point,
+      order_number: body.order_number || 'PY-0001',
+      amount:       '198.00',
+      installments: 1,
+    }, { status: 201 });
+  }),
+
+  // V2 initiate — Checkout API (MercadoPago CardForm, requires token)
+  // Returns synchronous payment result (no checkout_url — on-site payment)
+  http.post(`${BASE}/api/v2/payments/initiate/`, async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json({
+      payment_id:         1,
+      gateway_payment_id: 'mp-pay-12345',
+      status:             'approved',
+      status_detail:      'accredited',
+      order_number:       body.order_number || 'PY-0001',
+      amount:             '198.00',
+      installments:       body.installments || 1,
+    }, { status: 201 });
+  }),
+
+  // MP public key (BR-009: only public_key, never access_token)
+  http.get(`${BASE}/api/v2/payments/public-key/`, () =>
+    HttpResponse.json({ public_key: 'TEST-public-key-mock' }),
+  ),
+
+  // MP customer (v2)
+  http.get(`${BASE}/api/v2/payments/customer/`, () =>
+    HttpResponse.json({ mp_customer_id: 'CUST-mock-001', email: 'test@example.com' }),
+  ),
 
   // Payment webhook (MP notification)
   http.post(`${BASE}/api/v1/payments/mercadopago/webhook/`, () =>
@@ -33,17 +70,6 @@ export const paymentsHandlers = [
   http.get(`${BASE}/api/v1/payments/mercadopago/return/`, () =>
     HttpResponse.json(mockPaymentResult),
   ),
-
-  // Initiate payment (v2 — unified gateway endpoint)
-  http.post(`${BASE}/api/v2/payments/initiate/`, async ({ request }) => {
-    const body = await request.json();
-    return HttpResponse.json({
-      payment_id: 'mp-pay-12345',
-      checkout_url: mockMpPreference.sandbox_init_point,
-      order_number: body.order_number || 'PY-0001',
-      amount: '198.00',
-    }, { status: 201 });
-  }),
 
   // Checkout eligibility (v2)
   http.get(`${BASE}/api/v2/checkout/eligibility/`, () =>

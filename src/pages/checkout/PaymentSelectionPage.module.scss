@@ -78,3 +78,37 @@
   border-radius: .35rem;
   margin-bottom: 1rem;
 }
+
+.success {
+  border: 1px solid #4caf50;
+  background: #f0fff0;
+  border-radius: .5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.warning {
+  border: 1px solid #ff9800;
+  background: #fff8f0;
+  border-radius: .5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.resultStatus {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 .25rem;
+}
+
+.resultDetail {
+  font-size: .9rem;
+  color: $text-soft;
+  margin: 0 0 .75rem;
+}
+
+.processing {
+  font-size: .9rem;
+  color: $text-soft;
+  margin-top: .5rem;
+}

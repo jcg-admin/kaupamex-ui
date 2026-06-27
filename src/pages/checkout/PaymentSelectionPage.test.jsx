@@ -1,10 +1,9 @@
 /**
  * Tests — PaymentSelectionPage
- * UC-PAY-01: Iniciar pago con Mercado Pago
- * UC-PAY-02: Iniciar pago con PayPal
- * UC-PAY-01-EXT: Pago con Cuotas MSI (opcion dentro de MP)
+ * UC-PAY-01-V2: MercadoPago Checkout API (CardForm, ADR-018)
+ * UC-PAY-02: PayPal (Checkout Pro redirect)
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
@@ -16,6 +15,23 @@ jest.mock('./paymentRedirect', () => ({
   redirectToGateway: jest.fn(),
 }));
 
+// Mock useMpCardForm — prefixed with `mock` so Jest factory closure is allowed.
+// mockCardFormSubmit is set by each useMpCardForm call and allows tests to
+// imperatively trigger the payment callback.
+let mockCardFormSubmitFn = null;
+jest.mock('@hooks/useMpCardForm', () => ({
+  useMpCardForm: jest.fn(({ onPayment }) => {
+    mockCardFormSubmitFn = () => onPayment({
+      token:             'test-token-123',
+      payment_method_id: 'visa',
+      issuerId:          '310',
+      installments:      1,
+      payer: { email: 'buyer@test.com', identification: { type: 'DNI', number: '12345678' } },
+    });
+    return { status: 'ready', error: null, submit: mockCardFormSubmitFn };
+  }),
+}));
+
 import { redirectToGateway } from './paymentRedirect';
 import paymentsReducer from '@redux/slices/paymentsSlice';
 import PaymentSelectionPage from './PaymentSelectionPage';
@@ -23,13 +39,19 @@ import PaymentSelectionPage from './PaymentSelectionPage';
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
-  configureStore({ reducer: { payments: paymentsReducer } });
+  configureStore({
+    reducer: {
+      payments: paymentsReducer,
+      auth: () => ({ user: { email: 'buyer@test.com' } }),
+    },
+  });
 
 const wrap = (ui, store, path = '/checkout/payment/ORD-001') => (
   <Provider store={store}>
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route path="/checkout/payment/:orderId" element={ui} />
+        <Route path="/order/:orderId/confirmation" element={<div>Confirmación</div>} />
       </Routes>
     </MemoryRouter>
   </Provider>
@@ -37,63 +59,82 @@ const wrap = (ui, store, path = '/checkout/payment/ORD-001') => (
 
 afterEach(() => {
   jest.clearAllMocks();
+  mockCardFormSubmitFn = null;
 });
 
 describe('PaymentSelectionPage', () => {
   it('muestra el titulo y los gateways disponibles', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
     expect(screen.getByRole('heading', { name: /Elige tu metodo de pago/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Pagar con Mercado Pago/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Pagar con tarjeta/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Pagar con PayPal/i })).toBeInTheDocument();
   });
 
-  it('UC-PAY-01: inicia pago MP y redirige al checkout_url', async () => {
-    // DEC-BC-09: backend devuelve `checkout_url` (unificado) en endpoint
-    // unico `/api/v2/payments/initiate/` con body
-    // `{ order_number, gateway: 'MERCADOPAGO', installments? }`.
-    server.use(
-      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
-        HttpResponse.json({
-          payment_id:   123,
-          checkout_url: 'https://mp.example/pay/123',
-          order_number: 'ORD-001',
-          amount:       '500.00',
-          installments: 1,
-        }),
-      ),
-    );
+  it('muestra el CardForm al hacer click en MP', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con Mercado Pago/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    expect(screen.getByTestId('mp-card-form')).toBeInTheDocument();
+  });
+
+  it('UC-PAY-01-V2: CardForm tokeniza y POST a /api/v2/payments/initiate/', async () => {
+    let capturedBody;
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, async ({ request }) => {
+        capturedBody = await request.json();
+        return HttpResponse.json({
+          payment_id:         1,
+          gateway_payment_id: 'mp-gw-001',
+          status:             'approved',
+          status_detail:      'accredited',
+          order_number:       'ORD-001',
+          amount:             '500.00',
+          installments:       1,
+        });
+      }),
+    );
+
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+
+    await act(async () => { mockCardFormSubmitFn?.(); });
 
     await waitFor(() => {
-      expect(redirectToGateway).toHaveBeenCalledWith('https://mp.example/pay/123');
+      expect(capturedBody).toMatchObject({
+        order_number:      'ORD-001',
+        token:             'test-token-123',
+        payment_method_id: 'visa',
+      });
     });
   });
 
-  it('UC-PAY-01-EXT: incluye installments cuando MSI esta seleccionado', async () => {
+  it('UC-PAY-01-V2: muestra resultado aprobado tras pago exitoso', async () => {
     server.use(
       http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json({
-          payment_id: 124,
-          checkout_url: 'https://mp.example/pay/msi',
-          order_number: 'ORD-001',
-          amount: '500.00',
-          installments: 6,
+          payment_id:         1,
+          gateway_payment_id: 'mp-gw-002',
+          status:             'approved',
+          status_detail:      'accredited',
+          order_number:       'ORD-001',
+          amount:             '500.00',
+          installments:       1,
         }),
       ),
     );
+
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.change(screen.getByLabelText(/Cuotas sin intereses/i), { target: { value: '6' } });
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con Mercado Pago/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    await act(async () => { mockCardFormSubmitFn?.(); });
 
     await waitFor(() => {
-      expect(redirectToGateway).toHaveBeenCalledWith('https://mp.example/pay/msi');
+      expect(screen.getByTestId('payment-result')).toBeInTheDocument();
+      expect(screen.getByTestId('payment-result')).toHaveTextContent(/¡Pago aprobado!/);
     });
   });
 
   it('UC-PAY-02: inicia pago PayPal y redirige al checkout_url', async () => {
     server.use(
-      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
         HttpResponse.json({
           payment_id:   125,
           checkout_url: 'https://paypal.example/approve/9',
@@ -121,8 +162,19 @@ describe('PaymentSelectionPage', () => {
       ),
     );
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con Mercado Pago/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    await act(async () => { mockCardFormSubmitFn?.(); });
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/AMOUNT_MISMATCH/);
+  });
+
+  it('vuelve a la seleccion al cancelar el CardForm', () => {
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    expect(screen.getByTestId('mp-card-form')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Cancelar/i }));
+    expect(screen.queryByTestId('mp-card-form')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i })).toBeInTheDocument();
   });
 });

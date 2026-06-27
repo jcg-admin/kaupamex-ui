@@ -261,6 +261,10 @@ const apiService = new APIService();
 export default apiService;
 export { APIService };
 
+export function getMpPublicKey() {
+  return apiService.get('/api/v2/payments/public-key/');
+}
+
 export function getMpCustomer() {
   return apiService.get('/api/v2/payments/customer/');
 }
