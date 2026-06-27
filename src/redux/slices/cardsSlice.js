@@ -16,6 +16,7 @@ import {
   saveCustomerCard,
   updateCustomerCard,
   deleteCustomerCard,
+  validateCard,
 } from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
@@ -71,6 +72,22 @@ export const deleteCard = createAsyncThunk(
   }
 );
 
+export const saveCardWithZDA = createAsyncThunk(
+  'cards/saveWithZDA',
+  async ({ token, paymentMethodId }, { rejectWithValue }) => {
+    try {
+      const validRes = await validateCard(token, paymentMethodId);
+      if (!validRes.data.valid) {
+        return rejectWithValue({ codigo_error: 'CARD_VALIDATION_FAILED', detail: 'La tarjeta no superó la validación.' });
+      }
+      const saveRes = await saveCustomerCard(token);
+      return saveRes.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
 // =============================================================================
 // Slice
 // =============================================================================
@@ -114,6 +131,21 @@ const cardsSlice = createSlice({
         state.saveStatus = action.payload;
       })
       .addCase(saveCard.rejected, (state, action) => {
+        state.loading    = false;
+        state.error      = action.payload;
+        state.saveStatus = null;
+      })
+
+      .addCase(saveCardWithZDA.pending, state => {
+        state.loading    = true;
+        state.error      = null;
+        state.saveStatus = null;
+      })
+      .addCase(saveCardWithZDA.fulfilled, (state, action) => {
+        state.loading    = false;
+        state.saveStatus = action.payload;
+      })
+      .addCase(saveCardWithZDA.rejected, (state, action) => {
         state.loading    = false;
         state.error      = action.payload;
         state.saveStatus = null;

@@ -7,6 +7,7 @@ import { server } from '@mocks/server';
 import cardsReducer, {
   fetchCustomerCards,
   saveCard,
+  saveCardWithZDA,
   updateCard,
   deleteCard,
   clearSaveStatus,
@@ -167,6 +168,54 @@ describe('cardsSlice', () => {
       const store = makeStore();
       await store.dispatch(deleteCard('card-999'));
       expect(store.getState().cards.error).not.toBeNull();
+    });
+  });
+
+  describe('saveCardWithZDA', () => {
+    it('validates and saves card when ZDA returns valid=true', async () => {
+      server.use(
+        http.post(`${BASE}/api/v2/payments/cards/validate/`, () =>
+          HttpResponse.json({ valid: true }),
+        ),
+        http.post(`${BASE}/api/v2/payments/cards/`, () =>
+          HttpResponse.json(
+            { id: 'card-zda-001', last_four_digits: '4242', status: 'pending_verification', verification_sent: true },
+            { status: 201 },
+          ),
+        ),
+      );
+      const store = makeStore();
+      await store.dispatch(saveCardWithZDA({ token: 'tok-valid', paymentMethodId: 'visa' }));
+      const { saveStatus, loading, error } = store.getState().cards;
+      expect(loading).toBe(false);
+      expect(error).toBeNull();
+      expect(saveStatus).toMatchObject({ id: 'card-zda-001', verification_sent: true });
+    });
+
+    it('rejects with CARD_VALIDATION_FAILED when ZDA returns valid=false', async () => {
+      server.use(
+        http.post(`${BASE}/api/v2/payments/cards/validate/`, () =>
+          HttpResponse.json({ valid: false }),
+        ),
+      );
+      const store = makeStore();
+      await store.dispatch(saveCardWithZDA({ token: 'tok-bad', paymentMethodId: 'visa' }));
+      const { saveStatus, error } = store.getState().cards;
+      expect(saveStatus).toBeNull();
+      expect(error).toMatchObject({ codigo_error: 'CARD_VALIDATION_FAILED' });
+    });
+
+    it('rejects with gateway error when validate endpoint fails', async () => {
+      server.use(
+        http.post(`${BASE}/api/v2/payments/cards/validate/`, () =>
+          HttpResponse.json({ codigo_error: 'GATEWAY_ERROR' }, { status: 502 }),
+        ),
+      );
+      const store = makeStore();
+      await store.dispatch(saveCardWithZDA({ token: 'tok-err', paymentMethodId: 'visa' }));
+      const { saveStatus, error } = store.getState().cards;
+      expect(saveStatus).toBeNull();
+      expect(error).not.toBeNull();
     });
   });
 });

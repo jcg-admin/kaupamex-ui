@@ -281,6 +281,13 @@ export function saveCustomerCard(token) {
   return apiService.post('/api/v2/payments/cards/', { token });
 }
 
+export function validateCard(token, paymentMethodId) {
+  return apiService.post('/api/v2/payments/cards/validate/', {
+    token,
+    payment_method_id: paymentMethodId,
+  });
+}
+
 export function getCustomerCard(cardId) {
   return apiService.get(`/api/v2/payments/cards/${cardId}/`);
 }

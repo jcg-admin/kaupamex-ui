@@ -127,6 +127,11 @@ export const paymentsHandlers = [
     HttpResponse.json([]),
   ),
 
+  // Card validate (Zero Dollar Auth — T-15)
+  http.post(`${BASE}/api/v2/payments/cards/validate/`, () =>
+    HttpResponse.json({ valid: true }),
+  ),
+
   // Customer cards — save card
   http.post(`${BASE}/api/v2/payments/cards/`, async ({ request }) => {
     const body = await request.json();
