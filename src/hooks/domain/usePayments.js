@@ -14,13 +14,16 @@ import apiService, { getPaymentMethods } from '@services/apiService';
 const PAYMENT_HISTORY_URL      = (orderId) => `/api/v2/payments/${orderId}/history/`;
 const PAYMENT_STATUS_URL       = (orderId) => `/api/v2/payments/${orderId}/status/`;
 const ADMIN_PAYMENTS_URL       = '/api/v2/admin/payments/';
-const ADMIN_PAYMENT_REFUNDS_URL = (paymentId) => `/api/v1/admin/payments/${paymentId}/refunds/`;
+const ADMIN_PAYMENT_REFUNDS_URL  = (paymentId) => `/api/v1/admin/payments/${paymentId}/refunds/`;
+const ADMIN_CHARGEBACKS_URL      = '/api/v1/admin/chargebacks/';
+const ADMIN_CHARGEBACK_URL       = (id) => `/api/v1/admin/chargebacks/${id}/`;
 
 export const PAYMENTS_KEY              = ['payments'];
 export const PAYMENT_STATUS_KEY        = ['payments', 'status'];
 export const PAYMENT_HISTORY_KEY       = ['payments', 'history'];
 export const ADMIN_PAYMENTS_KEY        = ['payments', 'admin'];
 export const ADMIN_PAYMENT_REFUNDS_KEY = ['payments', 'admin', 'refunds'];
+export const ADMIN_CHARGEBACKS_KEY     = ['payments', 'admin', 'chargebacks'];
 
 /**
  * UC-PAY-05: estado actual del pago de una orden propia.
@@ -98,6 +101,33 @@ export function useAdminPaymentRefunds(paymentId) {
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(ADMIN_PAYMENT_REFUNDS_URL(paymentId), { signal });
       return Array.isArray(data) ? data : [];
+    },
+  });
+}
+
+/**
+ * T-17-B: listado de contracargos (admin). Filtrable por ?status=.
+ */
+export function useAdminChargebacks(params = {}) {
+  return useQuery({
+    queryKey: [...ADMIN_CHARGEBACKS_KEY, params],
+    queryFn:  async ({ signal }) => {
+      const { data } = await apiService.get(ADMIN_CHARGEBACKS_URL, { params, signal });
+      return Array.isArray(data) ? data : (data?.results ?? []);
+    },
+  });
+}
+
+/**
+ * T-17-C: detalle de un contracargo individual (admin).
+ */
+export function useAdminChargeback(chargebackId) {
+  return useQuery({
+    queryKey: [...ADMIN_CHARGEBACKS_KEY, 'detail', chargebackId],
+    enabled:  Boolean(chargebackId),
+    queryFn:  async ({ signal }) => {
+      const { data } = await apiService.get(ADMIN_CHARGEBACK_URL(chargebackId), { signal });
+      return data;
     },
   });
 }

@@ -1,0 +1,21 @@
+@use '@styles/abstracts' as *;
+
+.page     { max-width: 720px; margin: 2rem auto; padding: 1.5rem; }
+.backLink { color: $indigo-500; text-decoration: none; font-size: .9rem; }
+.header   { margin: 1rem 0 1.5rem; }
+.title    { font-size: 1.75rem; margin: 0 0 .25rem; color: $text-strong; }
+.subtitle { color: $text-soft; margin: 0; }
+.mono     { font-family: monospace; font-size: .9rem; }
+.detail   {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  background: $bg-page;
+  border: 1px solid $border-color;
+  border-radius: .5rem;
+  padding: 1rem;
+  dt { font-size: .75rem; color: $text-soft; text-transform: uppercase; margin: 0; }
+  dd { margin: .15rem 0 0; font-weight: 600; color: $text-strong; }
+}
+.fullRow  { grid-column: 1 / -1; }
+.error    { color: $danger-deep; background: $danger-bg; padding: .6rem .8rem; border-radius: .35rem; }
