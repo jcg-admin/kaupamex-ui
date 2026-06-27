@@ -28,7 +28,7 @@ const ITEM = {
 describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
   it('fulfilled — hidrata items y summary', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/`, () =>
         HttpResponse.json({
           results: [ITEM],
           summary: { productos_normales: 0, productos_bajo_stock: 1, productos_agotados: 0 },
@@ -46,7 +46,7 @@ describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
 
   it('rejected — guarda error', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/`, () =>
         HttpResponse.json({ detail: 'Network' }, { status: 503 }),
       ),
     );
@@ -58,7 +58,7 @@ describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
   it('llama a la URL admin con params', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/inventory/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [] });
       }),
@@ -67,7 +67,7 @@ describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
     await store.dispatch(fetchInventory({ status: 'AGOTADO' }));
     await waitFor(() => expect(capturedUrl).toBeDefined());
     const url = new URL(capturedUrl);
-    expect(url.pathname).toBe('/api/v1/admin/inventory/');
+    expect(url.pathname).toBe('/api/v2/admin/inventory/');
     expect(url.searchParams.get('status')).toBe('AGOTADO');
   });
 });
@@ -75,7 +75,7 @@ describe('inventorySlice — fetchInventory (UC-INV-01)', () => {
 describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
   it('fulfilled — pobla movements', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/10/movements/`, () =>
+      http.get(`${BASE}/api/v2/admin/inventory/variants/10/movements/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, type: 'SALE',         delta: -2, stock_after: 3 },
@@ -94,7 +94,7 @@ describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
   it('llama a la URL de movimientos por variante', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/inventory/variants/99/movements/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/inventory/variants/99/movements/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [] });
       }),
@@ -102,7 +102,7 @@ describe('inventorySlice — fetchStockMovements (UC-INV-02/03)', () => {
     const store = makeStore();
     await store.dispatch(fetchStockMovements(99));
     await waitFor(() => expect(capturedUrl).toBeDefined());
-    expect(new URL(capturedUrl).pathname).toBe('/api/v1/admin/inventory/variants/99/movements/');
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/inventory/variants/99/movements/');
   });
 });
 

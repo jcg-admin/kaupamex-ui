@@ -17,7 +17,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-const CHECKOUT_URL              = '/api/v2/orders/';
+const CHECKOUT_URL              = '/api/v2/orders/checkout/';
 const CANCEL_URL                = (orderNumber) => `/api/v2/orders/${orderNumber}/cancellations/`;
 const ADDRESS_URL               = (orderNumber) => `/api/v2/orders/${orderNumber}/shipping-address/`;
 const SHIPPING_URL              = (orderNumber) => `/api/v2/orders/${orderNumber}/shipping-method/`;

@@ -28,7 +28,7 @@ const ADDRESS = {
 afterEach(() => jest.clearAllMocks());
 
 describe('ordersSlice — updateOrderAddress (UC-ORD-05)', () => {
-  it('llama PATCH /api/v1/orders/:order_number/address/ con la nueva direccion', async () => {
+  it('llama PATCH /api/v2/orders/:order_number/shipping-address/ con la nueva direccion', async () => {
     apiService.patch.mockResolvedValue({
       data: { order_number: 'PY-2026-000001', address: ADDRESS },
     });
@@ -38,7 +38,7 @@ describe('ordersSlice — updateOrderAddress (UC-ORD-05)', () => {
       address:     ADDRESS,
     }));
     expect(apiService.patch).toHaveBeenCalledWith(
-      '/api/v1/orders/PY-2026-000001/address/',
+      '/api/v2/orders/PY-2026-000001/shipping-address/',
       ADDRESS,
     );
     const state = store.getState().orders;
