@@ -1,0 +1,109 @@
+@use '@styles/abstracts' as *;
+
+.container {
+  padding: .75rem 0;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $text-strong;
+  margin: 0 0 .4rem;
+}
+
+.description {
+  font-size: .9rem;
+  color: $text-soft;
+  margin: 0 0 1.1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.label {
+  font-size: .85rem;
+  font-weight: 500;
+  color: $text-secondary;
+}
+
+.input {
+  height: 40px;
+  border: 1px solid $border-color;
+  border-radius: .25rem;
+  padding: 0 .75rem;
+  font-size: .95rem;
+  color: $text-primary;
+  background: $bg-surface;
+  width: 100%;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: -1px;
+  }
+
+  &:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+    background: $bg-page;
+  }
+}
+
+.error {
+  font-size: .82rem;
+  color: $danger-deep;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: .75rem;
+  margin-top: .25rem;
+}
+
+.cancelButton {
+  padding: .65rem 1rem;
+  background: transparent;
+  color: $text-secondary;
+  border: 1px solid $border-color;
+  border-radius: .35rem;
+  font-weight: 500;
+  font-size: .9rem;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background: $bg-page;
+  }
+
+  &:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+}
+
+.submitButton {
+  flex: 1;
+  padding: .65rem 1rem;
+  background: $primary-color;
+  color: $bg-surface;
+  border: 0;
+  border-radius: .35rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+}

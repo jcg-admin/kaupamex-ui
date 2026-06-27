@@ -53,6 +53,28 @@ export const initiateCheckoutApiPayment = createAsyncThunk(
 );
 
 /**
+ * UC-PAY-13: inicia pago con método sin tarjeta (OXXO, SPEI, Paycash, etc.).
+ *
+ * Usa el mismo endpoint v2 pero sin token. La respuesta incluye:
+ *   external_resource_url — URL del voucher/barcode para pago presencial
+ *   date_of_expiration    — fecha límite de pago
+ *   transaction_data      — CLABE para SPEI u otros datos de transacción
+ *
+ * Payload: { order_number, payment_method_id, payer_email? }
+ */
+export const initiateNonCardPayment = createAsyncThunk(
+  'payments/initiateNonCard',
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(V2_CHECKOUT_API_URL, payload);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  }
+);
+
+/**
  * UC-PAY-02: inicia el pago con PayPal (Checkout Pro — redirect).
  *
  * Usa V1 endpoint: PayPal no tiene CardForm, se paga por redirect.
@@ -164,6 +186,22 @@ const paymentsSlice = createSlice({
         state.lastInitiation = { gateway: 'mercadopago', ...action.payload };
       })
       .addCase(initiateCheckoutApiPayment.rejected, (state, action) => {
+        state.isActioning = false;
+        state.actionError = action.payload;
+      })
+
+      // initiateNonCardPayment (UC-PAY-13 — OXXO, SPEI, Paycash, etc.)
+      .addCase(initiateNonCardPayment.pending, (state) => {
+        state.isActioning    = true;
+        state.actionError    = null;
+        state.lastInitiation = null;
+      })
+      .addCase(initiateNonCardPayment.fulfilled, (state, action) => {
+        state.isActioning    = false;
+        state.lastAction     = 'mp_non_card';
+        state.lastInitiation = { gateway: 'mercadopago', ...action.payload };
+      })
+      .addCase(initiateNonCardPayment.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       })

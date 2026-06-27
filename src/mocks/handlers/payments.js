@@ -108,6 +108,53 @@ export const paymentsHandlers = [
     }, { status: 201 });
   }),
 
+  // Payment methods list (UC-PAY-15)
+  http.get(`${BASE}/api/v2/payments/methods/`, () =>
+    HttpResponse.json([
+      { id: 'visa',          name: 'Visa',                   payment_type_id: 'credit_card',   thumbnail: '', secure_thumbnail: '', min_allowed_amount: 1, max_allowed_amount: 60000, accreditation_time: 2880 },
+      { id: 'oxxo',          name: 'OXXO',                   payment_type_id: 'ticket',        thumbnail: '', secure_thumbnail: '', min_allowed_amount: 5, max_allowed_amount: 10000, accreditation_time: 2880 },
+      { id: 'clabe',         name: 'Transferencia bancaria',  payment_type_id: 'bank_transfer', thumbnail: '', secure_thumbnail: '', min_allowed_amount: 1, max_allowed_amount: 100000, accreditation_time: 60 },
+      { id: 'paycash',       name: 'Paycash',                payment_type_id: 'ticket',        thumbnail: '', secure_thumbnail: '', min_allowed_amount: 5, max_allowed_amount: 10000, accreditation_time: 2880 },
+      { id: 'banamex',       name: 'Banamex',                payment_type_id: 'atm',           thumbnail: '', secure_thumbnail: '', min_allowed_amount: 5, max_allowed_amount: 10000, accreditation_time: 2880 },
+      { id: 'serfin',        name: 'Santander',              payment_type_id: 'atm',           thumbnail: '', secure_thumbnail: '', min_allowed_amount: 5, max_allowed_amount: 10000, accreditation_time: 2880 },
+      { id: 'bancomer',      name: 'BBVA Bancomer',          payment_type_id: 'atm',           thumbnail: '', secure_thumbnail: '', min_allowed_amount: 5, max_allowed_amount: 10000, accreditation_time: 2880 },
+      { id: 'account_money', name: 'Cuenta Mercado Pago',    payment_type_id: 'account_money', thumbnail: '', secure_thumbnail: '', min_allowed_amount: 1, max_allowed_amount: 60000, accreditation_time: 0 },
+    ]),
+  ),
+
+  // Customer cards — list active
+  http.get(`${BASE}/api/v2/payments/cards/`, () =>
+    HttpResponse.json([]),
+  ),
+
+  // Customer cards — save card
+  http.post(`${BASE}/api/v2/payments/cards/`, async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json(
+      { id: 'card-mock-001', last_four_digits: '1234', status: 'pending_verification', verification_sent: true },
+      { status: 201 },
+    );
+  }),
+
+  // Customer card — detail / update / delete
+  http.get(`${BASE}/api/v2/payments/cards/:cardId/`, ({ params }) =>
+    HttpResponse.json({ id: params.cardId, last_four_digits: '1234', status: 'active', expiration_month: 12, expiration_year: 2028 }),
+  ),
+
+  http.put(`${BASE}/api/v2/payments/cards/:cardId/`, async ({ request, params }) => {
+    const body = await request.json();
+    return HttpResponse.json({ id: params.cardId, last_four_digits: '1234', status: 'active', ...body });
+  }),
+
+  http.delete(`${BASE}/api/v2/payments/cards/:cardId/`, () =>
+    new HttpResponse(null, { status: 204 }),
+  ),
+
+  // Card verify token
+  http.get(`${BASE}/api/v2/payments/cards/verify/:token/`, ({ params }) =>
+    HttpResponse.json({ message: '¡Tu tarjeta ha sido activada exitosamente!', last_four_digits: '1234', status: 'active' }),
+  ),
+
   // Voucher validation at checkout
   http.post(`${BASE}/api/v1/vouchers/validate/`, async ({ request }) => {
     const body = await request.json();

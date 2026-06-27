@@ -265,6 +265,30 @@ export function getMpPublicKey() {
   return apiService.get('/api/v2/payments/public-key/');
 }
 
+export function getPaymentMethods() {
+  return apiService.get('/api/v2/payments/methods/');
+}
+
 export function getMpCustomer() {
   return apiService.get('/api/v2/payments/customer/');
+}
+
+export function getCustomerCards() {
+  return apiService.get('/api/v2/payments/cards/');
+}
+
+export function saveCustomerCard(token) {
+  return apiService.post('/api/v2/payments/cards/', { token });
+}
+
+export function getCustomerCard(cardId) {
+  return apiService.get(`/api/v2/payments/cards/${cardId}/`);
+}
+
+export function updateCustomerCard(cardId, data) {
+  return apiService.put(`/api/v2/payments/cards/${cardId}/`, data);
+}
+
+export function deleteCustomerCard(cardId) {
+  return apiService.delete(`/api/v2/payments/cards/${cardId}/`);
 }

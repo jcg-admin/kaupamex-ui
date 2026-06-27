@@ -9,7 +9,7 @@
  * en `src/redux/slices/paymentsSlice.js`.
  */
 import { useQuery } from '@tanstack/react-query';
-import apiService from '@services/apiService';
+import apiService, { getPaymentMethods } from '@services/apiService';
 
 const PAYMENT_HISTORY_URL   = (orderId) => `/api/v2/payments/${orderId}/history/`;
 const PAYMENT_STATUS_URL    = (orderId) => `/api/v2/payments/${orderId}/status/`;
@@ -81,6 +81,24 @@ export function useAdminPayment(paymentId) {
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(`${ADMIN_PAYMENTS_URL}${paymentId}/`, { signal });
       return data;
+    },
+  });
+}
+
+/**
+ * UC-PAY-15: lista los métodos de pago disponibles en MercadoPago.
+ * El backend consulta MP con el access_token y retorna datos públicos.
+ * staleTime: 10min — los métodos disponibles no cambian con frecuencia.
+ */
+export const MP_METHODS_KEY = ['payments', 'methods'];
+
+export function usePaymentMethods() {
+  return useQuery({
+    queryKey:  MP_METHODS_KEY,
+    staleTime: 10 * 60 * 1000,
+    queryFn:   async ({ signal }) => {
+      const { data } = await getPaymentMethods({ signal });
+      return Array.isArray(data) ? data : [];
     },
   });
 }

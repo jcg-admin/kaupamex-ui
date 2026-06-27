@@ -2,6 +2,7 @@
  * Tests — PaymentSelectionPage
  * UC-PAY-01-V2: MercadoPago Checkout API (CardForm, ADR-018)
  * UC-PAY-02: PayPal (Checkout Pro redirect)
+ * UC-PAY-13: Métodos no-tarjeta (OXXO, SPEI, Paycash, cajeros, Cuenta MP)
  */
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { Provider }     from 'react-redux';
@@ -34,6 +35,7 @@ jest.mock('@hooks/useMpCardForm', () => ({
 
 import { redirectToGateway } from './paymentRedirect';
 import paymentsReducer from '@redux/slices/paymentsSlice';
+import cardsReducer    from '@redux/slices/cardsSlice';
 import PaymentSelectionPage from './PaymentSelectionPage';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
@@ -42,7 +44,8 @@ const makeStore = () =>
   configureStore({
     reducer: {
       payments: paymentsReducer,
-      auth: () => ({ user: { email: 'buyer@test.com' } }),
+      cards:    cardsReducer,
+      auth:     () => ({ user: { email: 'buyer@test.com' } }),
     },
   });
 
@@ -63,16 +66,19 @@ afterEach(() => {
 });
 
 describe('PaymentSelectionPage', () => {
-  it('muestra el titulo y los gateways disponibles', () => {
+  it('muestra el titulo y todos los metodos disponibles', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
     expect(screen.getByRole('heading', { name: /Elige tu metodo de pago/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Pagar con tarjeta/i })).toBeInTheDocument();
+    expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Pagar con PayPal/i })).toBeInTheDocument();
+    expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
+    expect(screen.getByTestId('method-btn-oxxo')).toBeInTheDocument();
+    expect(screen.getByTestId('method-btn-clabe')).toBeInTheDocument();
   });
 
-  it('muestra el CardForm al hacer click en MP', () => {
+  it('muestra el CardForm al hacer click en tarjeta MP', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
     expect(screen.getByTestId('mp-card-form')).toBeInTheDocument();
   });
 
@@ -94,7 +100,7 @@ describe('PaymentSelectionPage', () => {
     );
 
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
 
     await act(async () => { mockCardFormSubmitFn?.(); });
 
@@ -123,7 +129,7 @@ describe('PaymentSelectionPage', () => {
     );
 
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
     await act(async () => { mockCardFormSubmitFn?.(); });
 
     await waitFor(() => {
@@ -162,7 +168,7 @@ describe('PaymentSelectionPage', () => {
       ),
     );
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
     await act(async () => { mockCardFormSubmitFn?.(); });
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/AMOUNT_MISMATCH/);
@@ -170,11 +176,168 @@ describe('PaymentSelectionPage', () => {
 
   it('vuelve a la seleccion al cancelar el CardForm', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i }));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
     expect(screen.getByTestId('mp-card-form')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Cancelar/i }));
     expect(screen.queryByTestId('mp-card-form')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Pagar con tarjeta \(Mercado Pago\)/i })).toBeInTheDocument();
+    expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
+  });
+
+  // -------------------------------------------------------------------------
+  // UC-PAY-13: Métodos no-tarjeta
+  // -------------------------------------------------------------------------
+
+  it('UC-PAY-13: muestra NonCardPaymentForm al seleccionar OXXO', () => {
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-oxxo'));
+    expect(screen.getByTestId('non-card-payment-form')).toBeInTheDocument();
+    expect(screen.getByTestId('payer-email-input')).toBeInTheDocument();
+  });
+
+  it('UC-PAY-13: NonCardPaymentForm se pre-llena con email del usuario', () => {
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-oxxo'));
+    expect(screen.getByTestId('payer-email-input')).toHaveValue('buyer@test.com');
+  });
+
+  it('UC-PAY-13: POST a /api/v2/payments/initiate/ sin token para OXXO', async () => {
+    let capturedBody;
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, async ({ request }) => {
+        capturedBody = await request.json();
+        return HttpResponse.json({
+          payment_id:            2,
+          gateway_payment_id:    'mp-oxxo-001',
+          status:                'pending',
+          status_detail:         'pending_waiting_payment',
+          order_number:          'ORD-001',
+          amount:                '500.00',
+          installments:          1,
+          external_resource_url: 'https://www.mercadopago.com/mlm/payments/ticket/oxxo/abc',
+          date_of_expiration:    '2026-07-01T23:59:59.000-06:00',
+          transaction_data:      null,
+        });
+      }),
+    );
+
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-oxxo'));
+    fireEvent.change(screen.getByTestId('payer-email-input'), { target: { value: 'test@test.com' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('non-card-submit-btn'));
+    });
+
+    await waitFor(() => {
+      expect(capturedBody).toMatchObject({
+        order_number:      'ORD-001',
+        payment_method_id: 'oxxo',
+        payer_email:       'test@test.com',
+      });
+      expect(capturedBody.token).toBeUndefined();
+    });
+  });
+
+  it('UC-PAY-13: muestra non-card-result con voucher URL tras pago pendiente', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+        HttpResponse.json({
+          payment_id:            2,
+          gateway_payment_id:    'mp-oxxo-002',
+          status:                'pending',
+          status_detail:         'pending_waiting_payment',
+          order_number:          'ORD-001',
+          amount:                '500.00',
+          installments:          1,
+          external_resource_url: 'https://mp.com/ticket/oxxo/abc',
+          date_of_expiration:    '2026-07-01T23:59:59.000-06:00',
+          transaction_data:      null,
+        }),
+      ),
+    );
+
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-oxxo'));
+    fireEvent.change(screen.getByTestId('payer-email-input'), { target: { value: 'test@test.com' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('non-card-submit-btn'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('non-card-result')).toBeInTheDocument();
+      expect(screen.getByTestId('voucher-url')).toBeInTheDocument();
+      expect(screen.getByTestId('expiry-display')).toBeInTheDocument();
+    });
+  });
+
+  it('UC-PAY-13: muestra CLABE en resultado de SPEI', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+        HttpResponse.json({
+          payment_id:            3,
+          gateway_payment_id:    'mp-spei-001',
+          status:                'pending',
+          status_detail:         'pending_waiting_transfer',
+          order_number:          'ORD-001',
+          amount:                '500.00',
+          installments:          1,
+          external_resource_url: '',
+          date_of_expiration:    '2026-07-01T23:59:59.000-06:00',
+          transaction_data: {
+            bank_account_id: '646180132800000002',
+          },
+        }),
+      ),
+    );
+
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-clabe'));
+    fireEvent.change(screen.getByTestId('payer-email-input'), { target: { value: 'test@test.com' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('non-card-submit-btn'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('non-card-result')).toBeInTheDocument();
+      expect(screen.getByTestId('clabe-display')).toBeInTheDocument();
+    });
+  });
+
+  it('UC-PAY-13: boton reintentar vuelve al selector tras pago rechazado', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+        HttpResponse.json({
+          payment_id:         4,
+          gateway_payment_id: 'mp-oxxo-003',
+          status:             'rejected',
+          status_detail:      'cc_rejected_other_reason',
+          order_number:       'ORD-001',
+          amount:             '500.00',
+          installments:       1,
+          external_resource_url: '',
+          date_of_expiration:    '',
+          transaction_data:      null,
+        }),
+      ),
+    );
+
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-oxxo'));
+    fireEvent.change(screen.getByTestId('payer-email-input'), { target: { value: 'test@test.com' } });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('non-card-submit-btn'));
+    });
+
+    await waitFor(() => screen.getByTestId('non-card-result'));
+    fireEvent.click(screen.getByRole('button', { name: /Intentar de nuevo/i }));
+    expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
+  });
+
+  it('UC-PAY-13: vuelve al selector al cancelar NonCardPaymentForm', () => {
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-oxxo'));
+    expect(screen.getByTestId('non-card-payment-form')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Cambiar método/i }));
+    expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
   });
 });
