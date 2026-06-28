@@ -90,7 +90,7 @@ describe('ChangePasswordPage (UC-AUTH-08)', () => {
   it('envia POST a change-password y muestra confirmacion', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/auth/change-password/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/change-password/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ status: 'OK' });
       }),
@@ -120,7 +120,7 @@ describe('ChangePasswordPage (UC-AUTH-08)', () => {
 
   it('muestra error de contrasena actual incorrecta (Alt A)', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/auth/change-password/`, () =>
+      http.post(`${BASE}/api/v2/auth/change-password/`, () =>
         HttpResponse.json({ detail: 'La contrasena actual es incorrecta.' }, { status: 400 }),
       ),
     );

@@ -40,7 +40,7 @@ const makeStore = (addresses = []) =>
 
 const renderPage = (addresses = []) => {
   server.use(
-    http.get(`${BASE}/api/v1/auth/addresses/`, () =>
+    http.get(`${BASE}/api/v2/auth/addresses/`, () =>
       HttpResponse.json({ results: addresses }),
     ),
   );
@@ -88,7 +88,7 @@ describe('AddressesPage (UC-AUTH-07)', () => {
   it('Happy Path: agregar nueva direccion llama POST con campos', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/auth/addresses/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/addresses/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 99, ...ADDR_1 });
       }),
@@ -132,7 +132,7 @@ describe('AddressesPage (UC-AUTH-07)', () => {
   it('valida campos obligatorios al enviar formulario', async () => {
     let postCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/auth/addresses/`, () => {
+      http.post(`${BASE}/api/v2/auth/addresses/`, () => {
         postCalled = true;
         return HttpResponse.json({});
       }),
@@ -147,7 +147,7 @@ describe('AddressesPage (UC-AUTH-07)', () => {
   it('Alt B: eliminar direccion llama DELETE', async () => {
     let deleteCalled = false;
     server.use(
-      http.delete(`${BASE}/api/v1/auth/addresses/2/`, () => {
+      http.delete(`${BASE}/api/v2/auth/addresses/2/`, () => {
         deleteCalled = true;
         return HttpResponse.json({});
       }),
@@ -165,7 +165,7 @@ describe('AddressesPage (UC-AUTH-07)', () => {
   it('Alt C: marcar predeterminada llama set-default', async () => {
     let lastUrl;
     server.use(
-      http.post(`${BASE}/api/v1/auth/addresses/2/set-default/`, ({ request }) => {
+      http.post(`${BASE}/api/v2/auth/addresses/2/set-default/`, ({ request }) => {
         lastUrl = request.url;
         return HttpResponse.json({});
       }),
@@ -175,6 +175,6 @@ describe('AddressesPage (UC-AUTH-07)', () => {
     fireEvent.click(
       screen.getByRole('button', { name: /hacer predeterminada/i }),
     );
-    await waitFor(() => expect(lastUrl).toContain('/api/v1/auth/addresses/2/set-default/'));
+    await waitFor(() => expect(lastUrl).toContain('/api/v2/auth/addresses/2/set-default/'));
   });
 });
