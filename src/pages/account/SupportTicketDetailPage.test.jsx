@@ -50,7 +50,7 @@ const TICKET_DETAIL = {
 describe('SupportTicketDetailPage (UC-SUPP-02 detalle)', () => {
   it('carga y muestra el asunto del ticket', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
+      http.get(`${BASE}/api/v2/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
     );
     renderAt('/support/tickets/42', makeStore());
     expect(await screen.findByText(/Pedido tardio/)).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('SupportTicketDetailPage (UC-SUPP-02 detalle)', () => {
 
   it('muestra el cuerpo original del ticket', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
+      http.get(`${BASE}/api/v2/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
     );
     renderAt('/support/tickets/42', makeStore());
     expect(
@@ -68,7 +68,7 @@ describe('SupportTicketDetailPage (UC-SUPP-02 detalle)', () => {
 
   it('renderiza el historial de respuestas en orden', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
+      http.get(`${BASE}/api/v2/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
     );
     renderAt('/support/tickets/42', makeStore());
     expect(await screen.findByText(/Hola, revisamos tu pedido/)).toBeInTheDocument();
@@ -77,7 +77,7 @@ describe('SupportTicketDetailPage (UC-SUPP-02 detalle)', () => {
 
   it('muestra el estado del ticket en español', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
+      http.get(`${BASE}/api/v2/support/tickets/42/`, () => HttpResponse.json(TICKET_DETAIL)),
     );
     renderAt('/support/tickets/42', makeStore());
     // AWAITING_USER maps to 'Esperando respuesta' in STATUS_LABEL
@@ -87,7 +87,7 @@ describe('SupportTicketDetailPage (UC-SUPP-02 detalle)', () => {
   it('llama al endpoint con el id correcto', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/support/tickets/42/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/support/tickets/42/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json(TICKET_DETAIL);
       }),

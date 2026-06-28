@@ -32,7 +32,7 @@ const wrap = (ui) => (
 describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
   it('muestra el titulo de la pagina', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, () =>
+      http.get(`${BASE}/api/v2/admin/newsletter/subscribers/`, () =>
         HttpResponse.json({ results: [], total: 0 }),
       ),
     );
@@ -44,7 +44,7 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
 
   it('lista los suscriptores recibidos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, () =>
+      http.get(`${BASE}/api/v2/admin/newsletter/subscribers/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, email: 'ana@x.com', status: 'ACTIVE',       subscribed_at: '2026-01-10T00:00:00Z' },
@@ -62,7 +62,7 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
   it('llama al endpoint admin con el filtro de estado', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/newsletter/subscribers/`, ({ request }) => {
         capturedUrl = new URL(request.url);
         return HttpResponse.json({ results: [] });
       }),
@@ -70,15 +70,15 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
     render(wrap(<AdminNewsletterSubscribersPage />));
     await waitFor(() => {
       expect(capturedUrl).not.toBeUndefined();
-      expect(capturedUrl.pathname).toBe('/api/v1/admin/newsletter/subscribers/');
+      expect(capturedUrl.pathname).toBe('/api/v2/admin/newsletter/subscribers/');
     });
   });
 
-  it('al hacer clic en Desuscribir, hace POST al endpoint manual', async () => {
+  it('al hacer clic en Desuscribir, hace DELETE al endpoint manual', async () => {
     // handleUnsubscribe usa window.confirm; se debe mockear para que retorne true.
     const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
     server.use(
-      http.get(`${BASE}/api/v1/admin/newsletter/subscribers/`, () =>
+      http.get(`${BASE}/api/v2/admin/newsletter/subscribers/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, email: 'ana@x.com', status: 'ACTIVE', subscribed_at: '2026-01-10T00:00:00Z' },
@@ -86,10 +86,10 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
         }),
       ),
     );
-    let lastPostBody;
+    let lastDeleteBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/newsletter/subscribers/1/unsubscribe/`, async ({ request }) => {
-        lastPostBody = await request.json();
+      http.delete(`${BASE}/api/v2/admin/newsletter/subscribers/1/subscription/`, async ({ request }) => {
+        lastDeleteBody = await request.json();
         return HttpResponse.json({ ok: true });
       }),
     );
@@ -100,7 +100,7 @@ describe('AdminNewsletterSubscribersPage (UC-NEW-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Desuscribir/i }));
 
     await waitFor(() => {
-      expect(lastPostBody).toMatchObject({ reason: 'SOLICITUD_MANUAL' });
+      expect(lastDeleteBody).toMatchObject({ reason: 'SOLICITUD_MANUAL' });
     });
     confirmSpy.mockRestore();
   });

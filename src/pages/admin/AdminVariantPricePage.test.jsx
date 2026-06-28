@@ -42,7 +42,7 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
     let lastPutUrl;
     let lastPutBody;
     server.use(
-      http.put(`${BASE}/api/v1/admin/variants/1/price/`, async ({ request }) => {
+      http.put(`${BASE}/api/v2/admin/variants/1/price/`, async ({ request }) => {
         lastPutUrl = request.url;
         lastPutBody = await request.json().catch(() => null);
         return HttpResponse.json({ id: 1, price: 1999.00 });
@@ -55,7 +55,7 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Guardar precio/i }));
 
     await waitFor(() => {
-      expect(lastPutUrl).toContain('/api/v1/admin/variants/1/price/');
+      expect(lastPutUrl).toContain('/api/v2/admin/variants/1/price/');
     });
     expect(lastPutBody).toMatchObject({ price: 1999 });
   });
@@ -80,7 +80,7 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
   it('permite quitar el precio diferenciado (volver al precio base)', async () => {
     let lastDeleteUrl;
     server.use(
-      http.delete(`${BASE}/api/v1/admin/variants/1/price/`, ({ request }) => {
+      http.delete(`${BASE}/api/v2/admin/variants/1/price/`, ({ request }) => {
         lastDeleteUrl = request.url;
         return HttpResponse.json({ id: 1, price: null });
       }),
@@ -90,13 +90,13 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Quitar precio diferenciado/i }));
 
     await waitFor(() => {
-      expect(lastDeleteUrl).toContain('/api/v1/admin/variants/1/price/');
+      expect(lastDeleteUrl).toContain('/api/v2/admin/variants/1/price/');
     });
   });
 
   it('muestra mensaje de exito cuando el guardado es correcto', async () => {
     server.use(
-      http.put(`${BASE}/api/v1/admin/variants/1/price/`, () =>
+      http.put(`${BASE}/api/v2/admin/variants/1/price/`, () =>
         HttpResponse.json({ id: 1, price: 500 }),
       ),
     );
@@ -114,7 +114,7 @@ describe('AdminVariantPricePage (UC-CHT-04)', () => {
   it('permite precio cero (variante gratuita) — Alternativa C', async () => {
     let lastPutBody;
     server.use(
-      http.put(`${BASE}/api/v1/admin/variants/1/price/`, async ({ request }) => {
+      http.put(`${BASE}/api/v2/admin/variants/1/price/`, async ({ request }) => {
         lastPutBody = await request.json().catch(() => null);
         return HttpResponse.json({ id: 1, price: 0 });
       }),

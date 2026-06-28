@@ -47,7 +47,7 @@ let lastUrl;
 describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
   it('muestra el título de la página', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByRole('heading', { name: /Usuarios/i }))
@@ -56,7 +56,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('muestra el campo de búsqueda', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     // input[type=search] has implicit role="searchbox"
@@ -65,7 +65,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('renderiza la tabla con los usuarios (username visible como @username)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByText('@buyer1')).toBeInTheDocument();
@@ -74,7 +74,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('muestra email de cada usuario', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByText('buyer1@test.mx')).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('indica el estado activo del usuario verificado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByText('Activo')).toBeInTheDocument();
@@ -90,7 +90,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('indica el estado inactivo del usuario suspendido', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByText('Inactivo')).toBeInTheDocument();
@@ -98,7 +98,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('muestra spinner durante la carga', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => new Promise(() => {})),
+      http.get(`${BASE}/api/v2/admin/users/`, () => new Promise(() => {})),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(screen.getByText(/Cargando/i)).toBeInTheDocument();
@@ -106,7 +106,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('muestra mensaje si no hay usuarios', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf([]))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf([]))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByText(/Sin usuarios que coincidan/i)).toBeInTheDocument();
@@ -114,7 +114,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 
   it('cada fila tiene un enlace al detalle del usuario', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     await screen.findByText('@buyer1');
@@ -128,7 +128,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
 describe('AdminUsersPage — búsqueda', () => {
   it('filtra usuarios al escribir en el buscador', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/users/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json(pageOf(USERS));
       }),
@@ -146,7 +146,7 @@ describe('AdminUsersPage — búsqueda', () => {
 describe('AdminUsersPage — botones de accion', () => {
   it('muestra el botón para crear nuevo admin', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByRole('button', { name: /Nuevo admin/i }))
@@ -155,7 +155,7 @@ describe('AdminUsersPage — botones de accion', () => {
 
   it('muestra el botón exportar CSV', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
     expect(await screen.findByRole('button', { name: /Exportar CSV/i }))

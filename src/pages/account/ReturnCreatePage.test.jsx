@@ -41,7 +41,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
   it('muestra error si la descripcion tiene menos de 20 caracteres', () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, () => {
+      http.post(`${BASE}/api/v2/return-requests/`, () => {
         called = true;
         return HttpResponse.json({});
       }),
@@ -59,7 +59,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
   it('muestra error si la orden esta vacia', () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, () => {
+      http.post(`${BASE}/api/v2/return-requests/`, () => {
         called = true;
         return HttpResponse.json({});
       }),
@@ -75,7 +75,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
   it('envia la solicitud al backend cuando el formulario es valido', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/return-requests/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 50, status: 'PENDING_REVIEW' });
       }),
@@ -98,7 +98,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
 
   it('muestra confirmacion con el numero de solicitud creada', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/return-requests/`, async ({ request }) => {
         await request.json();
         return HttpResponse.json({ id: 77, status: 'PENDING_REVIEW' });
       }),
@@ -130,7 +130,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
   it('envia FormData con las fotos cuando el comprador adjunta archivos', async () => {
     let capturedContentType;
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, ({ request }) => {
+      http.post(`${BASE}/api/v2/return-requests/`, ({ request }) => {
         capturedContentType = request.headers.get('content-type') ?? '';
         return HttpResponse.json({ id: 88, status: 'PENDING_REVIEW' });
       }),
@@ -157,7 +157,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
   it('rechaza si el comprador adjunta mas de 4 fotos', () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, () => {
+      http.post(`${BASE}/api/v2/return-requests/`, () => {
         called = true;
         return HttpResponse.json({});
       }),
@@ -179,7 +179,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
   it('rechaza si alguna foto supera 5 MB', () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, () => {
+      http.post(`${BASE}/api/v2/return-requests/`, () => {
         called = true;
         return HttpResponse.json({});
       }),
@@ -201,7 +201,7 @@ describe('ReturnCreatePage (UC-RET-01)', () => {
   it('si no hay fotos, envia el payload JSON tradicional (compatibilidad)', async () => {
     let capturedContentType;
     server.use(
-      http.post(`${BASE}/api/v1/returns/`, ({ request }) => {
+      http.post(`${BASE}/api/v2/return-requests/`, ({ request }) => {
         capturedContentType = request.headers.get('content-type') ?? '';
         return HttpResponse.json({ id: 99, status: 'PENDING_REVIEW' });
       }),

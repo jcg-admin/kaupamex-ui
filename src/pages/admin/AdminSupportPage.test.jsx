@@ -47,7 +47,7 @@ const RESPONSE = {
 describe('AdminSupportPage (UC-SUPP-05)', () => {
   it('muestra el titulo de la bandeja', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(
@@ -57,7 +57,7 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
 
   it('renderiza la tabla con todos los tickets', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(await screen.findByText('Pedido perdido')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
 
   it('muestra el email del comprador en cada fila', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(await screen.findByText('comprador@test.mx')).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
 
   it('muestra el panel de metricas del periodo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminSupportPage />, makeStore()));
     expect(await screen.findByText(/Abiertos/i)).toBeInTheDocument();
@@ -86,14 +86,14 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
 
   it('filtra el listado por estado al cambiar el selector', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminSupportPage />, makeStore()));
     await screen.findByText('Pedido perdido');
 
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, ({ request }) => {
         lastUrl = request.url;
         return HttpResponse.json(RESPONSE);
       }),
@@ -109,7 +109,7 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
 
   it('muestra estado vacio cuando no hay tickets', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/support/tickets/`, () =>
+      http.get(`${BASE}/api/v2/admin/support/tickets/`, () =>
         HttpResponse.json({ results: [], metrics: null }),
       ),
     );

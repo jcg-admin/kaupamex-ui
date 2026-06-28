@@ -53,7 +53,7 @@ const ORDER = {
 describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
   it('muestra el numero y estado de la orden', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
     );
     render(wrap(<AdminOrderDetailPage />));
     expect(
@@ -64,11 +64,11 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
 
   it('aplica una transicion via PATCH /admin/orders/:n/status/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
     );
     let lastPatchBody;
     server.use(
-      http.patch(`${BASE}/api/v1/admin/orders/PY-2026-000101/status/`, async ({ request }) => {
+      http.patch(`${BASE}/api/v2/admin/orders/PY-2026-000101/status/`, async ({ request }) => {
         lastPatchBody = await request.json();
         return HttpResponse.json({ ...ORDER, status: 'PROCESSING' });
       }),
@@ -88,7 +88,7 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
 
   it('no permite transiciones desde un estado terminal (DELIVERED)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json({ ...ORDER, status: 'DELIVERED' })),
+      http.get(`${BASE}/api/v2/admin/orders/PY-2026-000101/`, () => HttpResponse.json({ ...ORDER, status: 'DELIVERED' })),
     );
     render(wrap(<AdminOrderDetailPage />));
     await screen.findByRole('heading', { name: /Pedido PY-2026-000101/i });
@@ -99,12 +99,12 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
 describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
   it('cancela un pedido con motivo (>= 10 caracteres) via POST /admin/.../cancel/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
     );
     let lastPostUrl;
     let lastPostBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/orders/PY-2026-000101/cancel/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/orders/PY-2026-000101/cancel/`, async ({ request }) => {
         lastPostUrl = request.url;
         lastPostBody = await request.json();
         return HttpResponse.json({ ...ORDER, status: 'CANCELLED' });
@@ -134,7 +134,7 @@ describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
 
   it('boton confirmar deshabilitado si motivo es muy corto', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
+      http.get(`${BASE}/api/v2/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
     );
     const user = userEvent.setup();
 
@@ -150,7 +150,7 @@ describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
 
   it('no muestra cancelacion en pedidos SHIPPED', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/PY-2026-000101/`, () => HttpResponse.json({ ...ORDER, status: 'SHIPPED' })),
+      http.get(`${BASE}/api/v2/admin/orders/PY-2026-000101/`, () => HttpResponse.json({ ...ORDER, status: 'SHIPPED' })),
     );
     render(wrap(<AdminOrderDetailPage />));
     await screen.findByRole('heading', { name: /Pedido PY-2026-000101/i });

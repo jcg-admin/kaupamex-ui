@@ -37,10 +37,10 @@ describe('NewsletterSubscribePage (UC-NEW-01)', () => {
     expect(screen.getByText(/El email es obligatorio/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/newsletter/subscribe/', async () => {
+  it('al enviar, hace POST a /api/v2/newsletter/subscriptions/', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/newsletter/subscribe/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/newsletter/subscriptions/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 1, status: 'PENDING' });
       }),
@@ -61,7 +61,7 @@ describe('NewsletterSubscribePage (UC-NEW-01)', () => {
 
   it('muestra confirmacion tras el envio', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/newsletter/subscribe/`, () =>
+      http.post(`${BASE}/api/v2/newsletter/subscriptions/`, () =>
         HttpResponse.json({ id: 1 }),
       ),
     );
@@ -79,7 +79,7 @@ describe('NewsletterSubscribePage (UC-NEW-01)', () => {
     // ConflictError (409) usa response.data.message como mensaje.
     // Se pone el texto en `message` para que createErrorFromResponse lo propague.
     server.use(
-      http.post(`${BASE}/api/v1/newsletter/subscribe/`, () =>
+      http.post(`${BASE}/api/v2/newsletter/subscriptions/`, () =>
         HttpResponse.json(
           { message: 'Este email ya esta suscrito al newsletter', codigo_error: 'YA_SUSCRITO' },
           { status: 409 },

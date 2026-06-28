@@ -14,15 +14,15 @@ import {
 beforeEach(() => __resetReturnsState());
 
 describe('mocks/interceptors/returns', () => {
-  it('GET /api/v1/returns/ retorna la lista con results y count', () => {
-    const r = interceptReturns('/api/v1/returns/', { method: 'GET' });
+  it('GET /api/v2/return-requests/ retorna la lista con results y count', () => {
+    const r = interceptReturns('/api/v2/return-requests/', { method: 'GET' });
     expect(r.status).toBe(200);
     expect(Array.isArray(r.data.results)).toBe(true);
     expect(r.data.count).toBe(r.data.results.length);
   });
 
-  it('GET /api/v1/returns/<id>/ devuelve el detalle del comprador', () => {
-    const r = interceptReturns('/api/v1/returns/1/', { method: 'GET' });
+  it('GET /api/v2/return-requests/<id>/ devuelve el detalle del comprador', () => {
+    const r = interceptReturns('/api/v2/return-requests/1/', { method: 'GET' });
     expect(r.status).toBe(200);
     expect(r.data.id).toBe(1);
     // El contrato exige claves inglesas.
@@ -32,13 +32,13 @@ describe('mocks/interceptors/returns', () => {
   });
 
   it('GET inexistente retorna 404', () => {
-    const r = interceptReturns('/api/v1/returns/999/', { method: 'GET' });
+    const r = interceptReturns('/api/v2/return-requests/999/', { method: 'GET' });
     expect(r.status).toBe(404);
     expect(r.data.detail).toMatch(/no encontrada/i);
   });
 
-  it('POST /api/v1/returns/ crea (201) con order_id + reason', () => {
-    const r = interceptReturns('/api/v1/returns/', {
+  it('POST /api/v2/return-requests/ crea (201) con order_id + reason', () => {
+    const r = interceptReturns('/api/v2/return-requests/', {
       method: 'POST',
       body:   JSON.stringify({ order_id: 'ORD-9999', reason: 'WRONG_ITEM' }),
     });
@@ -48,15 +48,15 @@ describe('mocks/interceptors/returns', () => {
   });
 
   it('POST sin reason devuelve 400', () => {
-    const r = interceptReturns('/api/v1/returns/', {
+    const r = interceptReturns('/api/v2/return-requests/', {
       method: 'POST',
       body:   JSON.stringify({ order_id: 'ORD-9999' }),
     });
     expect(r.status).toBe(400);
   });
 
-  it('GET /api/v1/admin/returns/ incluye metrics + results', () => {
-    const r = interceptReturns('/api/v1/admin/returns/', { method: 'GET' });
+  it('GET /api/v2/admin/return-requests/ incluye metrics + results', () => {
+    const r = interceptReturns('/api/v2/admin/return-requests/', { method: 'GET' });
     expect(r.status).toBe(200);
     expect(r.data).toHaveProperty('results');
     expect(r.data).toHaveProperty('metrics');
@@ -65,19 +65,19 @@ describe('mocks/interceptors/returns', () => {
   });
 
   it('POST approve actualiza el status del item', () => {
-    const r = interceptReturns('/api/v1/admin/returns/1/approve/', {
+    const r = interceptReturns('/api/v2/admin/return-requests/1/approve/', {
       method: 'POST',
       body:   JSON.stringify({ justification: 'OK' }),
     });
     expect(r.status).toBe(200);
     expect(r.data.status).toBe('APPROVED');
 
-    const after = interceptReturns('/api/v1/admin/returns/1/', { method: 'GET' });
+    const after = interceptReturns('/api/v2/admin/return-requests/1/', { method: 'GET' });
     expect(after.data.status).toBe('APPROVED');
   });
 
   it('POST reject sin justification devuelve 400', () => {
-    const r = interceptReturns('/api/v1/admin/returns/1/reject/', {
+    const r = interceptReturns('/api/v2/admin/return-requests/1/reject/', {
       method: 'POST',
       body:   JSON.stringify({}),
     });
@@ -85,7 +85,7 @@ describe('mocks/interceptors/returns', () => {
   });
 
   it('POST refund antes de RECIBIDA devuelve 409', () => {
-    const r = interceptReturns('/api/v1/admin/returns/1/refund/', {
+    const r = interceptReturns('/api/v2/admin/return-requests/1/refund/', {
       method: 'POST',
       body:   JSON.stringify({ amount: 1250 }),
     });
@@ -93,11 +93,11 @@ describe('mocks/interceptors/returns', () => {
   });
 
   it('POST reception -> refund flujo completo', () => {
-    interceptReturns('/api/v1/admin/returns/1/reception/', {
+    interceptReturns('/api/v2/admin/return-requests/1/reception/', {
       method: 'POST',
       body:   JSON.stringify({ product_condition: 'GOOD' }),
     });
-    const r = interceptReturns('/api/v1/admin/returns/1/refund/', {
+    const r = interceptReturns('/api/v2/admin/return-requests/1/refund/', {
       method: 'POST',
       body:   JSON.stringify({ amount: 1250 }),
     });
@@ -107,7 +107,7 @@ describe('mocks/interceptors/returns', () => {
   });
 
   it('retorna null para URLs fuera del dominio returns', () => {
-    expect(interceptReturns('/api/v1/orders/', { method: 'GET' })).toBeNull();
+    expect(interceptReturns('/api/v2/orders/', { method: 'GET' })).toBeNull();
     expect(interceptReturns('/api/auth/me/',   { method: 'GET' })).toBeNull();
   });
 });

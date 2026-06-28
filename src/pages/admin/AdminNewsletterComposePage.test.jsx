@@ -38,7 +38,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
   it('exige asunto, html y texto plano antes de enviar', () => {
     let postCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/admin/newsletter/campaigns/`, () => {
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, () => {
         postCalled = true;
         return HttpResponse.json({});
       }),
@@ -49,10 +49,10 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
     expect(screen.getByText(/El asunto es obligatorio/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/admin/newsletter/campaigns/', async () => {
+  it('al enviar, hace POST a /api/v2/admin/newsletter/campaigns/', async () => {
     let lastPostBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/newsletter/campaigns/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, async ({ request }) => {
         lastPostBody = await request.json();
         return HttpResponse.json({ id: 5, status: 'QUEUED', recipients_count: 120 }, { status: 201 });
       }),
@@ -85,7 +85,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
 
   it('muestra el reporte de exito con el numero de destinatarios', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/newsletter/campaigns/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, async ({ request }) => {
         await request.json();
         return HttpResponse.json({ id: 5, status: 'QUEUED', recipients_count: 120 }, { status: 201 });
       }),
@@ -115,7 +115,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
   it.skip('permite programar el envio futuro (deferred T-116b)', async () => {
     let lastPostBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/newsletter/campaigns/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/newsletter/campaigns/`, async ({ request }) => {
         lastPostBody = await request.json();
         return HttpResponse.json({ id: 6, status: 'SCHEDULED' }, { status: 201 });
       }),

@@ -74,7 +74,7 @@ const fillAddress = async (user) => {
 // Mock addresses GET (called by fetchAddresses on mount)
 beforeEach(() => {
   server.use(
-    http.get(`${BASE}/api/v1/addresses/`, () =>
+    http.get(`${BASE}/api/v2/auth/addresses/`, () =>
       HttpResponse.json({ results: [], count: 0 }),
     ),
   );

@@ -38,10 +38,10 @@ describe('ContactPage (UC-COM-01)', () => {
     expect(screen.getByText(/El email es obligatorio/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/contact/messages/', async () => {
+  it('al enviar, hace POST a /api/v2/contact/messages/', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/contact/messages/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/contact/messages/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 1 });
       }),
@@ -71,7 +71,7 @@ describe('ContactPage (UC-COM-01)', () => {
 
   it('muestra confirmacion tras el envio', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/contact/messages/`, () =>
+      http.post(`${BASE}/api/v2/contact/messages/`, () =>
         HttpResponse.json({ id: 99 }),
       ),
     );
@@ -92,7 +92,7 @@ describe('ContactPage (UC-COM-01)', () => {
     // Usar 400 (no retryable) para que el error llegue inmediatamente.
     // BadRequestError usa data.detail como message (createErrorFromResponse).
     server.use(
-      http.post(`${BASE}/api/v1/contact/messages/`, () =>
+      http.post(`${BASE}/api/v2/contact/messages/`, () =>
         HttpResponse.json(
           { detail: 'Limite de mensajes alcanzado', codigo_error: 'LIMIT_REACHED' },
           { status: 400 },

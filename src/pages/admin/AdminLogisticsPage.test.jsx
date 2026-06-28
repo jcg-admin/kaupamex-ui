@@ -1,8 +1,8 @@
 /**
  * Tests — AdminLogisticsPage (UC-LOG-08)
  *
- *   GET  /api/v1/logistics/                                — panel de envios pendientes
- *   POST /api/v1/logistics/guides/:guideId/confirm-delivery/ — UC-LOG-05
+ *   GET  /api/v2/logistics/                                — panel de envios pendientes
+ *   POST /api/v2/logistics/guides/:guideId/confirm-delivery/ — UC-LOG-05
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -77,7 +77,7 @@ const wrap = () => {
 describe('AdminLogisticsPage (UC-LOG-08)', () => {
   it('muestra el titulo de Logistica y los dos grupos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/logistics/`, () => HttpResponse.json(PANEL)),
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
     );
     render(wrap());
     expect(
@@ -91,7 +91,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
 
   it('lista las ordenes del Grupo A con accion Crear guia', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/logistics/`, () => HttpResponse.json(PANEL)),
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
     );
     render(wrap());
     expect(await screen.findByText('ORD-0501')).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
 
   it('lista los envios del Grupo B con courier y tracking', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/logistics/`, () => HttpResponse.json(PANEL)),
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
     );
     render(wrap());
     expect(await screen.findByText('ORD-0490')).toBeInTheDocument();
@@ -111,13 +111,13 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     expect(screen.getByText('DHL')).toBeInTheDocument();
   });
 
-  it('confirma entrega manual via POST /api/v1/logistics/guides/:id/confirm-delivery/', async () => {
+  it('confirma entrega manual via POST /api/v2/logistics/guides/:id/confirm-delivery/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/logistics/`, () => HttpResponse.json(PANEL)),
+      http.get(`${BASE}/api/v2/logistics/`, () => HttpResponse.json(PANEL)),
     );
     let confirmedGuideId;
     server.use(
-      http.post(`${BASE}/api/v1/logistics/guides/:guideId/confirm-delivery/`, ({ params }) => {
+      http.post(`${BASE}/api/v2/logistics/guides/:guideId/confirm-delivery/`, ({ params }) => {
         confirmedGuideId = params.guideId;
         return HttpResponse.json({ ok: true });
       }),
@@ -133,7 +133,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
 
   it('muestra mensaje cuando ambos grupos estan vacios', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/logistics/`, () =>
+      http.get(`${BASE}/api/v2/logistics/`, () =>
         HttpResponse.json({ pending_pickup: [], in_transit: [] }),
       ),
     );
@@ -145,7 +145,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
 
   it('muestra error cuando falla la consulta', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/logistics/`, () =>
+      http.get(`${BASE}/api/v2/logistics/`, () =>
         HttpResponse.json({ detail: 'Error de servidor' }, { status: 400 }),
       ),
     );

@@ -41,7 +41,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
   it('muestra el contenido del mensaje cargado', async () => {
     // H-CICLO-COM-01: el campo es "body" no "message" en el serializer.
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+      http.get(`${BASE}/api/v2/admin/contact/messages/7/`, () =>
         HttpResponse.json({
           id: 7,
           name: 'Ana',
@@ -54,7 +54,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
       ),
     );
     server.use(
-      http.post(`${BASE}/api/v1/admin/contact/messages/7/read/`, () => HttpResponse.json({})),
+      http.post(`${BASE}/api/v2/admin/contact/messages/7/read/`, () => HttpResponse.json({})),
     );
     render(wrap());
     expect(await screen.findByText(/Consulta sobre el producto X/i)).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
     // read: true evita que useEffect dispare markContactMessageRead (que
     // pondria isActioning=true y deshabilitaria el boton de envio).
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+      http.get(`${BASE}/api/v2/admin/contact/messages/7/`, () =>
         HttpResponse.json({
           id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z',
         }),
@@ -74,7 +74,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
     );
     let replyCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/admin/contact/messages/7/reply/`, () => {
+      http.post(`${BASE}/api/v2/admin/contact/messages/7/replies/`, () => {
         replyCalled = true;
         return HttpResponse.json({});
       }),
@@ -87,9 +87,9 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
     expect(screen.getByText(/La respuesta es obligatoria/i)).toBeInTheDocument();
   });
 
-  it('al enviar, hace POST a /api/v1/admin/contact/messages/<id>/reply/', async () => {
+  it('al enviar, hace POST a /api/v2/admin/contact/messages/<id>/reply/', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+      http.get(`${BASE}/api/v2/admin/contact/messages/7/`, () =>
         HttpResponse.json({
           id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z',
         }),
@@ -97,7 +97,7 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
     );
     let lastReplyBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/contact/messages/:id/reply/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/contact/messages/:id/replies/`, async ({ request }) => {
         lastReplyBody = await request.json();
         return HttpResponse.json({ id: 7, status: 'REPLIED' });
       }),
@@ -121,14 +121,14 @@ describe('AdminContactMessageDetailPage (UC-COM-03)', () => {
 
   it('muestra mensaje de exito tras responder', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/contact/messages/7/`, () =>
+      http.get(`${BASE}/api/v2/admin/contact/messages/7/`, () =>
         HttpResponse.json({
           id: 7, name: 'Ana', email: 'ana@x.com', subject: 'Hola', body: 'Texto', read: true, replied: false, created_at: '2026-05-01T10:00:00Z',
         }),
       ),
     );
     server.use(
-      http.post(`${BASE}/api/v1/admin/contact/messages/:id/reply/`, () =>
+      http.post(`${BASE}/api/v2/admin/contact/messages/:id/replies/`, () =>
         HttpResponse.json({ id: 7, status: 'REPLIED' }),
       ),
     );

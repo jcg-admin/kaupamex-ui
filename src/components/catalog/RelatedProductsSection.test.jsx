@@ -51,10 +51,10 @@ const renderSection = (slug = 'producto-base') => {
 };
 
 describe('RelatedProductsSection (UC-CAT-07)', () => {
-  it('llama a GET /api/v1/products/:slug/related/', async () => {
+  it('llama a GET /api/v2/products/:slug/related/', async () => {
     let called = false;
     server.use(
-      http.get(`${BASE}/api/v1/products/mi-producto/related/`, () => {
+      http.get(`${BASE}/api/v2/products/mi-producto/related/`, () => {
         called = true;
         return HttpResponse.json({ results: [], fallback: null });
       }),
@@ -65,7 +65,7 @@ describe('RelatedProductsSection (UC-CAT-07)', () => {
 
   it('renderiza productos relacionados con titulo "Productos relacionados"', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+      http.get(`${BASE}/api/v2/products/producto-base/related/`, () =>
         HttpResponse.json({ results: [P1, P2], fallback: 'category' }),
       ),
     );
@@ -79,7 +79,7 @@ describe('RelatedProductsSection (UC-CAT-07)', () => {
 
   it('usa titulo "Tambien te puede interesar" cuando fallback es recent', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+      http.get(`${BASE}/api/v2/products/producto-base/related/`, () =>
         HttpResponse.json({ results: [P1], fallback: 'recent' }),
       ),
     );
@@ -91,7 +91,7 @@ describe('RelatedProductsSection (UC-CAT-07)', () => {
 
   it('oculta la seccion cuando no hay resultados (Alt A)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+      http.get(`${BASE}/api/v2/products/producto-base/related/`, () =>
         HttpResponse.json({ results: [], fallback: 'category' }),
       ),
     );
@@ -102,7 +102,7 @@ describe('RelatedProductsSection (UC-CAT-07)', () => {
   it('oculta la seccion silenciosamente cuando la API falla (EX-01/EX-02)', async () => {
     // Use 400 (not 500) — 500 is in RETRYABLE_STATUS and apiService retries 3×
     server.use(
-      http.get(`${BASE}/api/v1/products/producto-base/related/`, () =>
+      http.get(`${BASE}/api/v2/products/producto-base/related/`, () =>
         HttpResponse.json({ detail: 'Error' }, { status: 400 }),
       ),
     );

@@ -52,10 +52,10 @@ const CATEGORIES_FIXTURE = [
 
 beforeEach(() => {
   server.use(
-    http.get(`${BASE}/api/v1/categories/`, () =>
+    http.get(`${BASE}/api/v2/categories/`, () =>
       HttpResponse.json({ results: CATEGORIES_FIXTURE, count: 1 }),
     ),
-    http.get(`${BASE}/api/v1/catalogue/search/`, () =>
+    http.get(`${BASE}/api/v2/products/`, () =>
       HttpResponse.json({
         results: [PRODUCT_A], count: 1, active_filters: {}, normalized_query: 'oshun',
       }),
@@ -82,10 +82,10 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
     expect(await screen.findByText(/collar/i)).toBeInTheDocument();
   });
 
-  it('llama a /api/v1/catalogue/search/ con el termino normalizado', async () => {
+  it('llama a /api/v2/products/ con el termino normalizado', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/search/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({
           results: [PRODUCT_A], count: 1, active_filters: {}, normalized_query: 'oshun',
@@ -102,7 +102,7 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
   it('reenvia los filtros (category, price_min, price_max) a la API (UC-CAT-03-EXT)', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/search/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({
           results: [PRODUCT_A], count: 1, active_filters: {}, normalized_query: 'oshun',
@@ -123,7 +123,7 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
   it('no consulta la API cuando el termino es demasiado corto (Alt C)', async () => {
     let searchCalled = false;
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/search/`, () => {
+      http.get(`${BASE}/api/v2/products/`, () => {
         searchCalled = true;
         return HttpResponse.json({ results: [], count: 0 });
       }),
@@ -137,7 +137,7 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
 
   it('muestra estado «sin resultados» con sugerencias accionables (Alt A)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/search/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json({ results: [], count: 0, normalized_query: 'xyznada' }),
       ),
     );
@@ -150,7 +150,7 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
 
   it('muestra estado de error si la API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/search/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json({ detail: 'Error' }, { status: 400 }),
       ),
     );

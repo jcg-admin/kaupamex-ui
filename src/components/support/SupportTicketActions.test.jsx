@@ -60,7 +60,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
   it('llama al endpoint de cerrar al confirmar', async () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/7/close/`, () => {
+      http.post(`${BASE}/api/v2/support/tickets/7/close/`, () => {
         called = true;
         return HttpResponse.json({ id: 7, status: 'CLOSED' });
       }),
@@ -81,7 +81,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
   it('no cierra si el usuario cancela la confirmacion', () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/7/close/`, () => {
+      http.post(`${BASE}/api/v2/support/tickets/7/close/`, () => {
         called = true;
         return HttpResponse.json({});
       }),
@@ -101,7 +101,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
   it('llama al endpoint de reabrir al confirmar', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/support/tickets/7/reopen/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/support/tickets/7/reopen/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 7, status: 'OPEN' });
       }),

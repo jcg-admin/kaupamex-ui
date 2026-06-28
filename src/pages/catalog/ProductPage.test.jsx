@@ -74,7 +74,7 @@ const PRODUCT = {
 describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   beforeEach(() => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json(PRODUCT),
       ),
     );
@@ -108,7 +108,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
   it('muestra "Sin stock" cuando availability=OUT_OF_STOCK', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json({ ...PRODUCT, availability: 'OUT_OF_STOCK', stock: 0 }),
       ),
     );
@@ -118,7 +118,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
   it('deshabilita el botón de carrito cuando sin stock', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json({ ...PRODUCT, availability: 'OUT_OF_STOCK', stock: 0 }),
       ),
     );
@@ -154,7 +154,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
   it('muestra spinner mientras carga', () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         new Promise(() => {}), // never resolves
       ),
     );
@@ -165,7 +165,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
   it('muestra "Producto no disponible" si el API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json({ detail: 'Not found' }, { status: 400 }),
       ),
     );
@@ -196,7 +196,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
   it('no muestra badge Destacado cuando is_featured=false', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json({ ...PRODUCT, is_featured: false }),
       ),
     );
@@ -209,7 +209,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   // Variants in the real contract use `label` field (not legacy `name`)
   it('UC-CHT-01: renderiza el selector de variantes cuando el producto las trae', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json({
           ...PRODUCT,
           variants: [
@@ -228,7 +228,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
   it('UC-CHT-02: al hacer click sobre Agregar a la bolsa con variante seleccionada llama al API', async () => {
     let lastCartBody;
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json({
           ...PRODUCT,
           variants: [
@@ -237,7 +237,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
           ],
         }),
       ),
-      http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
         lastCartBody = await request.json();
         return HttpResponse.json({ items: [], voucher: null });
       }),
@@ -249,7 +249,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     fireEvent.click(await screen.findByRole('button', { name: /Chico/ }));
     fireEvent.click(screen.getByRole('button', { name: /Agregar a la bolsa/i }));
 
-    // Component calls addToCart thunk → POST /api/v1/cart/items/
+    // Component calls addToCart thunk → POST /api/v2/cart/items/
     await screen.findByText('Carrito');
     expect(lastCartBody).toMatchObject({
       product_id: PRODUCT.id,
@@ -260,7 +260,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
   it('UC-CHT-01: el CTA muestra "Agregar a la bolsa" cuando hay variantes y una está seleccionada', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+      http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
         HttpResponse.json({
           ...PRODUCT,
           variants: [
@@ -308,7 +308,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     it('renderiza el label real (no el legacy field name) por variante', async () => {
       server.use(
-        http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
           HttpResponse.json(productWithRealVariants),
         ),
       );
@@ -320,7 +320,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     it('muestra el precio base del producto mientras no hay price_override en variante', async () => {
       server.use(
-        http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
           HttpResponse.json(productWithRealVariants),
         ),
       );
@@ -333,7 +333,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     it('al seleccionar una variante, el precio sigue siendo product.price_with_tax', async () => {
       server.use(
-        http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
           HttpResponse.json(productWithRealVariants),
         ),
       );
@@ -349,7 +349,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     it('cambiar entre dos variantes no cambia el precio (sin price_override)', async () => {
       server.use(
-        http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
           HttpResponse.json(productWithRealVariants),
         ),
       );
@@ -366,7 +366,7 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
 
     it('la variante con stock=0 se renderiza pero puede no estar deshabilitada', async () => {
       server.use(
-        http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
           HttpResponse.json(productWithRealVariants),
         ),
       );
@@ -383,10 +383,10 @@ describe('ProductPage — ficha de producto (UC-CAT-02)', () => {
     it('el POST al carrito incluye el variant_id seleccionado del contrato real', async () => {
       let lastCartBody;
       server.use(
-        http.get(`${BASE}/api/v1/catalogue/collar-oshun-dorado/`, () =>
+        http.get(`${BASE}/api/v2/catalogue/collar-oshun-dorado/`, () =>
           HttpResponse.json(productWithRealVariants),
         ),
-        http.post(`${BASE}/api/v1/cart/items/`, async ({ request }) => {
+        http.post(`${BASE}/api/v2/cart/items/`, async ({ request }) => {
           lastCartBody = await request.json();
           return HttpResponse.json({ items: [], voucher: null });
         }),

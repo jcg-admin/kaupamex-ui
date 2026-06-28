@@ -68,7 +68,7 @@ describe('ProductDiscountEditForm (UC-DASH-02)', () => {
   it('envia PATCH con los campos modificados', async () => {
     let lastBody;
     server.use(
-      http.patch(`${BASE}/api/v1/admin/product-discounts/1/`, async ({ request }) => {
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ ...DISCOUNT, discount_pct: 20.0 });
       }),
@@ -99,7 +99,7 @@ describe('ProductDiscountEditForm (UC-DASH-02)', () => {
   it('permite limpiar valid_until enviando null', async () => {
     let lastBody;
     server.use(
-      http.patch(`${BASE}/api/v1/admin/product-discounts/1/`, async ({ request }) => {
+      http.patch(`${BASE}/api/v2/admin/product-discounts/1/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json(DISCOUNT);
       }),

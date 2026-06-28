@@ -77,7 +77,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
 
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/`, () =>
+      http.get(`${BASE}/api/v2/admin/orders/`, () =>
         HttpResponse.json({ results: ORDERS, count: 2 }),
       ),
     );
@@ -89,7 +89,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
 
   it('renderiza la tabla con las ordenes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/`, () =>
+      http.get(`${BASE}/api/v2/admin/orders/`, () =>
         HttpResponse.json({ results: ORDERS, count: 2 }),
       ),
     );
@@ -104,7 +104,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
   it('aplica filtros de estado al endpoint admin', async () => {
     lastUrl = undefined;
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/orders/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json({ results: ORDERS, count: 2 });
       }),
@@ -125,7 +125,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
   it('aplica el rango de fechas (from/to) al endpoint admin', async () => {
     lastUrl = undefined;
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/orders/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json({ results: ORDERS, count: 2 });
       }),
@@ -145,7 +145,7 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
 
   it('enlaza al detalle admin de cada orden', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/orders/`, () =>
+      http.get(`${BASE}/api/v2/admin/orders/`, () =>
         HttpResponse.json({ results: ORDERS, count: 2 }),
       ),
     );

@@ -60,7 +60,7 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
   it('envia el payload con keys en ingles al confirmar', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/product-discounts/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/product-discounts/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 99, product_id: 10, discount_pct: 15.0 }, { status: 201 });
       }),
@@ -98,7 +98,7 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
   it('acepta valid_until vacio (sin vencimiento)', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/product-discounts/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/product-discounts/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 99, product_id: 10, discount_pct: 15.0 }, { status: 201 });
       }),
@@ -125,7 +125,7 @@ describe('ProductDiscountCreateForm (UC-DASH-01)', () => {
 
   it('muestra mensaje de error 409 cuando ya hay descuento activo', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.post(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json(
           { message: 'Ya existe descuento activo para este producto', codigo_error: 'DISCOUNT_ALREADY_ACTIVE' },
           { status: 409 },

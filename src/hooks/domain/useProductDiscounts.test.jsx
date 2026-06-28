@@ -24,7 +24,7 @@ const makeWrapper = () => {
 describe('useProductDiscounts (UC-DASH-04)', () => {
   it('llama al endpoint admin de product-discounts', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, product_id: 10, product_name: 'A', discount_pct: 15.0,
@@ -48,7 +48,7 @@ describe('useProductDiscounts (UC-DASH-04)', () => {
   it('propaga el filtro status como query param', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [] });
       }),
@@ -66,7 +66,7 @@ describe('useProductDiscounts (UC-DASH-04)', () => {
 
   it('expone error cuando la API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
+      http.get(`${BASE}/api/v2/admin/product-discounts/`, () =>
         HttpResponse.json({ detail: 'Boom' }, { status: 400 }),
       ),
     );

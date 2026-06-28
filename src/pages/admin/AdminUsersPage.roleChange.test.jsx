@@ -44,7 +44,7 @@ const wrap = () => {
 describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
   it('muestra botones de filtro de rol (Todos, Compradores, Administradores)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
         HttpResponse.json({ results: USERS, count: USERS.length, next: null, previous: null }),
       ),
     );
@@ -57,7 +57,7 @@ describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
   it('al hacer clic en Compradores llama a la API con is_staff=false', async () => {
     let lastGetUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/users/`, ({ request }) => {
         lastGetUrl = request.url;
         return HttpResponse.json({ results: USERS, count: USERS.length, next: null, previous: null });
       }),
@@ -66,7 +66,7 @@ describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
     await screen.findByRole('button', { name: /Todos/i });
     fireEvent.click(screen.getByRole('button', { name: /Compradores/i }));
     await waitFor(() => {
-      expect(lastGetUrl).toContain('/api/v1/admin/users/');
+      expect(lastGetUrl).toContain('/api/v2/admin/users/');
       expect(lastGetUrl).toContain('is_staff=false');
     });
   });
@@ -74,7 +74,7 @@ describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
   it('al hacer clic en Administradores llama a la API con is_staff=true', async () => {
     let lastGetUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/users/`, ({ request }) => {
         lastGetUrl = request.url;
         return HttpResponse.json({ results: USERS, count: USERS.length, next: null, previous: null });
       }),
@@ -83,14 +83,14 @@ describe('AdminUsersPage — UC-ADM-01 filtros de rol', () => {
     await screen.findByRole('button', { name: /Todos/i });
     fireEvent.click(screen.getByRole('button', { name: /Administradores/i }));
     await waitFor(() => {
-      expect(lastGetUrl).toContain('/api/v1/admin/users/');
+      expect(lastGetUrl).toContain('/api/v2/admin/users/');
       expect(lastGetUrl).toContain('is_staff=true');
     });
   });
 
   it('muestra botones de filtro de estado (Activos, Sin verificar, Inactivos)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
         HttpResponse.json({ results: USERS, count: USERS.length, next: null, previous: null }),
       ),
     );

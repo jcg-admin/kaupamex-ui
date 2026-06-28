@@ -20,7 +20,7 @@ const makeWrapper = () => {
 describe('useReturns hooks', () => {
   it('useReturns retorna la lista', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/`, () =>
         HttpResponse.json({ results: [{ id: 7 }] }),
       ),
     );
@@ -32,7 +32,7 @@ describe('useReturns hooks', () => {
 
   it('useReturn(id) carga el detalle', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/returns/7/`, () =>
+      http.get(`${BASE}/api/v2/return-requests/7/`, () =>
         HttpResponse.json({ id: 7, status: 'PENDING_REVIEW' }),
       ),
     );
@@ -44,7 +44,7 @@ describe('useReturns hooks', () => {
 
   it('useAdminReturns con filtro de estado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () =>
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () =>
         HttpResponse.json({ results: [], metrics: { pendientes: 3 } }),
       ),
     );

@@ -38,7 +38,7 @@ const VARIANTS = [
 describe('AdminVariantsPage (UC-CHT-03)', () => {
   it('muestra el titulo del panel de variantes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
     );
     render(wrap(7, makeStore()));
     expect(
@@ -48,7 +48,7 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
 
   it('renderiza una fila por cada variante con tipo, opcion y stock', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
     );
     render(wrap(7, makeStore()));
     expect(await screen.findByText('Chico')).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
 
   it('muestra estado vacio si no hay variantes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: [] })),
     );
     render(wrap(7, makeStore()));
     expect(
@@ -70,8 +70,8 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
     let lastPostUrl;
     let lastPostBody;
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () => HttpResponse.json({ results: [] })),
-      http.post(`${BASE}/api/v1/admin/products/7/variants/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: [] })),
+      http.post(`${BASE}/api/v2/admin/products/7/variants/`, async ({ request }) => {
         lastPostUrl = request.url;
         lastPostBody = await request.json().catch(() => null);
         return HttpResponse.json({
@@ -92,7 +92,7 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Crear variante/i }));
 
     await waitFor(() => {
-      expect(lastPostUrl).toContain('/api/v1/admin/products/7/variants/');
+      expect(lastPostUrl).toContain('/api/v2/admin/products/7/variants/');
     });
     expect(lastPostBody).toMatchObject({
       variant_type:  'Tamano',
@@ -105,8 +105,8 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
     let lastPatchUrl;
     let lastPatchBody;
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
-      http.patch(`${BASE}/api/v1/admin/products/7/variants/1/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+      http.patch(`${BASE}/api/v2/admin/products/7/variants/1/`, async ({ request }) => {
         lastPatchUrl = request.url;
         lastPatchBody = await request.json().catch(() => null);
         return HttpResponse.json({ ...VARIANTS[0], is_active: false });
@@ -119,14 +119,14 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
     fireEvent.click(toggleBtns[0]);
 
     await waitFor(() => {
-      expect(lastPatchUrl).toContain('/api/v1/admin/products/7/variants/1/');
+      expect(lastPatchUrl).toContain('/api/v2/admin/products/7/variants/1/');
     });
     expect(lastPatchBody).toMatchObject({ is_active: false });
   });
 
   it('marca como Inactiva una variante con is_active=false', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
     );
     render(wrap(7, makeStore()));
     await screen.findByText('Grande');
@@ -135,7 +135,7 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
 
   it('cada fila enlaza a la pagina de precio diferenciado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
+      http.get(`${BASE}/api/v2/admin/products/7/variants/`, () => HttpResponse.json({ results: VARIANTS })),
     );
     render(wrap(7, makeStore()));
     const priceLinks = await screen.findAllByRole('link', { name: /Precio/i });

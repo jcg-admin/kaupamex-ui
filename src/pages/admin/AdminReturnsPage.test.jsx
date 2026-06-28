@@ -47,7 +47,7 @@ const RESPONSE = {
 describe('AdminReturnsPage (UC-RET-05)', () => {
   it('muestra el titulo de la bandeja', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReturnsPage />, makeStore()));
     expect(
@@ -57,7 +57,7 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
 
   it('renderiza la tabla con todas las devoluciones', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReturnsPage />, makeStore()));
     expect(await screen.findByText('ORD-A')).toBeInTheDocument();
@@ -67,7 +67,7 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
 
   it('muestra el email del comprador en cada fila', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReturnsPage />, makeStore()));
     expect(await screen.findByText('demo@test.mx')).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
 
   it('muestra el panel de métricas con los conteos por estado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReturnsPage />, makeStore()));
     await screen.findByText('ORD-A');
@@ -88,14 +88,14 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
 
   it('filtra el listado por estado al cambiar el selector', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReturnsPage />, makeStore()));
     await screen.findByText('ORD-A');
 
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/return-requests/`, ({ request }) => {
         lastUrl = request.url;
         return HttpResponse.json(RESPONSE);
       }),
@@ -105,14 +105,14 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
       { target: { value: 'PENDING_REVIEW' } });
 
     await waitFor(() => {
-      expect(lastUrl).toContain('/admin/returns/');
+      expect(lastUrl).toContain('/admin/return-requests/');
       expect(lastUrl).toContain('status=PENDING_REVIEW');
     });
   });
 
   it('muestra estado vacio cuando no hay devoluciones', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () =>
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () =>
         HttpResponse.json({ results: [], metrics: null }),
       ),
     );
@@ -124,7 +124,7 @@ describe('AdminReturnsPage (UC-RET-05)', () => {
 
   it('cada fila enlaza a su detalle admin', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/returns/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/return-requests/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReturnsPage />, makeStore()));
     const links = await screen.findAllByRole('link', { name: /Ver detalle/i });

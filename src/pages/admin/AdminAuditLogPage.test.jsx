@@ -1,7 +1,7 @@
 /**
  * Tests — AdminAuditLogPage (UC-ADM-03)
  *
- *   GET /api/v1/admin/audit-log/
+ *   GET /api/v2/admin/audit-log/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -39,7 +39,7 @@ const wrap = () => {
 describe('AdminAuditLogPage (UC-ADM-03)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/audit-log/`, () =>
+      http.get(`${BASE}/api/v2/admin/audit-log/`, () =>
         HttpResponse.json({ results: ENTRIES, count: 2 }),
       ),
     );
@@ -47,10 +47,10 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
     expect(await screen.findByRole('heading', { name: /Auditoria/i })).toBeInTheDocument();
   });
 
-  it('llama al endpoint /api/v1/admin/audit-log/ al montar', async () => {
+  it('llama al endpoint /api/v2/admin/audit-log/ al montar', async () => {
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/audit-log/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/audit-log/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json({ results: ENTRIES, count: 2 });
       }),
@@ -63,7 +63,7 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
 
   it('lista las entradas de auditoria', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/audit-log/`, () =>
+      http.get(`${BASE}/api/v2/admin/audit-log/`, () =>
         HttpResponse.json({ results: ENTRIES, count: 2 }),
       ),
     );
@@ -74,7 +74,7 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
 
   it('integra DateRangePicker (B2) en vez de inputs type=date crudos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/audit-log/`, () =>
+      http.get(`${BASE}/api/v2/admin/audit-log/`, () =>
         HttpResponse.json({ results: ENTRIES, count: 2 }),
       ),
     );
@@ -88,7 +88,7 @@ describe('AdminAuditLogPage (UC-ADM-03)', () => {
   it('aplica el filtro por accion al enviar el formulario', async () => {
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/audit-log/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/audit-log/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json({ results: ENTRIES, count: 2 });
       }),
