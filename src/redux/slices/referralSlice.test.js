@@ -42,7 +42,7 @@ describe('referralSlice — initial state', () => {
 describe('referralSlice — fetchReferral', () => {
   it('normaliza el payload del backend (snake_case -> camelCase)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () =>
+      http.get(`${BASE}/api/v2/account/referral/`, () =>
         HttpResponse.json({
           code:                'YORUBA-42',
           share_link:          'https://practicayoruba.test/r/YORUBA-42',
@@ -68,7 +68,7 @@ describe('referralSlice — fetchReferral', () => {
 
   it('marca isProgramDisabled cuando el GET responde 404 NOT_FOUND', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () =>
+      http.get(`${BASE}/api/v2/account/referral/`, () =>
         HttpResponse.json(
           { detail: 'Not found', codigo_error: 'NOT_FOUND' },
           { status: 404 },
@@ -86,7 +86,7 @@ describe('referralSlice — fetchReferral', () => {
 
   it('guarda el error en estado para fallos no-404', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () =>
+      http.get(`${BASE}/api/v2/account/referral/`, () =>
         HttpResponse.json(
           { detail: 'Server error', codigo_error: 'SERVER_ERROR' },
           { status: 422 },
@@ -103,7 +103,7 @@ describe('referralSlice — fetchReferral', () => {
 
   it('clearReferralError limpia el error', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () =>
+      http.get(`${BASE}/api/v2/account/referral/`, () =>
         HttpResponse.json({ detail: 'boom' }, { status: 422 }),
       ),
     );
@@ -119,7 +119,7 @@ describe('referralSlice — redeemReferral', () => {
   it('canjea un codigo y marca lastRedeemSucceeded', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/account/referral/redeem/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/account/referral/redeem/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ detail: 'ok' });
       }),
@@ -137,7 +137,7 @@ describe('referralSlice — redeemReferral', () => {
 
   it('preserva el codigo_error en redeemError ante un 422', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/account/referral/redeem/`, () =>
+      http.post(`${BASE}/api/v2/account/referral/redeem/`, () =>
         HttpResponse.json(
           { detail: 'Self referral', codigo_error: 'SELF_REFERRAL_NOT_ALLOWED' },
           { status: 422 },
@@ -157,7 +157,7 @@ describe('referralSlice — redeemReferral', () => {
 
   it('clearReferralRedeemState limpia error y bandera de exito', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/account/referral/redeem/`, () =>
+      http.post(`${BASE}/api/v2/account/referral/redeem/`, () =>
         HttpResponse.json({}),
       ),
     );

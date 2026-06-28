@@ -35,7 +35,7 @@ const GET_PAYLOAD = {
 describe('ReferralPage', () => {
   it('renderiza el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+      http.get(`${BASE}/api/v2/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
     );
     render(wrap(<ReferralPage />, makeStore()));
     expect(
@@ -45,7 +45,7 @@ describe('ReferralPage', () => {
 
   it('muestra el codigo y las metricas tras el GET', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+      http.get(`${BASE}/api/v2/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
     );
     render(wrap(<ReferralPage />, makeStore()));
 
@@ -60,7 +60,7 @@ describe('ReferralPage', () => {
 
   it('muestra el estado de programa deshabilitado ante un 404', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () =>
+      http.get(`${BASE}/api/v2/account/referral/`, () =>
         HttpResponse.json({ detail: 'Not found' }, { status: 404 }),
       ),
     );
@@ -74,11 +74,11 @@ describe('ReferralPage', () => {
 
   it('canjea un codigo correctamente y muestra confirmacion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+      http.get(`${BASE}/api/v2/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
     );
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/account/referral/redeem/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/account/referral/redeem/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ detail: 'ok' });
       }),
@@ -100,10 +100,10 @@ describe('ReferralPage', () => {
 
   it('surface el mensaje del codigo_error al fallar el canje (422 self-referral)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
+      http.get(`${BASE}/api/v2/account/referral/`, () => HttpResponse.json(GET_PAYLOAD)),
     );
     server.use(
-      http.post(`${BASE}/api/v1/account/referral/redeem/`, () =>
+      http.post(`${BASE}/api/v2/account/referral/redeem/`, () =>
         HttpResponse.json(
           { codigo_error: 'SELF_REFERRAL_NOT_ALLOWED', detail: 'Self referral' },
           { status: 422 },
