@@ -144,7 +144,7 @@ const mockPricePreview = [
 
 export const adminHandlers = [
   // Dashboard — KPIs / metrics
-  http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () =>
+  http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () =>
     HttpResponse.json(mockDashboard),
   ),
 
@@ -327,13 +327,13 @@ export const adminHandlers = [
   ),
 
   // Reports
-  http.get(`${BASE}/api/v1/admin/reports/sales/`, () =>
+  http.get(`${BASE}/api/v2/admin/reports/sales/`, () =>
     HttpResponse.json(mockSalesReport),
   ),
-  http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () =>
+  http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () =>
     HttpResponse.json({ count: mockTopSellers.length, results: mockTopSellers }),
   ),
-  http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, () =>
+  http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, () =>
     HttpResponse.json(mockRfm),
   ),
 
@@ -454,12 +454,12 @@ export const adminHandlers = [
   }),
 
   // Backups
-  http.get(`${BASE}/api/v1/admin/backups/`, () =>
+  http.get(`${BASE}/api/v2/admin/backups/`, () =>
     HttpResponse.json({ count: 3, results: [
       { id: 1, created_at: '2026-06-23T00:00:00', size_mb: 45, status: 'COMPLETED' },
     ] }),
   ),
-  http.post(`${BASE}/api/v1/admin/backups/trigger/`, () =>
+  http.post(`${BASE}/api/v2/admin/backups/`, () =>
     HttpResponse.json({ status: 'QUEUED', message: 'Backup iniciado' }, { status: 202 }),
   ),
 

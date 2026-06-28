@@ -36,7 +36,7 @@ function renderPage() {
 describe('AdminDashboardPage — landing admin', () => {
   it('renderiza titulo del panel', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json({})),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json({})),
     );
     renderPage();
     expect(
@@ -46,7 +46,7 @@ describe('AdminDashboardPage — landing admin', () => {
 
   it('muestra KPIs cuando el endpoint responde con datos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () =>
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () =>
         HttpResponse.json({
           today: { revenue: 12345, orders: 9 },
           top_products: [],
@@ -62,7 +62,7 @@ describe('AdminDashboardPage — landing admin', () => {
 
   it('tolera error de carga del dashboard', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.error()),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.error()),
     );
     renderPage();
     await waitFor(() =>
@@ -72,7 +72,7 @@ describe('AdminDashboardPage — landing admin', () => {
 
   it('lista enlaces de navegacion a las secciones del admin', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json({})),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json({})),
     );
     renderPage();
     await screen.findByRole('heading', { name: /Resumen del día/i });

@@ -42,7 +42,7 @@ const wrap = (ui) => {
 describe('AdminReportDashboardPage (UC-REP-03)', () => {
   it('renderiza el titulo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportDashboardPage />));
     expect(
@@ -52,7 +52,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
 
   it('muestra los KPIs del dia', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportDashboardPage />));
     await screen.findByText(/850\.00/);
@@ -63,7 +63,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
 
   it('muestra el numero de tickets abiertos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportDashboardPage />));
     await screen.findByText('Falda Yoruba');
@@ -75,7 +75,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
 
   it('muestra alertas de stock bajo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportDashboardPage />));
     expect(await screen.findByText(/Alertas de stock bajo/i)).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
 
   it('renderiza el top 5 productos del mes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportDashboardPage />));
     expect(await screen.findByText('Falda Yoruba')).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
 
   it('tiene accesos directos a los reportes detallados', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportDashboardPage />));
     await screen.findByText('Falda Yoruba');
@@ -106,7 +106,7 @@ describe('AdminReportDashboardPage (UC-REP-03)', () => {
 
   it('estado de error si la API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () =>
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () =>
         HttpResponse.json({ detail: 'Error de servidor' }, { status: 400 }),
       ),
     );

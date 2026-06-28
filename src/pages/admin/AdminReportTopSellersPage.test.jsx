@@ -32,7 +32,7 @@ const wrap = (ui) => {
 describe('AdminReportTopSellersPage (UC-REP-02)', () => {
   it('renderiza el titulo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportTopSellersPage />));
     expect(
@@ -42,7 +42,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
 
   it('renderiza el ranking en una tabla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByText('Falda Yoruba')).toBeInTheDocument();
@@ -52,7 +52,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
 
   it('muestra los filtros de periodo y limite', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByRole('combobox', { name: /Periodo/i })).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
   it('cambia los parametros al cambiar el periodo', async () => {
     let lastUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, ({ request }) => {
         lastUrl = new URL(request.url);
         return HttpResponse.json(RESPONSE);
       }),
@@ -80,7 +80,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
 
   it('muestra el porcentaje de productos sin ventas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByText(/18\.5/)).toBeInTheDocument();
@@ -88,7 +88,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
 
   it('tiene boton de exportar', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportTopSellersPage />));
     expect(await screen.findByRole('link', { name: /Exportar CSV/i })).toBeInTheDocument();
@@ -97,7 +97,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
 
   it('estado vacio cuando no hay ventas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () =>
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () =>
         HttpResponse.json({ results: [], inactive_no_sales_pct: 0 }),
       ),
     );
@@ -109,7 +109,7 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
   // con ordenamiento por columna (cliente). Verifica la interacción de sort.
   it('ordena el ranking por producto al hacer clic en el header', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportTopSellersPage />));
     await screen.findByText('Falda Yoruba');

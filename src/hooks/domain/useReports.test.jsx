@@ -33,7 +33,7 @@ describe('useReports hooks', () => {
   it('useSalesReport solicita el reporte de ventas con filtros', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/sales/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/reports/sales/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({
           totals: { gross_revenue: '1000.00', orders: 12 },
@@ -56,7 +56,7 @@ describe('useReports hooks', () => {
   it('useTopSellersReport retorna el ranking', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/top-sellers/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({
           results: [{ product_id: 1, units: 50, revenue: '500.00' }],
@@ -80,7 +80,7 @@ describe('useReports hooks', () => {
   it('useCustomersRfmReport retorna la lista segmentada', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/customers-rfm/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/reports/customers-rfm/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({
           results: [{ customer_id: 7, segment: 'VIP', recency: 3, frequency: 8, monetary: '900.00' }],
@@ -101,7 +101,7 @@ describe('useReports hooks', () => {
 
   it('useAnalyticsDashboard agrega KPIs del dashboard', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reports/dashboard/`, () =>
+      http.get(`${BASE}/api/v2/admin/reports/dashboard/`, () =>
         HttpResponse.json({
           today: { revenue: '300.00', orders: 4, new_customers: 1 },
           trend: [],
@@ -119,11 +119,11 @@ describe('useReports hooks', () => {
 
   it('buildReportExportUrl produce la URL con filtros y formato', () => {
     const url = buildReportExportUrl('sales', { period: 'month', format: 'csv' });
-    expect(url).toBe('/api/v1/admin/reports/sales/export/?period=month&format=csv');
+    expect(url).toBe('/api/v2/admin/reports/sales/exports/?period=month&format=csv');
   });
 
   it('buildReportExportUrl omite valores nulos/vacios', () => {
     const url = buildReportExportUrl('top-sellers', { period: '', limit: 10, format: 'pdf' });
-    expect(url).toBe('/api/v1/admin/reports/top-sellers/export/?limit=10&format=pdf');
+    expect(url).toBe('/api/v2/admin/reports/top-sellers/exports/?limit=10&format=pdf');
   });
 });
