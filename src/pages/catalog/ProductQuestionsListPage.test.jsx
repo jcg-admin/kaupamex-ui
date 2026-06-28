@@ -35,7 +35,7 @@ const wrap = (initialPath = '/catalog/42/questions') => (
 describe('ProductQuestionsListPage (UC-QST-02)', () => {
   it('muestra las preguntas con sus respuestas aprobadas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/42/questions/`, () =>
+      http.get(`${BASE}/api/v2/products/42/questions/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, body: 'Tienen envio gratis?', answer: { body: 'Si, a partir de 500 pesos.' } },
@@ -52,7 +52,7 @@ describe('ProductQuestionsListPage (UC-QST-02)', () => {
 
   it('muestra estado vacio si no hay preguntas respondidas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/42/questions/`, () =>
+      http.get(`${BASE}/api/v2/products/42/questions/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );
@@ -65,13 +65,13 @@ describe('ProductQuestionsListPage (UC-QST-02)', () => {
   it('llama al endpoint con productId', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/products/42/questions/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/42/questions/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [] });
       }),
     );
     render(wrap());
     await screen.findByText(/Aun no hay preguntas/i);
-    expect(capturedUrl).toContain('/api/v1/products/42/questions/');
+    expect(capturedUrl).toContain('/api/v2/products/42/questions/');
   });
 });

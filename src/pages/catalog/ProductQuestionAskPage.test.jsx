@@ -37,7 +37,7 @@ describe('ProductQuestionAskPage (UC-QST-01)', () => {
   it('exige una pregunta con longitud minima', () => {
     let postCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/products/42/questions/`, () => {
+      http.post(`${BASE}/api/v2/products/42/questions/`, () => {
         postCalled = true;
         return HttpResponse.json({ id: 9 });
       }),
@@ -51,7 +51,7 @@ describe('ProductQuestionAskPage (UC-QST-01)', () => {
   it('al enviar, hace POST al endpoint del producto', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/products/42/questions/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/products/42/questions/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 9 });
       }),
@@ -74,7 +74,7 @@ describe('ProductQuestionAskPage (UC-QST-01)', () => {
 
   it('muestra confirmacion al recibir', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/products/42/questions/`, () =>
+      http.post(`${BASE}/api/v2/products/42/questions/`, () =>
         HttpResponse.json({ id: 9 }),
       ),
     );

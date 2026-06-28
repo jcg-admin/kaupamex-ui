@@ -369,19 +369,18 @@ export const adminHandlers = [
     HttpResponse.json({ id: params.id, status: 'REJECTED' }),
   ),
 
-  // Questions (admin moderation)
-  http.get(`${BASE}/api/v1/admin/questions/`, () =>
+  // Questions (admin moderation) — v2 (M-12)
+  http.get(`${BASE}/api/v2/admin/questions/`, () =>
     HttpResponse.json({ count: mockQuestions.length, results: mockQuestions }),
   ),
-  http.post(`${BASE}/api/v1/admin/questions/:id/approve/`, ({ params }) =>
-    HttpResponse.json({ id: params.id, status: 'APPROVED' }),
-  ),
-  http.post(`${BASE}/api/v1/admin/questions/:id/reject/`, ({ params }) =>
-    HttpResponse.json({ id: params.id, status: 'REJECTED' }),
-  ),
-  http.post(`${BASE}/api/v1/admin/questions/:id/answer/`, async ({ params, request }) => {
+  http.patch(`${BASE}/api/v2/admin/questions/:id/status/`, async ({ params, request }) => {
     const body = await request.json();
-    return HttpResponse.json({ id: params.id, answer: body.answer, status: 'ANSWERED' });
+    const status = body.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
+    return HttpResponse.json({ id: params.id, status });
+  }),
+  http.post(`${BASE}/api/v2/admin/questions/:id/answers/`, async ({ params, request }) => {
+    const body = await request.json();
+    return HttpResponse.json({ id: params.id, answer: body.answer_body, status: 'ANSWERED' });
   }),
 
   // Support
