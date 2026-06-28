@@ -58,7 +58,7 @@ describe('adminSlice — reducers síncronos', () => {
 describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
   it('pending — isLoading=true, error=null', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
         new Promise(() => {}), // never resolves — simulate pending
       ),
     );
@@ -70,7 +70,7 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
 
   it('fulfilled — hidrata users y paginación', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
         HttpResponse.json({ results: [USER], count: 1, next: null, previous: null }),
       ),
     );
@@ -86,7 +86,7 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
 
   it('rejected — isLoading=false, error guardado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/`, () =>
         HttpResponse.json({ detail: '403 Forbidden' }, { status: 403 }),
       ),
     );
@@ -100,7 +100,7 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
   it('llama a la URL correcta con params', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/users/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [], count: 0, next: null, previous: null });
       }),
@@ -118,7 +118,7 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
 describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
   it('pending — isLoadingUser=true, currentUser=null', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
         new Promise(() => {}),
       ),
     );
@@ -130,7 +130,7 @@ describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
 
   it('fulfilled — currentUser hidratado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
         HttpResponse.json(USER),
       ),
     );
@@ -142,7 +142,7 @@ describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
 
   it('rejected — userError guardado', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/99999/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/99999/`, () =>
         HttpResponse.json({ detail: '404 Not Found' }, { status: 404 }),
       ),
     );
@@ -154,7 +154,7 @@ describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
   it('llama a la URL correcta', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/users/42/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json(USER);
       }),
@@ -162,7 +162,7 @@ describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
     const store = makeStore();
     await store.dispatch(fetchAdminUser(42));
     await waitFor(() => expect(capturedUrl).toBeDefined());
-    expect(new URL(capturedUrl).pathname).toBe('/api/v1/admin/users/42/');
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/users/42/');
   });
 });
 
@@ -170,10 +170,10 @@ describe('adminSlice — fetchAdminUser (UC-AUTH-12)', () => {
 describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
   it('fulfilled — lastAction=suspended, is_active=false en currentUser', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
         HttpResponse.json(USER),
       ),
-      http.post(`${BASE}/api/v1/admin/users/42/suspend/`, () =>
+      http.post(`${BASE}/api/v2/admin/users/42/suspend/`, () =>
         HttpResponse.json({ ...USER, is_active: false }),
       ),
     );
@@ -188,7 +188,7 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
 
   it('rejected — actionError guardado', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/1/suspend/`, () =>
+      http.post(`${BASE}/api/v2/admin/users/1/suspend/`, () =>
         HttpResponse.json({ detail: '400 autoprotección' }, { status: 400 }),
       ),
     );
@@ -201,7 +201,7 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
   it('llama a la URL correcta', async () => {
     let capturedUrl;
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/42/suspend/`, ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/users/42/suspend/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({});
       }),
@@ -209,7 +209,7 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
     const store = makeStore();
     await store.dispatch(suspendUser(42));
     await waitFor(() => expect(capturedUrl).toBeDefined());
-    expect(new URL(capturedUrl).pathname).toBe('/api/v1/admin/users/42/suspend/');
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/users/42/suspend/');
   });
 });
 
@@ -217,10 +217,10 @@ describe('adminSlice — suspendUser (UC-AUTH-13)', () => {
 describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
   it('fulfilled — lastAction=reactivated, is_active=true en currentUser', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/users/42/`, () =>
+      http.get(`${BASE}/api/v2/admin/users/42/`, () =>
         HttpResponse.json({ ...USER, is_active: false }),
       ),
-      http.post(`${BASE}/api/v1/admin/users/42/reactivate/`, () =>
+      http.post(`${BASE}/api/v2/admin/users/42/reactivate/`, () =>
         HttpResponse.json({ ...USER, is_active: true }),
       ),
     );
@@ -235,7 +235,7 @@ describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
   it('llama a la URL correcta', async () => {
     let capturedUrl;
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/42/reactivate/`, ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/users/42/reactivate/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({});
       }),
@@ -243,7 +243,7 @@ describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
     const store = makeStore();
     await store.dispatch(reactivateUser(42));
     await waitFor(() => expect(capturedUrl).toBeDefined());
-    expect(new URL(capturedUrl).pathname).toBe('/api/v1/admin/users/42/reactivate/');
+    expect(new URL(capturedUrl).pathname).toBe('/api/v2/admin/users/42/reactivate/');
   });
 });
 
@@ -253,7 +253,7 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
     const newAdmin = { id: 99, username: 'newadmin', email: 'new@test.mx',
                        is_active: true, is_staff: true };
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/`, () =>
+      http.post(`${BASE}/api/v2/admin/users/`, () =>
         HttpResponse.json(newAdmin),
       ),
     );
@@ -269,7 +269,7 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
 
   it('rejected — actionError guardado', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/`, () =>
+      http.post(`${BASE}/api/v2/admin/users/`, () =>
         HttpResponse.json({ detail: '400 username en uso' }, { status: 400 }),
       ),
     );
@@ -281,7 +281,7 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
   it('llama a la URL correcta con los datos del usuario', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/users/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 10 });
       }),

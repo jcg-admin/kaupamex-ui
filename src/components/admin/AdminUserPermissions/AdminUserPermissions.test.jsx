@@ -67,7 +67,7 @@ describe('AdminUserPermissions — guardar (éxito)', () => {
   it('hace POST al endpoint de permisos con el body parcial correcto', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/users/42/permissions/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ ...TARGET_USER, is_staff: true });
       }),
@@ -94,7 +94,7 @@ describe('AdminUserPermissions — guardar (éxito)', () => {
   it('descarta ids de grupo no numéricos', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/users/42/permissions/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json(TARGET_USER);
       }),
@@ -112,7 +112,7 @@ describe('AdminUserPermissions — guardar (éxito)', () => {
   it('un viewer no-superadmin no envía is_superuser', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/users/42/permissions/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json(TARGET_USER);
       }),
@@ -128,7 +128,7 @@ describe('AdminUserPermissions — guardar (éxito)', () => {
 describe('AdminUserPermissions — errores', () => {
   it('muestra mensaje de auto-lockout ante codigo_error CANNOT_DEMOTE_SELF', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/1/permissions/`, () =>
+      http.post(`${BASE}/api/v2/admin/users/1/permissions/`, () =>
         HttpResponse.json(
           {
             detail: 'Un administrador no puede quitarse a sí mismo el rol.',
@@ -148,7 +148,7 @@ describe('AdminUserPermissions — errores', () => {
 
   it('muestra mensaje de permiso denegado ante 403', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/admin/users/42/permissions/`, () =>
+      http.post(`${BASE}/api/v2/admin/users/42/permissions/`, () =>
         HttpResponse.json({ detail: 'Forbidden' }, { status: 403 }),
       ),
     );
