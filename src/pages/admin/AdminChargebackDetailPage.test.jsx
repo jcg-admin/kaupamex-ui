@@ -30,7 +30,7 @@ const CB_DETAIL = {
 describe('AdminChargebackDetailPage (T-17-C)', () => {
   it('muestra el detalle del contracargo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/chargebacks/1/`, () => HttpResponse.json(CB_DETAIL)),
+      http.get(`${BASE}/api/v2/admin/chargebacks/1/`, () => HttpResponse.json(CB_DETAIL)),
     );
     render(wrap('1'));
     expect(await screen.findByRole('heading', { name: /Contracargo/i })).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('AdminChargebackDetailPage (T-17-C)', () => {
 
   it('muestra error si no se encuentra el contracargo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/chargebacks/999/`, () =>
+      http.get(`${BASE}/api/v2/admin/chargebacks/999/`, () =>
         HttpResponse.json({ detail: 'Not found.' }, { status: 404 }),
       ),
     );

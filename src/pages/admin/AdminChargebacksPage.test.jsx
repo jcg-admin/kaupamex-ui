@@ -33,7 +33,7 @@ const CHARGEBACKS = [
 describe('AdminChargebacksPage (T-17-B)', () => {
   it('muestra el titulo de la pagina', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/chargebacks/`, () => HttpResponse.json([])),
+      http.get(`${BASE}/api/v2/admin/chargebacks/`, () => HttpResponse.json([])),
     );
     render(wrap(<AdminChargebacksPage />));
     expect(await screen.findByRole('heading', { name: /Contracargos/i })).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('AdminChargebacksPage (T-17-B)', () => {
 
   it('lista los contracargos disponibles', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/chargebacks/`, () => HttpResponse.json(CHARGEBACKS)),
+      http.get(`${BASE}/api/v2/admin/chargebacks/`, () => HttpResponse.json(CHARGEBACKS)),
     );
     render(wrap(<AdminChargebacksPage />));
     expect(await screen.findByText('GCB-001')).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('AdminChargebacksPage (T-17-B)', () => {
 
   it('muestra mensaje cuando no hay contracargos', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/chargebacks/`, () => HttpResponse.json([])),
+      http.get(`${BASE}/api/v2/admin/chargebacks/`, () => HttpResponse.json([])),
     );
     render(wrap(<AdminChargebacksPage />));
     expect(await screen.findByText(/No hay contracargos/i)).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe('AdminChargebacksPage (T-17-B)', () => {
 
   it('muestra error si la carga falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/chargebacks/`, () =>
+      http.get(`${BASE}/api/v2/admin/chargebacks/`, () =>
         HttpResponse.json({ detail: 'forbidden' }, { status: 403 }),
       ),
     );

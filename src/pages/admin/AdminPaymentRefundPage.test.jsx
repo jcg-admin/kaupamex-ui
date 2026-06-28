@@ -144,7 +144,7 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
   it('muestra historial de reembolsos anteriores', async () => {
     server.use(
       http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
-      http.get(`${BASE}/api/v1/admin/payments/501/refunds/`, () =>
+      http.get(`${BASE}/api/v2/admin/payments/501/refunds/`, () =>
         HttpResponse.json([
           { id: 1, amount: '200.00', status: 'APPROVED', gateway_refund_id: 'REF-001', reason: 'Parcial' },
           { id: 2, amount: '100.00', status: 'APPROVED', gateway_refund_id: 'REF-002', reason: '' },
@@ -162,7 +162,7 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
   it('no muestra seccion de historial si no hay reembolsos', async () => {
     server.use(
       http.get(`${BASE}/api/v2/admin/payments/501/`, () => HttpResponse.json(APPROVED_PAYMENT)),
-      http.get(`${BASE}/api/v1/admin/payments/501/refunds/`, () => HttpResponse.json([])),
+      http.get(`${BASE}/api/v2/admin/payments/501/refunds/`, () => HttpResponse.json([])),
     );
     render(wrap(<AdminPaymentRefundPage />, makeStore()));
     await screen.findByRole('heading', { name: /Procesar reembolso/i });
@@ -193,7 +193,7 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
     const pendingPayment = { ...APPROVED_PAYMENT, id: 502, status: 'PENDING' };
     server.use(
       http.get(`${BASE}/api/v2/admin/payments/502/`, () => HttpResponse.json(pendingPayment)),
-      http.post(`${BASE}/api/v1/admin/payments/502/cancel/`, () =>
+      http.post(`${BASE}/api/v2/admin/payments/502/cancel/`, () =>
         HttpResponse.json({ ...pendingPayment, status: 'CANCELLED' }),
       ),
     );
@@ -232,7 +232,7 @@ describe('AdminPaymentRefundPage (UC-PAY-09)', () => {
     const pendingPayment = { ...APPROVED_PAYMENT, id: 503, status: 'PENDING' };
     server.use(
       http.get(`${BASE}/api/v2/admin/payments/503/`, () => HttpResponse.json(pendingPayment)),
-      http.post(`${BASE}/api/v1/admin/payments/503/cancel/`, () =>
+      http.post(`${BASE}/api/v2/admin/payments/503/cancel/`, () =>
         HttpResponse.json(
           { codigo_error: 'GATEWAY_UNAVAILABLE', detail: 'MP down' },
           { status: 400 },

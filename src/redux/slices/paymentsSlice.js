@@ -22,7 +22,7 @@ const V1_INITIATE_URL  = '/api/v1/payments/initiate/';
 // Used for MercadoPago CardForm (ADR-018).
 const V2_CHECKOUT_API_URL = '/api/v2/payments/initiate/';
 const ADMIN_REFUND_URL    = '/api/v2/payments/admin';
-const ADMIN_CANCEL_URL    = (paymentId) => `/api/v1/admin/payments/${paymentId}/cancel/`;
+const ADMIN_CANCEL_URL    = (paymentId) => `/api/v2/admin/payments/${paymentId}/cancel/`;
 
 // =============================================================================
 // Thunks

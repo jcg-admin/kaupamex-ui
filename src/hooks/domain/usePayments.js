@@ -14,9 +14,9 @@ import apiService, { getPaymentMethods } from '@services/apiService';
 const PAYMENT_HISTORY_URL      = (orderId) => `/api/v2/payments/${orderId}/history/`;
 const PAYMENT_STATUS_URL       = (orderId) => `/api/v2/payments/${orderId}/status/`;
 const ADMIN_PAYMENTS_URL       = '/api/v2/admin/payments/';
-const ADMIN_PAYMENT_REFUNDS_URL  = (paymentId) => `/api/v1/admin/payments/${paymentId}/refunds/`;
-const ADMIN_CHARGEBACKS_URL      = '/api/v1/admin/chargebacks/';
-const ADMIN_CHARGEBACK_URL       = (id) => `/api/v1/admin/chargebacks/${id}/`;
+const ADMIN_PAYMENT_REFUNDS_URL  = (paymentId) => `/api/v2/admin/payments/${paymentId}/refunds/`;
+const ADMIN_CHARGEBACKS_URL      = '/api/v2/admin/chargebacks/';
+const ADMIN_CHARGEBACK_URL       = (id) => `/api/v2/admin/chargebacks/${id}/`;
 
 export const PAYMENTS_KEY              = ['payments'];
 export const PAYMENT_STATUS_KEY        = ['payments', 'status'];
@@ -92,7 +92,7 @@ export function useAdminPayment(paymentId) {
 
 /**
  * T-16-D: lista los reembolsos registrados para un Payment (admin).
- * GET /api/v1/admin/payments/<id>/refunds/
+ * GET /api/v2/admin/payments/<id>/refunds/
  */
 export function useAdminPaymentRefunds(paymentId) {
   return useQuery({
