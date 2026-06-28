@@ -4,8 +4,8 @@
  * Ruta: /order/:id/payment-failed
  *
  * Endpoints:
- *   GET /api/v1/orders/{id}/
- *   GET /api/v1/payments/{id}/history/
+ *   GET /api/v2/orders/{id}/
+ *   GET /api/v2/payments/{id}/history/
  */
 
 import { useEffect, useState } from 'react';

@@ -98,14 +98,13 @@ export const initiatePayPalPayment = createAsyncThunk(
 
 /**
  * UC-PAY-08: reintenta el pago de una orden, permitiendo cambiar el
- * gateway. Retry = re-initiate via v1 (Checkout Pro) para PayPal;
- * para MP usar initiateCheckoutApiPayment con nuevo token.
+ * gateway. Usa v2 /payments/initiate/ (DEC-BC-09: contrato unificado).
  */
 export const retryPayment = createAsyncThunk(
   'payments/retry',
   async ({ order_number, gateway }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(V1_INITIATE_URL, { order_number, gateway });
+      const res = await apiService.post(V2_CHECKOUT_API_URL, { order_number, gateway });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));

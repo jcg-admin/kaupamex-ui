@@ -1,11 +1,11 @@
 /**
  * PaymentReturnPage — Práctica Yorùbà
  * Pantalla intermedia mientras se verifica el pago con el gateway.
- * Polling cada 5s a /api/v1/payments/{n}/status/ hasta APPROVED / FAILED.
+ * Polling cada 5s a /api/v2/payments/{n}/status/ hasta APPROVED / FAILED.
  * Ruta: /checkout/payment-return/:id
  *
  * Endpoints:
- *   GET /api/v1/payments/{n}/status/
+ *   GET /api/v2/payments/{n}/status/
  *   Response field: payment_status (PaymentStatusSerializer)
  */
 
