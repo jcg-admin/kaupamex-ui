@@ -23,7 +23,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
   it('fetchWishlist.fulfilled popula items (UC-WISH-02)', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/wishlist/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [{ id: 1, product_id: 7 }] });
       }),
@@ -36,12 +36,12 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
     await waitFor(() => expect(capturedUrl).toBeDefined());
     // Verify empty params passed — no unexpected query params
     const url = new URL(capturedUrl);
-    expect(url.pathname).toBe('/api/v1/wishlist/');
+    expect(url.pathname).toBe('/api/v2/wishlist/');
   });
 
   it('fetchWishlist.rejected preserva statusCode (UC-WISH-02)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json(
           { detail: 'no autenticado', codigo_error: 'UNAUTHENTICATED' },
           { status: 422 },
@@ -59,7 +59,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
   it('addToWishlist.fulfilled agrega item al inicio (UC-WISH-01)', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/wishlist/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 99, product_id: 7 });
       }),
@@ -77,7 +77,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
   it('addToWishlist envia variant_id cuando se pasa (UC-WISH-01)', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/wishlist/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 1 });
       }),
@@ -90,7 +90,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
 
   it('addToWishlist.rejected preserva code y validationErrors (UC-WISH-01)', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/`, () =>
+      http.post(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json(
           { detail: 'ya en la lista', codigo_error: 'PRODUCT_ALREADY_IN_WISHLIST' },
           { status: 422 },
@@ -107,10 +107,10 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
 
   it('removeFromWishlist.fulfilled elimina del state (UC-WISH-02)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json([{ id: 1 }, { id: 2 }]),
       ),
-      http.delete(`${BASE}/api/v1/wishlist/1/`, () =>
+      http.delete(`${BASE}/api/v2/wishlist/1/`, () =>
         new HttpResponse(null, { status: 204 }),
       ),
     );
@@ -124,10 +124,10 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
   it('moveWishlistItemToCart.fulfilled elimina por defecto (UC-WISH-03)', async () => {
     let lastBody;
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json([{ id: 5 }]),
       ),
-      http.post(`${BASE}/api/v1/wishlist/5/move-to-cart/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/wishlist/5/cart-transfers/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ cart: {} });
       }),
@@ -143,10 +143,10 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
 
   it('moveWishlistItemToCart con keepInWishlist mantiene el item (UC-WISH-03)', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json([{ id: 5 }]),
       ),
-      http.post(`${BASE}/api/v1/wishlist/5/move-to-cart/`, () =>
+      http.post(`${BASE}/api/v2/wishlist/5/cart-transfers/`, () =>
         HttpResponse.json({}),
       ),
     );
@@ -160,7 +160,7 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
 
   it('moveWishlistItemToCart.rejected preserva code (UC-WISH-03)', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/wishlist/5/move-to-cart/`, () =>
+      http.post(`${BASE}/api/v2/wishlist/5/cart-transfers/`, () =>
         HttpResponse.json(
           { detail: 'sin stock', codigo_error: 'PRODUCT_OUT_OF_STOCK' },
           { status: 422 },

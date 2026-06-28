@@ -20,7 +20,7 @@ const makeWrapper = () => {
 describe('useWishlist (UC-WISH-02)', () => {
   it('devuelve items normalizados con total_items', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, () =>
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
         HttpResponse.json({
           results: [{ id: 1, product_id: 7 }, { id: 2, product_id: 8 }],
           total_items: 2,
@@ -41,7 +41,7 @@ describe('useWishlist (UC-WISH-02)', () => {
   it('propaga params de filtro disponibilidad', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/wishlist/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/wishlist/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [] });
       }),
