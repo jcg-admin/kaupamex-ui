@@ -33,7 +33,7 @@ const wrap = (ui) => (
 describe('AdminReviewsModerationPage (UC-REV-03)', () => {
   it('muestra el titulo de la cola de moderacion', () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reviews/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/admin/reviews/`, () => HttpResponse.json({ results: [] })),
     );
     render(wrap(<AdminReviewsModerationPage />));
     expect(
@@ -43,7 +43,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
 
   it('lista las resenas pendientes de moderacion', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reviews/`, () =>
+      http.get(`${BASE}/api/v2/admin/reviews/`, () =>
         HttpResponse.json({
           results: [
             {
@@ -64,7 +64,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
 
   it('al hacer clic en Aprobar, hace POST al endpoint approve', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reviews/`, () =>
+      http.get(`${BASE}/api/v2/admin/reviews/`, () =>
         HttpResponse.json({
           results: [
             { id: 5, rating: 5, title: 'X', body: 'Y', product: { id: 7, name: 'Z' } },
@@ -74,7 +74,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
     );
     let approvedId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/reviews/:id/approve/`, ({ params }) => {
+      http.patch(`${BASE}/api/v2/admin/reviews/:id/status/`, ({ params }) => {
         approvedId = params.id;
         return HttpResponse.json({ id: params.id, status: 'APPROVED' });
       }),
@@ -88,7 +88,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
 
   it('al hacer clic en Rechazar, hace POST al endpoint reject con motivo', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reviews/`, () =>
+      http.get(`${BASE}/api/v2/admin/reviews/`, () =>
         HttpResponse.json({
           results: [
             { id: 5, rating: 1, title: 'X', body: 'Y', product: { id: 7, name: 'Z' } },
@@ -98,7 +98,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
     );
     let rejectedId;
     server.use(
-      http.post(`${BASE}/api/v1/admin/reviews/:id/reject/`, ({ params }) => {
+      http.patch(`${BASE}/api/v2/admin/reviews/:id/status/`, ({ params }) => {
         rejectedId = params.id;
         return HttpResponse.json({ id: params.id, status: 'REJECTED' });
       }),
@@ -112,7 +112,7 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
 
   it('muestra estado vacio cuando no hay resenas pendientes', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/reviews/`, () => HttpResponse.json({ results: [] })),
+      http.get(`${BASE}/api/v2/admin/reviews/`, () => HttpResponse.json({ results: [] })),
     );
     render(wrap(<AdminReviewsModerationPage />));
     expect(

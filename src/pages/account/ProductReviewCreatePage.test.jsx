@@ -43,7 +43,7 @@ describe('ProductReviewCreatePage (UC-REV-01)', () => {
   it('exige titulo y texto con longitud minima', () => {
     let postCalled = false;
     server.use(
-      http.post(`${BASE}/api/v1/products/42/reviews/`, () => {
+      http.post(`${BASE}/api/v2/products/42/reviews/`, () => {
         postCalled = true;
         return HttpResponse.json({ id: 11, status: 'PENDING_MODERATION' });
       }),
@@ -60,7 +60,7 @@ describe('ProductReviewCreatePage (UC-REV-01)', () => {
   it('al enviar, hace POST al endpoint con order_id y rating', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/products/42/reviews/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/products/42/reviews/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 11, status: 'PENDING_MODERATION' });
       }),
@@ -89,7 +89,7 @@ describe('ProductReviewCreatePage (UC-REV-01)', () => {
 
   it('muestra confirmacion al recibir', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/products/42/reviews/`, async () => {
+      http.post(`${BASE}/api/v2/products/42/reviews/`, async () => {
         return HttpResponse.json({ id: 11, status: 'PENDING_MODERATION' });
       }),
     );

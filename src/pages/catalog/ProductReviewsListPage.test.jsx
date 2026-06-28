@@ -30,7 +30,7 @@ const wrap = (path = '/catalog/42/reviews') => (
 describe('ProductReviewsListPage (UC-REV-02)', () => {
   it('muestra el titulo de la seccion de resenas', () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+      http.get(`${BASE}/api/v2/products/42/reviews/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );
@@ -43,19 +43,19 @@ describe('ProductReviewsListPage (UC-REV-02)', () => {
   it('GET al endpoint publico del producto', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v1/products/42/reviews/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/42/reviews/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json({ results: [] });
       }),
     );
     render(wrap());
     await screen.findByText(/A[uú]n no hay rese[nñ]as/i);
-    expect(capturedUrl).toContain('/api/v1/products/42/reviews/');
+    expect(capturedUrl).toContain('/api/v2/products/42/reviews/');
   });
 
   it('muestra la calificacion promedio y el total de resenas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+      http.get(`${BASE}/api/v2/products/42/reviews/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, rating: 5, title: 'Bueno', body: 'Cumple lo prometido' },
@@ -74,7 +74,7 @@ describe('ProductReviewsListPage (UC-REV-02)', () => {
 
   it('lista los items con titulo y texto', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+      http.get(`${BASE}/api/v2/products/42/reviews/`, () =>
         HttpResponse.json({
           results: [
             { id: 1, rating: 5, title: 'Excelente', body: 'Recomendado.' },
@@ -91,7 +91,7 @@ describe('ProductReviewsListPage (UC-REV-02)', () => {
 
   it('muestra estado vacio cuando no hay resenas', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/products/42/reviews/`, () =>
+      http.get(`${BASE}/api/v2/products/42/reviews/`, () =>
         HttpResponse.json({ results: [] }),
       ),
     );

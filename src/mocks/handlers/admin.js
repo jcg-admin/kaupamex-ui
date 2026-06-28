@@ -358,16 +358,15 @@ export const adminHandlers = [
     return HttpResponse.json({ role: params.role, permissions: body.permissions });
   }),
 
-  // Reviews (admin moderation)
-  http.get(`${BASE}/api/v1/admin/reviews/`, () =>
+  // Reviews (admin moderation) — v2 (M-13)
+  http.get(`${BASE}/api/v2/admin/reviews/`, () =>
     HttpResponse.json({ count: mockReviews.length, results: mockReviews }),
   ),
-  http.post(`${BASE}/api/v1/admin/reviews/:id/approve/`, ({ params }) =>
-    HttpResponse.json({ id: params.id, status: 'APPROVED' }),
-  ),
-  http.post(`${BASE}/api/v1/admin/reviews/:id/reject/`, ({ params }) =>
-    HttpResponse.json({ id: params.id, status: 'REJECTED' }),
-  ),
+  http.patch(`${BASE}/api/v2/admin/reviews/:id/status/`, async ({ params, request }) => {
+    const body = await request.json();
+    const status = body.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
+    return HttpResponse.json({ id: params.id, status });
+  }),
 
   // Questions (admin moderation) — v2 (M-12)
   http.get(`${BASE}/api/v2/admin/questions/`, () =>
