@@ -3,7 +3,7 @@
  *
  * Lectura tolerante a fallos de la configuracion del sitio para el
  * storefront. El hook:
- *   - llama GET /api/v1/config/settings/,
+ *   - llama GET /api/v2/config/settings/,
  *   - fusiona la respuesta sobre el `fallback`,
  *   - degrada al `fallback` (y expone `error`) si el endpoint falla,
  *   - expone { settings, isLoading, error } sin exigir QueryClientProvider.
@@ -19,19 +19,19 @@ const BASE = process.env.API_URL || 'http://localhost:8000';
 describe('usePublicSettings', () => {
   it('llama al endpoint publico de settings', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/config/settings/`, () =>
+      http.get(`${BASE}/api/v2/config/settings/`, () =>
         HttpResponse.json({ iva_rate: '0.16' }),
       ),
     );
 
     renderHook(() => usePublicSettings());
 
-    expect(PUBLIC_SETTINGS_URL).toBe('/api/v1/config/settings/');
+    expect(PUBLIC_SETTINGS_URL).toBe('/api/v2/config/settings/');
   });
 
   it('fusiona la respuesta del backend sobre el fallback', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/config/settings/`, () =>
+      http.get(`${BASE}/api/v2/config/settings/`, () =>
         HttpResponse.json({ iva_rate: '0.16', free_shipping_threshold: '999.00' }),
       ),
     );
@@ -52,7 +52,7 @@ describe('usePublicSettings', () => {
 
   it('conserva el fallback y expone error cuando el endpoint falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/config/settings/`, () =>
+      http.get(`${BASE}/api/v2/config/settings/`, () =>
         HttpResponse.json({ detail: 'Forbidden' }, { status: 403 }),
       ),
     );
@@ -68,7 +68,7 @@ describe('usePublicSettings', () => {
 
   it('arranca en estado de carga', () => {
     server.use(
-      http.get(`${BASE}/api/v1/config/settings/`, () =>
+      http.get(`${BASE}/api/v2/config/settings/`, () =>
         new Promise(() => {}),
       ),
     );

@@ -1,8 +1,8 @@
 /**
  * Tests — AdminSystemSettingsPage (UC-ADM-04)
  *
- *   GET   /api/v1/admin/settings/
- *   PATCH /api/v1/admin/settings/
+ *   GET   /api/v2/admin/settings/
+ *   PATCH /api/v2/admin/settings/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -41,7 +41,7 @@ const wrap = () => {
 describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
   it('carga los settings actuales', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/settings/`, () => HttpResponse.json(SETTINGS)),
+      http.get(`${BASE}/api/v2/admin/settings/`, () => HttpResponse.json(SETTINGS)),
     );
     render(wrap());
     expect(
@@ -51,11 +51,11 @@ describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
     expect(screen.getByDisplayValue('hola@yoruba.mx')).toBeInTheDocument();
   });
 
-  it('envia PATCH /api/v1/admin/settings/ con los cambios', async () => {
+  it('envia PATCH /api/v2/admin/settings/ con los cambios', async () => {
     let patchBody;
     server.use(
-      http.get(`${BASE}/api/v1/admin/settings/`, () => HttpResponse.json(SETTINGS)),
-      http.patch(`${BASE}/api/v1/admin/settings/`, async ({ request }) => {
+      http.get(`${BASE}/api/v2/admin/settings/`, () => HttpResponse.json(SETTINGS)),
+      http.patch(`${BASE}/api/v2/admin/settings/`, async ({ request }) => {
         patchBody = await request.json();
         return HttpResponse.json(SETTINGS);
       }),

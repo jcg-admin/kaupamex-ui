@@ -343,10 +343,10 @@ export const adminHandlers = [
   ),
 
   // Settings
-  http.get(`${BASE}/api/v1/admin/settings/`, () =>
+  http.get(`${BASE}/api/v2/admin/settings/`, () =>
     HttpResponse.json(mockSettings),
   ),
-  http.patch(`${BASE}/api/v1/admin/settings/`, async ({ request }) => {
+  http.patch(`${BASE}/api/v2/admin/settings/`, async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({ ...mockSettings, ...body });
   }),
