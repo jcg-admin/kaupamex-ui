@@ -8,7 +8,7 @@
  *   - Payload sent: { code, voucher_type, max_uses, valid_from, valid_until,
  *                    discount_pct (for PERCENTAGE) or discount_value (for FIXED) }
  *   - valid_from is required (separate validation error)
- *   - API URL: /api/v1/admin/vouchers/
+ *   - API URL: /api/v2/admin/vouchers/
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -75,7 +75,7 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
   it('envia el voucher al backend en el happy path', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v1/admin/vouchers/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/vouchers/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json(
           { id: 99, code: 'WELCOME20', voucher_type: 'PERCENTAGE', discount_pct: 20, is_active: true },

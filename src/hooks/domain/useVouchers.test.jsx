@@ -22,7 +22,7 @@ const makeWrapper = () => {
 describe('useVouchers', () => {
   it('devuelve la lista de vouchers desde la API', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ results: [{ id: 1, code: 'X' }] }),
       ),
     );
@@ -35,7 +35,7 @@ describe('useVouchers', () => {
 
   it('expone error tipado cuando apiService falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+      http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
         HttpResponse.json({ detail: 'Boom' }, { status: 400 }),
       ),
     );

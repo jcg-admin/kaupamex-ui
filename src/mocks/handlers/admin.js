@@ -285,23 +285,28 @@ export const adminHandlers = [
     }),
   ),
 
-  // Vouchers
-  http.get(`${BASE}/api/v1/admin/vouchers/`, () =>
+  // Vouchers — v2 (M-15)
+  http.get(`${BASE}/api/v2/admin/vouchers/`, () =>
     HttpResponse.json({ count: mockVouchers.length, results: mockVouchers }),
   ),
-  http.post(`${BASE}/api/v1/admin/vouchers/`, async ({ request }) => {
+  http.post(`${BASE}/api/v2/admin/vouchers/`, async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({ id: mockVouchers.length + 1, usage_count: 0, ...body }, { status: 201 });
   }),
-  http.patch(`${BASE}/api/v1/admin/vouchers/:id/`, async ({ params, request }) => {
+  http.patch(`${BASE}/api/v2/admin/vouchers/:id/`, async ({ params, request }) => {
     const body = await request.json();
     const v = mockVouchers.find(x => String(x.id) === params.id);
     if (!v) return new HttpResponse(null, { status: 404 });
     return HttpResponse.json({ ...v, ...body });
   }),
-  http.delete(`${BASE}/api/v1/admin/vouchers/:id/`, () =>
+  http.delete(`${BASE}/api/v2/admin/vouchers/:id/`, () =>
     new HttpResponse(null, { status: 204 }),
   ),
+  http.post(`${BASE}/api/v2/admin/vouchers/:id/deactivate/`, ({ params }) => {
+    const v = mockVouchers.find(x => String(x.id) === params.id);
+    if (!v) return new HttpResponse(null, { status: 404 });
+    return HttpResponse.json({ ...v, is_active: false });
+  }),
 
   // Product discounts
   http.get(`${BASE}/api/v1/admin/product-discounts/`, () =>
