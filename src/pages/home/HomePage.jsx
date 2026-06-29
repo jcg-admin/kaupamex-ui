@@ -7,10 +7,14 @@
  *   GET /catalogue/categories/?root=true
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchFeaturedProducts, fetchCategories } from '@redux/slices/catalogSlice';
+import {
+  subscribeNewsletter,
+  clearNewsletterActionState,
+} from '@redux/slices/newsletterSlice';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Button } from '@components/common/primitives';
 import styles from './HomePage.module.scss';
@@ -27,11 +31,27 @@ const ORISHAS = [
 export default function HomePage() {
   const dispatch = useDispatch();
   const { featured = [], isLoading } = useSelector((s) => s.catalog || {});
+  const { isActioning: nlSubmitting, lastAction: nlAction } =
+    useSelector((s) => s.newsletter || {});
+  const [nlEmail, setNlEmail] = useState('');
+  const [nlError, setNlError] = useState('');
 
   useEffect(() => {
     dispatch(fetchFeaturedProducts());
     dispatch(fetchCategories());
   }, [dispatch]);
+
+  const handleNewsletterSubmit = (event) => {
+    event.preventDefault();
+    const value = nlEmail.trim();
+    if (!value || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
+      setNlError('Ingresa un email válido.');
+      return;
+    }
+    setNlError('');
+    dispatch(clearNewsletterActionState());
+    dispatch(subscribeNewsletter({ email: value, source: 'home' }));
+  };
 
   return (
     <main className={styles.page}>
@@ -172,15 +192,29 @@ export default function HomePage() {
             Calendario de festividades del santoral, llegadas nuevas al catálogo y notas
             para los practicantes. Sin promociones agresivas.
           </p>
-          <form className={styles.newsletterForm} onSubmit={(e) => e.preventDefault()}>
-            <input
-              type="email"
-              placeholder="tu@correo.mx"
-              className={styles.newsletterInput}
-              required
-            />
-            <Button variant="primary">Suscribirme</Button>
-          </form>
+          {nlAction === 'subscribed' ? (
+            <p className={styles.newsletterSuccess} role="status">
+              Revisa tu correo para confirmar la suscripción.
+            </p>
+          ) : (
+            <form className={styles.newsletterForm} onSubmit={handleNewsletterSubmit}>
+              <input
+                type="email"
+                placeholder="tu@correo.mx"
+                className={styles.newsletterInput}
+                value={nlEmail}
+                onChange={(e) => setNlEmail(e.target.value)}
+                aria-label="Correo para el newsletter"
+                required
+              />
+              <Button type="submit" variant="primary" disabled={nlSubmitting}>
+                {nlSubmitting ? 'Enviando…' : 'Suscribirme'}
+              </Button>
+            </form>
+          )}
+          {nlError && (
+            <div className={styles.newsletterError} role="alert">{nlError}</div>
+          )}
           <div className={styles.newsletterFinePrint}>
             Sin compartir tu correo · cancelas cuando quieras
           </div>
