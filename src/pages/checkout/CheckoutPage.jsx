@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
-import { createOrder, initMercadoPago, initPayPal } from '@redux/slices/checkoutSlice';
+import { createOrder, initMercadoPago, initPayPal, fetchShippingMethods } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
 import logoUrl from '@assets/practica-yoruba-logo.svg';
 import styles from './CheckoutPage.module.scss';
@@ -29,13 +29,16 @@ export default function CheckoutPage() {
   // el usuario tuviera direcciones guardadas. Se lee addresses.items y se pre-rellena
   // el formulario con la dirección por defecto (is_default=true) si existe.
   const savedAddresses = useSelector((s) => s.addresses?.items ?? []);
+  // GAP-C1: shipping methods loaded dynamically from /api/v2/shipping-methods/
+  const shippingOptions = useSelector((s) => s.checkout?.shippingOptions ?? []);
   const { items = [], totals = {} } = cart;
 
   const [email, setEmail] = useState(auth.user?.email || '');
   // H-CICLO40-06: country debe ser código ISO alpha-2 (max 2 chars). Inicializar
   // con 'MX' evita que el campo quede vacío y falle la validación del API.
   const [address, setAddress] = useState({ country: 'MX' });
-  const [shipping, setShipping] = useState('std');
+  // GAP-C1: shipping state holds numeric DB id (or null until methods load)
+  const [shipping, setShipping] = useState(null);
   const [payment, setPayment] = useState('mp');
   const [submitting, setSubmitting] = useState(false);
   // H-CICLO46-04: el catch anterior solo llamaba console.error — el usuario
@@ -45,6 +48,14 @@ export default function CheckoutPage() {
   const [submitError, setSubmitError] = useState(null);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
+  useEffect(() => { dispatch(fetchShippingMethods()); }, [dispatch]);
+
+  // Auto-select first shipping method once the list loads
+  useEffect(() => {
+    if (shippingOptions.length > 0 && shipping === null) {
+      setShipping(shippingOptions[0].id);
+    }
+  }, [shippingOptions, shipping]);
 
   // Pre-rellenar con la dirección por defecto cuando llegan las direcciones guardadas
   useEffect(() => {
@@ -70,12 +81,8 @@ export default function CheckoutPage() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      // H-CICLO32-02: shipping_method_id debe ser entero (IntegerField en la API).
-      // SHIPPING_OPTIONS usa IDs de string ('std', 'exp', 'pickup') — son etiquetas
-      // de UI, no IDs de BD. Convertir a entero si es numérico, o null si no.
-      const shippingMethodId = Number.isFinite(Number(shipping)) && shipping !== ''
-        ? Number(shipping)
-        : null;
+      // GAP-C1: shipping holds the numeric DB id from /api/v2/shipping-methods/.
+      const shippingMethodId = Number.isFinite(Number(shipping)) ? Number(shipping) : null;
       const order = await dispatch(createOrder({
         email, address, shipping_method_id: shippingMethodId,
       })).unwrap();
@@ -158,7 +165,7 @@ export default function CheckoutPage() {
             </Section>
 
             <Section n="03" title="Método de envío">
-              <ShippingOptions selected={shipping} onSelect={setShipping} />
+              <ShippingOptions options={shippingOptions} selected={shipping} onSelect={setShipping} />
             </Section>
 
             <Section n="04" title="Forma de pago">
@@ -166,7 +173,7 @@ export default function CheckoutPage() {
             </Section>
           </div>
 
-          <CheckoutSummary items={items} totals={totals} shipping={shipping} submitting={submitting} />
+          <CheckoutSummary items={items} totals={totals} shipping={shipping} shippingOptions={shippingOptions} submitting={submitting} />
         </div>
       </form>
 
@@ -268,37 +275,36 @@ function AddressForm({ address, setAddress, savedAddresses = [] }) {
   );
 }
 
-// Shipping cost data shared between ShippingOptions and CheckoutSummary.
-// priceAmount: numeric MXN cost (0 = free). Used in the summary to show
-// the real shipping cost rather than a hardcoded "Gratis".
-export const SHIPPING_OPTIONS = [
-  { id: 'std',    t: 'Estándar resguardado', sub: 'DHL · 2 a 4 días hábiles',            priceLabel: 'GRATIS',   priceNote: 'incluido en tu pedido', priceAmount: 0,   tone: 'lime' },
-  { id: 'exp',    t: 'Expedito · 24 horas',  sub: 'DHL Express · solo CDMX y zona metro', priceLabel: '$280 MXN', priceNote: '',                      priceAmount: 280, tone: ''     },
-  { id: 'pickup', t: 'Recoger en tienda',    sub: 'Punto de recogida · L-V 10-19',       priceLabel: 'GRATIS',   priceNote: 'cita por correo',        priceAmount: 0,   tone: 'lime' },
-];
-
-function ShippingOptions({ selected, onSelect }) {
-  const opts = SHIPPING_OPTIONS;
+function ShippingOptions({ options = [], selected, onSelect }) {
+  if (options.length === 0) {
+    return <p className={styles.optionSub}>Cargando métodos de envío…</p>;
+  }
   return (
     <div className={styles.options}>
-      {opts.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          onClick={() => onSelect(o.id)}
-          className={`${styles.optionCard} ${styles.optionCardWide} ${selected === o.id ? styles.optionCardActive : ''}`}
-        >
-          <span className={`${styles.radio} ${selected === o.id ? styles.radioActive : ''}`} />
-          <div>
-            <div className={styles.optionTitle}>{o.t}</div>
-            <div className={styles.optionSub}>{o.sub}</div>
-          </div>
-          <div className={styles.optionPrice}>
-            <span className={o.tone === 'lime' ? styles.optionPriceLime : ''}>{o.priceLabel}</span>
-            {o.priceNote && <span className={styles.optionPriceNote}>{o.priceNote}</span>}
-          </div>
-        </button>
-      ))}
+      {options.map((o) => {
+        const cost = Number(o.cost);
+        const isFree = cost === 0;
+        const priceLabel = isFree ? 'GRATIS' : `$${cost.toLocaleString('es-MX')} MXN`;
+        const days = o.estimated_days === 1 ? '1 día hábil' : `${o.estimated_days} días hábiles`;
+        const isSelected = selected === o.id;
+        return (
+          <button
+            key={o.id}
+            type="button"
+            onClick={() => onSelect(o.id)}
+            className={`${styles.optionCard} ${styles.optionCardWide} ${isSelected ? styles.optionCardActive : ''}`}
+          >
+            <span className={`${styles.radio} ${isSelected ? styles.radioActive : ''}`} />
+            <div>
+              <div className={styles.optionTitle}>{o.name}</div>
+              <div className={styles.optionSub}>{days}</div>
+            </div>
+            <div className={styles.optionPrice}>
+              <span className={isFree ? styles.optionPriceLime : ''}>{priceLabel}</span>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -340,11 +346,10 @@ function PaymentMethods({ selected, onSelect }) {
   );
 }
 
-function CheckoutSummary({ items, totals, shipping, submitting }) {
-  // Derive shipping cost from the selected option so the summary reflects the
-  // real cost before the user confirms (H-CICLO24-03: was hardcoded "Gratis").
-  const selectedShipping = SHIPPING_OPTIONS.find((o) => o.id === shipping) || SHIPPING_OPTIONS[0];
-  const shippingCost = selectedShipping.priceAmount;
+function CheckoutSummary({ items, totals, shipping, shippingOptions = [], submitting }) {
+  // Derive shipping cost from the selected dynamic option (GAP-C1).
+  const selectedShipping = shippingOptions.find((o) => o.id === shipping) || shippingOptions[0];
+  const shippingCost = selectedShipping ? Number(selectedShipping.cost) : 0;
   const shippingLabel = shippingCost > 0
     ? `$${shippingCost.toLocaleString('es-MX')} MXN`
     : 'Gratis';

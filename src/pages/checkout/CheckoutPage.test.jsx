@@ -71,11 +71,17 @@ const fillAddress = async (user) => {
   await user.type(screen.getByLabelText(/Estado/i),                            'CDMX');
 };
 
-// Mock addresses GET (called by fetchAddresses on mount)
+// Mock addresses and shipping methods GET (both dispatched on mount)
 beforeEach(() => {
   server.use(
     http.get(`${BASE}/api/v2/addresses/`, () =>
       HttpResponse.json({ results: [], count: 0 }),
+    ),
+    http.get(`${BASE}/api/v2/shipping-methods/`, () =>
+      HttpResponse.json([
+        { id: 1, name: 'Estándar resguardado', cost: '0.00', estimated_days: 5, free_threshold: null },
+        { id: 2, name: 'Expedito · 24 horas',  cost: '280.00', estimated_days: 1, free_threshold: null },
+      ]),
     ),
   );
 });
@@ -150,10 +156,10 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(emailInput.value).toBe('a@b.com');
   });
 
-  it('muestra la seccion de metodo de envio con opciones', () => {
+  it('muestra la seccion de metodo de envio con opciones', async () => {
     render(wrap());
     expect(screen.getByRole('heading', { name: /Método de envío/i })).toBeInTheDocument();
-    // Shipping options are rendered as buttons
-    expect(screen.getByText(/Estándar resguardado/i)).toBeInTheDocument();
+    // Shipping options load dynamically from /api/v2/shipping-methods/
+    expect(await screen.findByText(/Estándar resguardado/i)).toBeInTheDocument();
   });
 });
