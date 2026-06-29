@@ -117,7 +117,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     );
     let confirmedGuideId;
     server.use(
-      http.post(`${BASE}/api/v2/shipments/:guideId/deliveries/`, ({ params }) => {
+      http.post(`${BASE}/api/v2/logistics/guides/:guideId/confirm-delivery/`, ({ params }) => {
         confirmedGuideId = params.guideId;
         return HttpResponse.json({ ok: true });
       }),

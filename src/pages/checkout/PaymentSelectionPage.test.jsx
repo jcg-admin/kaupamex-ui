@@ -140,7 +140,7 @@ describe('PaymentSelectionPage', () => {
 
   it('UC-PAY-02: inicia pago PayPal y redirige al checkout_url', async () => {
     server.use(
-      http.post(`${BASE}/api/v1/payments/initiate/`, () =>
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json({
           payment_id:   125,
           checkout_url: 'https://paypal.example/approve/9',
