@@ -9,16 +9,21 @@
  * en `src/redux/slices/paymentsSlice.js`.
  */
 import { useQuery } from '@tanstack/react-query';
-import apiService from '@services/apiService';
+import apiService, { getPaymentMethods } from '@services/apiService';
 
-const PAYMENT_HISTORY_URL   = (orderId) => `/api/v2/payments/${orderId}/history/`;
-const PAYMENT_STATUS_URL    = (orderId) => `/api/v2/payments/${orderId}/status/`;
-const ADMIN_PAYMENTS_URL    = '/api/v2/admin/payments/';
+const PAYMENT_HISTORY_URL      = (orderId) => `/api/v2/payments/${orderId}/history/`;
+const PAYMENT_STATUS_URL       = (orderId) => `/api/v2/payments/${orderId}/status/`;
+const ADMIN_PAYMENTS_URL       = '/api/v2/admin/payments/';
+const ADMIN_PAYMENT_REFUNDS_URL  = (paymentId) => `/api/v2/admin/payments/${paymentId}/refunds/`;
+const ADMIN_CHARGEBACKS_URL      = '/api/v2/admin/chargebacks/';
+const ADMIN_CHARGEBACK_URL       = (id) => `/api/v2/admin/chargebacks/${id}/`;
 
-export const PAYMENTS_KEY            = ['payments'];
-export const PAYMENT_STATUS_KEY      = ['payments', 'status'];
-export const PAYMENT_HISTORY_KEY     = ['payments', 'history'];
-export const ADMIN_PAYMENTS_KEY      = ['payments', 'admin'];
+export const PAYMENTS_KEY              = ['payments'];
+export const PAYMENT_STATUS_KEY        = ['payments', 'status'];
+export const PAYMENT_HISTORY_KEY       = ['payments', 'history'];
+export const ADMIN_PAYMENTS_KEY        = ['payments', 'admin'];
+export const ADMIN_PAYMENT_REFUNDS_KEY = ['payments', 'admin', 'refunds'];
+export const ADMIN_CHARGEBACKS_KEY     = ['payments', 'admin', 'chargebacks'];
 
 /**
  * UC-PAY-05: estado actual del pago de una orden propia.
@@ -81,6 +86,66 @@ export function useAdminPayment(paymentId) {
     queryFn:  async ({ signal }) => {
       const { data } = await apiService.get(`${ADMIN_PAYMENTS_URL}${paymentId}/`, { signal });
       return data;
+    },
+  });
+}
+
+/**
+ * T-16-D: lista los reembolsos registrados para un Payment (admin).
+ * GET /api/v2/admin/payments/<id>/refunds/
+ */
+export function useAdminPaymentRefunds(paymentId) {
+  return useQuery({
+    queryKey: [...ADMIN_PAYMENT_REFUNDS_KEY, paymentId],
+    enabled:  Boolean(paymentId),
+    queryFn:  async ({ signal }) => {
+      const { data } = await apiService.get(ADMIN_PAYMENT_REFUNDS_URL(paymentId), { signal });
+      return Array.isArray(data) ? data : [];
+    },
+  });
+}
+
+/**
+ * T-17-B: listado de contracargos (admin). Filtrable por ?status=.
+ */
+export function useAdminChargebacks(params = {}) {
+  return useQuery({
+    queryKey: [...ADMIN_CHARGEBACKS_KEY, params],
+    queryFn:  async ({ signal }) => {
+      const { data } = await apiService.get(ADMIN_CHARGEBACKS_URL, { params, signal });
+      return Array.isArray(data) ? data : (data?.results ?? []);
+    },
+  });
+}
+
+/**
+ * T-17-C: detalle de un contracargo individual (admin).
+ */
+export function useAdminChargeback(chargebackId) {
+  return useQuery({
+    queryKey: [...ADMIN_CHARGEBACKS_KEY, 'detail', chargebackId],
+    enabled:  Boolean(chargebackId),
+    queryFn:  async ({ signal }) => {
+      const { data } = await apiService.get(ADMIN_CHARGEBACK_URL(chargebackId), { signal });
+      return data;
+    },
+  });
+}
+
+/**
+ * UC-PAY-15: lista los métodos de pago disponibles en MercadoPago.
+ * El backend consulta MP con el access_token y retorna datos públicos.
+ * staleTime: 10min — los métodos disponibles no cambian con frecuencia.
+ */
+export const MP_METHODS_KEY = ['payments', 'methods'];
+
+export function usePaymentMethods() {
+  return useQuery({
+    queryKey:  MP_METHODS_KEY,
+    staleTime: 10 * 60 * 1000,
+    queryFn:   async ({ signal }) => {
+      const { data } = await getPaymentMethods({ signal });
+      return Array.isArray(data) ? data : [];
     },
   });
 }

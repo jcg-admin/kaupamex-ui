@@ -98,6 +98,9 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
         HttpResponse.json({ detail: 'x' }, { status: 400 }),
       ),
     );
+    renderPage('?token=expired');
+    await screen.findByText(/enlace de verificacion no es valido/i);
+
     let resendBody;
     renderPage('?token=expired');
     await screen.findByText(/enlace de verificacion no es valido/i);

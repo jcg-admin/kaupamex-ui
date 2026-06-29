@@ -9,9 +9,10 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAdminPayment, ADMIN_PAYMENTS_KEY } from '@hooks/domain/usePayments';
+import { useAdminPayment, useAdminPaymentRefunds, ADMIN_PAYMENTS_KEY } from '@hooks/domain/usePayments';
 import {
   requestAdminRefund,
+  adminCancelPayment,
   clearPaymentsActionState,
 } from '@redux/slices/paymentsSlice';
 import { formatCurrency as formatCurrencyIntl } from '@lib/intl';
@@ -29,6 +30,7 @@ export default function AdminPaymentRefundPage() {
   const dispatch      = useDispatch();
   const queryClient   = useQueryClient();
   const { data: payment, isLoading, isError } = useAdminPayment(paymentId);
+  const { data: refunds = [] } = useAdminPaymentRefunds(paymentId);
   const { isActioning, actionError, lastAction } = useSelector((s) => s.payments);
 
   const [amount, setAmount] = useState('');
@@ -38,7 +40,7 @@ export default function AdminPaymentRefundPage() {
   useEffect(() => () => { dispatch(clearPaymentsActionState()); }, [dispatch]);
 
   useEffect(() => {
-    if (lastAction === 'refunded') {
+    if (lastAction === 'refunded' || lastAction === 'cancelled') {
       queryClient.invalidateQueries({ queryKey: ADMIN_PAYMENTS_KEY });
     }
   }, [lastAction, queryClient]);
@@ -106,14 +108,59 @@ export default function AdminPaymentRefundPage() {
         <div><dt>Estado</dt><dd>{payment.status}</dd></div>
       </dl>
 
+      {refunds.length > 0 && (
+        <section className={styles.refundHistory} aria-label="Reembolsos anteriores">
+          <h2 className={styles.historyTitle}>Reembolsos anteriores</h2>
+          <table className={styles.historyTable}>
+            <thead>
+              <tr>
+                <th>Monto</th>
+                <th>Estado</th>
+                <th>ID Gateway</th>
+                <th>Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {refunds.map((r) => (
+                <tr key={r.id}>
+                  <td>{formatCurrency(r.amount)}</td>
+                  <td>{r.status}</td>
+                  <td className={styles.mono}>{r.gateway_refund_id ?? '—'}</td>
+                  <td>{r.reason || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
       {actionError && (
         <p role="alert" className={styles.error}>
-          {actionError.code || actionError.message || 'No se pudo procesar el reembolso.'}
+          {actionError.code || actionError.message || 'No se pudo procesar la accion.'}
         </p>
       )}
 
       {lastAction === 'refunded' && (
         <p className={styles.success}>Reembolso procesado correctamente.</p>
+      )}
+
+      {lastAction === 'cancelled' && (
+        <p className={styles.success}>Pago cancelado correctamente.</p>
+      )}
+
+      {payment.status === 'PENDING' && lastAction !== 'cancelled' && (
+        <section aria-label="Cancelar pago" className={styles.cancelSection}>
+          <h2 className={styles.cancelTitle}>Cancelar pago</h2>
+          <p>Este pago está pendiente y puede cancelarse antes de que sea procesado.</p>
+          <button
+            type="button"
+            className={styles.dangerBtn}
+            disabled={isActioning}
+            onClick={() => dispatch(adminCancelPayment({ payment_id: paymentId }))}
+          >
+            {isActioning ? 'Cancelando…' : 'Cancelar pago'}
+          </button>
+        </section>
       )}
 
       <form onSubmit={onSubmit} className={styles.form} aria-label="Formulario de reembolso">

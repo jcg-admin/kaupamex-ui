@@ -8,7 +8,8 @@ import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
 const CREATE_ORDER_URL       = '/api/v2/orders/';
-const PAYMENTS_URL           = '/api/v2/payments/initiate/';
+// CheckoutPage uses Checkout Pro (redirect). V2 endpoint requires MP CardForm token.
+const PAYMENTS_URL           = '/api/v1/payments/initiate/';
 const ELIGIBILITY_URL        = '/api/v2/checkout/eligibility/';
 const EXPRESS_CHECKOUT_URL   = '/api/v2/checkout/express/';
 

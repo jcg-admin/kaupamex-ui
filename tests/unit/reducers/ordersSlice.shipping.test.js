@@ -18,7 +18,7 @@ const makeStore = () =>
 afterEach(() => jest.clearAllMocks());
 
 describe('ordersSlice — updateOrderShipping (UC-ORD-06)', () => {
-  it('llama PATCH /shipping/ con el nuevo shipping_method_id', async () => {
+  it('llama PATCH /api/v2/orders/:order_number/shipping-method/ con el nuevo shipping_method_id', async () => {
     apiService.patch.mockResolvedValue({
       data: { order_number: 'PY-2026-000001', shipping_method_name: 'Express' },
     });

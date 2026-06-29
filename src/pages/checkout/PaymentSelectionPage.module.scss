@@ -78,3 +78,131 @@
   border-radius: .35rem;
   margin-bottom: 1rem;
 }
+
+.success {
+  border: 1px solid #4caf50;
+  background: #f0fff0;
+  border-radius: .5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.warning {
+  border: 1px solid #ff9800;
+  background: #fff8f0;
+  border-radius: .5rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.resultStatus {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 0 0 .25rem;
+}
+
+.resultDetail {
+  font-size: .9rem;
+  color: $text-soft;
+  margin: 0 0 .75rem;
+}
+
+.processing {
+  font-size: .9rem;
+  color: $text-soft;
+  margin-top: .5rem;
+}
+
+.methodList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.methodItem {
+  width: 100%;
+}
+
+.methodBtn {
+  width: 100%;
+  text-align: left;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: .4rem;
+  padding: .75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  transition: border-color .15s, background .15s;
+
+  &:hover {
+    border-color: $primary-color;
+    background: $bg-page;
+  }
+
+  &:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+}
+
+.methodLabel {
+  font-weight: 600;
+  font-size: .95rem;
+  color: $text-strong;
+}
+
+.methodDesc {
+  font-size: .82rem;
+  color: $text-soft;
+}
+
+
+.voucherLink {
+  display: inline-block;
+  margin: .5rem 0;
+  padding: .55rem 1rem;
+  background: $primary-color;
+  color: $bg-surface;
+  text-decoration: none;
+  border-radius: .35rem;
+  font-weight: 600;
+
+  &:hover {
+    opacity: .85;
+  }
+}
+
+.clabeBox {
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: .35rem;
+  padding: .75rem 1rem;
+  margin: .75rem 0;
+}
+
+.clabeLabel {
+  font-size: .82rem;
+  color: $text-soft;
+  margin: 0 0 .2rem;
+}
+
+.clabeNumber {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: .08em;
+  color: $text-strong;
+  margin: 0;
+  word-break: break-all;
+}
+
+.expiry {
+  font-size: .9rem;
+  color: $text-secondary;
+  margin: .5rem 0;
+}
