@@ -1,62 +1,283 @@
 /**
  * PaymentSelectionPage — PracticaYoruba
- *   UC-PAY-01 — Iniciar pago con Mercado Pago
- *   UC-PAY-02 — Iniciar pago con PayPal
- *   UC-PAY-01-EXT — Pago con cuotas sin intereses (MSI) via Mercado Pago
+ *   UC-PAY-01-V2 — MercadoPago Checkout API (CardForm + métodos no-tarjeta)
+ *   UC-PAY-02    — PayPal (Checkout Pro, redirect)
+ *   UC-PAY-13    — Métodos no-tarjeta: OXXO, SPEI, Paycash, cajeros, Cuenta MP
  *
- * Pagina del paso de pago del checkout. Permite al comprador
- * seleccionar el gateway y, opcionalmente, el numero de cuotas MSI.
- * Tras la creacion de la preferencia, redirige al entorno del gateway.
+ * Estados de pago no-tarjeta:
+ *   pending    — voucher generado, esperando pago en sucursal
+ *   in_process — pago recibido, procesando (SPEI)
+ *   approved   — pago confirmado
+ *   cancelled  — voucher vencido sin pago (webhook actualiza a cancelled)
+ *   rejected   — pago rechazado
  *
- * Lectura de la orden: el `orderId` viene como parametro de ruta.
- * Mutaciones: `paymentsSlice` via Redux.
+ * Vigencia del voucher: la fecha límite viene en `date_of_expiration` de la
+ * respuesta. Vencido el plazo, MP cancela automáticamente y notifica por
+ * webhook (manejado en webhooks.py, UC-PAY-03).
+ *
+ * Nota barcode: MP provee `transaction_data.barcode.content` para renderizar
+ * el código de barras inline (requeriría react-barcode, no instalado aún).
+ * Se muestra el enlace a `external_resource_url` (voucher MP-hosted) como
+ * alternativa equivalente para el usuario.
  */
-import { useEffect, useState } from 'react';
-import { useParams }           from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useCallback, useState } from 'react';
+import { useParams, useNavigate }            from 'react-router-dom';
+import { useDispatch, useSelector }          from 'react-redux';
 import {
-  initiateMercadoPagoPayment,
+  initiateCheckoutApiPayment,
+  initiateNonCardPayment,
   initiatePayPalPayment,
   clearPaymentsActionState,
 } from '@redux/slices/paymentsSlice';
+import MpCardForm        from '@components/checkout/MpCardForm';
+import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
 import { redirectToGateway } from './paymentRedirect';
 import styles from './PaymentSelectionPage.module.scss';
 
-const MSI_OPTIONS = [
-  { value: '',  label: 'Sin cuotas' },
-  { value: '3', label: '3 meses sin intereses' },
-  { value: '6', label: '6 meses sin intereses' },
-  { value: '9', label: '9 meses sin intereses' },
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const CARD_RESULT_LABELS = {
+  approved:   { text: '¡Pago aprobado!',  cls: 'success' },
+  rejected:   { text: 'Pago rechazado.',   cls: 'error'   },
+  pending:    { text: 'Pago en proceso.',  cls: 'warning' },
+  in_process: { text: 'Pago en proceso.',  cls: 'warning' },
+};
+
+// Métodos MP que no usan CardForm (igual que NON_CARD_METHOD_IDS del backend).
+const NON_CARD_IDS = new Set([
+  'oxxo', 'clabe', 'paycash', 'banamex', 'serfin', 'bancomer', 'account_money',
+]);
+
+// Labels y descripciones para mostrar en el selector estático de métodos.
+// En producción estos datos vienen de GET /api/v2/payments/methods/ (usePaymentMethods).
+const METHOD_CONFIG = [
+  {
+    id:          'mp-card',
+    label:       'Tarjeta de crédito o débito',
+    description: 'Visa, Mastercard, AMEX. Paga en sitio de forma segura.',
+    type:        'card',
+  },
+  {
+    id:          'oxxo',
+    label:       'OXXO',
+    description: 'Genera un ticket y paga en cualquier tienda OXXO.',
+    type:        'non-card',
+  },
+  {
+    id:          'clabe',
+    label:       'Transferencia SPEI',
+    description: 'Recibirás una CLABE interbancaria. Acreditación en 1-60 min.',
+    type:        'non-card',
+  },
+  {
+    id:          'paycash',
+    label:       'Paycash',
+    description: 'Paga con efectivo en tiendas Paycash.',
+    type:        'non-card',
+  },
+  {
+    id:          'banamex',
+    label:       'Banamex (cajero)',
+    description: 'Paga en cajeros Banamex con las instrucciones del voucher.',
+    type:        'non-card',
+  },
+  {
+    id:          'serfin',
+    label:       'Santander (cajero)',
+    description: 'Paga en cajeros Santander.',
+    type:        'non-card',
+  },
+  {
+    id:          'bancomer',
+    label:       'BBVA Bancomer (cajero)',
+    description: 'Paga en cajeros BBVA Bancomer.',
+    type:        'non-card',
+  },
+  {
+    id:          'account_money',
+    label:       'Cuenta Mercado Pago',
+    description: 'Pago inmediato desde tu saldo de Mercado Pago.',
+    type:        'non-card',
+  },
 ];
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function formatExpiry(isoDate) {
+  if (!isoDate) return null;
+  try {
+    return new Date(isoDate).toLocaleString('es-MX', {
+      year: 'month', month: 'long', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  } catch {
+    return isoDate;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Non-card result panel
+// ---------------------------------------------------------------------------
+
+function NonCardResultPanel({ result, orderId, onRetry, navigate }) {
+  const status     = result?.status;
+  const expiryStr  = formatExpiry(result?.date_of_expiration);
+  const clabe      = result?.transaction_data?.financial_institution?.account_id
+    || result?.transaction_data?.bank_account_id
+    || result?.transaction_data?.clabe;
+  const voucherUrl = result?.external_resource_url;
+
+  const statusLabel = {
+    approved:   { text: '¡Pago confirmado!',           cls: 'success' },
+    pending:    { text: 'Voucher generado — pago pendiente.', cls: 'warning' },
+    in_process: { text: 'Procesando tu transferencia.', cls: 'warning' },
+    rejected:   { text: 'Pago rechazado.',              cls: 'error'   },
+    cancelled:  { text: 'Voucher vencido.',              cls: 'error'   },
+  }[status] || { text: status, cls: 'warning' };
+
+  return (
+    <div className={styles[statusLabel.cls] || styles.warning} data-testid="non-card-result">
+      <p className={styles.resultStatus}>{statusLabel.text}</p>
+
+      {(status === 'pending' || status === 'in_process') && (
+        <>
+          {voucherUrl && (
+            <p>
+              <a
+                href={voucherUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.voucherLink}
+                data-testid="voucher-url"
+              >
+                Ver voucher / instrucciones de pago
+              </a>
+            </p>
+          )}
+
+          {clabe && (
+            <div className={styles.clabeBox} data-testid="clabe-display">
+              <p className={styles.clabeLabel}>CLABE interbancaria:</p>
+              <p className={styles.clabeNumber}>{clabe}</p>
+            </div>
+          )}
+
+          {expiryStr && (
+            <p className={styles.expiry} data-testid="expiry-display">
+              Paga antes del: <strong>{expiryStr}</strong>
+            </p>
+          )}
+
+          <p className={styles.resultDetail}>
+            Te enviaremos confirmación por email cuando recibamos tu pago.
+            Si el voucher vence sin pago, podrás intentar de nuevo.
+          </p>
+        </>
+      )}
+
+      {status === 'approved' && (
+        <button
+          type="button"
+          className={styles.primaryBtn}
+          onClick={() => navigate(`/order/${orderId}/confirmation`)}
+        >
+          Ver confirmación
+        </button>
+      )}
+
+      {(status === 'rejected' || status === 'cancelled') && (
+        <button type="button" className={styles.primaryBtn} onClick={onRetry}>
+          Intentar de nuevo
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main page
+// ---------------------------------------------------------------------------
 
 export default function PaymentSelectionPage() {
   const { orderId } = useParams();
   const dispatch    = useDispatch();
-  const { isActioning, actionError, lastInitiation } = useSelector((s) => s.payments);
+  const navigate    = useNavigate();
 
-  const [installments, setInstallments] = useState('');
+  const userEmail = useSelector((s) => s.auth?.user?.email || '');
+  const { isActioning, actionError, lastAction, lastInitiation } =
+    useSelector((s) => s.payments);
+
+  const [amount] = useState('0.00');
+
+  // view: 'select' | 'mp-card-form' | 'non-card-form' | 'result' | 'non-card-result'
+  const [view, setView]                   = useState('select');
+  const [selectedMethod, setSelectedMethod] = useState(null);
 
   useEffect(() => () => { dispatch(clearPaymentsActionState()); }, [dispatch]);
 
+  // PayPal redirect
   useEffect(() => {
-    // DEC-BC-09: backend devuelve `checkout_url` (unico campo, no
-    // payment_url/approve_url separados por gateway).
-    const url = lastInitiation?.checkout_url;
-    if (url) redirectToGateway(url);
-  }, [lastInitiation]);
+    if (lastAction === 'paypal_initiated') {
+      const url = lastInitiation?.checkout_url;
+      if (url) redirectToGateway(url);
+    }
+  }, [lastAction, lastInitiation]);
 
-  const onPayMP = () => {
-    // DEC-BC-09: backend espera `order_number` (no order_id). El
-    // parametro URL :orderId ya es el order_number string PY-XXXX
-    // (per CheckoutPage redireccion line 41-42).
-    const payload = { order_number: orderId };
-    if (installments) payload.installments = installments;
-    dispatch(initiateMercadoPagoPayment(payload));
-  };
+  // Card payment result
+  useEffect(() => {
+    if (lastAction === 'mp_checkout_api' && lastInitiation) {
+      setView('result');
+    }
+  }, [lastAction, lastInitiation]);
 
-  const onPayPP = () => {
+  // Non-card payment result
+  useEffect(() => {
+    if (lastAction === 'mp_non_card' && lastInitiation) {
+      setView('non-card-result');
+    }
+  }, [lastAction, lastInitiation]);
+
+  const onPayPal = () => {
     dispatch(initiatePayPalPayment({ order_number: orderId }));
   };
+
+  const onMpPayment = useCallback(({ token, payment_method_id, issuerId, installments, payer }) => {
+    dispatch(initiateCheckoutApiPayment({
+      order_number:                orderId,
+      token,
+      payment_method_id,
+      issuer_id:                   issuerId,
+      installments:                installments ? Number(installments) : undefined,
+      payer_email:                 payer?.email,
+      payer_identification_type:   payer?.identification?.type,
+      payer_identification_number: payer?.identification?.number,
+    }));
+  }, [dispatch, orderId]);
+
+  const onNonCardSubmit = useCallback(({ order_number, payment_method_id, payer_email }) => {
+    dispatch(initiateNonCardPayment({ order_number, payment_method_id, payer_email }));
+  }, [dispatch]);
+
+  const onSelectMethod = (method) => {
+    setSelectedMethod(method);
+    if (method.type === 'card') {
+      setView('mp-card-form');
+    } else {
+      setView('non-card-form');
+    }
+  };
+
+  const onRetry = () => {
+    dispatch(clearPaymentsActionState());
+    setSelectedMethod(null);
+    setView('select');
+  };
+
+  const cardResultLabel = CARD_RESULT_LABELS[lastInitiation?.status] || { text: lastInitiation?.status, cls: 'warning' };
 
   return (
     <section className={styles.page} aria-labelledby="payment-title">
@@ -71,49 +292,115 @@ export default function PaymentSelectionPage() {
 
       {actionError && (
         <p role="alert" className={styles.error}>
-          {actionError.code || actionError.message || 'No se pudo iniciar el pago.'}
+          {actionError.detail || actionError.code || actionError.message || 'No se pudo iniciar el pago.'}
         </p>
       )}
 
-      <div className={styles.gateway}>
-        <h2 className={styles.gatewayTitle}>Mercado Pago</h2>
-        <label className={styles.installments}>
-          Cuotas sin intereses
-          <select
-            value={installments}
-            onChange={(e) => setInstallments(e.target.value)}
-            disabled={isActioning}
+      {/* Card payment result */}
+      {view === 'result' && lastInitiation && (
+        <div className={styles[cardResultLabel.cls] || styles.gateway} data-testid="payment-result">
+          <p className={styles.resultStatus}>{cardResultLabel.text}</p>
+          {lastInitiation.status_detail && (
+            <p className={styles.resultDetail}>{lastInitiation.status_detail}</p>
+          )}
+          <p>Pago: <strong>{lastInitiation.gateway_payment_id || lastInitiation.payment_id}</strong></p>
+          <button
+            type="button"
+            className={styles.primaryBtn}
+            onClick={() => navigate(`/order/${orderId}/confirmation`)}
           >
-            {MSI_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          className={styles.primaryBtn}
-          onClick={onPayMP}
-          disabled={isActioning}
-        >
-          Pagar con Mercado Pago
-        </button>
-      </div>
+            Ver confirmación
+          </button>
+        </div>
+      )}
 
-      <div className={styles.gateway}>
-        <h2 className={styles.gatewayTitle}>PayPal</h2>
-        <button
-          type="button"
-          className={styles.secondaryBtn}
-          onClick={onPayPP}
-          disabled={isActioning}
-        >
-          Pagar con PayPal
-        </button>
-      </div>
+      {/* Non-card payment result */}
+      {view === 'non-card-result' && lastInitiation && (
+        <NonCardResultPanel
+          result={lastInitiation}
+          orderId={orderId}
+          onRetry={onRetry}
+          navigate={navigate}
+        />
+      )}
 
-      <p className={styles.legal}>
-        Al continuar, seras redirigido al entorno seguro del proveedor de pagos.
-      </p>
+      {/* Method selector */}
+      {view === 'select' && (
+        <>
+          <div className={styles.gateway}>
+            <h2 className={styles.gatewayTitle}>Mercado Pago</h2>
+            <ul className={styles.methodList} data-testid="mp-method-list">
+              {METHOD_CONFIG.map((method) => (
+                <li key={method.id} className={styles.methodItem}>
+                  <button
+                    type="button"
+                    className={styles.methodBtn}
+                    onClick={() => onSelectMethod(method)}
+                    disabled={isActioning}
+                    data-testid={`method-btn-${method.id}`}
+                  >
+                    <span className={styles.methodLabel}>{method.label}</span>
+                    <span className={styles.methodDesc}>{method.description}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className={styles.gateway}>
+            <h2 className={styles.gatewayTitle}>PayPal</h2>
+            <button
+              type="button"
+              className={styles.secondaryBtn}
+              onClick={onPayPal}
+              disabled={isActioning}
+            >
+              Pagar con PayPal
+            </button>
+          </div>
+
+          <p className={styles.legal}>
+            Al continuar, aceptas procesar tu pago a través del proveedor seleccionado.
+          </p>
+        </>
+      )}
+
+      {/* CardForm */}
+      {view === 'mp-card-form' && (
+        <div className={styles.gateway}>
+          <h2 className={styles.gatewayTitle}>Tarjeta de crédito o débito</h2>
+          <MpCardForm
+            amount={amount}
+            payerEmail={userEmail}
+            onPayment={onMpPayment}
+            onCancel={() => setView('select')}
+          />
+          {isActioning && (
+            <p className={styles.processing} aria-live="polite">
+              Procesando pago...
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Non-card form */}
+      {view === 'non-card-form' && selectedMethod && (
+        <div className={styles.gateway}>
+          <NonCardPaymentForm
+            methodId={selectedMethod.id}
+            orderNumber={orderId}
+            defaultEmail={userEmail}
+            onSubmit={onNonCardSubmit}
+            onCancel={() => { setView('select'); setSelectedMethod(null); }}
+            isSubmitting={isActioning}
+          />
+          {isActioning && (
+            <p className={styles.processing} aria-live="polite">
+              Generando instrucciones de pago...
+            </p>
+          )}
+        </div>
+      )}
     </section>
   );
 }

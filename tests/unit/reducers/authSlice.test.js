@@ -12,6 +12,7 @@ import authReducer, {
 const INITIAL_STATE = {
   user: null,
   isAuthenticated: false,
+  sessionChecked: false,
   isLoading: false,
   error: null,
   sessionChecked: false,

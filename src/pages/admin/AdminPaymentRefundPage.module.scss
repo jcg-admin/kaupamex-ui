@@ -34,8 +34,28 @@
 .validationError { color: $danger-deep; margin: -.3rem 0 .8rem; font-size: .9rem; }
 .error { background: $danger-bg; color: $danger-deep; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
 .success { background: $success-bg; color: $success-strong; padding: .6rem .8rem; border-radius: .35rem; margin-bottom: 1rem; }
+.refundHistory { margin-bottom: 1.5rem; }
+.historyTitle { font-size: 1.1rem; margin: 0 0 .75rem; color: $text-strong; }
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+  th, td { padding: .5rem .6rem; text-align: left; border-bottom: 1px solid $border-color; }
+  th { color: $text-soft; font-weight: 600; font-size: .75rem; text-transform: uppercase; }
+}
+.mono { font-family: monospace; font-size: .85rem; }
 .primaryBtn {
   background: $primary-color; color: $bg-surface; border: 0;
+  padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
+  &:disabled { opacity: .55; cursor: not-allowed; }
+}
+.cancelSection {
+  background: $danger-bg; border: 1px solid $danger-deep; border-radius: .5rem;
+  padding: 1.25rem; margin-bottom: 1.5rem;
+}
+.cancelTitle { font-size: 1.1rem; margin: 0 0 .5rem; color: $danger-deep; }
+.dangerBtn {
+  background: $danger-deep; color: #fff; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: .55; cursor: not-allowed; }
 }

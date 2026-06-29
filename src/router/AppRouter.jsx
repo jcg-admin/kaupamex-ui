@@ -116,6 +116,8 @@ const AdminQuestionsModerationPage   = lazy(() => import('@pages/admin/AdminQues
 const AdminReviewsModerationPage     = lazy(() => import('@pages/admin/AdminReviewsModerationPage'));
 const AdminPaymentRefundPage         = lazy(() => import('@pages/admin/AdminPaymentRefundPage'));
 const AdminPaymentsPage              = lazy(() => import('@pages/admin/AdminPaymentsPage'));
+const AdminChargebacksPage           = lazy(() => import('@pages/admin/AdminChargebacksPage'));
+const AdminChargebackDetailPage      = lazy(() => import('@pages/admin/AdminChargebackDetailPage'));
 // UC-CAT-06 / UC-CAT-09 / UC-CAT-10 — Categorias y CRUD de productos
 const AdminCategoriesPage            = lazy(() => import('@pages/admin/AdminCategoriesPage'));
 const AdminProductCreatePage         = lazy(() => import('@pages/admin/AdminProductCreatePage'));
@@ -339,6 +341,9 @@ export default function AppRouter() {
               <Route path="admin/payments"                        element={<AdminPaymentsPage />} />
               {/* UC-PAY-09 — Procesar reembolso manual */}
               <Route path="admin/payments/:paymentId/refund"      element={<AdminPaymentRefundPage />} />
+              {/* T-17 — Contracargos */}
+              <Route path="admin/chargebacks"                     element={<AdminChargebacksPage />} />
+              <Route path="admin/chargebacks/:chargebackId"       element={<AdminChargebackDetailPage />} />
               {/* UC-LOG-08 — Panel operacional de logistica */}
               <Route path="admin/logistics"                       element={<AdminLogisticsPage />} />
               {/* UC-CFG-01..05 — Hub de configuracion */}
