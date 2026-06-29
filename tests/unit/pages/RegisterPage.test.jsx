@@ -2,11 +2,12 @@
  * Tests — RegisterPage
  * UC-AUTH-01 / Sprint 1 (completado en Sprint 2)
  *
- * H-CICLO-AUTH-01: el diseño editorial rediseñó el form. Ahora incluye
- * Nombre, Apellido, Correo electrónico, Nombre de usuario, Contraseña y
- * checkbox de términos. No existe campo "Confirmar contraseña" — la
- * confirmación se hace por email. La validación de contraseña se delega al
- * backend; no hay errores de campo client-side visibles en DOM.
+ * H-CICLO-AUTH-01: el diseño editorial rediseñó el form. Incluye
+ * Nombre, Apellido, Correo electrónico, Contraseña, Confirmar
+ * contraseña y checkbox de términos. NO pide "Nombre de usuario":
+ * el backend autogenera el username desde el email (RegisterSerializer
+ * ._generate_username). El payload enviado lleva password_confirm y
+ * terms_accepted, ambos requeridos por el serializer (ISSUE-01).
  */
 
 jest.mock('@services/apiService', () => ({
@@ -47,11 +48,15 @@ describe('RegisterPage', () => {
     expect(screen.getByLabelText('Contraseña')).toBeInTheDocument();
   });
 
-  it('renderiza los campos de nombre y usuario', () => {
+  it('pide confirmar la contraseña (ISSUE-01)', () => {
     renderPage();
-    // use exact label match to avoid matching "Nombre de usuario"
+    expect(screen.getByLabelText('Confirmar contraseña')).toBeInTheDocument();
+  });
+
+  it('no pide nombre de usuario (lo autogenera el backend)', () => {
+    renderPage();
     expect(screen.getByLabelText('Nombre')).toBeInTheDocument();
-    expect(screen.getByLabelText(/nombre de usuario/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/nombre de usuario/i)).not.toBeInTheDocument();
   });
 
   it('tiene link para ir al login', () => {

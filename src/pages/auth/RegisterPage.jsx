@@ -19,7 +19,7 @@ export default function RegisterPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    first_name: '', last_name: '', email: '', username: '', password: '', terms: false,
+    first_name: '', last_name: '', email: '', password: '', password_confirm: '', terms: false,
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -29,13 +29,24 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
+    if (form.password !== form.password_confirm) {
+      setErrors({ password_confirm: 'Las contraseñas no coinciden.' });
+      return;
+    }
     if (!form.terms) {
       setErrors({ terms: 'Debes aceptar los términos.' });
       return;
     }
     setLoading(true);
     try {
-      await dispatch(registerUser(form)).unwrap();
+      await dispatch(registerUser({
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        password: form.password,
+        password_confirm: form.password_confirm,
+        terms_accepted: form.terms,
+      })).unwrap();
       navigate('/auth/verify-email', { state: { email: form.email } });
     } catch (err) {
       setErrors(err.fields || { _form: 'No se pudo crear la cuenta.' });
@@ -91,15 +102,22 @@ export default function RegisterPage() {
               <Field label="Apellido" value={form.last_name}  onChange={set('last_name')}  error={errors.last_name}  required autoComplete="family-name" data-testid="register-last-name" />
             </div>
             <Field label="Correo electrónico" type="email" value={form.email} onChange={set('email')} error={errors.email} required autoComplete="email" data-testid="register-email" />
-            <Field label="Nombre de usuario" value={form.username} onChange={set('username')} error={errors.username} required placeholder="manuel_ortega" autoComplete="username" data-testid="register-username" />
             <PasswordInput
               label="Contraseña"
               value={form.password}
               onChange={set('password')}
               error={errors.password}
-              hint="· Mínimo 8 caracteres · No similar a tu usuario · No demasiado común"
+              hint="· Mínimo 8 caracteres · No similar a tu correo · No demasiado común"
               autoComplete="new-password"
               data-testid="register-password"
+            />
+            <PasswordInput
+              label="Confirmar contraseña"
+              value={form.password_confirm}
+              onChange={set('password_confirm')}
+              error={errors.password_confirm}
+              autoComplete="new-password"
+              data-testid="register-password-confirm"
             />
 
             <label className={styles.checkboxLabel} style={{ alignItems: 'flex-start', marginTop: 4 }}>

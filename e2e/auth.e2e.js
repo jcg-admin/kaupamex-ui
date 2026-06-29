@@ -32,8 +32,8 @@ test.describe('auth / register', () => {
     await expect(page.getByTestId('register-first-name')).toBeVisible();
     await expect(page.getByTestId('register-last-name')).toBeVisible();
     await expect(page.getByTestId('register-email')).toBeVisible();
-    await expect(page.getByTestId('register-username')).toBeVisible();
     await expect(page.getByTestId('register-password')).toBeVisible();
+    await expect(page.getByTestId('register-password-confirm')).toBeVisible();
     await expect(page.getByTestId('register-terms')).toBeVisible();
     await expect(page.getByTestId('register-submit')).toBeVisible();
   });
@@ -43,8 +43,8 @@ test.describe('auth / register', () => {
     await page.getByTestId('register-first-name').fill('Test');
     await page.getByTestId('register-last-name').fill('User');
     await page.getByTestId('register-email').fill(`e2e_${RUN_ID}@example.com`);
-    await page.getByTestId('register-username').fill(`e2euser_${RUN_ID}`);
     await page.getByTestId('register-password').fill('Test1234!');
+    await page.getByTestId('register-password-confirm').fill('Test1234!');
     // Terms NOT checked
     await page.getByTestId('register-submit').click();
     // Must stay on register
@@ -57,8 +57,8 @@ test.describe('auth / register', () => {
     await page.getByTestId('register-first-name').fill('E2E');
     await page.getByTestId('register-last-name').fill('Buyer');
     await page.getByTestId('register-email').fill(`e2enew_${RUN_ID}@example.com`);
-    await page.getByTestId('register-username').fill(`e2enew_${RUN_ID}`);
     await page.getByTestId('register-password').fill('Test1234!Password');
+    await page.getByTestId('register-password-confirm').fill('Test1234!Password');
     await page.getByTestId('register-terms').check();
     await page.getByTestId('register-submit').click();
     // Should redirect to verify-email or login (depends on email-verification setting)
