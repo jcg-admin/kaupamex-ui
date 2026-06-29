@@ -8,7 +8,7 @@
  *   - Featured products come from state.catalog.featured (not state.catalog.products)
  *   - No data-testid="home-featured-grid" on the grid element
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
@@ -17,13 +17,18 @@ import { server } from '@mocks/server';
 
 import catalogReducer from '@redux/slices/catalogSlice';
 import authReducer from '@redux/slices/authSlice';
+import newsletterReducer from '@redux/slices/newsletterSlice';
 import HomePage from './HomePage';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
 function makeStore(featured = []) {
   return configureStore({
-    reducer: { catalog: catalogReducer, auth: authReducer },
+    reducer: {
+      catalog: catalogReducer,
+      auth: authReducer,
+      newsletter: newsletterReducer,
+    },
     preloadedState: {
       catalog: {
         products: [],
@@ -99,5 +104,22 @@ describe('HomePage — landing anonima', () => {
     // ProductCard renders names via dangerouslySetInnerHTML from highlighted_name
     expect(await screen.findByText(/Collar 1/i)).toBeInTheDocument();
     expect(screen.getByText(/Pulsera 2/i)).toBeInTheDocument();
+  });
+
+  it('suscribe al newsletter desde el home (POST source=home)', async () => {
+    let lastBody = null;
+    server.use(
+      http.post(`${BASE}/api/v2/newsletter/subscriptions/`, async ({ request }) => {
+        lastBody = await request.json();
+        return HttpResponse.json({ email: lastBody.email, status: 'PENDING' }, { status: 201 });
+      }),
+    );
+    renderHome();
+    fireEvent.change(screen.getByLabelText(/Correo para el newsletter/i),
+      { target: { value: 'lector@example.com' } });
+    fireEvent.click(screen.getByRole('button', { name: /Suscribirme/i }));
+    await waitFor(() => {
+      expect(lastBody).toMatchObject({ email: 'lector@example.com', source: 'home' });
+    });
   });
 });

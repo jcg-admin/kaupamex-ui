@@ -69,7 +69,7 @@ const mockAuditLog = [
 
 const mockSettings = {
   site_name: 'PracticaYoruba',
-  contact_email: 'contacto@practicayoruba.com',
+  contact_email: 'hola@practicayoruba.com',
   currency: 'USD',
   tax_rate: '0.00',
   maintenance_mode: false,

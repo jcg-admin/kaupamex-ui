@@ -411,3 +411,15 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+
+.newsletterSuccess {
+  margin-top: $spacing-4;
+  font-size: 15px;
+  color: $text-primary;
+}
+
+.newsletterError {
+  margin-top: $spacing-3;
+  font-size: 13px;
+  color: $color-danger;
+}
