@@ -18,7 +18,11 @@ import {
 import SearchBar from '@components/catalog/SearchBar';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Button, EmptyState } from '@components/common/primitives';
+import { RangeSlider, Chip } from '@components/common';
 import styles from './CatalogPage.module.scss';
+
+const PRICE_CEILING = 10000;
+const fmtMoney = (v) => `$${Number(v).toLocaleString('es-MX')}`;
 
 // Mapping from UI label to API ordering param
 const SORT_OPTIONS = [
@@ -107,7 +111,7 @@ export default function CatalogPage() {
 
       <div className={styles.container}>
         <div className={styles.layout}>
-          <FilterSidebar dispatch={dispatch} categories={categories} />
+          <FilterSidebar dispatch={dispatch} categories={categories} filters={filters} />
 
           <section className={styles.results}>
             <Toolbar
@@ -160,95 +164,150 @@ export default function CatalogPage() {
   );
 }
 
-function FilterSidebar({ dispatch, categories }) {
-  const handleClearFilters = () => dispatch(clearFilters());
+// Aside de filtros — CONTROLADO desde redux `filters` (T-20). Antes usaba
+// `Check` con estado local: la "multi-categoria" era falsa (redux.category es
+// unica) y "Limpiar" no desmarcaba. Ahora: radios (categoria unica, honesto),
+// RangeSlider + inputs (precio), checkbox de disponibilidad, y Chips de los
+// filtros activos. Todo reusando primitivos de marca.
+function FilterSidebar({ dispatch, categories, filters = {} }) {
+  const activeCat = categories.find((c) => c.slug === filters.category);
+  const hasPrice  = filters.priceMin != null || filters.priceMax != null;
+  const hasActive = Boolean(filters.category) || hasPrice || Boolean(filters.inStock);
+  const setCategory = (slug) => dispatch(setFilter({ category: slug || null }));
+
   return (
     <aside className={styles.sidebar}>
-      <FilterGroup title="Categoría">
-        {categories.map((cat) => (
-          <Check
-            key={cat.slug}
-            label={cat.name}
-            onChange={(checked) => dispatch(setFilter({ category: checked ? cat.slug : null }))}
+      {hasActive && (
+        <div className={styles.activeFilters} aria-label="Filtros activos">
+          {activeCat && (
+            <Chip removable onRemove={() => setCategory('')} ariaRemoveLabel="Quitar categoria">
+              {activeCat.name}
+            </Chip>
+          )}
+          {hasPrice && (
+            <Chip
+              removable
+              onRemove={() => dispatch(setFilter({ priceMin: null, priceMax: null }))}
+              ariaRemoveLabel="Quitar precio"
+            >
+              {`${filters.priceMin != null ? fmtMoney(filters.priceMin) : '$0'} – ${filters.priceMax != null ? fmtMoney(filters.priceMax) : '∞'}`}
+            </Chip>
+          )}
+          {filters.inStock && (
+            <Chip
+              removable
+              onRemove={() => dispatch(setFilter({ inStock: false }))}
+              ariaRemoveLabel="Quitar disponibilidad"
+            >
+              Disponible inmediato
+            </Chip>
+          )}
+        </div>
+      )}
+
+      <fieldset className={styles.filterGroup}>
+        <legend className={styles.filterTitle}>Categoría</legend>
+        <div className={styles.radioList} role="radiogroup" aria-label="Categoría">
+          <label className={styles.radio}>
+            <input
+              type="radio"
+              name="catalog-category"
+              checked={!filters.category}
+              onChange={() => setCategory('')}
+            />
+            <span>Todas las categorías</span>
+          </label>
+          {categories.map((cat) => (
+            <label key={cat.slug} className={styles.radio}>
+              <input
+                type="radio"
+                name="catalog-category"
+                checked={filters.category === cat.slug}
+                onChange={() => setCategory(cat.slug)}
+              />
+              <span>{cat.name}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <PriceFilter dispatch={dispatch} filters={filters} />
+
+      <fieldset className={styles.filterGroup}>
+        <legend className={styles.filterTitle}>Disponibilidad</legend>
+        <label className={styles.check}>
+          <input
+            type="checkbox"
+            checked={Boolean(filters.inStock)}
+            onChange={(e) => dispatch(setFilter({ inStock: e.target.checked }))}
           />
-        ))}
-      </FilterGroup>
-      <FilterGroup title="Rango de precio">
-        <PriceSlider dispatch={dispatch} />
-      </FilterGroup>
-      <FilterGroup title="Disponibilidad">
-        <Check
-          label="Disponible inmediato"
-          onChange={(checked) => dispatch(setFilter({ inStock: checked }))}
-        />
-      </FilterGroup>
-      <Button variant="secondary" block onClick={handleClearFilters}>Limpiar filtros</Button>
+          <span className={styles.checkbox} />
+          <span>Disponible inmediato</span>
+        </label>
+      </fieldset>
+
+      {hasActive && (
+        <Button variant="secondary" block onClick={() => dispatch(clearFilters())}>
+          Limpiar filtros
+        </Button>
+      )}
     </aside>
   );
 }
-function FilterGroup({ title, items, children, dispatch, filterKey }) {
+
+function PriceFilter({ dispatch, filters }) {
+  const min = filters.priceMin != null ? String(filters.priceMin) : '';
+  const max = filters.priceMax != null ? String(filters.priceMax) : '';
+  const [lo, setLo] = useState(min);
+  const [hi, setHi] = useState(max);
+
+  useEffect(() => { setLo(min); }, [min]);
+  useEffect(() => { setHi(max); }, [max]);
+
+  const apply = (nlo, nhi) => dispatch(setFilter({
+    priceMin: nlo === '' ? null : Number(nlo),
+    priceMax: nhi === '' ? null : Number(nhi),
+  }));
+
+  const sLo = lo === '' ? 0 : Math.min(PRICE_CEILING, Math.max(0, Number(lo) || 0));
+  const sHi = hi === '' ? PRICE_CEILING : Math.min(PRICE_CEILING, Math.max(0, Number(hi) || PRICE_CEILING));
+
   return (
-    <div className={styles.filterGroup}>
-      <h4 className={styles.filterTitle}>{title}</h4>
-      {items?.map((i) => (
-        <Check
-          key={i}
-          label={i}
-          onChange={(checked) => {
-            if (dispatch && filterKey) {
-              dispatch(setFilter({ [filterKey]: checked ? i.toLowerCase() : null }));
-            }
-          }}
-        />
-      ))}
-      {children}
-    </div>
-  );
-}
-function Check({ label, onChange }) {
-  const [checked, setChecked] = useState(false);
-  const handleChange = (e) => {
-    setChecked(e.target.checked);
-    if (onChange) onChange(e.target.checked);
-  };
-  return (
-    <label className={styles.check}>
-      <input type="checkbox" checked={checked} onChange={handleChange} />
-      <span className={styles.checkbox} />
-      <span>{label}</span>
-    </label>
-  );
-}
-function PriceSlider({ dispatch }) {
-  const [priceMin, setPriceMin] = useState('');
-  const [priceMax, setPriceMax] = useState('');
-  const apply = () => {
-    if (dispatch) dispatch(setFilter({
-      priceMin: priceMin ? Number(priceMin) : null,
-      priceMax: priceMax ? Number(priceMax) : null,
-    }));
-  };
-  return (
-    <div className={styles.slider}>
+    <fieldset className={styles.filterGroup}>
+      <legend className={styles.filterTitle}>Rango de precio</legend>
+      <RangeSlider
+        min={0}
+        max={PRICE_CEILING}
+        value={[sLo, sHi]}
+        tooltipsFormat={fmtMoney}
+        onChange={([a, b]) => {
+          const nlo = a <= 0 ? '' : String(a);
+          const nhi = b >= PRICE_CEILING ? '' : String(b);
+          setLo(nlo); setHi(nhi); apply(nlo, nhi);
+        }}
+        className={styles.priceSlider}
+      />
       <div className={styles.sliderInputs}>
         <input
           type="number"
           placeholder="Mín MXN"
-          value={priceMin}
-          onChange={(e) => setPriceMin(e.target.value)}
-          onBlur={apply}
+          value={lo}
+          aria-label="Precio minimo"
+          onChange={(e) => setLo(e.target.value)}
+          onBlur={() => apply(lo, hi)}
           className={styles.sliderInput}
         />
         <input
           type="number"
           placeholder="Máx MXN"
-          value={priceMax}
-          onChange={(e) => setPriceMax(e.target.value)}
-          onBlur={apply}
+          value={hi}
+          aria-label="Precio maximo"
+          onChange={(e) => setHi(e.target.value)}
+          onBlur={() => apply(lo, hi)}
           className={styles.sliderInput}
         />
       </div>
-    </div>
+    </fieldset>
   );
 }
 
