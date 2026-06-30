@@ -1,5 +1,7 @@
 /**
  * Tests — CatalogFilters (UC-CAT-04 + UC-CAT-05).
+ * Rediseno T-11 (DEC-STF-11): categoria por radios, precio con
+ * RangeSlider + inputs, filtros activos como Chips removibles.
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -34,21 +36,20 @@ const renderFilters = (props = {}) => {
 };
 
 describe('CatalogFilters (UC-CAT-04 + UC-CAT-05)', () => {
-  it('renderiza un selector con las categorias aplanadas (UC-CAT-04)', async () => {
+  it('renderiza un radio por categoria aplanada (UC-CAT-04)', async () => {
     renderFilters();
     expect(
-      await screen.findByRole('option', { name: /^collares$/i }),
+      await screen.findByRole('radio', { name: /^collares$/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /collares orisha/i })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: /^soperas$/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /collares orisha/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^soperas$/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /todas las categorias/i })).toBeInTheDocument();
   });
 
-  it('emite onChange con category=<slug> al seleccionar una categoria', async () => {
+  it('emite onChange con category=<slug> al elegir un radio', async () => {
     const { onChange } = renderFilters();
-    await screen.findByRole('option', { name: /^soperas$/i });
-    fireEvent.change(screen.getByLabelText(/categoria/i), {
-      target: { value: 'soperas' },
-    });
+    const soperas = await screen.findByRole('radio', { name: /^soperas$/i });
+    fireEvent.click(soperas);
     expect(onChange).toHaveBeenCalledWith({ category: 'soperas' });
   });
 
@@ -75,5 +76,18 @@ describe('CatalogFilters (UC-CAT-04 + UC-CAT-05)', () => {
     expect(onChange).toHaveBeenCalledWith({
       category: null, price_min: null, price_max: null,
     });
+  });
+
+  it('muestra un Chip de categoria activa y lo quita con su boton', async () => {
+    const { onChange } = renderFilters({ category: 'collares' });
+    const removeBtn = await screen.findByRole('button', { name: /quitar categoria/i });
+    fireEvent.click(removeBtn);
+    expect(onChange).toHaveBeenCalledWith({ category: null });
+  });
+
+  it('quita el filtro de precio activo con el Chip de precio', () => {
+    const { onChange } = renderFilters({ priceMin: '100', priceMax: '500' });
+    fireEvent.click(screen.getByRole('button', { name: /quitar precio/i }));
+    expect(onChange).toHaveBeenCalledWith({ price_min: null, price_max: null });
   });
 });

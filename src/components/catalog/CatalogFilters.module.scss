@@ -1,30 +1,174 @@
+/* CatalogFilters — alineado a la paleta de marca (T-11, DEC-STF-11).
+   Antes usaba tokens grises genericos ($gray-*) que se veian ajenos al
+   tema oscuro Yoruba. Ahora: paleta de marca + tokens $spacing-* y reuso
+   de RangeSlider/Chip/Button/Offcanvas. */
 @use '@styles/abstracts' as *;
 
 .filters {
-  background: $bg-surface; border: 1px solid $gray-200; border-radius: 6px;
-  padding: 16px; min-width: 220px;
+  background: $bg-surface;
+  border: 1px solid rgba(245, 247, 238, 0.08);
+  border-radius: $radius-md;
+  padding: $spacing-4;
+  min-width: 220px;
 }
-.title { font-size: 1.1rem; margin: 0 0 12px; }
-.group { margin-bottom: 16px; }
-.label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
-.select {
-  width: 100%; padding: 6px 8px; font-size: 0.95rem;
-  border: 1px solid $gray-400; border-radius: 4px;
+
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  color: $text-primary;
+  margin: 0 0 $spacing-4;
 }
-.fieldset { border: 0; padding: 0; margin: 0; }
-.priceRow { display: flex; gap: 8px; }
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+}
+
+/* Fila de filtros activos (Chips removibles) */
+.activeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  padding-bottom: $spacing-3;
+  border-bottom: 1px solid rgba(245, 247, 238, 0.08);
+}
+
+.group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.groupTitle {
+  font-weight: 600;
+  font-size: $font-size-sm;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: $text-muted;
+  padding: 0;
+}
+
+/* Categoria — lista de radios de marca (reemplaza el <select> nativo) */
+.radioList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $radius-sm;
+  font-size: $font-size-md;
+  color: $text-primary;
+  cursor: pointer;
+
+  &:hover {
+    background: $bg-elevated;
+  }
+
+  input[type='radio'] {
+    accent-color: $bronze;
+    cursor: pointer;
+  }
+}
+
+/* Precio */
+.slider {
+  margin: $spacing-2 0 $spacing-4;
+}
+
+.priceRow {
+  display: flex;
+  gap: $spacing-2;
+}
+
 .priceLabel {
-  flex: 1; display: flex; flex-direction: column; gap: 4px;
-  font-size: 0.85rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+  font-size: $font-size-sm;
+  color: $text-muted;
+
+  input {
+    width: 100%;
+    padding: $spacing-2;
+    background: $bg-page;
+    color: $text-primary;
+    border: 1px solid rgba(245, 247, 238, 0.14);
+    border-radius: $radius-sm;
+    font-size: $font-size-md;
+
+    &:focus {
+      outline: none;
+      border-color: $bronze;
+      box-shadow: 0 0 0 3px rgba(184, 152, 64, 0.25);
+    }
+  }
 }
-.priceLabel input {
-  width: 100%; padding: 6px 8px; border: 1px solid $gray-400;
-  border-radius: 4px; font-size: 0.95rem;
+
+.error {
+  color: $danger-strong;
+  font-size: $font-size-sm;
+  margin: $spacing-2 0 0;
 }
-.applyBtn, .clearBtn {
-  margin-top: 8px; width: 100%; padding: 8px;
-  border: 1px solid $gray-400; background: $gray-50; cursor: pointer;
-  border-radius: 4px; font-size: 0.9rem;
+
+/* Trigger del drawer + drawer (solo movil) */
+.mobileTrigger {
+  display: none;
+  width: 100%;
+  padding: $spacing-3;
+  background: $bg-surface;
+  color: $text-primary;
+  border: 1px solid rgba(245, 247, 238, 0.14);
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  font-weight: 600;
+  cursor: pointer;
 }
-.applyBtn:hover, .clearBtn:hover { background: $gray-200; }
-.error { color: $danger-strong; font-size: 0.85rem; margin: 6px 0; }
+
+.drawer {
+  background: $bg-surface;
+  padding: $spacing-4;
+  width: min(86vw, 320px);
+}
+
+.drawerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .title { margin-bottom: 0; }
+}
+
+.drawerClose {
+  background: none;
+  border: 0;
+  color: $text-muted;
+  font-size: $font-size-lg;
+  cursor: pointer;
+
+  &:hover { color: $text-primary; }
+}
+
+/* En pantallas chicas: oculta el aside fijo, muestra el trigger del drawer */
+@media (max-width: 768px) {
+  .filters { display: none; }
+  .mobileTrigger { display: block; }
+}

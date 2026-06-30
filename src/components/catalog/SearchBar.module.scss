@@ -9,6 +9,7 @@
 .inputWrapper {
   @include flex-start;
   position:   relative;
+  overflow:   hidden;            // recorta el submit a los bordes del box
   background: $white;
   border:     1px solid $border-color;
   border-radius: $radius-md;
@@ -58,8 +59,11 @@
 
 .submitBtn {
   @include btn-primary;
-  padding:     10px 24px;
-  align-self:  flex-start;
+  flex-shrink:   0;
+  align-self:    stretch;        // ocupa toda la altura del box
+  padding:       10px 24px;
+  border:        none;
+  border-radius: 0;              // pegado al borde derecho del box
 }
 
 .error {
