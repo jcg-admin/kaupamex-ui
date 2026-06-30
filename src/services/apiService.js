@@ -116,7 +116,19 @@ class APIService {
     const url = new URL(path.startsWith('http') ? path : `${this.baseURL}${path}`);
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
-        if (v !== null && v !== undefined) url.searchParams.set(k, v);
+        if (v === null || v === undefined) return;
+        // Un arreglo se serializa como parametro repetible
+        // (?k=a&k=b) — lo que Django lee con getlist() — en vez de
+        // unirse con comas. Soporta el filtro multi-categoria (T-11).
+        if (Array.isArray(v)) {
+          v.forEach((item) => {
+            if (item !== null && item !== undefined && item !== '') {
+              url.searchParams.append(k, item);
+            }
+          });
+        } else {
+          url.searchParams.set(k, v);
+        }
       });
     }
 

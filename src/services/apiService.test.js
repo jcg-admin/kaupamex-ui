@@ -106,3 +106,60 @@ describe('apiService X-Cart-Token (DEC-BC-07 / B-07)', () => {
     expect(sentHeaders['X-Cart-Token']).toBeUndefined();
   });
 });
+
+describe('apiService serializacion de params (T-11 multi-categoria)', () => {
+  let api;
+  let originalFetch;
+
+  beforeEach(() => {
+    api = new APIService('http://localhost:8000');
+    originalFetch = global.fetch;
+    mockInterceptor.intercept.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.clearAllMocks();
+  });
+
+  const okFetch = () => jest.fn(async () => ({
+    ok: true, status: 200,
+    headers: { get: () => null },
+    json: async () => ({}),
+  }));
+
+  it('serializa un arreglo como parametro repetible (?k=a&k=b), sin corchetes', async () => {
+    const fetchMock = okFetch();
+    global.fetch = fetchMock;
+
+    await api.get('/api/v2/products/', { params: { q: 'x', category: ['collares', 'soperas'] } });
+
+    const calledUrl = fetchMock.mock.calls[0][0];
+    expect(calledUrl).toContain('q=x');
+    expect(calledUrl).toContain('category=collares');
+    expect(calledUrl).toContain('category=soperas');
+    expect(calledUrl).not.toContain('category%5B%5D');  // no axios-style []
+  });
+
+  it('omite valores vacios/nulos dentro del arreglo', async () => {
+    const fetchMock = okFetch();
+    global.fetch = fetchMock;
+
+    await api.get('/api/v2/products/', { params: { category: ['', 'collares'] } });
+
+    const calledUrl = fetchMock.mock.calls[0][0];
+    expect((calledUrl.match(/category=/g) || []).length).toBe(1);
+    expect(calledUrl).toContain('category=collares');
+  });
+
+  it('un valor escalar sigue serializandose normal', async () => {
+    const fetchMock = okFetch();
+    global.fetch = fetchMock;
+
+    await api.get('/api/v2/products/', { params: { category: 'collares', page: 2 } });
+
+    const calledUrl = fetchMock.mock.calls[0][0];
+    expect(calledUrl).toContain('category=collares');
+    expect(calledUrl).toContain('page=2');
+  });
+});

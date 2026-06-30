@@ -62,13 +62,13 @@
 }
 
 /* Categoria — lista de radios de marca (reemplaza el <select> nativo) */
-.radioList {
+.checkList {
   display: flex;
   flex-direction: column;
   gap: $spacing-1;
 }
 
-.radio {
+.check {
   display: flex;
   align-items: center;
   gap: $spacing-2;
@@ -82,7 +82,7 @@
     background: $bg-elevated;
   }
 
-  input[type='radio'] {
+  input[type='checkbox'] {
     accent-color: $bronze;
     cursor: pointer;
   }
