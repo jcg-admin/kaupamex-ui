@@ -92,14 +92,6 @@ export default function LoginPage() {
               {loading ? 'Entrando…' : 'Entrar a mi cuenta'}
             </Button>
 
-            <div className={styles.divider}>
-              <span>O</span>
-            </div>
-
-            <Button type="button" variant="secondary" block>
-              Continuar con Google
-            </Button>
-
             <div className={styles.footer}>
               ¿Aún no tienes cuenta?{' '}
               <Link to="/auth/register">Crear una ahora →</Link>
