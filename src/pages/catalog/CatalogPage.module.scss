@@ -101,7 +101,7 @@
   font-size: $font-size-sm;
   color: $text-primary;
   &:hover { background: $bg-elevated; }
-  input[type='radio'] { accent-color: $bronze; cursor: pointer; }
+  input[type='checkbox'] { accent-color: $bronze; cursor: pointer; }
 }
 
 .priceSlider { margin: $spacing-3 0 $spacing-5; }
