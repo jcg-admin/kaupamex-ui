@@ -59,7 +59,11 @@
   align-self: start;
   @media (max-width: $bp-md) { position: static; }
 }
-.filterGroup { margin-bottom: $spacing-8; }
+.filterGroup {
+  border: 0;
+  padding: 0;
+  margin: 0 0 $spacing-8;
+}
 .filterTitle {
   font-family: $font-family-mono;
   font-size: $font-size-xs;
@@ -67,7 +71,58 @@
   letter-spacing: $ls-eyebrow;
   text-transform: uppercase;
   color: $bronze;
+  padding: 0;
   margin: 0 0 $spacing-4;
+}
+
+// Fila de filtros activos (Chips removibles)
+.activeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+  margin-bottom: $spacing-6;
+  padding-bottom: $spacing-5;
+  border-bottom: 1px solid rgba(245, 247, 238, 0.08);
+}
+
+// Categoria — radios de marca (single-select honesto)
+.radioList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+.radio {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: 4px 6px;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  color: $text-primary;
+  &:hover { background: $bg-elevated; }
+  input[type='radio'] { accent-color: $bronze; cursor: pointer; }
+}
+
+.priceSlider { margin: $spacing-3 0 $spacing-5; }
+.sliderInputs {
+  display: flex;
+  gap: $spacing-2;
+}
+.sliderInput {
+  flex: 1;
+  width: 100%;
+  padding: $spacing-2;
+  background: $bg-page;
+  color: $text-primary;
+  border: 1px solid rgba(245, 247, 238, 0.14);
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  &:focus {
+    outline: none;
+    border-color: $bronze;
+    box-shadow: 0 0 0 3px rgba(184, 152, 64, 0.25);
+  }
 }
 .check {
   display: flex;
