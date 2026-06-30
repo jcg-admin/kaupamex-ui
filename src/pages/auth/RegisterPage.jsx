@@ -8,16 +8,25 @@
 
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { registerUser } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
 import { PasswordInput } from '@components/common';
+import { safeNext } from '@utils/safeNext';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from '../auth/LoginPage.module.scss';
 
 export default function RegisterPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // DEC-STF-AUTH-NEXT: el destino post-auth viaja por ?next= (guardado). Se
+  // envia al API para que el link de verificacion del email lo incluya, y se
+  // acarrea al link de "Iniciar sesion".
+  const nextParam = safeNext(searchParams.get('next'));
+  const loginHref = nextParam
+    ? `/auth/login?next=${encodeURIComponent(nextParam)}`
+    : '/auth/login';
   const [form, setForm] = useState({
     first_name: '', last_name: '', email: '', password: '', password_confirm: '', terms: false,
   });
@@ -46,8 +55,12 @@ export default function RegisterPage() {
         password: form.password,
         password_confirm: form.password_confirm,
         terms_accepted: form.terms,
+        ...(nextParam ? { next: nextParam } : {}),
       })).unwrap();
-      navigate('/auth/verify-email', { state: { email: form.email } });
+      navigate(
+        nextParam ? `/auth/verify-email?next=${encodeURIComponent(nextParam)}` : '/auth/verify-email',
+        { state: { email: form.email } },
+      );
     } catch (err) {
       // Surfacar los field-errors del API (incl. el 409 "email ya
       // registrado", que trae {email:[...]} con sugerencia de login /
@@ -101,7 +114,7 @@ export default function RegisterPage() {
       <section className={styles.formCol}>
         <div className={styles.formWrap}>
           <div className={styles.tabs}>
-            <Link to="/auth/login" className={styles.tab}>Iniciar sesión</Link>
+            <Link to={loginHref} className={styles.tab}>Iniciar sesión</Link>
             <span className={`${styles.tab} ${styles.tabActive}`}>Crear cuenta</span>
           </div>
 
@@ -155,7 +168,7 @@ export default function RegisterPage() {
             </Button>
 
             <div className={styles.footer}>
-              ¿Ya tienes cuenta? <Link to="/auth/login">Inicia sesión →</Link>
+              ¿Ya tienes cuenta? <Link to={loginHref}>Inicia sesión →</Link>
             </div>
           </form>
         </div>

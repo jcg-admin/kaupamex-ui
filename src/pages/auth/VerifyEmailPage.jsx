@@ -28,6 +28,12 @@ export default function VerifyEmailPage() {
   const token = searchParams.get('token');
   const location = useLocation();
   const pendingEmail = location.state?.email;
+  // DEC-STF-AUTH-NEXT: el link de verificacion puede traer &next=/ruta; se
+  // acarrea al login para que el redirect sobreviva el round-trip por email.
+  const nextParam = searchParams.get('next');
+  const loginHref = nextParam
+    ? `/auth/login?next=${encodeURIComponent(nextParam)}`
+    : '/auth/login';
 
   const [status, setStatus] = useState(STATUS.IDLE);
   const [error, setError]   = useState(null);
@@ -81,7 +87,7 @@ export default function VerifyEmailPage() {
             contactos para futuros envíos.
           </p>
           <p className={styles.links}>
-            <Link to="/auth/login">Volver al inicio de sesión</Link>
+            <Link to={loginHref}>Volver al inicio de sesión</Link>
           </p>
         </div>
       </main>
@@ -105,7 +111,7 @@ export default function VerifyEmailPage() {
               Email verificado correctamente. Tu cuenta esta activa.
             </p>
             <p className={styles.links}>
-              <Link to="/auth/login">Iniciar sesion</Link>
+              <Link to={loginHref}>Iniciar sesion</Link>
             </p>
           </>
         )}
