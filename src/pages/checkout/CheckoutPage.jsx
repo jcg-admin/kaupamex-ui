@@ -317,7 +317,6 @@ const PAYMENT_INFO = {
 function PaymentMethods({ selected, onSelect }) {
   const opts = [
     { id: 'mp',   t: 'Mercado Pago',          sub: 'Tarjeta · SPEI · OXXO Pay · 6 meses sin intereses', external: true  },
-    { id: 'pp',   t: 'PayPal',                 sub: 'Cuenta PayPal o tarjeta sin compartir datos',         external: true  },
     { id: 'spei', t: 'Transferencia SPEI',     sub: 'Recibirás CLABE única · pedido reservado 24 hrs',     external: false },
   ];
   const infoText = selected === 'spei' ? PAYMENT_INFO.spei : PAYMENT_INFO.gateway;

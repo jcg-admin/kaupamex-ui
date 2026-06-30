@@ -98,7 +98,6 @@ export default function Footer() {
           <span>© {new Date().getFullYear()} Práctica Yorùbà · practicayoruba.com</span>
           <span className={styles.payments}>
             <span>Mercado Pago</span>
-            <span>PayPal</span>
             <span>SPEI</span>
             <span>OXXO Pay</span>
           </span>
