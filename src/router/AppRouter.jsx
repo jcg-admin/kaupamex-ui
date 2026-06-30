@@ -6,6 +6,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import UnauthorizedListener from '@app/UnauthorizedListener';
+import ScrollToTop from '@components/shared/ScrollToTop/ScrollToTop';
 import StorefrontLayout from '@layouts/StorefrontLayout';
 import AccountLayout    from '@layouts/AccountLayout';
 import AdminLayout      from '@layouts/AdminLayout';
@@ -144,6 +145,8 @@ export default function AppRouter() {
           Monta una sola vez al inicio del router; el listener
           window-level captura cualquier 401 desde cualquier tab. */}
       <UnauthorizedListener />
+      {/* Lleva el scroll al tope en cada cambio de ruta (RRv6 no lo hace). */}
+      <ScrollToTop />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* --- Tienda publica --- */}
