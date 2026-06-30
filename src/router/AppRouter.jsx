@@ -185,7 +185,7 @@ export default function AppRouter() {
             <Route path="login"                    element={<LoginPage />} />
             <Route path="register"                 element={<RegisterPage />} />
             <Route path="forgot-password"          element={<ForgotPasswordPage />} />
-            <Route path="reset-password/:uid/:token" element={<ResetPasswordPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
             {/* UC-AUTH-10 — Verificar email (token en query string) */}
             <Route path="verify-email"             element={<VerifyEmailPage />} />
             {/* UC-AUTH-2FA — Verificacion en dos pasos (OTP) */}

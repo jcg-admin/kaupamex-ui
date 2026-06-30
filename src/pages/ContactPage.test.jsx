@@ -79,7 +79,7 @@ describe('ContactPage (UC-COM-01)', () => {
 
     fireEvent.change(screen.getByLabelText(/Nombre/i), { target: { value: 'Ana' } });
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'ana@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Asunto/i), { target: { value: 'Hola' } });
+    fireEvent.change(screen.getByLabelText(/Asunto/i), { target: { value: 'Saludos al equipo' } });
     fireEvent.change(screen.getByLabelText(/Mensaje/i), { target: { value: 'Este es un mensaje de prueba largo.' } });
     fireEvent.click(screen.getByRole('button', { name: /Enviar mensaje/i }));
 
@@ -103,7 +103,7 @@ describe('ContactPage (UC-COM-01)', () => {
 
     fireEvent.change(screen.getByLabelText(/Nombre/i), { target: { value: 'Ana' } });
     fireEvent.change(screen.getByLabelText(/Email/i), { target: { value: 'ana@example.com' } });
-    fireEvent.change(screen.getByLabelText(/Asunto/i), { target: { value: 'Hola' } });
+    fireEvent.change(screen.getByLabelText(/Asunto/i), { target: { value: 'Saludos al equipo' } });
     fireEvent.change(screen.getByLabelText(/Mensaje/i), { target: { value: 'Mensaje de prueba con suficiente longitud.' } });
     fireEvent.click(screen.getByRole('button', { name: /Enviar mensaje/i }));
 
