@@ -1,19 +1,23 @@
+/* InfoPage (/info/:slug) — alineado a la paleta de marca.
+   Antes usaba tokens genericos --color-* (blanco/morado), distinto al sitio. */
+@use '@styles/abstracts' as *;
+
 .page {
   min-height: 60vh;
-  padding-block: var(--space-8, 3rem) var(--space-12, 5rem);
-  background: var(--color-surface);
+  padding-block: $spacing-12 $spacing-20;
+  background: $bg-page;
 }
 
 .inner {
   max-width: 760px;
   margin-inline: auto;
-  padding-inline: var(--space-4, 1.5rem);
+  padding-inline: $spacing-6;
 }
 
 .breadcrumb {
-  font-size: 0.8125rem;
-  color: var(--color-muted);
-  margin-bottom: var(--space-5, 2rem);
+  font-size: $font-size-sm;
+  color: $text-muted;
+  margin-bottom: $spacing-8;
 
   a {
     color: inherit;
@@ -26,52 +30,53 @@
 }
 
 .title {
+  font-family: $font-family-display;
   font-size: clamp(1.5rem, 4vw, 2.25rem);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--color-text);
-  margin-bottom: var(--space-6, 2.5rem);
-  padding-bottom: var(--space-4, 1.5rem);
-  border-bottom: 1px solid var(--color-border);
+  color: $text-primary;
+  margin-bottom: $spacing-10;
+  padding-bottom: $spacing-6;
+  border-bottom: 1px solid rgba(245, 247, 238, 0.08);
 }
 
 .body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-5, 2rem);
+  gap: $spacing-8;
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2, 0.75rem);
+  gap: $spacing-3;
 }
 
 .heading {
-  font-size: 1.0625rem;
+  font-size: $font-size-lg;
   font-weight: 600;
-  color: var(--color-text);
+  color: $text-primary;
 }
 
 .para {
-  font-size: 0.9375rem;
+  font-size: $font-size-md;
   line-height: 1.75;
-  color: var(--color-text-secondary);
+  color: $text-muted;
   margin: 0;
 }
 
 .footer {
-  margin-top: var(--space-8, 3rem);
-  padding-top: var(--space-5, 2rem);
-  border-top: 1px solid var(--color-border);
+  margin-top: $spacing-12;
+  padding-top: $spacing-8;
+  border-top: 1px solid rgba(245, 247, 238, 0.08);
 }
 
 .backLink {
-  font-size: 0.875rem;
-  color: var(--color-muted);
+  font-size: $font-size-sm;
+  color: $text-muted;
   text-decoration: none;
 
-  &:hover { color: var(--color-text); }
+  &:hover { color: $text-primary; }
 }
 
 .notFound {
@@ -80,10 +85,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3, 1rem);
+  gap: $spacing-4;
   text-align: center;
-  padding: var(--space-8, 3rem);
+  padding: $spacing-12;
 
-  h1 { font-size: 1.5rem; }
-  a { color: var(--color-accent); }
+  h1 { font-size: 1.5rem; color: $text-primary; }
+  a { color: $bronze; }
 }
