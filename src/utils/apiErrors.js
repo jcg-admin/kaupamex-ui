@@ -385,37 +385,57 @@ export function createErrorFromResponse(response, originalError = null) {
   const statusCode = response?.status;
   const ErrorClass = getErrorClassByStatusCode(statusCode);
 
-  if (statusCode === 422 || statusCode === 400) {
-    const data = response?.data || {};
-    // Prefer structured detail over generic message; fall back to DRF data.message
-    const message = data.detail || data.message || 'Validation failed';
-    const errors = data.errors || {};
-    const err = new ErrorClass(message, errors);
-    // Propagate structured error_code from API (overrides class default code).
-    // Canon del proyecto es `codigo_error` (DEC-DOC-005); se acepta también
-    // el alias inglés `error_code` por compatibilidad. Se conserva el valor
-    // crudo en `codigo_error` para que los consumidores puedan discriminar
-    // casos de negocio (p.ej. CANNOT_DEMOTE_SELF en UC-ADM-02).
-    const codigoError = data.codigo_error || data.error_code;
-    if (codigoError) {
-      err.code = codigoError;
-      err.codigo_error = codigoError;
-    }
-    return err;
+  const data = response?.data || {};
+
+  // Extraer field-errors estilo DRF. Por defecto DRF los pone al nivel
+  // superior de `data` ({campo: ["msg"]}); algunos endpoints los anidan en
+  // `data.errors`. Se excluyen claves meta. Aplica a TODOS los 4xx — no solo
+  // 400/422 — para que p.ej. el 409 de "email ya registrado" (UC-AUTH-01
+  // Alt-A.1, body {email:[...]}) llegue al formulario en vez de perderse.
+  const META = new Set(['detail', 'message', 'codigo_error', 'error_code', 'code', 'errors']);
+  const nested = (data.errors && typeof data.errors === 'object') ? data.errors : {};
+  const fields = {};
+  for (const [k, v] of Object.entries({ ...data, ...nested })) {
+    if (META.has(k)) continue;
+    fields[k] = Array.isArray(v) ? v.join(' ') : v;
   }
 
-  try {
-    const message = response?.data?.message || response?.statusText;
-    if (statusCode >= 500) {
-      return new ErrorClass(message);
-    } else if (statusCode >= 400) {
-      return new ErrorClass(message);
-    }
-  } catch {
-    return new ErrorClass();
+  // Mensaje: detail/message del API; si no hay, el primer field-error; si no,
+  // un fallback segun el status.
+  let message = data.detail || data.message;
+  if (!message) {
+    const first = Object.values(fields)[0];
+    message = first
+      || ((statusCode === 422 || statusCode === 400) ? 'Validation failed'
+          : (response?.statusText || 'Request failed'));
   }
 
-  return new ServerError(statusCode);
+  // BadRequestError/ValidationError aceptan (message, errors); el resto solo
+  // (message). Los field-errors se exponen luego de forma uniforme.
+  const err = (statusCode === 422 || statusCode === 400)
+    ? new ErrorClass(message, fields)
+    : new ErrorClass(message);
+
+  if (Object.keys(fields).length > 0) {
+    err.fields = fields;
+    err.validationErrors = fields;
+  }
+
+  // Propagate structured error_code from API (overrides class default code).
+  // Canon del proyecto es `codigo_error` (DEC-DOC-005); se acepta también
+  // el alias inglés `error_code` por compatibilidad. Se conserva el valor
+  // crudo en `codigo_error` para que los consumidores puedan discriminar
+  // casos de negocio (p.ej. CANNOT_DEMOTE_SELF en UC-ADM-02).
+  const codigoError = data.codigo_error || data.error_code;
+  if (codigoError) {
+    err.code = codigoError;
+    err.codigo_error = codigoError;
+  }
+
+  if (statusCode >= 500 && !data.detail && !data.message && Object.keys(fields).length === 0) {
+    return new ErrorClass(response?.statusText);
+  }
+  return err;
 }
 
 /**

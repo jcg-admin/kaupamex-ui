@@ -49,7 +49,21 @@ export default function RegisterPage() {
       })).unwrap();
       navigate('/auth/verify-email', { state: { email: form.email } });
     } catch (err) {
-      setErrors(err.fields || { _form: 'No se pudo crear la cuenta.' });
+      // Surfacar los field-errors del API (incl. el 409 "email ya
+      // registrado", que trae {email:[...]} con sugerencia de login /
+      // recuperar contrasena). Mapear claves del API a las del form.
+      const raw = err.fields || err.validationErrors || {};
+      const mapped = {};
+      for (const [k, v] of Object.entries(raw)) {
+        const key = k === 'terms_accepted' ? 'terms'
+          : (k === 'non_field_errors' || k === 'detail') ? '_form' : k;
+        mapped[key] = Array.isArray(v) ? v.join(' ') : v;
+      }
+      setErrors(
+        Object.keys(mapped).length
+          ? mapped
+          : { _form: err.message || 'No se pudo crear la cuenta.' },
+      );
     } finally {
       setLoading(false);
     }
