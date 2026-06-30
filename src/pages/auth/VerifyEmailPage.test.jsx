@@ -117,10 +117,11 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
     await waitFor(() => expect(resendBody).toMatchObject({ email: 'demo@test.mx' }));
   });
 
-  it('muestra error cuando no se proporciona token en la URL', () => {
+  it('sin token muestra "revisa tu correo" con aviso de spam', () => {
     renderPage('');
+    expect(screen.getByText(/Revisa tu correo/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/enlace de verificacion incompleto/i),
+      screen.getByText(/carpeta de spam/i),
     ).toBeInTheDocument();
   });
 });

@@ -26,6 +26,12 @@
   color: $text-muted;
 }
 
+.hint {
+  color: $text-muted;
+  font-size: $font-size-xs;
+  margin: $spacing-3 0 0;
+}
+
 .success {
   background: $success-bg;
   color: $success-strong;

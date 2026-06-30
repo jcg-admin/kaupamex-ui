@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
 import {
   verifyEmail,
   resendVerificationEmail,
@@ -26,6 +26,8 @@ export default function VerifyEmailPage() {
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const location = useLocation();
+  const pendingEmail = location.state?.email;
 
   const [status, setStatus] = useState(STATUS.IDLE);
   const [error, setError]   = useState(null);
@@ -66,13 +68,20 @@ export default function VerifyEmailPage() {
     return (
       <main className={styles.page}>
         <div className={styles.card}>
-          <h1 className={styles.title}>Verificacion de email</h1>
-          <p className={styles.error} role="alert">
-            El enlace de verificacion incompleto. Vuelve a abrir el
-            correo recibido tras tu registro.
+          <h1 className={styles.title}>Revisa tu correo</h1>
+          <p className={styles.pending} role="status">
+            {pendingEmail
+              ? `Te enviamos un correo de verificación a ${pendingEmail}. `
+              : 'Te enviamos un correo de verificación. '}
+            Abre el enlace que incluye para activar tu cuenta.
+          </p>
+          <p className={styles.hint}>
+            ¿No lo ves en unos minutos? Revisa tu carpeta de spam o
+            correo no deseado, y agrega noreply@practicayoruba.com a tus
+            contactos para futuros envíos.
           </p>
           <p className={styles.links}>
-            <Link to="/auth/login">Volver al inicio de sesion</Link>
+            <Link to="/auth/login">Volver al inicio de sesión</Link>
           </p>
         </div>
       </main>
