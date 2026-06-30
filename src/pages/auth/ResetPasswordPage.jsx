@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { confirmPasswordReset } from '@redux/slices/authSlice';
 import { Button, MetaTag } from '@components/common/primitives';
 import { PasswordInput } from '@components/common';
@@ -16,7 +16,11 @@ import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './AuthSimplePage.module.scss';
 
 export default function ResetPasswordPage() {
-  const { uid, token } = useParams();
+  // El enlace del email es /auth/reset-password/?token=XXX (query param),
+  // no /reset-password/:uid/:token. El endpoint de confirmacion solo usa
+  // `token`. Leer el token del query, igual que VerifyEmailPage.
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token') || '';
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [pwd, setPwd] = useState({ next: '', confirm: '' });
@@ -30,12 +34,20 @@ export default function ResetPasswordPage() {
       setError('Las contraseñas no coinciden.');
       return;
     }
+    if (!token) {
+      setError('Enlace inválido: falta el token. Solicita uno nuevo.');
+      return;
+    }
     setLoading(true);
     try {
-      await dispatch(confirmPasswordReset({ uid, token, new_password: pwd.next })).unwrap();
+      await dispatch(confirmPasswordReset({
+        token,
+        new_password: pwd.next,
+        new_password_confirm: pwd.confirm,
+      })).unwrap();
       navigate('/auth/login?reset=ok', { replace: true });
     } catch (err) {
-      setError('Token inválido o expirado. Solicita un enlace nuevo.');
+      setError(err.message || 'Token inválido o expirado. Solicita un enlace nuevo.');
     } finally {
       setLoading(false);
     }
