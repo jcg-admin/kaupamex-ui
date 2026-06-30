@@ -1,7 +1,8 @@
 /**
  * Tests — CatalogFilters (UC-CAT-04 + UC-CAT-05).
- * Rediseno T-11 (DEC-STF-11): categoria por radios, precio con
- * RangeSlider + inputs, filtros activos como Chips removibles.
+ * Rediseno T-11 (DEC-STF-11, opcion B): categoria multi-seleccion por
+ * checkboxes, precio con RangeSlider + inputs, filtros activos como Chips
+ * removibles.
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -36,21 +37,34 @@ const renderFilters = (props = {}) => {
 };
 
 describe('CatalogFilters (UC-CAT-04 + UC-CAT-05)', () => {
-  it('renderiza un radio por categoria aplanada (UC-CAT-04)', async () => {
+  it('renderiza un checkbox por categoria aplanada (UC-CAT-04)', async () => {
     renderFilters();
     expect(
-      await screen.findByRole('radio', { name: /^collares$/i }),
+      await screen.findByRole('checkbox', { name: /^collares$/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /collares orisha/i })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /^soperas$/i })).toBeInTheDocument();
-    expect(screen.getByRole('radio', { name: /todas las categorias/i })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /collares orisha/i })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /^soperas$/i })).toBeInTheDocument();
   });
 
-  it('emite onChange con category=<slug> al elegir un radio', async () => {
+  it('emite onChange con category=[<slug>] al marcar un checkbox', async () => {
     const { onChange } = renderFilters();
-    const soperas = await screen.findByRole('radio', { name: /^soperas$/i });
+    const soperas = await screen.findByRole('checkbox', { name: /^soperas$/i });
     fireEvent.click(soperas);
-    expect(onChange).toHaveBeenCalledWith({ category: 'soperas' });
+    expect(onChange).toHaveBeenCalledWith({ category: ['soperas'] });
+  });
+
+  it('agrega una segunda categoria a la seleccion existente (multi)', async () => {
+    const { onChange } = renderFilters({ categories: ['collares'] });
+    const soperas = await screen.findByRole('checkbox', { name: /^soperas$/i });
+    fireEvent.click(soperas);
+    expect(onChange).toHaveBeenCalledWith({ category: ['collares', 'soperas'] });
+  });
+
+  it('desmarca una categoria ya seleccionada', async () => {
+    const { onChange } = renderFilters({ categories: ['collares', 'soperas'] });
+    const collares = await screen.findByRole('checkbox', { name: /^collares$/i });
+    fireEvent.click(collares);
+    expect(onChange).toHaveBeenCalledWith({ category: ['soperas'] });
   });
 
   it('emite onChange con price_min y price_max al aplicar precio (UC-CAT-05)', () => {
@@ -71,18 +85,18 @@ describe('CatalogFilters (UC-CAT-04 + UC-CAT-05)', () => {
   });
 
   it('emite onChange limpio al pulsar «Limpiar filtros»', () => {
-    const { onChange } = renderFilters({ category: 'collares', priceMin: '10', priceMax: '50' });
+    const { onChange } = renderFilters({ categories: ['collares'], priceMin: '10', priceMax: '50' });
     fireEvent.click(screen.getByRole('button', { name: /limpiar filtros/i }));
     expect(onChange).toHaveBeenCalledWith({
-      category: null, price_min: null, price_max: null,
+      category: [], price_min: null, price_max: null,
     });
   });
 
-  it('muestra un Chip de categoria activa y lo quita con su boton', async () => {
-    const { onChange } = renderFilters({ category: 'collares' });
-    const removeBtn = await screen.findByRole('button', { name: /quitar categoria/i });
+  it('muestra un Chip por categoria activa y la quita con su boton', async () => {
+    const { onChange } = renderFilters({ categories: ['collares'] });
+    const removeBtn = await screen.findByRole('button', { name: /quitar collares/i });
     fireEvent.click(removeBtn);
-    expect(onChange).toHaveBeenCalledWith({ category: null });
+    expect(onChange).toHaveBeenCalledWith({ category: [] });
   });
 
   it('quita el filtro de precio activo con el Chip de precio', () => {

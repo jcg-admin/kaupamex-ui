@@ -24,10 +24,10 @@ import styles from './SearchResultsPage.module.scss';
 export default function SearchResultsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const rawQ          = searchParams.get('q') || '';
-  const categoryParam = searchParams.get('category') || '';
-  const priceMinParam = searchParams.get('price_min') || '';
-  const priceMaxParam = searchParams.get('price_max') || '';
+  const rawQ           = searchParams.get('q') || '';
+  const categoryParams = searchParams.getAll('category');   // multi (T-11)
+  const priceMinParam  = searchParams.get('price_min') || '';
+  const priceMaxParam  = searchParams.get('price_max') || '';
 
   const q = normalizeQuery(rawQ);
   const queryValid = isQueryValid(q);
@@ -35,7 +35,7 @@ export default function SearchResultsPage() {
   const { data, isLoading, isError } = useSearch(
     {
       q,
-      category:  categoryParam || undefined,
+      category:  categoryParams.length ? categoryParams : undefined,
       price_min: priceMinParam || undefined,
       price_max: priceMaxParam || undefined,
     },
@@ -54,8 +54,17 @@ export default function SearchResultsPage() {
   const handleFiltersChange = useCallback((patch) => {
     const next = new URLSearchParams(searchParams);
     Object.entries(patch).forEach(([k, v]) => {
-      if (v === null || v === undefined || v === '') next.delete(k);
-      else next.set(k, String(v));
+      next.delete(k);
+      if (Array.isArray(v)) {
+        // category multi: un valor repetido por slug (?category=a&category=b)
+        v.forEach((item) => {
+          if (item !== null && item !== undefined && item !== '') {
+            next.append(k, String(item));
+          }
+        });
+      } else if (v !== null && v !== undefined && v !== '') {
+        next.set(k, String(v));
+      }
     });
     setSearchParams(next);
   }, [searchParams, setSearchParams]);
@@ -91,7 +100,7 @@ export default function SearchResultsPage() {
       {queryValid && (
         <div className={styles.layout}>
           <CatalogFilters
-            category={categoryParam}
+            categories={categoryParams}
             priceMin={priceMinParam}
             priceMax={priceMaxParam}
             onChange={handleFiltersChange}

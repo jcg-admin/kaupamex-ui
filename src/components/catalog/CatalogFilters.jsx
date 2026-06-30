@@ -2,7 +2,7 @@
  * CatalogFilters — UC-CAT-04 + UC-CAT-05.
  *
  * Panel lateral del catalogo que permite al visitante filtrar por:
- *   - categoria (seleccion exclusiva de un slug del arbol publico),
+ *   - categoria (una o varias del arbol publico — multi-seleccion),
  *   - rango de precio (price_min / price_max sobre `price_with_tax`).
  *
  * El estado vive en la URL (`?category=`, `?price_min=`, `?price_max=`)
@@ -10,11 +10,12 @@
  * frente a recarga. El padre (CatalogPage) refleja los params al
  * thunk `fetchProducts({ category, price_min, price_max, q })`.
  *
- * Diseno (T-11, DEC-STF-11, opcion A + Offcanvas movil): reusa los
- * componentes ya portados de ui-core — RangeSlider (precio), Chip
+ * Diseno (T-11, DEC-STF-11, opcion B multi-categoria + Offcanvas movil):
+ * reusa los componentes ya portados de ui-core — RangeSlider (precio), Chip
  * (filtros activos removibles), Button (acciones), Offcanvas (drawer en
- * movil) — y la paleta de marca. La categoria usa radios accesibles en
- * vez de un <select> nativo.
+ * movil) — y la paleta de marca. La categoria usa checkboxes accesibles
+ * (multi-seleccion) en vez de un <select> nativo; el contrato `?category=`
+ * es repetible (`?category=a&category=b`).
  */
 import { useState, useEffect } from 'react';
 import { useCategories } from '@hooks/domain/useCategories';
@@ -38,12 +39,16 @@ function flattenTree(nodes, depth = 0, acc = []) {
 const fmtMoney = (v) => `$${Number(v).toLocaleString('es-MX')}`;
 
 export default function CatalogFilters({
-  category: categoryProp = '',
+  categories: categoriesProp = [],
   priceMin: priceMinProp = '',
   priceMax: priceMaxProp = '',
   priceCeiling = PRICE_CEILING_DEFAULT,
   onChange,
 }) {
+  // El padre puede pasar un slug suelto o un arreglo; normalizamos a lista.
+  const selected = Array.isArray(categoriesProp)
+    ? categoriesProp
+    : (categoriesProp ? [categoriesProp] : []);
   const { data: catData } = useCategories();
   const tree = catData?.results ?? [];
   const flat = flattenTree(tree);
@@ -56,7 +61,12 @@ export default function CatalogFilters({
   useEffect(() => { setPriceMin(priceMinProp); }, [priceMinProp]);
   useEffect(() => { setPriceMax(priceMaxProp); }, [priceMaxProp]);
 
-  const selectCategory = (slug) => onChange?.({ category: slug || null });
+  const toggleCategory = (slug) => {
+    const next = selected.includes(slug)
+      ? selected.filter((s) => s !== slug)
+      : [...selected, slug];
+    onChange?.({ category: next });
+  };
 
   const handlePriceApply = (e) => {
     e?.preventDefault();
@@ -89,16 +99,16 @@ export default function CatalogFilters({
     setPriceMin('');
     setPriceMax('');
     setPriceError('');
-    onChange?.({ category: null, price_min: null, price_max: null });
+    onChange?.({ category: [], price_min: null, price_max: null });
   };
 
   // Valores del slider derivados de los inputs (clamp al rango permitido).
   const sliderLo = priceMin === '' ? 0 : Math.min(priceCeiling, Math.max(0, Number(priceMin) || 0));
   const sliderHi = priceMax === '' ? priceCeiling : Math.min(priceCeiling, Math.max(0, Number(priceMax) || priceCeiling));
 
-  const activeCategory = flat.find((c) => c.slug === categoryProp);
+  const activeCategories = flat.filter((c) => selected.includes(c.slug));
   const hasPrice = priceMinProp !== '' || priceMaxProp !== '';
-  const hasAnyActive = Boolean(categoryProp) || hasPrice;
+  const hasAnyActive = selected.length > 0 || hasPrice;
 
   const priceChipLabel = `Precio: ${priceMinProp !== '' ? fmtMoney(priceMinProp) : '$0'} – ${priceMaxProp !== '' ? fmtMoney(priceMaxProp) : '∞'}`;
 
@@ -108,11 +118,16 @@ export default function CatalogFilters({
     <div className={styles.body}>
       {hasAnyActive && (
         <div className={styles.activeFilters} aria-label="Filtros activos">
-          {activeCategory && (
-            <Chip removable onRemove={() => selectCategory('')} ariaRemoveLabel="Quitar categoria">
-              {activeCategory.name}
+          {activeCategories.map((c) => (
+            <Chip
+              key={c.slug}
+              removable
+              onRemove={() => toggleCategory(c.slug)}
+              ariaRemoveLabel={`Quitar ${c.name}`}
+            >
+              {c.name}
             </Chip>
-          )}
+          ))}
           {hasPrice && (
             <Chip removable onRemove={clearPrice} ariaRemoveLabel="Quitar precio">
               {priceChipLabel}
@@ -121,32 +136,22 @@ export default function CatalogFilters({
         </div>
       )}
 
-      {/* UC-CAT-04: categoria (radios accesibles) */}
+      {/* UC-CAT-04: categoria (checkboxes accesibles, multi-seleccion) */}
       <fieldset className={styles.group}>
         <legend className={styles.groupTitle}>Categoria</legend>
-        <div className={styles.radioList} role="radiogroup" aria-label="Categoria">
-          <label className={styles.radio}>
-            <input
-              type="radio"
-              name={`category-${scope}`}
-              value=""
-              checked={!categoryProp}
-              onChange={() => selectCategory('')}
-            />
-            <span>Todas las categorias</span>
-          </label>
+        <div className={styles.checkList} role="group" aria-label="Categoria">
           {flat.map((c) => (
             <label
               key={c.id}
-              className={styles.radio}
+              className={styles.check}
               style={{ paddingLeft: `${c.depth * 16}px` }}
             >
               <input
-                type="radio"
+                type="checkbox"
                 name={`category-${scope}`}
                 value={c.slug}
-                checked={categoryProp === c.slug}
-                onChange={() => selectCategory(c.slug)}
+                checked={selected.includes(c.slug)}
+                onChange={() => toggleCategory(c.slug)}
               />
               <span>{c.name}</span>
             </label>
