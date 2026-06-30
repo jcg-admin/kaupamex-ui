@@ -12,7 +12,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { confirmPasswordReset } from '@redux/slices/authSlice';
 import { Button, MetaTag } from '@components/common/primitives';
 import { PasswordInput } from '@components/common';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './AuthSimplePage.module.scss';
 
 export default function ResetPasswordPage() {

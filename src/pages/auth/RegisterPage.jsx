@@ -12,7 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { registerUser } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
 import { PasswordInput } from '@components/common';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from '../auth/LoginPage.module.scss';
 
 export default function RegisterPage() {
