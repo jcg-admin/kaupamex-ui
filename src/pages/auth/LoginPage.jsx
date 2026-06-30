@@ -21,12 +21,12 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  // Destino post-login (DEC-STF-AUTH-NEXT): el ?next= de la URL gana (sobrevive
-  // el round-trip de verificacion por email); si no, el state.from (navegacion
-  // en la misma pestana); si no, /account. Todo pasa por el guard safeNext.
+  // Destino post-login (DEC-STF-AUTH-NEXT + T-04): el ?next= de la URL gana
+  // (sobrevive el round-trip de verificacion por email); si no, el state.from
+  // (navegacion en la misma pestana). Ambos pasan por el guard safeNext. Si no
+  // hay ninguno, se regresa a la pagina anterior (historial), no a /account.
   const from = location.state?.from;
   const nextValue = safeNext(searchParams.get('next')) || safeNext(fromLocation(from));
-  const redirectTo = nextValue || '/account';
   // Acarrea el destino al tab "Crear cuenta" para que el flujo de registro +
   // verificacion por email lo conserve (DEC-STF-AUTH-NEXT).
   const registerHref = nextValue
@@ -43,7 +43,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await dispatch(loginUser({ username: creds.email, password: creds.password })).unwrap();
-      navigate(redirectTo, { replace: true });
+      // T-04: destino explicito (?next= o state.from) si existe; si no,
+      // regresar a la pagina anterior (historial); fallback a la home cuando
+      // no hay historial de app (pestana nueva / primera carga).
+      if (nextValue) navigate(nextValue, { replace: true });
+      else if (window.history.length > 1) navigate(-1);
+      else navigate('/', { replace: true });
     } catch (err) {
       setError('Correo o contraseña incorrectos.');
     } finally {
