@@ -6,7 +6,7 @@
  * Endpoints:
  *   GET /auth/addresses/
  *   POST /checkout/
- *   POST /api/v2/payments/initiate/ (gateway: MERCADOPAGO | PAYPAL)
+ *   POST /api/v2/payments/initiate/ (gateway: MERCADOPAGO)
  *   SPEI: sin llamada a /initiate/ — pedido queda PENDING, CLABE por correo.
  */
 
@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
-import { createOrder, initMercadoPago, initPayPal, fetchShippingMethods } from '@redux/slices/checkoutSlice';
+import { createOrder, initMercadoPago, fetchShippingMethods } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './CheckoutPage.module.scss';
@@ -90,9 +90,6 @@ export default function CheckoutPage() {
       let checkout_url = null;
       if (payment === 'mp') {
         const result = await dispatch(initMercadoPago({ order_number: order.order_number })).unwrap();
-        checkout_url = result.checkout_url;
-      } else if (payment === 'pp') {
-        const result = await dispatch(initPayPal({ order_number: order.order_number })).unwrap();
         checkout_url = result.checkout_url;
       }
       // SPEI: checkout_url queda null — pedido PENDING, CLABE enviada por correo.

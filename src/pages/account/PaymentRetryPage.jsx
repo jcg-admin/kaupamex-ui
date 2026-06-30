@@ -16,7 +16,6 @@ import styles from './PaymentRetryPage.module.scss';
 
 const GATEWAYS = [
   { value: 'mercadopago', label: 'Mercado Pago' },
-  { value: 'paypal',      label: 'PayPal' },
 ];
 
 export default function PaymentRetryPage() {

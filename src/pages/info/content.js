@@ -48,7 +48,7 @@ export const INFO_CONTENT = {
       },
       {
         heading: 'Datos que recopilamos',
-        body: 'Nombre completo, dirección de entrega, correo electrónico, teléfono y datos de pago procesados exclusivamente por Mercado Pago o PayPal (Práctica Yorùbà nunca almacena números de tarjeta).',
+        body: 'Nombre completo, dirección de entrega, correo electrónico, teléfono y datos de pago procesados exclusivamente por Mercado Pago (Práctica Yorùbà nunca almacena números de tarjeta).',
       },
       {
         heading: 'Finalidades',
@@ -56,7 +56,7 @@ export const INFO_CONTENT = {
       },
       {
         heading: 'Transferencias',
-        body: 'Tus datos se comparten únicamente con las empresas de mensajería (DHL) y los procesadores de pago (Mercado Pago, PayPal), que cuentan con sus propias políticas de privacidad.',
+        body: 'Tus datos se comparten únicamente con las empresas de mensajería (DHL) y el procesador de pago (Mercado Pago), que cuenta con sus propias políticas de privacidad.',
       },
       {
         heading: 'Derechos ARCO',
@@ -115,16 +115,12 @@ export const INFO_CONTENT = {
         body: 'Acepta tarjetas de crédito y débito Visa, Mastercard y American Express, SPEI instantáneo, OXXO Pay y hasta 6 meses sin intereses con tarjetas participantes. Al confirmar tu pedido te redirigimos al entorno seguro de Mercado Pago.',
       },
       {
-        heading: 'PayPal',
-        body: 'Paga con tu cuenta PayPal o con tarjeta sin compartir tus datos bancarios con nosotros. Acepta las principales tarjetas internacionales.',
-      },
-      {
         heading: 'Transferencia SPEI',
         body: 'Al elegir esta opción tu pedido queda reservado por 24 horas. Te enviamos por correo una CLABE interbancaria a la que debes transferir el total exacto. Una vez confirmada la transferencia por el banco procesamos tu pedido.',
       },
       {
         heading: 'Seguridad',
-        body: 'Todas las transacciones se realizan bajo conexión HTTPS cifrada. No guardamos datos de tarjeta en nuestros servidores. Mercado Pago y PayPal cumplen con el estándar PCI DSS.',
+        body: 'Todas las transacciones se realizan bajo conexión HTTPS cifrada. No guardamos datos de tarjeta en nuestros servidores. Mercado Pago cumple con el estándar PCI DSS.',
       },
     ],
   },
