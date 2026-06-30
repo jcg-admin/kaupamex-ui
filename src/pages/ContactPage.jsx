@@ -16,14 +16,31 @@ import styles from './ContactPage.module.scss';
 
 const INITIAL = { name: '', email: '', subject: '', message: '' };
 
+// Limites alineados con el API (ContactMessageCreateSerializer):
+// name 2-100, subject 5-150, body 20-2000. Si el cliente no los valida,
+// el POST pasa pero el API responde 400 "Validation failed".
 function validate(form) {
   const errors = {};
-  if (!form.name.trim())    errors.name    = 'El nombre es obligatorio.';
+  const name = form.name.trim();
+  const subject = form.subject.trim();
+  const message = form.message.trim();
+
+  if (!name) errors.name = 'El nombre es obligatorio.';
+  else if (name.length < 2) errors.name = 'El nombre debe tener al menos 2 caracteres.';
+  else if (name.length > 100) errors.name = 'El nombre no puede exceder 100 caracteres.';
+
   if (!form.email.trim())   errors.email   = 'El email es obligatorio.';
   else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email))
     errors.email = 'El email no tiene un formato valido.';
-  if (!form.subject.trim()) errors.subject = 'El asunto es obligatorio.';
-  if (!form.message.trim()) errors.message = 'El mensaje es obligatorio.';
+
+  if (!subject) errors.subject = 'El asunto es obligatorio.';
+  else if (subject.length < 5) errors.subject = 'El asunto debe tener al menos 5 caracteres.';
+  else if (subject.length > 150) errors.subject = 'El asunto no puede exceder 150 caracteres.';
+
+  if (!message) errors.message = 'El mensaje es obligatorio.';
+  else if (message.length < 20) errors.message = 'El mensaje debe tener al menos 20 caracteres.';
+  else if (message.length > 2000) errors.message = 'El mensaje no puede exceder 2000 caracteres.';
+
   return errors;
 }
 
