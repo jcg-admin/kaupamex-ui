@@ -283,6 +283,35 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
     }, { timeout: 3000 });
   });
 
+  it('reenvia varias categorias como params repetidos (multi, T-11 follow-up)', async () => {
+    const capturedUrls = [];
+    server.use(
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
+        capturedUrls.push(request.url);
+        return HttpResponse.json(pageOf(PRODUCTS));
+      }),
+    );
+    const store = makeStore();
+    render(
+      <Provider store={store}>
+        <QueryClientProvider client={makeClient()}>
+          <MemoryRouter initialEntries={['/catalog']}>
+            <CatalogPage />
+          </MemoryRouter>
+        </QueryClientProvider>
+      </Provider>,
+    );
+    await waitFor(() => expect(capturedUrls.length).toBeGreaterThan(0));
+    store.dispatch(setFilter({ category: ['collares', 'soperas'] }));
+    await waitFor(() => {
+      const multiUrl = capturedUrls.find((url) => {
+        const cats = new URL(url).searchParams.getAll('category');
+        return cats.includes('collares') && cats.includes('soperas');
+      });
+      expect(multiUrl).toBeDefined();
+    }, { timeout: 3000 });
+  });
+
   it('reenvia price_min y price_max a fetchProducts (UC-CAT-05)', async () => {
     const capturedUrls = [];
     server.use(

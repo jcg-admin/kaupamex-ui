@@ -99,7 +99,7 @@ const catalogSlice = createSlice({
       previous:   null,
     },
     filters: {
-      category:  null,
+      category:  [],          // multi-categoria (T-11 follow-up): arreglo de slugs
       priceMin:  null,
       priceMax:  null,
       inStock:   false,
@@ -119,7 +119,7 @@ const catalogSlice = createSlice({
     },
     clearFilters(state) {
       state.filters = {
-        category: null, priceMin: null, priceMax: null,
+        category: [], priceMin: null, priceMax: null,
         inStock: false, ordering: '-created_at',
       };
       state.pagination.page = 1;

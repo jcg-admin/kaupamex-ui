@@ -47,18 +47,24 @@ export default function CatalogPage() {
 
   useEffect(() => { dispatch(fetchCategories()); }, [dispatch]);
 
+  // Deep-link ?cat=<slug>: siembra la seleccion multi al navegar (una sola
+  // vez por cambio de ?cat=). Despues el aside (redux) es la fuente unica.
+  useEffect(() => {
+    if (catParam) dispatch(setFilter({ category: [catParam] }));
+  }, [catParam, dispatch]);
+
   // Re-fetch whenever listing filters or page change (but not in search mode)
   useEffect(() => {
     if (qParam) dispatch(searchProducts({ q: qParam }));
     else dispatch(fetchProducts({
-      category: catParam || filters.category || undefined,
+      category: (filters.category && filters.category.length) ? filters.category : undefined,
       price_min: filters.priceMin || undefined,
       price_max: filters.priceMax || undefined,
       in_stock: filters.inStock || undefined,
       ordering: filters.ordering || undefined,
       page: pagination.page || 1,
     }));
-  }, [dispatch, qParam, catParam, filters.category, filters.priceMin, filters.priceMax,
+  }, [dispatch, qParam, filters.category, filters.priceMin, filters.priceMax,
       filters.inStock, filters.ordering, pagination.page]);
 
   const handleSearch = useCallback((q) => setSearchParams({ q }), [setSearchParams]);
@@ -164,26 +170,37 @@ export default function CatalogPage() {
   );
 }
 
-// Aside de filtros — CONTROLADO desde redux `filters` (T-20). Antes usaba
-// `Check` con estado local: la "multi-categoria" era falsa (redux.category es
-// unica) y "Limpiar" no desmarcaba. Ahora: radios (categoria unica, honesto),
-// RangeSlider + inputs (precio), checkbox de disponibilidad, y Chips de los
-// filtros activos. Todo reusando primitivos de marca.
+// Aside de filtros — CONTROLADO desde redux `filters` (T-20 + follow-up
+// T-11). `filters.category` es un arreglo de slugs: categoria
+// multi-seleccion por checkboxes (consistente con el filtro de /search),
+// RangeSlider + inputs (precio), checkbox de disponibilidad, y un Chip por
+// filtro activo. Todo reusando primitivos de marca.
 function FilterSidebar({ dispatch, categories, filters = {} }) {
-  const activeCat = categories.find((c) => c.slug === filters.category);
+  const selected  = filters.category || [];           // arreglo de slugs (multi)
+  const activeCats = categories.filter((c) => selected.includes(c.slug));
   const hasPrice  = filters.priceMin != null || filters.priceMax != null;
-  const hasActive = Boolean(filters.category) || hasPrice || Boolean(filters.inStock);
-  const setCategory = (slug) => dispatch(setFilter({ category: slug || null }));
+  const hasActive = selected.length > 0 || hasPrice || Boolean(filters.inStock);
+  const toggleCategory = (slug) => {
+    const next = selected.includes(slug)
+      ? selected.filter((s) => s !== slug)
+      : [...selected, slug];
+    dispatch(setFilter({ category: next }));
+  };
 
   return (
     <aside className={styles.sidebar}>
       {hasActive && (
         <div className={styles.activeFilters} aria-label="Filtros activos">
-          {activeCat && (
-            <Chip removable onRemove={() => setCategory('')} ariaRemoveLabel="Quitar categoria">
-              {activeCat.name}
+          {activeCats.map((cat) => (
+            <Chip
+              key={cat.slug}
+              removable
+              onRemove={() => toggleCategory(cat.slug)}
+              ariaRemoveLabel={`Quitar ${cat.name}`}
+            >
+              {cat.name}
             </Chip>
-          )}
+          ))}
           {hasPrice && (
             <Chip
               removable
@@ -207,23 +224,15 @@ function FilterSidebar({ dispatch, categories, filters = {} }) {
 
       <fieldset className={styles.filterGroup}>
         <legend className={styles.filterTitle}>Categoría</legend>
-        <div className={styles.radioList} role="radiogroup" aria-label="Categoría">
-          <label className={styles.radio}>
-            <input
-              type="radio"
-              name="catalog-category"
-              checked={!filters.category}
-              onChange={() => setCategory('')}
-            />
-            <span>Todas las categorías</span>
-          </label>
+        <div className={styles.radioList} role="group" aria-label="Categoría">
           {categories.map((cat) => (
             <label key={cat.slug} className={styles.radio}>
               <input
-                type="radio"
+                type="checkbox"
                 name="catalog-category"
-                checked={filters.category === cat.slug}
-                onChange={() => setCategory(cat.slug)}
+                value={cat.slug}
+                checked={selected.includes(cat.slug)}
+                onChange={() => toggleCategory(cat.slug)}
               />
               <span>{cat.name}</span>
             </label>
