@@ -58,7 +58,7 @@ function makeStore(featured = []) {
 
 function renderHome(featured = []) {
   server.use(
-    http.get(`${BASE}/api/v2/catalogue/`, () =>
+    http.get(`${BASE}/api/v2/products/`, () =>
       HttpResponse.json({ results: featured, count: featured.length, next: null, previous: null }),
     ),
   );

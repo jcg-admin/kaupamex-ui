@@ -47,7 +47,7 @@ const pageOf = (results = []) => ({
 });
 
 /**
- * CatalogFilters calls /api/v2/catalogue/categories/ (UC-CAT-08).
+ * CatalogFilters calls /api/v2/categories/ (UC-CAT-08).
  * A neutral fixture avoids category names polluting product asserts.
  */
 const CATEGORIES_FIXTURE = [
@@ -56,10 +56,10 @@ const CATEGORIES_FIXTURE = [
 
 beforeEach(() => {
   server.use(
-    http.get(`${BASE}/api/v2/catalogue/categories/`, () =>
+    http.get(`${BASE}/api/v2/categories/`, () =>
       HttpResponse.json({ results: CATEGORIES_FIXTURE, count: 1 }),
     ),
-    http.get(`${BASE}/api/v2/catalogue/`, () =>
+    http.get(`${BASE}/api/v2/products/`, () =>
       HttpResponse.json(pageOf()),
     ),
   );
@@ -80,7 +80,7 @@ describe('CatalogPage — listado (UC-CAT-01)', () => {
 
   it('renderiza los productos devueltos por la API', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json(pageOf(PRODUCTS)),
       ),
     );
@@ -97,7 +97,7 @@ describe('CatalogPage — listado (UC-CAT-01)', () => {
 
   it('muestra spinner al cargar', () => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         new Promise(() => {}), // never resolves
       ),
     );
@@ -107,7 +107,7 @@ describe('CatalogPage — listado (UC-CAT-01)', () => {
 
   it('muestra alerta de error si el API falla', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json({ detail: 'Error' }, { status: 400 }),
       ),
     );
@@ -202,7 +202,7 @@ describe('CatalogPage — búsqueda (UC-CAT-03)', () => {
 describe('CatalogPage — ProductCard', () => {
   it('muestra badge Destacado cuando is_featured=true', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json(pageOf([PRODUCTS[0]])),
       ),
     );
@@ -212,7 +212,7 @@ describe('CatalogPage — ProductCard', () => {
 
   it('no muestra badge Destacado cuando is_featured=false', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json(pageOf([PRODUCTS[1]])),
       ),
     );
@@ -223,7 +223,7 @@ describe('CatalogPage — ProductCard', () => {
 
   it('muestra el precio con IVA', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json(pageOf([PRODUCTS[0]])),
       ),
     );
@@ -234,7 +234,7 @@ describe('CatalogPage — ProductCard', () => {
 
   it('cada tarjeta enlaza al detalle del producto', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json(pageOf([PRODUCTS[0]])),
       ),
     );
@@ -251,10 +251,10 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
   // Reset to a clean direct handler for these tests
   beforeEach(() => {
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/categories/`, () =>
+      http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ results: CATEGORIES_FIXTURE, count: 1 }),
       ),
-      http.get(`${BASE}/api/v2/catalogue/`, () =>
+      http.get(`${BASE}/api/v2/products/`, () =>
         HttpResponse.json(pageOf(PRODUCTS)),
       ),
     );
@@ -263,7 +263,7 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
   it('reenvia el param ?cat=<slug> a fetchProducts', async () => {
     let capturedUrl;
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
         capturedUrl = request.url;
         return HttpResponse.json(pageOf(PRODUCTS));
       }),
@@ -286,7 +286,7 @@ describe('CatalogPage — filtros (UC-CAT-04 + UC-CAT-05)', () => {
   it('reenvia price_min y price_max a fetchProducts (UC-CAT-05)', async () => {
     const capturedUrls = [];
     server.use(
-      http.get(`${BASE}/api/v2/catalogue/`, ({ request }) => {
+      http.get(`${BASE}/api/v2/products/`, ({ request }) => {
         capturedUrls.push(request.url);
         return HttpResponse.json(pageOf(PRODUCTS));
       }),

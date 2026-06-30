@@ -67,7 +67,7 @@ describe('apiService X-Cart-Token (DEC-BC-07 / B-07)', () => {
     const fetchMock = makeFetchMock({}, {});
     global.fetch = fetchMock;
 
-    await api.get('/api/v2/catalogue/');
+    await api.get('/api/v2/products/');
 
     const sentHeaders = fetchMock.mock.calls[0][1].headers;
     expect(sentHeaders['X-Cart-Token']).toBeUndefined();
