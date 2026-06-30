@@ -9,10 +9,20 @@
  * para que las URLs sean compartibles y la pagina sea idempotente
  * frente a recarga. El padre (CatalogPage) refleja los params al
  * thunk `fetchProducts({ category, price_min, price_max, q })`.
+ *
+ * Diseno (T-11, DEC-STF-11, opcion A + Offcanvas movil): reusa los
+ * componentes ya portados de ui-core — RangeSlider (precio), Chip
+ * (filtros activos removibles), Button (acciones), Offcanvas (drawer en
+ * movil) — y la paleta de marca. La categoria usa radios accesibles en
+ * vez de un <select> nativo.
  */
 import { useState, useEffect } from 'react';
 import { useCategories } from '@hooks/domain/useCategories';
+import { RangeSlider, Chip, Offcanvas } from '@components/common';
+import { Button } from '@components/common/primitives';
 import styles from './CatalogFilters.module.scss';
+
+const PRICE_CEILING_DEFAULT = 10000;
 
 function flattenTree(nodes, depth = 0, acc = []) {
   if (!Array.isArray(nodes)) return acc;
@@ -25,10 +35,13 @@ function flattenTree(nodes, depth = 0, acc = []) {
   return acc;
 }
 
+const fmtMoney = (v) => `$${Number(v).toLocaleString('es-MX')}`;
+
 export default function CatalogFilters({
   category: categoryProp = '',
   priceMin: priceMinProp = '',
   priceMax: priceMaxProp = '',
+  priceCeiling = PRICE_CEILING_DEFAULT,
   onChange,
 }) {
   const { data: catData } = useCategories();
@@ -38,17 +51,15 @@ export default function CatalogFilters({
   const [priceMin, setPriceMin] = useState(priceMinProp);
   const [priceMax, setPriceMax] = useState(priceMaxProp);
   const [priceError, setPriceError] = useState('');
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => { setPriceMin(priceMinProp); }, [priceMinProp]);
   useEffect(() => { setPriceMax(priceMaxProp); }, [priceMaxProp]);
 
-  const handleCategoryChange = (e) => {
-    const slug = e.target.value || '';
-    onChange?.({ category: slug || null });
-  };
+  const selectCategory = (slug) => onChange?.({ category: slug || null });
 
   const handlePriceApply = (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     const min = priceMin === '' ? null : Number(priceMin);
     const max = priceMax === '' ? null : Number(priceMax);
     if (min !== null && (Number.isNaN(min) || min < 0)) {
@@ -67,6 +78,13 @@ export default function CatalogFilters({
     onChange?.({ price_min: min, price_max: max });
   };
 
+  const clearPrice = () => {
+    setPriceMin('');
+    setPriceMax('');
+    setPriceError('');
+    onChange?.({ price_min: null, price_max: null });
+  };
+
   const handleClear = () => {
     setPriceMin('');
     setPriceMax('');
@@ -74,35 +92,83 @@ export default function CatalogFilters({
     onChange?.({ category: null, price_min: null, price_max: null });
   };
 
-  return (
-    <aside className={styles.filters} aria-label="Filtros del catalogo">
-      <h2 className={styles.title}>Filtros</h2>
+  // Valores del slider derivados de los inputs (clamp al rango permitido).
+  const sliderLo = priceMin === '' ? 0 : Math.min(priceCeiling, Math.max(0, Number(priceMin) || 0));
+  const sliderHi = priceMax === '' ? priceCeiling : Math.min(priceCeiling, Math.max(0, Number(priceMax) || priceCeiling));
 
-      {/* UC-CAT-04: categoria */}
-      <div className={styles.group}>
-        <label className={styles.label} htmlFor="filter-category">
-          Categoria
-        </label>
-        <select
-          id="filter-category"
-          className={styles.select}
-          value={categoryProp || ''}
-          onChange={handleCategoryChange}
-        >
-          <option value="">Todas las categorias</option>
+  const activeCategory = flat.find((c) => c.slug === categoryProp);
+  const hasPrice = priceMinProp !== '' || priceMaxProp !== '';
+  const hasAnyActive = Boolean(categoryProp) || hasPrice;
+
+  const priceChipLabel = `Precio: ${priceMinProp !== '' ? fmtMoney(priceMinProp) : '$0'} – ${priceMaxProp !== '' ? fmtMoney(priceMaxProp) : '∞'}`;
+
+  // Cuerpo compartido por el aside (desktop) y el drawer (movil). `scope`
+  // prefija ids/names para que no colisionen cuando ambos coexisten.
+  const renderBody = (scope) => (
+    <div className={styles.body}>
+      {hasAnyActive && (
+        <div className={styles.activeFilters} aria-label="Filtros activos">
+          {activeCategory && (
+            <Chip removable onRemove={() => selectCategory('')} ariaRemoveLabel="Quitar categoria">
+              {activeCategory.name}
+            </Chip>
+          )}
+          {hasPrice && (
+            <Chip removable onRemove={clearPrice} ariaRemoveLabel="Quitar precio">
+              {priceChipLabel}
+            </Chip>
+          )}
+        </div>
+      )}
+
+      {/* UC-CAT-04: categoria (radios accesibles) */}
+      <fieldset className={styles.group}>
+        <legend className={styles.groupTitle}>Categoria</legend>
+        <div className={styles.radioList} role="radiogroup" aria-label="Categoria">
+          <label className={styles.radio}>
+            <input
+              type="radio"
+              name={`category-${scope}`}
+              value=""
+              checked={!categoryProp}
+              onChange={() => selectCategory('')}
+            />
+            <span>Todas las categorias</span>
+          </label>
           {flat.map((c) => (
-            <option key={c.id} value={c.slug}>
-              {' '.repeat(c.depth * 2)}
-              {c.name}
-            </option>
+            <label
+              key={c.id}
+              className={styles.radio}
+              style={{ paddingLeft: `${c.depth * 16}px` }}
+            >
+              <input
+                type="radio"
+                name={`category-${scope}`}
+                value={c.slug}
+                checked={categoryProp === c.slug}
+                onChange={() => selectCategory(c.slug)}
+              />
+              <span>{c.name}</span>
+            </label>
           ))}
-        </select>
-      </div>
+        </div>
+      </fieldset>
 
-      {/* UC-CAT-05: rango de precio */}
+      {/* UC-CAT-05: rango de precio (slider + inputs sincronizados) */}
       <form className={styles.group} onSubmit={handlePriceApply}>
         <fieldset className={styles.fieldset}>
-          <legend className={styles.label}>Precio (con IVA)</legend>
+          <legend className={styles.groupTitle}>Precio (con IVA)</legend>
+          <RangeSlider
+            min={0}
+            max={priceCeiling}
+            value={[sliderLo, sliderHi]}
+            tooltipsFormat={fmtMoney}
+            onChange={([lo, hi]) => {
+              setPriceMin(lo <= 0 ? '' : String(lo));
+              setPriceMax(hi >= priceCeiling ? '' : String(hi));
+            }}
+            className={styles.slider}
+          />
           <div className={styles.priceRow}>
             <label className={styles.priceLabel}>
               Min
@@ -130,15 +196,56 @@ export default function CatalogFilters({
           {priceError && (
             <p role="alert" className={styles.error}>{priceError}</p>
           )}
-          <button type="submit" className={styles.applyBtn}>
+          <Button type="submit" variant="primary" block>
             Aplicar precio
-          </button>
+          </Button>
         </fieldset>
       </form>
 
-      <button type="button" className={styles.clearBtn} onClick={handleClear}>
-        Limpiar filtros
+      {hasAnyActive && (
+        <Button variant="ghost" block onClick={handleClear}>
+          Limpiar filtros
+        </Button>
+      )}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Trigger del drawer — solo visible en movil (CSS). */}
+      <button
+        type="button"
+        className={styles.mobileTrigger}
+        onClick={() => setMobileOpen(true)}
+        aria-label="Abrir filtros"
+      >
+        Filtros{hasAnyActive ? ' · activos' : ''}
       </button>
-    </aside>
+
+      <aside className={styles.filters} aria-label="Filtros del catalogo">
+        <h2 className={styles.title}>Filtros</h2>
+        {renderBody('d')}
+      </aside>
+
+      <Offcanvas
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        placement="start"
+        className={styles.drawer}
+      >
+        <div className={styles.drawerHead}>
+          <h2 className={styles.title}>Filtros</h2>
+          <button
+            type="button"
+            className={styles.drawerClose}
+            onClick={() => setMobileOpen(false)}
+            aria-label="Cerrar filtros"
+          >
+            ✕
+          </button>
+        </div>
+        {renderBody('m')}
+      </Offcanvas>
+    </>
   );
 }
