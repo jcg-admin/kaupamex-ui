@@ -63,7 +63,10 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
     );
     renderBtn({ authenticated: false });
     fireEvent.click(screen.getByRole('button'));
-    expect(mockNavigate).toHaveBeenCalledWith('/auth/login');
+    expect(mockNavigate).toHaveBeenCalledWith(
+      '/auth/login',
+      expect.objectContaining({ state: expect.objectContaining({ from: expect.anything() }) }),
+    );
     expect(called).toBe(false);
   });
 

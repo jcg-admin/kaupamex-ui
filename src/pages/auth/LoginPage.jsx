@@ -19,7 +19,12 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = location.state?.from?.pathname || '/account';
+  // Conserva pathname + query del origen (antes solo pathname -> se perdia
+  // el ?cat=, ?q=, etc. al volver al catalogo/busqueda).
+  const from = location.state?.from;
+  const redirectTo = from
+    ? `${from.pathname || ''}${from.search || ''}` || '/account'
+    : '/account';
 
   const [creds, setCreds] = useState({ email: '', password: '', remember: true });
   const [error, setError] = useState('');

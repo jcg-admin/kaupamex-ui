@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   addToWishlist,
   clearWishlistActionState,
@@ -18,6 +18,7 @@ import styles from './AddToWishlistButton.module.scss';
 export default function AddToWishlistButton({ productId, variantId = null }) {
   const dispatch        = useDispatch();
   const navigate        = useNavigate();
+  const location        = useLocation();
   const isAuthenticated = useSelector((s) => s.auth?.isAuthenticated);
   const isActioning     = useSelector((s) => s.wishlist?.isActioning);
   const actionError     = useSelector((s) => s.wishlist?.actionError);
@@ -36,7 +37,7 @@ export default function AddToWishlistButton({ productId, variantId = null }) {
 
   const handleClick = async () => {
     if (!isAuthenticated) {
-      navigate('/auth/login');
+      navigate('/auth/login', { state: { from: location } });
       return;
     }
     dispatch(clearWishlistActionState());

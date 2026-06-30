@@ -20,7 +20,7 @@
  *   }
  */
 
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { sanitizeHtml } from '@lib/sanitize';
 import { formatCurrency } from '@lib/intl';
@@ -36,6 +36,7 @@ function formatPrice(amount) {
 export default function ProductCard({ product, inWishlist = false }) {
   const dispatch        = useDispatch();
   const navigate        = useNavigate();
+  const location        = useLocation();
   const isAuthenticated = useSelector((s) => s.auth?.isAuthenticated);
   const { error: toastError } = useToast();
   if (!product) return null;
@@ -64,7 +65,7 @@ export default function ProductCard({ product, inWishlist = false }) {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      navigate('/auth/login');
+      navigate('/auth/login', { state: { from: location } });
       return;
     }
     // toggleWishlist delegates to addToWishlist / removeFromWishlist.
