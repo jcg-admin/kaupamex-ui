@@ -37,33 +37,31 @@ describe('PaymentRetryPage (UC-PAY-08)', () => {
     render(wrap(<PaymentRetryPage />, makeStore()));
     expect(screen.getByRole('heading', { name: /Reintentar pago/i })).toBeInTheDocument();
     expect(screen.getByLabelText(/Mercado Pago/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/PayPal/i)).toBeInTheDocument();
   });
 
-  it('reintenta el pago con el gateway elegido (PayPal) y redirige', async () => {
+  it('reintenta el pago con el gateway elegido y redirige', async () => {
     // DEC-BC-09: contract unificado. order_number (no order_id),
-    // gateway uppercase canon (PAYPAL no paypal), response trae
-    // `checkout_url` (no approve_url separado).
+    // gateway uppercase canon (MERCADOPAGO), response trae `checkout_url`.
     let lastBody;
     server.use(
       http.post(`${BASE}/api/v2/payments/initiate/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({
           payment_id:   456,
-          checkout_url: 'https://paypal.example/r/9',
+          checkout_url: 'https://mercadopago.example/r/9',
           order_number: 'ORD-7',
         });
       }),
     );
     render(wrap(<PaymentRetryPage />, makeStore()));
-    fireEvent.click(screen.getByLabelText(/PayPal/i));
+    fireEvent.click(screen.getByLabelText(/Mercado Pago/i));
     fireEvent.click(screen.getByRole('button', { name: /Reintentar/i }));
 
     await waitFor(() => {
-      expect(lastBody).toMatchObject({ order_number: 'ORD-7', gateway: 'PAYPAL' });
+      expect(lastBody).toMatchObject({ order_number: 'ORD-7', gateway: 'MERCADOPAGO' });
     });
     await waitFor(() => {
-      expect(redirectToGateway).toHaveBeenCalledWith('https://paypal.example/r/9');
+      expect(redirectToGateway).toHaveBeenCalledWith('https://mercadopago.example/r/9');
     });
   });
 

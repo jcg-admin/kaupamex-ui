@@ -33,7 +33,6 @@ jest.mock('@hooks/useMpCardForm', () => ({
   }),
 }));
 
-import { redirectToGateway } from './paymentRedirect';
 import paymentsReducer from '@redux/slices/paymentsSlice';
 import cardsReducer    from '@redux/slices/cardsSlice';
 import PaymentSelectionPage from './PaymentSelectionPage';
@@ -70,7 +69,6 @@ describe('PaymentSelectionPage', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
     expect(screen.getByRole('heading', { name: /Elige tu metodo de pago/i })).toBeInTheDocument();
     expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Pagar con PayPal/i })).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-oxxo')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-clabe')).toBeInTheDocument();
@@ -135,26 +133,6 @@ describe('PaymentSelectionPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('payment-result')).toBeInTheDocument();
       expect(screen.getByTestId('payment-result')).toHaveTextContent(/¡Pago aprobado!/);
-    });
-  });
-
-  it('UC-PAY-02: inicia pago PayPal y redirige al checkout_url', async () => {
-    server.use(
-      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
-        HttpResponse.json({
-          payment_id:   125,
-          checkout_url: 'https://paypal.example/approve/9',
-          order_number: 'ORD-001',
-          amount:       '500.00',
-          installments: 1,
-        }),
-      ),
-    );
-    render(wrap(<PaymentSelectionPage />, makeStore()));
-    fireEvent.click(screen.getByRole('button', { name: /Pagar con PayPal/i }));
-
-    await waitFor(() => {
-      expect(redirectToGateway).toHaveBeenCalledWith('https://paypal.example/approve/9');
     });
   });
 

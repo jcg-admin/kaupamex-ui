@@ -1,8 +1,10 @@
 /**
  * PaymentSelectionPage — PracticaYoruba
  *   UC-PAY-01-V2 — MercadoPago Checkout API (CardForm + métodos no-tarjeta)
- *   UC-PAY-02    — PayPal (Checkout Pro, redirect)
  *   UC-PAY-13    — Métodos no-tarjeta: OXXO, SPEI, Paycash, cajeros, Cuenta MP
+ *
+ * Nota: PayPal (UC-PAY-02) NO esta implementado/ofrecido — se removio del
+ * front (no se menciona ni se ofrece como metodo de pago al cliente).
  *
  * Estados de pago no-tarjeta:
  *   pending    — voucher generado, esperando pago en sucursal
@@ -26,12 +28,10 @@ import { useDispatch, useSelector }          from 'react-redux';
 import {
   initiateCheckoutApiPayment,
   initiateNonCardPayment,
-  initiatePayPalPayment,
   clearPaymentsActionState,
 } from '@redux/slices/paymentsSlice';
 import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
-import { redirectToGateway } from './paymentRedirect';
 import styles from './PaymentSelectionPage.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -219,14 +219,6 @@ export default function PaymentSelectionPage() {
 
   useEffect(() => () => { dispatch(clearPaymentsActionState()); }, [dispatch]);
 
-  // PayPal redirect
-  useEffect(() => {
-    if (lastAction === 'paypal_initiated') {
-      const url = lastInitiation?.checkout_url;
-      if (url) redirectToGateway(url);
-    }
-  }, [lastAction, lastInitiation]);
-
   // Card payment result
   useEffect(() => {
     if (lastAction === 'mp_checkout_api' && lastInitiation) {
@@ -240,10 +232,6 @@ export default function PaymentSelectionPage() {
       setView('non-card-result');
     }
   }, [lastAction, lastInitiation]);
-
-  const onPayPal = () => {
-    dispatch(initiatePayPalPayment({ order_number: orderId }));
-  };
 
   const onMpPayment = useCallback(({ token, payment_method_id, issuerId, installments, payer }) => {
     dispatch(initiateCheckoutApiPayment({
@@ -345,18 +333,6 @@ export default function PaymentSelectionPage() {
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div className={styles.gateway}>
-            <h2 className={styles.gatewayTitle}>PayPal</h2>
-            <button
-              type="button"
-              className={styles.secondaryBtn}
-              onClick={onPayPal}
-              disabled={isActioning}
-            >
-              Pagar con PayPal
-            </button>
           </div>
 
           <p className={styles.legal}>

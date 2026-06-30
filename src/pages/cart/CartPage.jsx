@@ -292,12 +292,12 @@ function CartSummary({
         <div className={styles.summaryPayments}>
           <MetaTag tone="bronze">Formas de pago aceptadas</MetaTag>
           <div className={styles.paymentsRow}>
-            {['Mercado Pago', 'PayPal', 'Tarjeta', 'SPEI', 'OXXO Pay'].map(p => (
+            {['Mercado Pago', 'Tarjeta', 'SPEI', 'OXXO Pay'].map(p => (
               <span key={p} className={styles.paymentBadge}>{p}</span>
             ))}
           </div>
           <div className={styles.summaryFinePrint}>
-            Pago protegido por MercadoPago y PayPal. Tus datos de tarjeta nunca tocan
+            Pago protegido por Mercado Pago. Tus datos de tarjeta nunca tocan
             nuestros servidores.
           </div>
         </div>
