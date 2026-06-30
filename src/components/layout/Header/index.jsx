@@ -6,14 +6,14 @@
  */
 
 import { useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectIsAuthenticated,
   selectCartItemCount,
   selectIsSearchOpen,
 } from '@redux/selectors';
-import { toggleSearch, openModal } from '@redux/slices/uiSlice';
+import { toggleSearch } from '@redux/slices/uiSlice';
 import { fetchCategories } from '@redux/slices/catalogSlice';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Header.module.scss';
@@ -23,6 +23,8 @@ const NAV_LIMIT = 6;
 
 export default function Header() {
   const dispatch     = useDispatch();
+  const navigate     = useNavigate();
+  const location     = useLocation();
   const isAuth       = useSelector(selectIsAuthenticated);
   const cartCount    = useSelector(selectCartItemCount);
   const isSearchOpen = useSelector(selectIsSearchOpen);
@@ -112,7 +114,7 @@ export default function Header() {
               <button
                 type="button"
                 className={styles.actionLink}
-                onClick={() => dispatch(openModal({ modal: 'auth' }))}
+                onClick={() => navigate('/auth/login', { state: { from: location } })}
               >
                 Ingresar
               </button>
