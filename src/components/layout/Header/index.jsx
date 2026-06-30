@@ -15,6 +15,7 @@ import {
 } from '@redux/selectors';
 import { toggleSearch } from '@redux/slices/uiSlice';
 import { fetchCategories } from '@redux/slices/catalogSlice';
+import SearchModal from '@components/common/SearchModal/SearchModal';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Header.module.scss';
 
@@ -158,6 +159,9 @@ export default function Header() {
           </Link>
         </div>
       </nav>
+
+      {/* Overlay de busqueda rapida (se abre con el boton de buscar / ⌘K) */}
+      <SearchModal />
     </header>
   );
 }

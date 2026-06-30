@@ -115,13 +115,13 @@ export default function SearchModal() {
                 {results.slice(0, 8).map((p) => (
                   <li key={p.id} role="option">
                     <Link
-                      to={`/products/${p.slug}`}
+                      to={`/catalog/${p.slug}`}
                       className={styles.resultItem}
                       onClick={handleResultClick}
                     >
-                      {p.cover_image && (
+                      {p.cover_image_url && (
                         <img
-                          src={p.cover_image}
+                          src={p.cover_image_url}
                           alt=""
                           aria-hidden="true"
                           className={styles.resultThumb}
