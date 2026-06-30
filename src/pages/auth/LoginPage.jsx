@@ -8,10 +8,11 @@
 
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { loginUser } from '@redux/slices/authSlice';
 import { Button, Field, MetaTag } from '@components/common/primitives';
 import { PasswordInput } from '@components/common';
+import { safeNext, fromLocation } from '@utils/safeNext';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './LoginPage.module.scss';
 
@@ -19,12 +20,18 @@ export default function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  // Conserva pathname + query del origen (antes solo pathname -> se perdia
-  // el ?cat=, ?q=, etc. al volver al catalogo/busqueda).
+  const [searchParams] = useSearchParams();
+  // Destino post-login (DEC-STF-AUTH-NEXT): el ?next= de la URL gana (sobrevive
+  // el round-trip de verificacion por email); si no, el state.from (navegacion
+  // en la misma pestana); si no, /account. Todo pasa por el guard safeNext.
   const from = location.state?.from;
-  const redirectTo = from
-    ? `${from.pathname || ''}${from.search || ''}` || '/account'
-    : '/account';
+  const nextValue = safeNext(searchParams.get('next')) || safeNext(fromLocation(from));
+  const redirectTo = nextValue || '/account';
+  // Acarrea el destino al tab "Crear cuenta" para que el flujo de registro +
+  // verificacion por email lo conserve (DEC-STF-AUTH-NEXT).
+  const registerHref = nextValue
+    ? `/auth/register?next=${encodeURIComponent(nextValue)}`
+    : '/auth/register';
 
   const [creds, setCreds] = useState({ email: '', password: '', remember: true });
   const [error, setError] = useState('');
@@ -51,7 +58,7 @@ export default function LoginPage() {
         <div className={styles.formWrap}>
           <div className={styles.tabs}>
             <span className={`${styles.tab} ${styles.tabActive}`}>Iniciar sesión</span>
-            <Link to="/auth/register" className={styles.tab}>Crear cuenta</Link>
+            <Link to={registerHref} className={styles.tab}>Crear cuenta</Link>
           </div>
 
           <h2 className={styles.title}>Bienvenido de vuelta</h2>
@@ -99,7 +106,7 @@ export default function LoginPage() {
 
             <div className={styles.footer}>
               ¿Aún no tienes cuenta?{' '}
-              <Link to="/auth/register">Crear una ahora →</Link>
+              <Link to={registerHref}>Crear una ahora →</Link>
             </div>
           </form>
         </div>
