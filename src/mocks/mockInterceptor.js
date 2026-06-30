@@ -10,7 +10,7 @@
  * Endpoints cubiertos:
  *   Auth:      /api/auth/*, /api/v2/auth/login/, /api/v2/auth/change-password/ (D-05-08)
  *   Addresses: /api/v2/auth/addresses/*                     (D-03-07)
- *   Catalog:   /api/v2/catalogue/*, /api/v2/catalogue/categories/*
+ *   Catalog:   /api/v2/products/*, /api/v2/categories/*
  *   Cart:      /api/v2/cart/*
  *   Orders:    /api/v2/orders/*
  *   Checkout:  /api/v2/payments/*
@@ -75,9 +75,8 @@ class MockInterceptor {
     // ─── Catálogo ────────────────────────────────────────────────
     if (url.includes('/api/v2/categories/'))                return this._categories();
     if (url.includes('/api/v2/catalogue/search/'))          return this._searchProducts(url);
-    if (url.includes('/api/v2/catalogue/categories/'))      return this._categories();
-    if (url.match(/\/api\/v2\/catalogue\/[^/]+\//))         return this._productDetail(url);
-    if (url.includes('/api/v2/catalogue/'))                 return this._productList(url);
+    if (url.match(/\/api\/v2\/products\/[^/]+\//))          return this._productDetail(url);
+    if (url.includes('/api/v2/products/'))                 return this._productList(url);
 
     // ─── Carrito ─────────────────────────────────────────────────
     if (url.includes('/api/v2/cart/voucher/') && method === 'POST')   return this._applyVoucher(body);
@@ -192,7 +191,7 @@ class MockInterceptor {
   }
 
   _productDetail(url) {
-    const slug = url.split('/api/v2/catalogue/')[1].replace(/\//g, '');
+    const slug = url.split('/api/v2/products/')[1].replace(/\//g, '');
     return this._ok(this._generateProduct(slug, 1));
   }
 
