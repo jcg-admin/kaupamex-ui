@@ -87,13 +87,13 @@ export default function ProductPage() {
                     className={`${styles.thumb} ${i === activeImg ? styles.thumbActive : ''}`}
                     onClick={() => setActiveImg(i)}
                   >
-                    <img src={img.url} alt="" loading="lazy" />
+                    <img src={img.image_url} alt="" loading="lazy" />
                   </button>
                 )) : <div className={styles.thumbPlaceholder} />}
               </div>
               <div className={styles.mainImg}>
                 {images[activeImg]
-                  ? <img src={images[activeImg].url} alt={product.name} />
+                  ? <img src={images[activeImg].image_url} alt={product.name} />
                   : <div className={styles.imgPlaceholder}>{product.name}</div>}
               </div>
             </div>

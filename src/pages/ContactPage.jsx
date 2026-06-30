@@ -1,6 +1,9 @@
 /**
  * ContactPage — PracticaYoruba
  * UC-COM-01: formulario publico de contacto.
+ *
+ * Reusa los primitivos de UI (Field/Button/MetaTag) en vez de markup crudo
+ * para alinear el diseno con el resto del sitio (DEC-STF-06).
  */
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,6 +11,7 @@ import {
   sendContactMessage,
   clearContactActionState,
 } from '@redux/slices/contactSlice';
+import { MetaTag, Field, Button } from '@components/common/primitives';
 import styles from './ContactPage.module.scss';
 
 const INITIAL = { name: '', email: '', subject: '', message: '' };
@@ -60,98 +64,82 @@ export default function ContactPage() {
   if (lastAction === 'sent') {
     return (
       <section className={styles.page} aria-labelledby="contact-success-title">
-        <h1 id="contact-success-title" className={styles.title}>
-          Mensaje recibido
-        </h1>
-        <p className={styles.successMessage}>
-          Gracias por escribirnos. Te responderemos en un plazo aproximado de
-          24 a 48 horas habiles.
-        </p>
-        <button
-          type="button"
-          className={styles.secondaryBtn}
-          onClick={handleReset}
-        >
-          Enviar otro mensaje
-        </button>
+        <div className={styles.card}>
+          <MetaTag tone="lime">Mensaje enviado</MetaTag>
+          <h1 id="contact-success-title" className={styles.title}>
+            Mensaje recibido
+          </h1>
+          <p className={styles.description}>
+            Gracias por escribirnos. Te responderemos en un plazo aproximado
+            de 24 a 48 horas hábiles a tu correo.
+          </p>
+          <Button variant="secondary" onClick={handleReset}>
+            Enviar otro mensaje
+          </Button>
+        </div>
       </section>
     );
   }
 
   return (
     <section className={styles.page} aria-labelledby="contact-title">
-      <header className={styles.header}>
-        <h1 id="contact-title" className={styles.title}>Contacto</h1>
-        <p className={styles.description}>
-          Escribenos y nuestro equipo te respondera lo antes posible.
-        </p>
-      </header>
+      <div className={styles.card}>
+        <header className={styles.header}>
+          <MetaTag tone="bronze">Atención en línea</MetaTag>
+          <h1 id="contact-title" className={styles.title}>Contacto</h1>
+          <p className={styles.description}>
+            Cuéntanos qué necesitas y nuestro equipo te responderá lo antes
+            posible.
+          </p>
+        </header>
 
-      <form onSubmit={handleSubmit} noValidate className={styles.form}>
-        <div className={styles.field}>
-          <label htmlFor="contact-name">Nombre</label>
-          <input
-            id="contact-name"
-            type="text"
+        <form onSubmit={handleSubmit} noValidate className={styles.form}>
+          <Field
+            label="Nombre"
             value={form.name}
             onChange={setField('name')}
-            aria-invalid={Boolean(errors.name)}
+            error={errors.name}
+            autoComplete="name"
+            required
           />
-          {errors.name && <span className={styles.fieldError}>{errors.name}</span>}
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="contact-email">Email</label>
-          <input
-            id="contact-email"
+          <Field
+            label="Email"
             type="email"
             value={form.email}
             onChange={setField('email')}
-            aria-invalid={Boolean(errors.email)}
+            error={errors.email}
+            autoComplete="email"
+            required
           />
-          {errors.email && <span className={styles.fieldError}>{errors.email}</span>}
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="contact-subject">Asunto</label>
-          <input
-            id="contact-subject"
-            type="text"
+          <Field
+            label="Asunto"
             value={form.subject}
             onChange={setField('subject')}
-            aria-invalid={Boolean(errors.subject)}
+            error={errors.subject}
+            required
           />
-          {errors.subject && <span className={styles.fieldError}>{errors.subject}</span>}
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="contact-message">Mensaje</label>
-          <textarea
-            id="contact-message"
-            rows={6}
+          <Field
+            label="Mensaje"
+            textarea
             value={form.message}
             onChange={setField('message')}
-            aria-invalid={Boolean(errors.message)}
+            error={errors.message}
+            required
           />
-          {errors.message && <span className={styles.fieldError}>{errors.message}</span>}
-        </div>
 
-        {actionError && (
-          <p role="alert" className={styles.error}>
-            {actionError.message || 'No se pudo enviar el mensaje. Intenta de nuevo.'}
-          </p>
-        )}
+          {actionError && (
+            <p role="alert" className={styles.error}>
+              {actionError.message || 'No se pudo enviar el mensaje. Intenta de nuevo.'}
+            </p>
+          )}
 
-        <div className={styles.actions}>
-          <button
-            type="submit"
-            className={styles.primaryBtn}
-            disabled={isActioning}
-          >
-            {isActioning ? 'Enviando…' : 'Enviar mensaje'}
-          </button>
-        </div>
-      </form>
+          <div className={styles.actions}>
+            <Button type="submit" variant="primary" disabled={isActioning}>
+              {isActioning ? 'Enviando…' : 'Enviar mensaje'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }
