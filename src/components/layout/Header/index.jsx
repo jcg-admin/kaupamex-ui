@@ -14,22 +14,26 @@ import {
   selectIsSearchOpen,
 } from '@redux/selectors';
 import { toggleSearch, openModal } from '@redux/slices/uiSlice';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import { fetchCategories } from '@redux/slices/catalogSlice';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Header.module.scss';
 
-const MAIN_NAV = [
-  { to: '/catalog?cat=por-orisha',     label: 'Por òrìsà' },
-  { to: '/catalog?cat=por-ritual',     label: 'Por ritual' },
-  { to: '/catalog?cat=elekes',         label: 'Elekes & collares' },
-  { to: '/catalog?cat=herramientas',   label: 'Herramientas' },
-  { to: '/catalog?cat=libros',         label: 'Libros & láminas' },
-];
+// Cuantas categorias mostrar en la barra antes de "Catalogo completo".
+const NAV_LIMIT = 6;
 
 export default function Header() {
   const dispatch     = useDispatch();
   const isAuth       = useSelector(selectIsAuthenticated);
   const cartCount    = useSelector(selectCartItemCount);
   const isSearchOpen = useSelector(selectIsSearchOpen);
+  // El menu de categorias se arma con las categorias REALES de la API
+  // (antes eran slugs hardcodeados que no existian -> 0 resultados).
+  const categories   = useSelector((s) => s.catalog?.categories ?? []);
+  const mainNav = categories.slice(0, NAV_LIMIT);
+
+  useEffect(() => {
+    if (categories.length === 0) dispatch(fetchCategories());
+  }, [dispatch, categories.length]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -135,15 +139,15 @@ export default function Header() {
       {/* ─── Categories nav ─── */}
       <nav className={styles.categoriesNav} aria-label="Categorías Yorùbà">
         <div className={styles.categoriesInner}>
-          {MAIN_NAV.map(({ to, label }) => (
+          {mainNav.map((cat) => (
             <NavLink
-              key={to}
-              to={to}
+              key={cat.slug}
+              to={`/catalog?cat=${cat.slug}`}
               className={({ isActive }) =>
                 `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
               }
             >
-              {label}
+              {cat.name}
             </NavLink>
           ))}
           <span className={styles.navSpacer} />

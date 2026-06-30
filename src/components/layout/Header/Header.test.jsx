@@ -22,6 +22,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import authReducer from '@redux/slices/authSlice';
 import cartReducer from '@redux/slices/cartSlice';
 import uiReducer from '@redux/slices/uiSlice';
+import catalogReducer from '@redux/slices/catalogSlice';
 
 import Header from './index';
 
@@ -31,8 +32,15 @@ function buildStore({ isAuthenticated = false, cartCount = 0 } = {}) {
       auth: authReducer,
       cart: cartReducer,
       ui:   uiReducer,
+      catalog: catalogReducer,
     },
     preloadedState: {
+      catalog: {
+        categories: [
+          { slug: 'collares-de-orumila', name: 'Collares de Orumila' },
+          { slug: 'ropa-y-telas',        name: 'Ropa y Telas' },
+        ],
+      },
       auth: {
         user: isAuthenticated ? { id: 1, username: 'pepe' } : null,
         isAuthenticated,
@@ -90,10 +98,13 @@ describe('Header — navegación y estado de autenticación', () => {
     expect(screen.queryByRole('button', { name: /Ingresar/i })).toBeNull();
   });
 
-  it('muestra la navegacion de categorias Yoruba', () => {
+  it('muestra la navegacion con las categorias reales de la API', () => {
     renderHeader();
-    expect(screen.getByRole('link', { name: /Por òrìsà/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Elekes/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Collares de Orumila/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Ropa y Telas/i })).toBeInTheDocument();
+    // El link debe apuntar al slug real, no a uno hardcodeado inexistente.
+    expect(screen.getByRole('link', { name: /Collares de Orumila/i }))
+      .toHaveAttribute('href', '/catalog?cat=collares-de-orumila');
   });
 
   it('muestra el boton de carrito con el conteo de piezas', () => {

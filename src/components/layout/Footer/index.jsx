@@ -4,21 +4,12 @@
  */
 
 import { Link } from 'react-router-dom';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import { useSelector } from 'react-redux';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Footer.module.scss';
 
+// Columnas estaticas (la de "Catalogo" se arma dinamica con categorias reales).
 const COLUMNS = [
-  {
-    title: 'Catálogo',
-    items: [
-      { to: '/catalog',                   label: 'Novedades' },
-      { to: '/catalog?cat=por-orisha',    label: 'Por òrìsà' },
-      { to: '/catalog?cat=por-ritual',    label: 'Por ritual' },
-      { to: '/catalog?cat=elekes',        label: 'Elekes' },
-      { to: '/catalog?cat=herramientas',  label: 'Herramientas' },
-      { to: '/catalog?cat=libros',        label: 'Libros & láminas' },
-    ],
-  },
   {
     title: 'Cuenta',
     items: [
@@ -52,6 +43,19 @@ const COLUMNS = [
 ];
 
 export default function Footer() {
+  // Categorias reales de la API (las carga el Header); fallback a [].
+  const categories = useSelector((s) => s.catalog?.categories ?? []);
+  const catalogoCol = {
+    title: 'Catálogo',
+    items: [
+      { to: '/catalog', label: 'Novedades' },
+      ...categories.slice(0, 5).map((c) => ({
+        to: `/catalog?cat=${c.slug}`,
+        label: c.name,
+      })),
+    ],
+  };
+  const columns = [catalogoCol, ...COLUMNS];
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -79,7 +83,7 @@ export default function Footer() {
           </address>
         </div>
 
-        {COLUMNS.map((col) => (
+        {columns.map((col) => (
           <div key={col.title} className={styles.col}>
             <h4 className={styles.colTitle}>{col.title}</h4>
             <ul className={styles.colList}>
