@@ -3,7 +3,7 @@
  * 5 columnas: marca, catálogo, cuenta, tradición, apoyo.
  */
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Footer.module.scss';
@@ -45,6 +45,9 @@ const COLUMNS = [
 export default function Footer() {
   // Categorias reales de la API (las carga el Header); fallback a [].
   const categories = useSelector((s) => s.catalog?.categories ?? []);
+  // T-04: las entradas de auth llevan la pagina actual para regresar a ella
+  // tras login/registro (las demas entradas ya lo hacen; el footer no lo hacia).
+  const location = useLocation();
   const catalogoCol = {
     title: 'Catálogo',
     items: [
@@ -89,7 +92,12 @@ export default function Footer() {
             <ul className={styles.colList}>
               {col.items.map((item) => (
                 <li key={item.to}>
-                  <Link to={item.to}>{item.label}</Link>
+                  <Link
+                    to={item.to}
+                    state={item.to.startsWith('/auth/') ? { from: location } : undefined}
+                  >
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
