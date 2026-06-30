@@ -153,12 +153,16 @@ module.exports = (env, argv) => {
           test: /\.(png|jpg|jpeg|gif|webp)$/i,
           type: 'asset',
           parser: { dataUrlCondition: { maxSize: 8 * 1024 } },
-          generator: { filename: 'images/[name].[hash:8][ext]' },
+          // Salida en la RAIZ del dist (no images/) para que el AliasMatch
+          // de Apache en prod (^/([^/]+\.png)$, solo nivel raiz) los sirva.
+          // Bajo images/ caian al serve_spa de Django -> index.html y el
+          // logo nunca cargaba. Ver actualizar-produccion-vm.rst.
+          generator: { filename: '[name].[hash:8][ext]' },
         },
         {
           test: /\.(woff|woff2|eot|ttf|otf)$/i,
           type: 'asset/resource',
-          generator: { filename: 'fonts/[name].[hash:8][ext]' },
+          generator: { filename: '[name].[hash:8][ext]' },
         },
         {
           test: /\.svg$/i,
