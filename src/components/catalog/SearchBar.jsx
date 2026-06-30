@@ -64,16 +64,15 @@ export default function SearchBar({ onSearch, initialValue = '', isSearching = f
             ×
           </button>
         )}
+        <button
+          type="submit"
+          className={styles.submitBtn}
+          disabled={isSearching}
+          aria-busy={isSearching}
+        >
+          {isSearching ? 'Buscando...' : 'Buscar'}
+        </button>
       </div>
-
-      <button
-        type="submit"
-        className={styles.submitBtn}
-        disabled={isSearching}
-        aria-busy={isSearching}
-      >
-        {isSearching ? 'Buscando...' : 'Buscar'}
-      </button>
 
       {error && (
         <p id="search-error" className={styles.error} role="alert">
