@@ -4,7 +4,7 @@
  */
 
 import { NavLink } from 'react-router-dom';
-import logoUrl from '@assets/practica-yoruba-logo.svg';
+import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './AdminSidebar.module.scss';
 
 const ADMIN_NAV = [
