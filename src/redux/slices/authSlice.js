@@ -29,6 +29,10 @@ const AUTH_URLS = {
   refresh:              '/api/v2/auth/refresh/',
   register:             '/api/v2/auth/register/',
   me:                   '/api/v2/auth/me/',
+  // ADR-018: estado de sesion de servidor (cookie HttpOnly). Reemplaza a /me/
+  // para restaurar la sesion tras recarga; devuelve isAuthenticated + user +
+  // csrfToken via la cookie de sesion (no requiere el JWT en memoria).
+  session:              '/api/v2/auth/session/',
   profile:              '/api/v2/auth/profile/',
   changePassword:       '/api/v2/auth/change-password/',
   // F5 Tier B: verify + resend merged into one endpoint;
@@ -49,16 +53,20 @@ const LOGOUT_ALL_URL = '/api/v2/auth/sessions/';
 // ─── Thunks ─── Session check ───────────────────────────────────────────
 
 /**
- * Verifica si el usuario ya tiene sesion activa al cargar la app.
- * Llama a /api/v2/auth/me/. En modo mock, el interceptor lee
- * localStorage._mock_auth_type para responder sin JWT.
+ * Verifica si el usuario ya tiene sesion activa al cargar la app (ADR-018).
+ * Llama a /api/v2/auth/session/: la cookie de sesion HttpOnly viaja sola, asi
+ * que restaura la sesion tras recargar sin depender del JWT en memoria. Guarda
+ * el token CSRF para las mutaciones autenticadas por sesion.
  */
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get(AUTH_URLS.me);
-      return response.data;
+      const response = await apiService.get(AUTH_URLS.session);
+      const data = response.data ?? {};
+      if (data.csrfToken) apiService.setCsrfToken(data.csrfToken);
+      if (!data.isAuthenticated) return rejectWithValue('no-session');
+      return data.user;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
     }

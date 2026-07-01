@@ -62,6 +62,10 @@ class APIService {
     // Mismo patron memory-only que tokens de auth: XSS-safe, se
     // pierde al cerrar tab (aceptable para comprador anonimo).
     this._cartToken     = null;
+    // ADR-018 (DEC-STF-AUTH-CSRF, Opcion B): token CSRF obtenido de
+    // /auth/session/. Se envia en X-CSRFToken en mutaciones cuando la
+    // request se autentica por la cookie de sesion (tras recargar).
+    this._csrfToken     = null;
   }
 
   setAuthToken(token) {
@@ -100,6 +104,15 @@ class APIService {
 
   getCartToken() {
     return this._cartToken;
+  }
+
+  // ADR-018: token CSRF de la sesion (Opcion B, CSRF_USE_SESSIONS).
+  setCsrfToken(token) {
+    this._csrfToken = token || null;
+  }
+
+  getCsrfToken() {
+    return this._csrfToken;
   }
 
   clearCartToken() {
@@ -161,6 +174,12 @@ class APIService {
     if (this._cartToken && path.includes('/api/v2/cart/')) {
       config.headers['X-Cart-Token'] = this._cartToken;
     }
+    // ADR-018: X-CSRFToken en mutaciones (Django exige CSRF cuando la
+    // request se autentica por sesion). En metodos seguros no aplica.
+    const unsafeMethod = !['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method.toUpperCase());
+    if (this._csrfToken && unsafeMethod) {
+      config.headers['X-CSRFToken'] = this._csrfToken;
+    }
     for (const fn of this._interceptors.request) {
       config = (await fn(config)) ?? config;
     }
@@ -174,8 +193,10 @@ class APIService {
         method:      config.method,
         headers:     config.headers,
         body:        body ? (isFormData ? body : JSON.stringify(body)) : undefined,
-        // DEC-AUTH-1: arquitectura Bearer, no cookies. credentials:
-        // 'include' se removio (sin cookies httpOnly que enviar).
+        // ADR-018 (DEC-STF-AUTH-COOKIE): la cookie de sesion HttpOnly viaja
+        // con la peticion (mismo origin en dev via proxy y en prod mismo
+        // dominio). Restaura la sesion tras recargar sin el JWT en memoria.
+        credentials: 'same-origin',
         signal:      controller.signal,
       });
     } catch (err) {
