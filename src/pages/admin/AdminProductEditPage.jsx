@@ -16,6 +16,7 @@ import { updateProduct, deactivateProduct, activateProduct, clearProductsActionS
   from '@redux/slices/productsSlice';
 import AdminProductForm from './AdminProductForm';
 import ProductImageReorder from '@components/admin/ProductImageReorder';
+import ProductImageFieldArray from '@components/admin/ProductImageFieldArray';
 import styles from './AdminProductCreatePage.module.scss';
 
 export default function AdminProductEditPage() {
@@ -95,6 +96,7 @@ export default function AdminProductEditPage() {
       />
 
       <ProductImageReorder productId={id} images={product.images ?? []} />
+      <ProductImageFieldArray productId={id} images={product.images ?? []} />
     </section>
   );
 }
