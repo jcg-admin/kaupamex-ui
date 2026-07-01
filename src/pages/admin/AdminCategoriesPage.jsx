@@ -22,6 +22,7 @@ import {
   clearCategoriesActionState,
 } from '@redux/slices/categoriesSlice';
 import { DataTable } from '@components/common';
+import CategoryTreeReorder from '@components/admin/CategoryTreeReorder';
 import styles from './AdminCategoriesPage.module.scss';
 
 // H-CICLO92-02: se elimina icon_url del formulario. El campo era enviado al
@@ -181,6 +182,11 @@ export default function AdminCategoriesPage() {
       </form>
 
       {isError && <p role="alert">No se pudo cargar el listado.</p>}
+
+      <CategoryTreeReorder
+        categories={categories}
+        onReordered={() => queryClient.invalidateQueries({ queryKey: ADMIN_CATEGORIES_KEY })}
+      />
 
       <DataTable
         columns={[
