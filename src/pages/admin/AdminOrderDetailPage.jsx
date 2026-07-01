@@ -20,6 +20,7 @@ import {
   adminCancelOrder,
   clearOrdersActionState,
 } from '@redux/slices/ordersSlice';
+import StatusTimeline from '@components/admin/StatusTimeline';
 import styles from './AdminOrderDetailPage.module.scss';
 
 const STATUS_LABEL = {
@@ -182,22 +183,7 @@ export default function AdminOrderDetailPage() {
       {(order.status_logs ?? []).length > 0 && (
         <section aria-labelledby="history-title" className={styles.section}>
           <h2 id="history-title">Historial de estado</h2>
-          <ol className={styles.history}>
-            {[...(order.status_logs ?? [])].reverse().map((log) => (
-              <li key={log.id} className={styles.historyEntry}>
-                <span className={styles.historyTransition}>
-                  {log.previous_status} &rarr; {log.new_status}
-                </span>
-                {log.notes && (
-                  <span className={styles.historyNotes}> — {log.notes}</span>
-                )}
-                <span className={styles.historyMeta}>
-                  {' '}({log.changed_by_username ?? 'Sistema'},{' '}
-                  {formatDate(log.created_at)})
-                </span>
-              </li>
-            ))}
-          </ol>
+          <StatusTimeline logs={order.status_logs} formatDate={formatDate} />
         </section>
       )}
 
