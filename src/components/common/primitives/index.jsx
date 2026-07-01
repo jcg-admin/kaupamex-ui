@@ -3,6 +3,7 @@
  * Componentes pequeños reutilizados en todas las pages.
  */
 
+import { cx } from '@utils/cx';
 import styles from './primitives.module.scss';
 
 export function MetaTag({ children, tone = 'bronze', className = '' }) {
@@ -76,12 +77,12 @@ export function Button({
   children, variant = 'primary', size = 'md', block = false,
   type = 'button', onClick, disabled = false, ...rest
 }) {
-  const cls = [
+  const cls = cx(
     styles.btn,
     styles[`btn_${variant}`],
     styles[`btn_${size}`],
     block && styles.btnBlock,
-  ].filter(Boolean).join(' ');
+  );
 
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={cls} {...rest}>
