@@ -15,7 +15,7 @@ export function ToastProvider({ children }) {
   const toasts   = useSelector(selectToasts);
 
   const toast = useCallback((type, title, message, duration = 4000) => {
-    const id = Date.now() + Math.random();
+    const id = crypto.randomUUID();
     dispatch(addToast({ id, type, title, message, duration }));
     if (duration > 0) {
       setTimeout(() => dispatch(removeToast(id)), duration);
