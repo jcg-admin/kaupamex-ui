@@ -123,12 +123,23 @@ export const saveCartForLater = createAsyncThunk(
   },
 );
 
-/** UC-CART-06 — sincronizar (fusionar) carrito anonimo al autenticar. */
+/**
+ * UC-CART-06 — fusionar el carrito anonimo en la cuenta al autenticar.
+ *
+ * CR-1: el backend (POST /cart/merges/) exige ``cart_token`` en el body; antes
+ * se posteaba ``{}`` y respondia 400, dejando los items anonimos huerfanos. Se
+ * toma el ``X-Cart-Token`` en memoria (``apiService``) y, si no hay carrito
+ * anonimo, no se llama al backend. CR-2: tras fusionar se limpia el token para
+ * dejar de reenviarlo estando ya autenticado.
+ */
 export const syncCartOnLogin = createAsyncThunk(
   'cart/sync',
   async (_, { rejectWithValue }) => {
+    const cartToken = apiService.getCartToken();
+    if (!cartToken) return rejectWithValue('no-anon-cart');
     try {
-      const res = await apiService.post(CART_SYNC_URL, {});
+      const res = await apiService.post(CART_SYNC_URL, { cart_token: cartToken });
+      apiService.clearCartToken();
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
