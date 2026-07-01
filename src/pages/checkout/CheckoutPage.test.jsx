@@ -26,6 +26,11 @@ import addressesReducer from '@redux/slices/addressesSlice';
 import cartReducer from '@redux/slices/cartSlice';
 import CheckoutPage from './CheckoutPage';
 
+// jsdom no implementa <dialog>.showModal()/close() — polyfill para el Modal
+// de confirmación (mismo patrón que Modal.test.jsx).
+HTMLDialogElement.prototype.showModal = jest.fn(function () { this.open = true; });
+HTMLDialogElement.prototype.close     = jest.fn(function () { this.open = false; });
+
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const wrap = ({ isAuthenticated = true } = {}) => {
@@ -104,15 +109,22 @@ describe('CheckoutPage (UC-ORD-01)', () => {
       ),
     );
 
+    let orderCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () => {
+        orderCalled = true;
+        return HttpResponse.json({ order_number: 'PY-2026-000123', status: 'PENDING' });
+      }),
+    );
     const user = userEvent.setup();
     render(wrap());
 
     await fillAddress(user);
     await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    // Diálogo de confirmación: confirmar para crear la orden.
+    await user.click(await screen.findByTestId('confirm-pay'));
 
-    await waitFor(() => {
-      expect(screen.queryByText(/Stock insuficiente/i)).not.toBeInTheDocument();
-    });
+    await waitFor(() => expect(orderCalled).toBe(true));
   });
 
   it('muestra error cuando el backend devuelve un fallo', async () => {
@@ -130,6 +142,7 @@ describe('CheckoutPage (UC-ORD-01)', () => {
 
     await fillAddress(user);
     await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(await screen.findByTestId('confirm-pay'));
 
     expect(
       await screen.findByText(/Stock insuficiente/i)
@@ -227,5 +240,38 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () 
     expect(
       await screen.findByText(/no se pudieron cargar los métodos de envío/i),
     ).toBeInTheDocument();
+  });
+
+  it('con datos válidos muestra el diálogo y no crea la orden hasta confirmar', async () => {
+    let orderCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () => {
+        orderCalled = true;
+        return HttpResponse.json({ order_number: 'X1' });
+      }),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    await fillValidAddress(user);
+    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    expect(await screen.findByText(/Revisa tus datos de envío/i)).toBeInTheDocument();
+    expect(orderCalled).toBe(false);
+  });
+
+  it('el botón Revisar cierra el diálogo sin crear la orden', async () => {
+    let orderCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () => {
+        orderCalled = true;
+        return HttpResponse.json({ order_number: 'X1' });
+      }),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    await fillValidAddress(user);
+    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await screen.findByText(/Revisa tus datos de envío/i);
+    await user.click(screen.getByRole('button', { name: /^Revisar$/i }));
+    expect(orderCalled).toBe(false);
   });
 });
