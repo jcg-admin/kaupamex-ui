@@ -113,7 +113,12 @@ export const registerUser = createAsyncThunk(
   'auth/register',
   async (data, { rejectWithValue }) => {
     try {
-      const response = await apiService.post(AUTH_URLS.register, data);
+      // H-CART-01: adjuntar el cart_token anónimo (memory-only) al registro para
+      // que el backend fusione el carrito en la cuenta nueva; así sobrevive al
+      // enlace de activación (carga de página nueva que borra la memoria).
+      const cartToken = apiService.getCartToken?.();
+      const payload = cartToken ? { ...data, cart_token: cartToken } : data;
+      const response = await apiService.post(AUTH_URLS.register, payload);
       return response.data;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
