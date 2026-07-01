@@ -16,6 +16,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
 import { createOrder, initMercadoPago, fetchShippingMethods } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
+import Modal from '@components/common/Modal/Modal';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './CheckoutPage.module.scss';
 
@@ -50,6 +51,9 @@ export default function CheckoutPage() {
   const [submitError, setSubmitError] = useState(null);
   // Validación MX front: errores por campo (Teléfono 10, C.P. 5).
   const [fieldErrors, setFieldErrors] = useState({});
+  // Confirmación explícita de datos de envío antes de pagar. No validamos la
+  // cobertura del C.P.; la exactitud de la dirección es del comprador.
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
   useEffect(() => { dispatch(fetchShippingMethods()); }, [dispatch]);
@@ -101,6 +105,14 @@ export default function CheckoutPage() {
     }
     setFieldErrors({});
 
+    // En vez de crear la orden directo, se pide confirmación explícita de que
+    // los datos de envío son correctos (reemplaza el bloqueo por zona).
+    setShowConfirm(true);
+  };
+
+  const confirmAndPay = async () => {
+    setShowConfirm(false);
+    setSubmitError(null);
     setSubmitting(true);
     try {
       // GAP-C1: shipping holds the numeric DB id from /api/v2/shipping-methods/.
@@ -202,6 +214,38 @@ export default function CheckoutPage() {
           <CheckoutSummary items={items} totals={totals} shipping={shipping} shippingOptions={shippingOptions} submitting={submitting} />
         </div>
       </form>
+
+      <Modal
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        size="sm"
+        centered
+      >
+        <div className={styles.confirmBox}>
+          <h2 className={styles.confirmTitle}>Revisa tus datos de envío</h2>
+          <p className={styles.confirmLead}>
+            Confirma que el destinatario, la dirección y el C.P. estén bien
+            para que tu pedido llegue sin contratiempos.
+          </p>
+          <div className={styles.confirmSummary}>
+            <div>{address.recipient_name}</div>
+            <div>
+              {address.street}
+              {address.neighborhood ? `, ${address.neighborhood}` : ''}
+            </div>
+            <div>C.P. {address.zip_code} · {address.city}, {address.state}</div>
+            <div>Tel. {address.phone}</div>
+          </div>
+          <div className={styles.confirmActions}>
+            <Button variant="secondary" onClick={() => setShowConfirm(false)}>
+              Revisar
+            </Button>
+            <Button variant="primary" onClick={confirmAndPay} data-testid="confirm-pay">
+              Continuar
+            </Button>
+          </div>
+        </div>
+      </Modal>
 
       <footer className={styles.checkoutFooter}>
         <span>© {new Date().getFullYear()} Práctica Yorùbà</span>

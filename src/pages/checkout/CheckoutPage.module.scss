@@ -243,3 +243,18 @@
   text-transform: uppercase;
 }
 .footerLinks { display: flex; gap: $spacing-6; @media (max-width: $bp-md) { gap: $spacing-3; flex-wrap: wrap; justify-content: flex-end; } a { color: $text-muted; &:hover { color: $text-secondary; } } }
+
+// Diálogo de confirmación de datos de envío (antes de pagar).
+.confirmBox { padding: $spacing-6; max-width: 420px; }
+.confirmTitle { font-size: $font-size-lg; color: $text-primary; margin: 0 0 $spacing-3; }
+.confirmLead { color: $text-secondary; font-size: $font-size-sm; line-height: $line-height-relaxed; margin: 0 0 $spacing-4; }
+.confirmSummary {
+  background: $bg-page;
+  border-radius: 8px;
+  padding: $spacing-3 $spacing-4;
+  margin-bottom: $spacing-5;
+  color: $text-primary;
+  font-size: $font-size-sm;
+  div { margin: 2px 0; }
+}
+.confirmActions { display: flex; gap: $spacing-3; justify-content: flex-end; }
