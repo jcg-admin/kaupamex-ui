@@ -16,13 +16,14 @@ jest.mock('react-router-dom', () => ({
 
 import authReducer from '../../redux/slices/authSlice';
 import wishlistReducer from '../../redux/slices/wishlistSlice';
+import uiReducer from '../../redux/slices/uiSlice';
 import AddToWishlistButton from './AddToWishlistButton';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = (authenticated = true) =>
   configureStore({
-    reducer: { auth: authReducer, wishlist: wishlistReducer },
+    reducer: { auth: authReducer, wishlist: wishlistReducer, ui: uiReducer },
     preloadedState: {
       auth: {
         user: authenticated ? { id: 1 } : null,
@@ -32,14 +33,19 @@ const makeStore = (authenticated = true) =>
     },
   });
 
-const renderBtn = ({ authenticated = true, productId = 7, variantId = null } = {}) =>
-  render(
-    <Provider store={makeStore(authenticated)}>
-      <MemoryRouter>
-        <AddToWishlistButton productId={productId} variantId={variantId} />
-      </MemoryRouter>
-    </Provider>,
-  );
+const renderBtn = ({ authenticated = true, productId = 7, variantId = null } = {}) => {
+  const store = makeStore(authenticated);
+  return {
+    store,
+    ...render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <AddToWishlistButton productId={productId} variantId={variantId} />
+        </MemoryRouter>
+      </Provider>,
+    ),
+  };
+};
 
 afterEach(() => {
   mockNavigate.mockReset();
@@ -115,6 +121,22 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
     await waitFor(() =>
       expect(screen.getByText(/ya esta en tu lista/i)).toBeInTheDocument(),
     );
+  });
+
+  it('encola un toast de confirmacion al agregar con exito', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/wishlist/`, () =>
+        HttpResponse.json({ id: 1, product_id: 7 }),
+      ),
+    );
+    const { store } = renderBtn({ productId: 7 });
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() => {
+      const toasts = store.getState().ui.toasts;
+      expect(toasts.some((t) =>
+        t.type === 'success' && /lista de deseos/i.test(t.message),
+      )).toBe(true);
+    });
   });
 
   it('H-003: discrimina el duplicado por el codigo canonico del backend', async () => {
