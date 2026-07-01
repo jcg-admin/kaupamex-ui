@@ -8,5 +8,6 @@
 export { default as useClickOutside } from './useClickOutside';
 export { default as useEscapeKey } from './useEscapeKey';
 export { default as useFloating } from './useFloating';
+export { default as useFocusTrap } from './useFocusTrap';
 export { default as useKeyboardShortcut } from './useKeyboardShortcut';
 export { default as useScrollLock } from './useScrollLock';

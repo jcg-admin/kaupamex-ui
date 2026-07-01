@@ -14,6 +14,7 @@ import { useNavigate, Link }            from 'react-router-dom';
 import { closeSearch }                  from '@redux/slices/uiSlice';
 import { selectIsSearchOpen }           from '@redux/selectors';
 import { useSearch, isQueryValid }      from '@hooks/domain/useSearch';
+import useFocusTrap                      from '@hooks/ui/useFocusTrap';
 import styles from './SearchModal.module.scss';
 
 export default function SearchModal() {
@@ -22,6 +23,12 @@ export default function SearchModal() {
   const isOpen        = useSelector(selectIsSearchOpen);
   const [query, setQuery] = useState('');
   const inputRef      = useRef(null);
+  const panelRef      = useRef(null);
+
+  // Focus trap: el panel es <div role="dialog">, no <dialog> nativo, asi que
+  // el browser no atrapa el foco solo. Sin esto, Tab se escapa al contenido de
+  // fondo (a11y). Modal/Offcanvas no lo necesitan (usan <dialog> + showModal).
+  useFocusTrap(panelRef, isOpen);
 
   const { data, isFetching } = useSearch(
     { q: query },
@@ -70,6 +77,7 @@ export default function SearchModal() {
 
       {/* Panel */}
       <div
+        ref={panelRef}
         className={styles.panel}
         role="dialog"
         aria-modal="true"
