@@ -1,0 +1,55 @@
+@use '@styles/abstracts' as *;
+
+.wrap {
+  margin: $spacing-6 0;
+}
+.title {
+  font-size: $font-size-md;
+  margin: 0 0 $spacing-3;
+}
+.saving {
+  font-size: $font-size-sm;
+  color: $text-secondary;
+  font-weight: 400;
+}
+.error {
+  font-size: $font-size-sm;
+  color: #9a3b3b;
+  margin: 0 0 $spacing-3;
+}
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-3;
+}
+.item {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: grab;
+  &[aria-grabbed='true'] { opacity: 0.5; }
+  &:active { cursor: grabbing; }
+  &:focus-visible { outline: 2px solid #4a1e1e; outline-offset: 2px; }
+}
+.thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pos {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 11px;
+  padding: 0 5px;
+  border-radius: 3px;
+}
