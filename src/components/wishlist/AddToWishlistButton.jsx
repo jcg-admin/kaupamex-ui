@@ -13,6 +13,7 @@ import {
   addToWishlist,
   clearWishlistActionState,
 } from '@redux/slices/wishlistSlice';
+import { addToast } from '@redux/slices/uiSlice';
 import styles from './AddToWishlistButton.module.scss';
 
 export default function AddToWishlistButton({ productId, variantId = null }) {
@@ -44,6 +45,12 @@ export default function AddToWishlistButton({ productId, variantId = null }) {
     const result = await dispatch(addToWishlist({ productId, variantId }));
     if (addToWishlist.fulfilled.match(result)) {
       setAdded(true);
+      // Confirmacion explicita: ademas del cambio de icono en el boton, se
+      // avisa con un toast que la pieza se guardo en la lista de deseos.
+      dispatch(addToast({
+        type: 'success',
+        message: 'Se agregó a tu lista de deseos.',
+      }));
     }
   };
 
