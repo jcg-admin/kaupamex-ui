@@ -163,3 +163,69 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(await screen.findByText(/Estándar resguardado/i)).toBeInTheDocument();
   });
 });
+
+describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () => {
+  const fillValidAddress = async (user, { phone = '5512345678', zip = '06600' } = {}) => {
+    await user.type(screen.getByLabelText(/Nombre completo del destinatario/i), 'Juana Perez');
+    if (phone) await user.type(screen.getByLabelText(/Teléfono/i), phone);
+    await user.type(screen.getByLabelText(/Calle y número/i), 'Av. Reforma 123');
+    await user.type(screen.getByLabelText(/Colonia/i), 'Centro');
+    if (zip) await user.type(screen.getByLabelText(/C\.P\./i), zip);
+    await user.type(screen.getByLabelText(/Alcaldía \/ Municipio/i), 'CDMX');
+    await user.type(screen.getByLabelText(/Estado/i), 'CDMX');
+  };
+
+  it('bloquea el envío si el Teléfono no tiene 10 dígitos', async () => {
+    let orderCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () => {
+        orderCalled = true;
+        return HttpResponse.json({ order_number: 'X1' });
+      }),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    await fillValidAddress(user, { phone: '551234567' }); // 9 dígitos
+    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    expect(await screen.findByText(/10 dígitos/i)).toBeInTheDocument();
+    expect(orderCalled).toBe(false);
+  });
+
+  it('bloquea el envío si el C.P. no tiene 5 dígitos', async () => {
+    let orderCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () => {
+        orderCalled = true;
+        return HttpResponse.json({ order_number: 'X1' });
+      }),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    await fillValidAddress(user, { zip: '123' }); // 3 dígitos
+    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    expect(await screen.findByText(/5 dígitos/i)).toBeInTheDocument();
+    expect(orderCalled).toBe(false);
+  });
+
+  it('el Teléfono descarta no-dígitos y corta en 10', async () => {
+    const user = userEvent.setup();
+    render(wrap());
+    const phone = screen.getByLabelText(/Teléfono/i);
+    await user.type(phone, '55-1234-5678-99');
+    expect(phone.value).toBe('5512345678');
+  });
+
+  it('muestra aviso accionable si /shipping-methods/ falla', async () => {
+    // 404 (endpoint ausente/mal enrutado) — no reintentable, rechaza de
+    // inmediato. Un 5xx dispararía los reintentos con backoff de apiService.
+    server.use(
+      http.get(`${BASE}/api/v2/shipping-methods/`, () =>
+        HttpResponse.json({ detail: 'err' }, { status: 404 }),
+      ),
+    );
+    render(wrap());
+    expect(
+      await screen.findByText(/no se pudieron cargar los métodos de envío/i),
+    ).toBeInTheDocument();
+  });
+});

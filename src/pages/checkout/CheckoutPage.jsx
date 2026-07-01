@@ -31,6 +31,8 @@ export default function CheckoutPage() {
   const savedAddresses = useSelector((s) => s.addresses?.items ?? []);
   // GAP-C1: shipping methods loaded dynamically from /api/v2/shipping-methods/
   const shippingOptions = useSelector((s) => s.checkout?.shippingOptions ?? []);
+  const shippingLoading = useSelector((s) => s.checkout?.shippingLoading ?? false);
+  const shippingError   = useSelector((s) => s.checkout?.shippingError ?? null);
   const { items = [], totals = {} } = cart;
 
   const [email, setEmail] = useState(auth.user?.email || '');
@@ -46,6 +48,8 @@ export default function CheckoutPage() {
   // fallaban (red, validación del API, gateway caído).  Se agrega estado de
   // error y un banner visible en el formulario.
   const [submitError, setSubmitError] = useState(null);
+  // Validación MX front: errores por campo (Teléfono 10, C.P. 5).
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
   useEffect(() => { dispatch(fetchShippingMethods()); }, [dispatch]);
@@ -78,8 +82,26 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setSubmitError(null);
+
+    // Validación MX (front): Teléfono y C.P. deben tener EXACTAMENTE 10 y 5
+    // dígitos. La misma regla se aplica en el backend (defensa en profundidad).
+    const phoneDigits = (address.phone || '').replace(/\D/g, '');
+    const zipDigits   = (address.zip_code || '').replace(/\D/g, '');
+    const errs = {};
+    if (phoneDigits.length !== 10) {
+      errs.phone = 'El teléfono debe tener exactamente 10 dígitos.';
+    }
+    if (zipDigits.length !== 5) {
+      errs.zip_code = 'El C.P. debe tener exactamente 5 dígitos.';
+    }
+    if (Object.keys(errs).length > 0) {
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
+
+    setSubmitting(true);
     try {
       // GAP-C1: shipping holds the numeric DB id from /api/v2/shipping-methods/.
       const shippingMethodId = Number.isFinite(Number(shipping)) ? Number(shipping) : null;
@@ -158,11 +180,18 @@ export default function CheckoutPage() {
                 address={address}
                 setAddress={setAddress}
                 savedAddresses={savedAddresses}
+                errors={fieldErrors}
               />
             </Section>
 
             <Section n="03" title="Método de envío">
-              <ShippingOptions options={shippingOptions} selected={shipping} onSelect={setShipping} />
+              <ShippingOptions
+                options={shippingOptions}
+                selected={shipping}
+                onSelect={setShipping}
+                loading={shippingLoading}
+                error={shippingError}
+              />
             </Section>
 
             <Section n="04" title="Forma de pago">
@@ -208,8 +237,13 @@ function Section({ n, title, children }) {
   );
 }
 
-function AddressForm({ address, setAddress, savedAddresses = [] }) {
+function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) {
   const set = (k) => (e) => setAddress({ ...address, [k]: e.target.value });
+  // Teléfono y C.P. son numéricos MX: se descartan no-dígitos y se corta al
+  // largo máximo mientras el usuario escribe (defensa junto a la validación
+  // al enviar y la del backend).
+  const setDigits = (k, max) => (e) =>
+    setAddress({ ...address, [k]: e.target.value.replace(/\D/g, '').slice(0, max) });
 
   const handleSelectSaved = (e) => {
     const idx = Number(e.target.value);
@@ -250,12 +284,33 @@ function AddressForm({ address, setAddress, savedAddresses = [] }) {
       )}
       <div className={styles.formRow2}>
         <Field label="Nombre completo del destinatario" value={address.recipient_name} onChange={set('recipient_name')} required autoComplete="name" />
-        <Field label="Teléfono" value={address.phone} onChange={set('phone')} required autoComplete="tel" />
+        <Field
+          label="Teléfono"
+          value={address.phone}
+          onChange={setDigits('phone', 10)}
+          required
+          autoComplete="tel"
+          type="tel"
+          inputMode="numeric"
+          maxLength={10}
+          placeholder="10 dígitos"
+          error={errors.phone}
+        />
       </div>
       <Field label="Calle y número" value={address.street} onChange={set('street')} required autoComplete="address-line1" />
       <div className={styles.formRow3}>
         <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
-        <Field label="C.P." value={address.zip_code} onChange={set('zip_code')} required autoComplete="postal-code" />
+        <Field
+          label="C.P."
+          value={address.zip_code}
+          onChange={setDigits('zip_code', 5)}
+          required
+          autoComplete="postal-code"
+          inputMode="numeric"
+          maxLength={5}
+          placeholder="5 dígitos"
+          error={errors.zip_code}
+        />
         <Field label="Alcaldía / Municipio" value={address.city} onChange={set('city')} required autoComplete="address-level2" />
       </div>
       <div className={styles.formRow2}>
@@ -272,9 +327,24 @@ function AddressForm({ address, setAddress, savedAddresses = [] }) {
   );
 }
 
-function ShippingOptions({ options = [], selected, onSelect }) {
-  if (options.length === 0) {
+function ShippingOptions({ options = [], selected, onSelect, loading = false, error = null }) {
+  if (error) {
+    return (
+      <p className={styles.optionSub} role="alert">
+        No se pudieron cargar los métodos de envío. Recarga la página o
+        inténtalo de nuevo en unos minutos.
+      </p>
+    );
+  }
+  if (loading) {
     return <p className={styles.optionSub}>Cargando métodos de envío…</p>;
+  }
+  if (options.length === 0) {
+    return (
+      <p className={styles.optionSub}>
+        No hay métodos de envío disponibles por ahora.
+      </p>
+    );
   }
   return (
     <div className={styles.options}>
