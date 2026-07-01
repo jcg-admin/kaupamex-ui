@@ -130,6 +130,12 @@
   }
 }
 
+// Resaltado por navegación con teclado (↑/↓). Igual que hover para que el
+// resultado activo se vea consistente sin importar el modo de interacción.
+.resultItemActive {
+  background: var(--ec-bg-sunken);
+}
+
 .resultThumb {
   width: 44px;
   height: 44px;
