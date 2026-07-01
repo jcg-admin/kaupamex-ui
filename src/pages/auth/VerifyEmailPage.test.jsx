@@ -3,7 +3,7 @@
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
@@ -21,11 +21,18 @@ const makeStore = () =>
     },
   });
 
+// Sonda de ubicacion: expone el pathname actual para asertar redirecciones.
+function LocationProbe() {
+  const location = useLocation();
+  return <div data-testid="loc">{location.pathname}</div>;
+}
+
 const renderPage = (search = '?token=abc123') =>
   render(
     <Provider store={makeStore()}>
       <MemoryRouter initialEntries={[`/auth/verify-email${search}`]}>
         <VerifyEmailPage />
+        <LocationProbe />
       </MemoryRouter>
     </Provider>,
   );
@@ -43,28 +50,41 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
     await waitFor(() => expect(lastBody).toMatchObject({ token: 'abc123' }));
   });
 
-  it('muestra mensaje de exito tras verificar', async () => {
+  it('tras verificar con exito sale de la pantalla de verificacion', async () => {
+    // El exito ahora redirige (auto-login), no deja al usuario en /verify-email.
     server.use(
       http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
-        HttpResponse.json({ status: 'OK' }),
+        HttpResponse.json({ isAuthenticated: true, user: { id: 1, email: 'u@x.mx' } }),
       ),
     );
     renderPage('?token=abc123');
-    expect(
-      await screen.findByText(/email verificado correctamente/i),
-    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByTestId('loc')).not.toHaveTextContent('verify-email'),
+    );
   });
 
-  it('muestra link para iniciar sesion cuando el exito', async () => {
+  it('auto-login: redirige a next tras verificar con exito', async () => {
     server.use(
       http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
-        HttpResponse.json({ status: 'OK' }),
+        HttpResponse.json({ isAuthenticated: true, user: { id: 1, email: 'u@x.mx' } }),
+      ),
+    );
+    renderPage('?token=abc123&next=/checkout');
+    await waitFor(() =>
+      expect(screen.getByTestId('loc')).toHaveTextContent('/checkout'),
+    );
+  });
+
+  it('auto-login: redirige a /account si no hay next', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
+        HttpResponse.json({ isAuthenticated: true, user: { id: 1, email: 'u@x.mx' } }),
       ),
     );
     renderPage('?token=abc123');
-    expect(
-      await screen.findByRole('link', { name: /iniciar sesion/i }),
-    ).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByTestId('loc')).toHaveTextContent('/account'),
+    );
   });
 
   it('muestra error cuando el token es invalido o expiro', async () => {

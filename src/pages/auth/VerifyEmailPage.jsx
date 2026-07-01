@@ -8,7 +8,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useSearchParams, useLocation } from 'react-router-dom';
+import { Link, useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import {
   verifyEmail,
   resendVerificationEmail,
@@ -24,13 +24,20 @@ const STATUS = {
 
 export default function VerifyEmailPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
   const location = useLocation();
   const pendingEmail = location.state?.email;
-  // DEC-STF-AUTH-NEXT: el link de verificacion puede traer &next=/ruta; se
-  // acarrea al login para que el redirect sobreviva el round-trip por email.
+  // DEC-STF-AUTH-NEXT: el link de verificacion puede traer &next=/ruta. Tras la
+  // verificacion el backend deja al usuario logueado (auto-login por sesion,
+  // ADR-018), asi que se redirige directo a ese destino. Guard anti
+  // open-redirect: solo rutas internas ('/...' sin '//').
   const nextParam = searchParams.get('next');
+  const safeNext =
+    nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')
+      ? nextParam
+      : '/account';
   const loginHref = nextParam
     ? `/auth/login?next=${encodeURIComponent(nextParam)}`
     : '/auth/login';
@@ -49,13 +56,16 @@ export default function VerifyEmailPage() {
       if (cancelled) return;
       if (verifyEmail.fulfilled.match(result)) {
         setStatus(STATUS.SUCCESS);
+        // Auto-login (ADR-018): el backend dejo la sesion establecida; llevar al
+        // usuario directo a donde iba (next) o a su cuenta, sin re-loguearse.
+        navigate(safeNext, { replace: true });
       } else {
         setStatus(STATUS.ERROR);
         setError(result.payload);
       }
     });
     return () => { cancelled = true; };
-  }, [dispatch, token]);
+  }, [dispatch, token, navigate, safeNext]);
 
   const handleResend = async (ev) => {
     ev.preventDefault();
@@ -110,8 +120,8 @@ export default function VerifyEmailPage() {
             <p className={styles.success} role="status">
               Email verificado correctamente. Tu cuenta esta activa.
             </p>
-            <p className={styles.links}>
-              <Link to={loginHref}>Iniciar sesion</Link>
+            <p className={styles.pending} aria-live="polite">
+              Te estamos llevando a tu cuenta...
             </p>
           </>
         )}
