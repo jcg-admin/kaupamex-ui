@@ -1,7 +1,7 @@
 /**
  * Tests — WishlistPage (UC-WISH-02 + UC-WISH-03)
  */
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse, delay } from 'msw';
 import { server } from '@mocks/server';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
@@ -160,6 +160,75 @@ describe('WishlistPage (UC-WISH-02 + UC-WISH-03)', () => {
     await waitFor(() =>
       expect(lastBody).toMatchObject({ quantity: 1, keep_in_wishlist: false }),
     );
+  });
+
+  it('UC-WISH-03 (H-001): "Mover todo al carrito" dispara todos los items en paralelo', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_1, ITEM_2], total_items: 2 }),
+      ),
+    );
+    const moved = [];
+    server.use(
+      http.post(`${BASE}/api/v2/wishlist/:itemId/cart-transfers/`, async ({ params }) => {
+        // Un pequeño delay: si el bucle fuese secuencial, el primer POST
+        // no habria devuelto y el segundo no habria empezado todavia.
+        await delay(20);
+        moved.push(params.itemId);
+        return HttpResponse.json({});
+      }),
+    );
+    renderPage();
+    await screen.findByText('Collar Yemayá');
+    fireEvent.click(
+      screen.getByRole('button', { name: /mover todo al carrito/i }),
+    );
+    await waitFor(() => expect(moved.slice().sort()).toEqual(['1', '2']));
+  });
+
+  it('UC-WISH-03 (H-001): muestra el estado "Moviendo" y deshabilita el boton', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_1, ITEM_2], total_items: 2 }),
+      ),
+      http.post(`${BASE}/api/v2/wishlist/:itemId/cart-transfers/`, async () => {
+        await delay(40);
+        return HttpResponse.json({});
+      }),
+    );
+    renderPage();
+    await screen.findByText('Collar Yemayá');
+    fireEvent.click(
+      screen.getByRole('button', { name: /mover todo al carrito/i }),
+    );
+    expect(
+      await screen.findByRole('button', { name: /moviendo/i }),
+    ).toBeDisabled();
+  });
+
+  it('UC-WISH-03 (H-001): reporta la pieza que falla sin abortar el resto', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
+        HttpResponse.json({ results: [ITEM_1, ITEM_2], total_items: 2 }),
+      ),
+      http.post(`${BASE}/api/v2/wishlist/:itemId/cart-transfers/`, ({ params }) => {
+        if (params.itemId === '2') {
+          return HttpResponse.json(
+            { detail: 'Este producto no está disponible.',
+              codigo_error: 'PRODUCT_OUT_OF_STOCK' },
+            { status: 409 },
+          );
+        }
+        return HttpResponse.json({});
+      }),
+    );
+    renderPage();
+    await screen.findByText('Pulsera Oshún');
+    fireEvent.click(
+      screen.getByRole('button', { name: /mover todo al carrito/i }),
+    );
+    const alertBox = await screen.findByRole('alert');
+    expect(alertBox).toHaveTextContent(/Pulsera Oshún/i);
   });
 
   it('UC-WISH-03: si el item esta sin stock, el boton mover sigue presente', async () => {

@@ -116,4 +116,24 @@ describe('AddToWishlistButton (UC-WISH-01)', () => {
       expect(screen.getByText(/ya esta en tu lista/i)).toBeInTheDocument(),
     );
   });
+
+  it('H-003: discrimina el duplicado por el codigo canonico del backend', async () => {
+    // El backend emite `PRODUCT_ALREADY_IN_WISHLIST` (valor en ingles, canon
+    // del repo). Se entrega SIN 409 para aislar el discriminador por codigo
+    // del fallback por statusCode: solo el match de `code` puede mostrar el
+    // aviso especifico.
+    server.use(
+      http.post(`${BASE}/api/v2/wishlist/`, () =>
+        HttpResponse.json(
+          { detail: 'ya esta en la lista', codigo_error: 'PRODUCT_ALREADY_IN_WISHLIST' },
+          { status: 400 },
+        ),
+      ),
+    );
+    renderBtn();
+    fireEvent.click(screen.getByRole('button'));
+    await waitFor(() =>
+      expect(screen.getByText(/ya esta en tu lista/i)).toBeInTheDocument(),
+    );
+  });
 });
