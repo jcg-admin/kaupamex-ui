@@ -13,6 +13,8 @@
 
 import { createSlice } from '@reduxjs/toolkit';
 
+import { toReadableString } from '@utils/toReadableString';
+
 const errorSlice = createSlice({
   name: 'error',
   initialState: {
@@ -28,7 +30,7 @@ const errorSlice = createSlice({
     handleAPIError(state, action) {
       const error = action.payload;
       state.globalError = {
-        message:    error?.message    ?? 'Error inesperado.',
+        message:    toReadableString(error?.message, 'Error inesperado.'),
         code:       error?.code       ?? 'UNKNOWN',
         statusCode: error?.statusCode ?? null,
         timestamp:  new Date().toISOString(),
@@ -43,7 +45,7 @@ const errorSlice = createSlice({
       const { context, error } = action.payload;
       if (!context) return;
       state.contextErrors[context] = {
-        message:    error?.message    ?? 'Error en la operación.',
+        message:    toReadableString(error?.message, 'Error en la operación.'),
         code:       error?.code       ?? 'UNKNOWN',
         statusCode: error?.statusCode ?? null,
         timestamp:  new Date().toISOString(),
