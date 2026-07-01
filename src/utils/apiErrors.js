@@ -10,6 +10,8 @@
  * - Parsing Errors: Errores al parsear respuestas
  */
 
+import { toReadableString } from './toReadableString';
+
 /**
  * Base API Error Class
  */
@@ -397,18 +399,24 @@ export function createErrorFromResponse(response, originalError = null) {
   const fields = {};
   for (const [k, v] of Object.entries({ ...data, ...nested })) {
     if (META.has(k)) continue;
-    fields[k] = Array.isArray(v) ? v.join(' ') : v;
+    // Un valor de field-error puede venir como array (["msg"]), string, o un
+    // dict anidado (serializer anidado DRF: address -> {zip_code: ["msg"]}).
+    // Se coerce a string legible para que nunca termine como "[object Object]".
+    fields[k] = Array.isArray(v) ? v.join(' ')
+      : (v == null || typeof v === 'string' ? v : toReadableString(v, ''));
   }
 
   // Mensaje: detail/message del API; si no hay, el primer field-error; si no,
-  // un fallback segun el status.
-  let message = data.detail || data.message;
-  if (!message) {
-    const first = Object.values(fields)[0];
-    message = first
-      || ((statusCode === 422 || statusCode === 400) ? 'Validation failed'
-          : (response?.statusText || 'Request failed'));
-  }
+  // un fallback segun el status. Se coerce a string legible: un serializer
+  // anidado produce un `message` objeto que `new Error()` volvia el literal
+  // "[object Object]" (visible en /checkout al fallar la validacion de la
+  // direccion). toReadableString extrae el texto util o cae al fallback.
+  const rawMessage = data.detail || data.message || Object.values(fields)[0];
+  const message = toReadableString(
+    rawMessage,
+    (statusCode === 422 || statusCode === 400) ? 'Validation failed'
+      : (response?.statusText || 'Request failed'),
+  );
 
   // BadRequestError/ValidationError aceptan (message, errors); el resto solo
   // (message). Los field-errors se exponen luego de forma uniforme.

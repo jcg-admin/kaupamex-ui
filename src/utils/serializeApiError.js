@@ -23,7 +23,11 @@ import { toReadableString } from '@utils/toReadableString';
 export function serializeApiError(err) {
   if (err instanceof APIError) {
     return {
-      message:          err.message,
+      // Backstop: aunque createErrorFromResponse ya coerce el mensaje, si un
+      // APIError llegara con un message no-string se coerce aqui tambien para
+      // que ningun consumidor (p.ej. submitError de /checkout) pinte
+      // "[object Object]".
+      message:          toReadableString(err.message, 'Error inesperado.'),
       code:             err.code,
       statusCode:       err.statusCode ?? null,
       name:             err.name,
