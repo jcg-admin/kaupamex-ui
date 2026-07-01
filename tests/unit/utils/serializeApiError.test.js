@@ -81,4 +81,24 @@ describe('serializeApiError', () => {
     expect(out.message).toBe('Error inesperado.');
     expect(out.code).toBe('UNKNOWN');
   });
+
+  it('normaliza un message objeto (dict DRF) a string legible', () => {
+    const out = serializeApiError({
+      status: 400,
+      message: { email: ['Ya existe una cuenta.'] },
+    });
+    expect(typeof out.message).toBe('string');
+    expect(out.message).not.toBe('[object Object]');
+    expect(out.message).toContain('Ya existe una cuenta');
+  });
+
+  it('normaliza body.detail objeto a string legible', () => {
+    const out = serializeApiError({
+      status: 422,
+      body: { detail: { total: ['Monto inválido'] } },
+    });
+    expect(typeof out.message).toBe('string');
+    expect(out.message).not.toBe('[object Object]');
+    expect(out.message).toContain('Monto inválido');
+  });
 });

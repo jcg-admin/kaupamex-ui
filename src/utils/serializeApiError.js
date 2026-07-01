@@ -18,6 +18,7 @@
  */
 
 import { APIError } from '@utils/apiErrors';
+import { toReadableString } from '@utils/toReadableString';
 
 export function serializeApiError(err) {
   if (err instanceof APIError) {
@@ -30,10 +31,13 @@ export function serializeApiError(err) {
     };
   }
 
-  const message =
-    err?.body?.detail ||
-    err?.message ||
-    'Error inesperado.';
+  // `body.detail` / `message` pueden llegar como objeto (dict de validación
+  // DRF); coercer a string legible para que ningún consumidor pinte
+  // "[object Object]".
+  const message = toReadableString(
+    err?.body?.detail ?? err?.message,
+    'Error inesperado.',
+  );
 
   return {
     message,

@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { selectGlobalError, clearGlobalError } from '@redux/slices/errorSlice';
 import { addToast } from '@redux/slices/uiSlice';
+import { toReadableString } from '@utils/toReadableString';
 
 // Mensaje amigable segun el tipo de fallo (sin jerga tecnica para el usuario).
 function friendlyMessage(err) {
@@ -24,7 +25,9 @@ function friendlyMessage(err) {
   if (err?.code === 'NETWORK' || err?.code === 'TIMEOUT') {
     return 'No pudimos conectar. Revisa tu conexión e inténtalo de nuevo.';
   }
-  return err?.message || 'Ocurrió un error inesperado.';
+  // `err.message` puede no ser string (dict de validación DRF); coercer a
+  // texto legible para nunca surface "[object Object]" en el toast.
+  return toReadableString(err?.message, 'Ocurrió un error inesperado.');
 }
 
 export default function GlobalErrorNotifier() {
