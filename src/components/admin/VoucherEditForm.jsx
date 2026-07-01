@@ -5,9 +5,10 @@
  * Fields code + voucher_type are read-only when current_uses > 0
  * per backend immutability guard (FIELD_IMMUTABLE_WHILE_USED).
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateVoucher } from '@redux/slices/vouchersSlice';
+import useFocusTrap from '@hooks/ui/useFocusTrap';
 import styles from './VoucherCreateForm.module.scss';
 
 function validate(fields, isImmutable) {
@@ -31,6 +32,8 @@ function validate(fields, isImmutable) {
 export default function VoucherEditForm({ voucher, onClose }) {
   const dispatch    = useDispatch();
   const { isActioning, actionError } = useSelector((s) => s.vouchers);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef, true);  // <div role="dialog"> sin trap nativo
   const isImmutable = (voucher.current_uses ?? 0) > 0;
 
   const [fields, setFields] = useState({
@@ -85,6 +88,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Editar cupon"
