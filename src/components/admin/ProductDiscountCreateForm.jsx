@@ -8,9 +8,10 @@
  * Tras el exito invalida la query `['product-discounts']` mediante el
  * efecto en AdminProductDiscountsPage (lastAction = 'created').
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createProductDiscount } from '@redux/slices/productDiscountsSlice';
+import useFocusTrap from '@hooks/ui/useFocusTrap';
 import styles from './ProductDiscountCreateForm.module.scss';
 
 const INITIAL_FIELDS = {
@@ -47,6 +48,8 @@ export default function ProductDiscountCreateForm({ onClose }) {
   const dispatch = useDispatch();
   const { isActioning, actionError, lastAction } =
     useSelector((s) => s.productDiscounts);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef, true);  // <div role="dialog"> sin trap nativo
   const [fields, setFields] = useState(INITIAL_FIELDS);
   const [errors, setErrors] = useState({});
 
@@ -84,6 +87,7 @@ export default function ProductDiscountCreateForm({ onClose }) {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Nuevo descuento de producto"

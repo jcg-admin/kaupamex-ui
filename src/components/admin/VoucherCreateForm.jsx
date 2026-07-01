@@ -6,9 +6,10 @@
  * El admin define codigo, tipo (PERCENT o FIXED), valor, vigencia
  * y limites de uso.
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createVoucher } from '@redux/slices/vouchersSlice';
+import useFocusTrap from '@hooks/ui/useFocusTrap';
 import styles from './VoucherCreateForm.module.scss';
 
 const INITIAL_FIELDS = {
@@ -49,6 +50,8 @@ function validate(fields) {
 export default function VoucherCreateForm({ onClose }) {
   const dispatch = useDispatch();
   const { isActioning, actionError } = useSelector((s) => s.vouchers);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef, true);  // <div role="dialog"> sin trap nativo
   const [fields, setFields] = useState(INITIAL_FIELDS);
   const [errors, setErrors] = useState({});
 
@@ -89,6 +92,7 @@ export default function VoucherCreateForm({ onClose }) {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Nuevo cupon"

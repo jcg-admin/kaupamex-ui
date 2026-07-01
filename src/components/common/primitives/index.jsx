@@ -3,6 +3,8 @@
  * Componentes pequeños reutilizados en todas las pages.
  */
 
+import { useRef, useLayoutEffect } from 'react';
+import { cx } from '@utils/cx';
 import styles from './primitives.module.scss';
 
 export function MetaTag({ children, tone = 'bronze', className = '' }) {
@@ -41,31 +43,73 @@ export function Price({ amount, size = 'md', showCurrency = false, className = '
   );
 }
 
+// Portado del prototipo funcional -progress/kno-react-common (codigo propio del ejecutor).
+// Origen: kno-react-inputs/textarea (auto-resize + contador de caracteres).
+// Se integra en el primitivo Field existente (modo textarea) en vez de crear un
+// primitivo TextArea paralelo, para no duplicar label/error/hint (DRY).
+function AutoTextarea({ autoResize = false, value, className, rows = 3, ...rest }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    if (!autoResize || !ref.current) return;
+    const el = ref.current;
+    el.style.height = 'auto';           // reset para medir el contenido real
+    el.style.height = `${el.scrollHeight}px`;
+  }, [autoResize, value]);
+  return (
+    <textarea ref={ref} value={value} className={className} rows={rows} {...rest} />
+  );
+}
+
 export function Field({
   label, name, value, onChange,
   placeholder = '', type = 'text', textarea = false,
   required = false, error = null,
   hint = null,
   autoComplete,
+  autoResize = false,
+  showCount = false,
+  maxLength,
   ...rest
 }) {
-  const Input = textarea ? 'textarea' : 'input';
-  const inputProps = textarea ? { rows: 3 } : { type };
+  const inputClass = cx(styles.fieldInput, error && styles.fieldInputError);
+  const len = (value || '').length;
+  // El contador se muestra si se pide explicitamente o si hay un maxLength.
+  const withCount = textarea && (showCount || maxLength != null);
 
   return (
     <label className={styles.field}>
       <span className={styles.fieldLabel}>{label}</span>
-      <Input
-        name={name}
-        value={value || ''}
-        onChange={onChange}
-        placeholder={placeholder}
-        required={required}
-        className={`${styles.fieldInput} ${error ? styles.fieldInputError : ''}`}
-        autoComplete={autoComplete}
-        {...inputProps}
-        {...rest}
-      />
+      {textarea ? (
+        <AutoTextarea
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          className={inputClass}
+          maxLength={maxLength}
+          autoResize={autoResize}
+          {...rest}
+        />
+      ) : (
+        <input
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          placeholder={placeholder}
+          required={required}
+          className={inputClass}
+          autoComplete={autoComplete}
+          type={type}
+          maxLength={maxLength}
+          {...rest}
+        />
+      )}
+      {withCount && (
+        <span className={styles.fieldCount}>
+          {maxLength != null ? `${len}/${maxLength}` : len}
+        </span>
+      )}
       {error && <span className={styles.fieldError}>{error}</span>}
       {!error && hint && <span className={styles.fieldHint}>{hint}</span>}
     </label>
@@ -76,12 +120,12 @@ export function Button({
   children, variant = 'primary', size = 'md', block = false,
   type = 'button', onClick, disabled = false, ...rest
 }) {
-  const cls = [
+  const cls = cx(
     styles.btn,
     styles[`btn_${variant}`],
     styles[`btn_${size}`],
     block && styles.btnBlock,
-  ].filter(Boolean).join(' ');
+  );
 
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={cls} {...rest}>

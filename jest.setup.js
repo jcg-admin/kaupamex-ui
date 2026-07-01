@@ -40,6 +40,24 @@ global.localStorage = _localStorageMock;
 // Mock window.scrollTo
 window.scrollTo = jest.fn();
 
+// jsdom no expone structuredClone (sí existe nativo en el navegador y Node 22).
+// Polyfill Date-aware para tests; en producción se usa el nativo.
+if (typeof global.structuredClone === 'undefined') {
+  global.structuredClone = function structuredCloneShim(value) {
+    const seen = new WeakMap();
+    const clone = (v) => {
+      if (v === null || typeof v !== 'object') return v;
+      if (v instanceof Date) return new Date(v.getTime());
+      if (seen.has(v)) return seen.get(v);
+      const out = Array.isArray(v) ? [] : {};
+      seen.set(v, out);
+      for (const [k, val] of Object.entries(v)) out[k] = clone(val);
+      return out;
+    };
+    return clone(value);
+  };
+}
+
 // Mock Element.scrollIntoView (jsdom no lo implementa; lo usa CatalogPage
 // para posicionar la vista en los productos).
 window.HTMLElement.prototype.scrollIntoView = jest.fn();

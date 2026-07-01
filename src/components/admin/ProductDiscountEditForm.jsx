@@ -6,9 +6,10 @@
  * descuento existente. El producto asociado es inmutable y se muestra
  * como solo lectura (Product.name).
  */
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateProductDiscount } from '@redux/slices/productDiscountsSlice';
+import useFocusTrap from '@hooks/ui/useFocusTrap';
 import styles from './ProductDiscountCreateForm.module.scss';
 
 function validate(fields) {
@@ -34,6 +35,8 @@ function validate(fields) {
 export default function ProductDiscountEditForm({ discount, onClose }) {
   const dispatch = useDispatch();
   const { isActioning, actionError } = useSelector((s) => s.productDiscounts);
+  const dialogRef = useRef(null);
+  useFocusTrap(dialogRef, true);  // <div role="dialog"> sin trap nativo
 
   const [fields, setFields] = useState({
     discount_pct: discount.discount_pct ?? '',
@@ -72,6 +75,7 @@ export default function ProductDiscountEditForm({ discount, onClose }) {
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Editar descuento de producto"

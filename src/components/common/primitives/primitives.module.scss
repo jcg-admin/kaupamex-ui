@@ -86,6 +86,13 @@ textarea.fieldInput { resize: vertical; min-height: 4.5rem; }
   letter-spacing: 0.04em;
   line-height: 1.6;
 }
+.fieldCount {
+  align-self: flex-end;
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.04em;
+}
 
 // ─────────────────────────────────────────────────────────────────────
 // Button
