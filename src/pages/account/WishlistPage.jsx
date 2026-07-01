@@ -12,6 +12,8 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchWishlist, removeFromWishlist, moveWishlistItemToCart } from '@redux/slices/wishlistSlice';
+import { fetchCart } from '@redux/slices/cartSlice';
+import { addToast } from '@redux/slices/uiSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Price, Button, EmptyState } from '@components/common/primitives';
 import useSortableList, { arrayMove } from '@hooks/ui/useSortableList';
@@ -32,6 +34,24 @@ export default function WishlistPage() {
   const { getItemProps } = useSortableList(sorted.length, handleReorder);
 
   useEffect(() => { dispatch(fetchWishlist()); }, [dispatch]);
+
+  /**
+   * H-WL-03: mover una pieza al carrito no refrescaba el carrito ni avisaba.
+   * Tras un move exitoso se refresca el carrito (para que el contador del
+   * header se actualice) y se muestra un toast de confirmación.
+   */
+  const handleMoveOne = async (item) => {
+    try {
+      await dispatch(moveWishlistItemToCart({ itemId: item.id })).unwrap();
+      dispatch(fetchCart());
+      dispatch(addToast({ type: 'success', message: `"${item.product_name}" se movió al carrito.` }));
+    } catch (err) {
+      dispatch(addToast({
+        type: 'error',
+        message: err?.message || 'No se pudo mover la pieza al carrito.',
+      }));
+    }
+  };
 
   /**
    * H-001: "Mover todo al carrito" ejecutaba un bucle `for … await` que
@@ -61,6 +81,16 @@ export default function WishlistPage() {
     });
     setMoveErrors(errors);
     setMovingAll(false);
+    // H-WL-03: refrescar el carrito y avisar el resultado (antes: sin feedback
+    // y el contador del header quedaba desactualizado).
+    const moved = results.length - errors.length;
+    if (moved > 0) {
+      dispatch(fetchCart());
+      dispatch(addToast({
+        type: 'success',
+        message: `${moved} ${moved === 1 ? 'pieza movida' : 'piezas movidas'} al carrito.`,
+      }));
+    }
   };
 
   return (
@@ -128,6 +158,7 @@ export default function WishlistPage() {
                       key={it.id}
                       item={it}
                       dispatch={dispatch}
+                      onMove={handleMoveOne}
                       dragProps={getItemProps(i)}
                     />
                   ))}
@@ -141,7 +172,7 @@ export default function WishlistPage() {
   );
 }
 
-function WishItem({ item, dispatch, dragProps = {} }) {
+function WishItem({ item, dispatch, onMove, dragProps = {} }) {
   const priceChanged = item.price_at_add && item.current_price < item.price_at_add;
   const lowStock = item.is_available && item.stock <= 3;
 
@@ -174,7 +205,7 @@ function WishItem({ item, dispatch, dragProps = {} }) {
             </span>
           )}
         </div>
-        <Button variant="primary" block size="sm" onClick={() => dispatch(moveWishlistItemToCart({ itemId: item.id }))}>
+        <Button variant="primary" block size="sm" onClick={() => onMove(item)}>
           Mover al carrito
         </Button>
       </div>
