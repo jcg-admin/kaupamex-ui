@@ -10,10 +10,12 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   selectIsAuthenticated,
+  selectIsAdmin,
   selectCartItemCount,
   selectIsSearchOpen,
 } from '@redux/selectors';
 import { toggleSearch } from '@redux/slices/uiSlice';
+import { logoutUser } from '@redux/slices/authSlice';
 import { fetchCategories } from '@redux/slices/catalogSlice';
 import SearchModal from '@components/common/SearchModal/SearchModal';
 import logoUrl from '@assets/practica-yoruba-logo.png';
@@ -27,8 +29,14 @@ export default function Header() {
   const navigate     = useNavigate();
   const location     = useLocation();
   const isAuth       = useSelector(selectIsAuthenticated);
+  const isAdmin      = useSelector(selectIsAdmin);
   const cartCount    = useSelector(selectCartItemCount);
   const isSearchOpen = useSelector(selectIsSearchOpen);
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    navigate('/');
+  };
   // El menu de categorias se arma con las categorias REALES de la API
   // (antes eran slugs hardcodeados que no existian -> 0 resultados).
   const categories   = useSelector((s) => s.catalog?.categories ?? []);
@@ -68,6 +76,12 @@ export default function Header() {
             <Link to="/help">Ayuda</Link>
             <Link to="/account/orders">Rastrear pedido</Link>
             <Link to="/contact">Contacto</Link>
+            {isAdmin && <Link to="/admin">Panel admin</Link>}
+            {isAuth && (
+              <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
+                Cerrar sesión
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ import authReducer, {
   loginUser,
   logoutUser,
   checkAuth,
+  registerUser,
 } from './authSlice';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
@@ -45,6 +46,35 @@ describe('loginUser establece sesion sin guardar tokens (ADR-018)', () => {
     // La API de tokens JWT ya no existe (migracion completa).
     expect(apiService.setAuthToken).toBeUndefined();
     expect(apiService.setRefreshToken).toBeUndefined();
+  });
+});
+
+describe('registerUser adjunta el cart_token anónimo (H-CART-01)', () => {
+  it('envía cart_token cuando hay carrito anónimo', async () => {
+    apiService.setCartToken('cart-uuid-123');
+    let body = null;
+    server.use(
+      http.post(`${BASE}/api/v2/auth/register/`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ message: 'ok' }, { status: 201 });
+      }),
+    );
+    await makeStore().dispatch(registerUser({ email: 'x@test.mx', password: 'p' }));
+    expect(body.cart_token).toBe('cart-uuid-123');
+    apiService.setCartToken(null);
+  });
+
+  it('no envía cart_token si no hay carrito anónimo', async () => {
+    apiService.setCartToken(null);
+    let body = null;
+    server.use(
+      http.post(`${BASE}/api/v2/auth/register/`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ message: 'ok' }, { status: 201 });
+      }),
+    );
+    await makeStore().dispatch(registerUser({ email: 'y@test.mx', password: 'p' }));
+    expect(body.cart_token).toBeUndefined();
   });
 });
 

@@ -26,7 +26,7 @@ import catalogReducer from '@redux/slices/catalogSlice';
 
 import Header from './index';
 
-function buildStore({ isAuthenticated = false, cartCount = 0 } = {}) {
+function buildStore({ isAuthenticated = false, cartCount = 0, isAdmin = false } = {}) {
   return configureStore({
     reducer: {
       auth: authReducer,
@@ -42,7 +42,7 @@ function buildStore({ isAuthenticated = false, cartCount = 0 } = {}) {
         ],
       },
       auth: {
-        user: isAuthenticated ? { id: 1, username: 'pepe' } : null,
+        user: isAuthenticated ? { id: 1, username: 'pepe', is_staff: isAdmin } : null,
         isAuthenticated,
         accessToken:  isAuthenticated ? 'token' : null,
         refreshToken: isAuthenticated ? 'rtoken' : null,
@@ -64,8 +64,8 @@ function buildStore({ isAuthenticated = false, cartCount = 0 } = {}) {
   });
 }
 
-function renderHeader({ isAuthenticated = false, cartCount = 0 } = {}) {
-  const store  = buildStore({ isAuthenticated, cartCount });
+function renderHeader({ isAuthenticated = false, cartCount = 0, isAdmin = false } = {}) {
+  const store  = buildStore({ isAuthenticated, cartCount, isAdmin });
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <Provider store={store}>
@@ -111,6 +111,27 @@ describe('Header — navegación y estado de autenticación', () => {
     renderHeader({ cartCount: 3 });
     const cartBtn = screen.getByRole('link', { name: /Carrito \(3/i });
     expect(cartBtn).toBeInTheDocument();
+  });
+
+  it('muestra "Cerrar sesión" solo con sesión activa', () => {
+    renderHeader({ isAuthenticated: true });
+    expect(screen.getByRole('button', { name: /Cerrar sesión/i })).toBeInTheDocument();
+  });
+
+  it('oculta "Cerrar sesión" para visitantes anónimos', () => {
+    renderHeader({ isAuthenticated: false });
+    expect(screen.queryByRole('button', { name: /Cerrar sesión/i })).toBeNull();
+  });
+
+  it('muestra "Panel admin" solo si el usuario es staff (UC-ADM-08)', () => {
+    renderHeader({ isAuthenticated: true, isAdmin: true });
+    const adminLink = screen.getByRole('link', { name: /Panel admin/i });
+    expect(adminLink).toHaveAttribute('href', '/admin');
+  });
+
+  it('oculta "Panel admin" para usuarios no-staff', () => {
+    renderHeader({ isAuthenticated: true, isAdmin: false });
+    expect(screen.queryByRole('link', { name: /Panel admin/i })).toBeNull();
   });
 
   it('el carrito muestra "99+" cuando el conteo supera 99', () => {

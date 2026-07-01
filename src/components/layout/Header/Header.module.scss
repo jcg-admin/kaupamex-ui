@@ -46,6 +46,18 @@
     &:hover { color: $text-secondary; }
   }
 }
+// "Cerrar sesión" es una acción → <button> estilizado como los enlaces del strip.
+.logoutBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: $text-muted;
+  text-transform: uppercase;
+  font: inherit;
+
+  &:hover { color: $text-secondary; }
+}
 .bronze { color: $bronze; font-weight: $font-weight-medium; }
 .dot { color: $text-muted; opacity: 0.5; }
 
