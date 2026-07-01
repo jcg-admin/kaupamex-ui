@@ -423,6 +423,18 @@ const authSlice = createSlice({
         state.error = action.payload;
       });
 
+    // verifyEmail — auto-login (ADR-018): si el backend dejo la sesion
+    // establecida tras verificar, poblar el estado de auth como en login.
+    builder
+      .addCase(verifyEmail.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload?.isAuthenticated) {
+          state.isAuthenticated = true;
+          state.sessionChecked  = true;
+          state.user            = action.payload.user ?? null;
+        }
+      });
+
     // fetchProfile
     builder
       .addCase(fetchProfile.pending, (state) => {
