@@ -7,7 +7,7 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CookieConsentProvider } from '@context/CookieConsentContext';
-import { readConsent } from '@lib/cookieConsent';
+import { readConsent, defaultChoices, currentChoices } from '@lib/cookieConsent';
 
 function clearCookies() {
   document.cookie
@@ -55,6 +55,16 @@ describe('CookieConsentBanner', () => {
     const record = readConsent();
     expect(record.choices).toEqual({
       necessary: true, functional: false, analytics: false, marketing: false,
+    });
+  });
+
+  it('los defaults son opt-out: todas las categorias activas', () => {
+    // Modelo opt-out: sin registro previo, todo viene ON.
+    expect(defaultChoices()).toEqual({
+      necessary: true, functional: true, analytics: true, marketing: true,
+    });
+    expect(currentChoices()).toEqual({
+      necessary: true, functional: true, analytics: true, marketing: true,
     });
   });
 });

@@ -9,11 +9,12 @@
  *     consentimiento y no emita cookies no consentidas.
  *
  * Requisitos (analisis-ui-banner-consentimiento-cookies / LFPDPPP):
- *   - opt-in para categorias no esenciales (OFF por defecto),
+ *   - modelo opt-OUT: las categorias vienen activadas por defecto (ON) y la
+ *     persona puede desactivar las no esenciales cuando quiera,
  *   - registro como prueba: ts ISO 8601 + choices por proposito + policyVersion,
  *   - validez 12 meses (luego se vuelve a pedir).
  *
- * La categoria "necessary" (sesion + CSRF) esta siempre activa: es
+ * La categoria "necessary" (sesion de servidor) esta siempre activa: es
  * estrictamente necesaria y exenta de consentimiento.
  */
 
@@ -28,19 +29,25 @@ const CONSENT_MAX_AGE_MS = CONSENT_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
 
 /**
  * Categorias de cookies. `necessary` es fija (no se puede desactivar);
- * el resto son opt-in (OFF por defecto).
+ * el resto vienen activadas por defecto (opt-out) y la persona puede
+ * desactivarlas cuando quiera.
  */
 export const CATEGORIES = ['necessary', 'functional', 'analytics', 'marketing'];
 export const OPTIONAL_CATEGORIES = CATEGORIES.filter((c) => c !== 'necessary');
 
-/** Elecciones por defecto: solo lo estrictamente necesario. */
+/** Elecciones por defecto: todas activas (modelo opt-out). */
 export function defaultChoices() {
-  return { necessary: true, functional: false, analytics: false, marketing: false };
+  return { necessary: true, functional: true, analytics: true, marketing: true };
 }
 
 /** Todas las categorias activas (Aceptar todo). */
 export function allChoices() {
   return { necessary: true, functional: true, analytics: true, marketing: true };
+}
+
+/** Solo lo estrictamente necesario (Rechazar las opcionales). */
+export function necessaryOnlyChoices() {
+  return { necessary: true, functional: false, analytics: false, marketing: false };
 }
 
 /**

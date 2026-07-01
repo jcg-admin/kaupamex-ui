@@ -36,7 +36,6 @@ export const authHandlers = [
     HttpResponse.json({
       isAuthenticated: true,
       user: makeUser(),
-      csrfToken: 'mock-csrf-token',
     }),
   ),
 

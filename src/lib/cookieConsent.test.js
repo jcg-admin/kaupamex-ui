@@ -1,9 +1,9 @@
 /**
  * Tests — cookieConsent.js (PracticaYoruba UI)
  *
- * Verifican el registro de consentimiento (LFPDPPP): opt-in por defecto,
- * escritura/lectura de la cookie `cookie_consent`, validez por version y por
- * antiguedad (12 meses), y normalizacion de elecciones.
+ * Verifican el registro de consentimiento (LFPDPPP): opt-out por defecto
+ * (categorias ON), escritura/lectura de la cookie `cookie_consent`, validez
+ * por version y por antiguedad (12 meses), y normalizacion de elecciones.
  */
 import {
   CONSENT_COOKIE,
@@ -31,9 +31,9 @@ function clearCookies() {
 beforeEach(clearCookies);
 
 describe('defaults y normalizacion', () => {
-  it('defaultChoices solo activa las necesarias (opt-in)', () => {
+  it('defaultChoices activa todas las categorias (opt-out)', () => {
     expect(defaultChoices()).toEqual({
-      necessary: true, functional: false, analytics: false, marketing: false,
+      necessary: true, functional: true, analytics: true, marketing: true,
     });
   });
 

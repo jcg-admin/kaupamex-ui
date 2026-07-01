@@ -13,7 +13,7 @@ import {
   currentChoices,
   writeConsent,
   allChoices,
-  defaultChoices,
+  necessaryOnlyChoices,
 } from '@lib/cookieConsent';
 import CookieConsentBanner from '@components/cookies/CookieConsentBanner';
 import CookiePreferencesModal from '@components/cookies/CookiePreferencesModal';
@@ -34,7 +34,7 @@ export function CookieConsentProvider({ children }) {
 
   const acceptAll = useCallback(() => persist(allChoices()), [persist]);
 
-  const rejectAll = useCallback(() => persist(defaultChoices()), [persist]);
+  const rejectAll = useCallback(() => persist(necessaryOnlyChoices()), [persist]);
 
   const savePreferences = useCallback((next) => {
     persist(next);

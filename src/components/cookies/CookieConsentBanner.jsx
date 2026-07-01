@@ -1,9 +1,11 @@
 /**
  * CookieConsentBanner — PracticaYoruba (Capa 1, LFPDPPP)
  *
- * Aviso de cookies NO modal (no atrapa foco, no bloquea la pagina). Cumple los
- * requisitos: aviso + Aceptar todo + Rechazar todo (igual prominencia) +
- * enlace a la politica de privacidad + acceso a preferencias granulares.
+ * Aviso de cookies NO modal (no atrapa foco, no bloquea la pagina). Modelo
+ * opt-out: las categorias vienen activadas por defecto, pero Rechazar todo se
+ * mantiene visible y con la misma accesibilidad que Aceptar todo (sin dark
+ * patterns). Incluye enlace a la politica de privacidad y acceso a
+ * preferencias granulares.
  *
  * Se muestra solo cuando hace falta consentimiento y el modal de preferencias
  * no esta abierto. Ver analisis-ui-banner-consentimiento-cookies.
@@ -34,12 +36,13 @@ export default function CookieConsentBanner() {
           transition={{ duration: 0.2, ease: 'easeOut' }}
         >
           <div className={styles.text}>
-            <h2 className={styles.title}>Usamos cookies</h2>
+            <h2 className={styles.title}>Cookies que cuidan tu experiencia</h2>
             <p className={styles.body}>
-              Usamos cookies necesarias para el funcionamiento del sitio y,
-              con tu permiso, cookies opcionales para mejorar tu experiencia.
-              Puedes aceptarlas, rechazarlas o elegir por categoria. Consulta
-              nuestro{' '}
+              Usamos cookies para que tu visita fluya mejor: recordar tus
+              preferencias, mostrarte los productos Yoruba que mas te
+              inspiran y hacer tus compras mas personales. Vienen activadas
+              para acompanarte, y siempre puedes ajustarlas o rechazarlas
+              cuando quieras. Consulta nuestro{' '}
               <a href="/info/privacidad" className={styles.link}>
                 aviso de privacidad
               </a>.

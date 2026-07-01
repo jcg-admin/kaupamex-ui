@@ -3,7 +3,8 @@
  *
  * Panel de preferencias granulares por proposito, sobre el Modal nativo de la
  * casa (<dialog>.showModal()). La categoria "necessary" esta bloqueada en ON
- * (estrictamente necesaria, exenta); el resto son opt-in (OFF por defecto).
+ * (estrictamente necesaria, exenta); el resto vienen activadas por defecto
+ * (modelo opt-out) pero se pueden desactivar libremente.
  *
  * Ver analisis-ui-banner-consentimiento-cookies.
  */
@@ -17,19 +18,19 @@ import styles from './CookiePreferencesModal.module.scss';
 const LABELS = {
   necessary: {
     name: 'Estrictamente necesarias',
-    desc: 'Requeridas para iniciar sesion y proteger el sitio (sesion, CSRF). Siempre activas.',
+    desc: 'Mantienen tu sesion de servidor activa para que puedas navegar y comprar. Siempre activas.',
   },
   functional: {
     name: 'Funcionales',
-    desc: 'Recuerdan tus preferencias no esenciales para mejorar la experiencia.',
+    desc: 'Recuerdan tus preferencias (idioma, favoritos, carrito) para que tu tienda se sienta tuya.',
   },
   analytics: {
     name: 'Analitica',
-    desc: 'Nos ayudan a entender el uso del sitio de forma agregada.',
+    desc: 'Nos muestran, de forma agregada, que te gusta para seguir mejorando la experiencia.',
   },
   marketing: {
     name: 'Marketing',
-    desc: 'Permiten mostrar contenido y campanas mas relevantes.',
+    desc: 'Te acercan productos Yoruba y promociones pensados para ti, sin ruido de lo que no te interesa.',
   },
 };
 
@@ -57,10 +58,11 @@ export default function CookiePreferencesModal() {
   return (
     <Modal open={preferencesOpen} onClose={closePreferences} size="lg" centered scrollable>
       <div className={styles.panel}>
-        <h2 className={styles.title}>Preferencias de cookies</h2>
+        <h2 className={styles.title}>Tus preferencias de cookies</h2>
         <p className={styles.intro}>
-          Elige que categorias de cookies permites. Puedes cambiarlo cuando
-          quieras desde el enlace del pie de pagina.
+          Estas categorias vienen activadas para acompanar tu experiencia de
+          compra. Deja las que te sumen y desactiva las que no; puedes
+          cambiarlo cuando quieras desde el enlace del pie de pagina.
         </p>
 
         <ul className={styles.list}>

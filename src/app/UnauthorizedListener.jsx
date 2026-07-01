@@ -17,11 +17,13 @@
  * vieja seguia en una pantalla "logueada" pero todas las peticiones
  * fallaban silenciosamente con 401.
  */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { clearError } from '@redux/slices/authSlice';
+import { addToast } from '@redux/slices/uiSlice';
+import { logError } from '@utils/errorLog';
 
 // Path-prefix de rutas publicas — no redirigimos al login si el
 // usuario ya esta en ellas (evita loop /auth/login -> /auth/login).
@@ -37,6 +39,8 @@ export default function UnauthorizedListener() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  // Evita mostrar varios avisos si llegan varios 401 en rafaga.
+  const noticedRef = useRef(false);
 
   useEffect(() => {
     function handler() {
@@ -44,7 +48,29 @@ export default function UnauthorizedListener() {
       dispatch({ type: 'auth/logout/fulfilled', payload: null });
       dispatch(clearError());
 
-      if (!isPublicPath(location.pathname)) {
+      const onProtectedPage = !isPublicPath(location.pathname);
+
+      if (onProtectedPage && !noticedRef.current) {
+        // ADR-018: en vez de "sacar" al usuario en silencio, avisar con una
+        // ventana (toast) clara de que la sesion expiro. Corrige la queja de
+        // "me saca de la pagina" sin contexto.
+        noticedRef.current = true;
+        logError({
+          type: 'auth/session-expired',
+          status: 401,
+          context: 'auth',
+          message: 'Sesion expirada; redirigiendo a login',
+          detail: { from: location.pathname },
+        });
+        dispatch(addToast({
+          type: 'warning',
+          title: 'Tu sesión expiró',
+          message: 'Por seguridad cerramos tu sesión. Vuelve a iniciar sesión para continuar.',
+          duration: 6000,
+        }));
+      }
+
+      if (onProtectedPage) {
         navigate('/auth/login', {
           replace: true,
           state: { from: location.pathname },

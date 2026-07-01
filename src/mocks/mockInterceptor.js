@@ -155,14 +155,13 @@ class MockInterceptor {
   _session() {
     let type = null;
     try { type = window.localStorage.getItem('_mock_auth_type'); } catch { /* sin storage: anon */ }
-    const csrfToken = 'mock-csrf-token';
     if (type === 'admin') {
-      return this._ok({ isAuthenticated: true, user: this._mockUser(2, true, 'testadmin@example.com'), csrfToken });
+      return this._ok({ isAuthenticated: true, user: this._mockUser(2, true, 'testadmin@example.com') });
     }
     if (type === 'buyer') {
-      return this._ok({ isAuthenticated: true, user: this._mockUser(1, false, 'testbuyer@example.com'), csrfToken });
+      return this._ok({ isAuthenticated: true, user: this._mockUser(1, false, 'testbuyer@example.com') });
     }
-    return this._ok({ isAuthenticated: false, user: null, csrfToken });
+    return this._ok({ isAuthenticated: false, user: null });
   }
   _register(body) {
     if (!body?.email || !body?.password) return this._error(400, 'Email y contraseña requeridos.');
