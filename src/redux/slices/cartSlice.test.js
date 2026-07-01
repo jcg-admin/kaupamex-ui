@@ -5,6 +5,7 @@
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
 import { configureStore } from '@reduxjs/toolkit';
+import apiService from '@services/apiService';
 import cartReducer, {
   addToCart,
   syncCartOnLogin,
@@ -15,6 +16,8 @@ const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const makeStore = () =>
   configureStore({ reducer: { cart: cartReducer } });
+
+afterEach(() => apiService.clearCartToken());
 
 describe('cartSlice (UC-CART-01)', () => {
   it('addToCart: hace POST /api/cart/items/ con product_id, variant_id, quantity', async () => {
@@ -70,7 +73,7 @@ describe('cartSlice (UC-CART-01)', () => {
     expect(state.isActioning).toBe(false);
   });
 
-  it('UC-CART-06 — syncCartOnLogin: hace POST /api/cart/sync/ y carga items fusionados', async () => {
+  it('UC-CART-06 — syncCartOnLogin: envia el cart_token anonimo y fusiona', async () => {
     let lastBody;
     server.use(
       http.post(`${BASE}/api/v2/cart/merges/`, async ({ request }) => {
@@ -84,14 +87,33 @@ describe('cartSlice (UC-CART-01)', () => {
         });
       }),
     );
+    apiService.setCartToken('anon-tok-123');
     const store = makeStore();
     await store.dispatch(syncCartOnLogin());
 
-    expect(lastBody).toEqual({});
+    // CR-1: el body lleva el cart_token (antes iba vacio -> 400 en backend).
+    expect(lastBody).toEqual({ cart_token: 'anon-tok-123' });
+    // CR-2: tras fusionar, el token anonimo se limpia (ya no se reenvia).
+    expect(apiService.getCartToken()).toBeNull();
     const state = store.getState().cart;
     expect(state.items).toHaveLength(2);
     expect(state.lastAction).toBe('synced');
     expect(state.itemCount).toBe(3);
+  });
+
+  it('UC-CART-06 — syncCartOnLogin: sin carrito anonimo NO hace POST', async () => {
+    let called = false;
+    server.use(
+      http.post(`${BASE}/api/v2/cart/merges/`, async () => {
+        called = true;
+        return HttpResponse.json({ items: [], voucher: null });
+      }),
+    );
+    const store = makeStore();               // sin cart token
+    const result = await store.dispatch(syncCartOnLogin());
+
+    expect(called).toBe(false);
+    expect(result.type).toBe('cart/sync/rejected');
   });
 
   it('UC-CART-06 — syncCartOnLogin: en error guarda actionError serializado', async () => {
@@ -103,6 +125,7 @@ describe('cartSlice (UC-CART-01)', () => {
         ),
       ),
     );
+    apiService.setCartToken('anon-tok-err');
     const store = makeStore();
     await store.dispatch(syncCartOnLogin());
     const state = store.getState().cart;

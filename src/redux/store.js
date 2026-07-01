@@ -52,6 +52,7 @@ import {
   errorHandlingMiddleware,
   errorLoggingMiddleware,
 } from './middleware/errorHandling';
+import authCartMiddleware from './middleware/authCartListener';
 
 const store = configureStore({
   reducer: {
@@ -94,6 +95,9 @@ const store = configureStore({
         ignoredActions: ['persist/PERSIST'],
       },
     })
+    // CR-1: listener que fusiona el carrito anonimo al login. Va PREPENDED
+    // (requisito de createListenerMiddleware para observar acciones).
+    .prepend(authCartMiddleware)
     .concat(errorHandlingMiddleware)
     .concat(errorLoggingMiddleware),
   devTools: process.env.NODE_ENV !== 'production',
