@@ -47,6 +47,8 @@ class MockInterceptor {
 
     // ─── Auth ───────────────────────────────────────────────────
     if (url.includes('/api/v2/auth/login/'))         return this._login(body);
+    if (url.includes('/api/v2/auth/session/logout/')) return this._ok(null, 204);
+    if (url.includes('/api/v2/auth/session/')) return this._session();
     if (url.includes('/api/v2/auth/logout/'))   return this._logout();
     if (url.includes('/api/v2/auth/me/'))       return this._me();
     if (url.includes('/api/v2/auth/register/')) return this._register(body);
@@ -146,6 +148,20 @@ class MockInterceptor {
     if (type === 'admin') return this._ok(this._mockUser(2, true, 'testadmin@example.com'));
     if (type === 'buyer') return this._ok(this._mockUser(1, false, 'testbuyer@example.com'));
     return this._error(401, 'No autenticado.');
+  }
+
+  // ADR-018: estado de sesion de servidor. Anonimo -> 200 con
+  // isAuthenticated:false (no 401), como el backend real.
+  _session() {
+    let type = null;
+    try { type = window.localStorage.getItem('_mock_auth_type'); } catch { /* sin storage: anon */ }
+    if (type === 'admin') {
+      return this._ok({ isAuthenticated: true, user: this._mockUser(2, true, 'testadmin@example.com') });
+    }
+    if (type === 'buyer') {
+      return this._ok({ isAuthenticated: true, user: this._mockUser(1, false, 'testbuyer@example.com') });
+    }
+    return this._ok({ isAuthenticated: false, user: null });
   }
   _register(body) {
     if (!body?.email || !body?.password) return this._error(400, 'Email y contraseña requeridos.');

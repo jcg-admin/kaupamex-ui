@@ -11,6 +11,7 @@ import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 
 import catalogReducer from '../../../redux/slices/catalogSlice';
+import { CookieConsentProvider } from '@context/CookieConsentContext';
 import Footer from './index';
 
 function LocationProbe() {
@@ -24,12 +25,14 @@ const makeStore = () =>
 const renderAt = (path) =>
   render(
     <Provider store={makeStore()}>
-      <MemoryRouter initialEntries={[path]}>
-        <Routes>
-          <Route path={path} element={<Footer />} />
-          <Route path="/auth/login" element={<LocationProbe />} />
-        </Routes>
-      </MemoryRouter>
+      <CookieConsentProvider>
+        <MemoryRouter initialEntries={[path]}>
+          <Routes>
+            <Route path={path} element={<Footer />} />
+            <Route path="/auth/login" element={<LocationProbe />} />
+          </Routes>
+        </MemoryRouter>
+      </CookieConsentProvider>
     </Provider>,
   );
 

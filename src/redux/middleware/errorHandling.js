@@ -19,6 +19,7 @@ import {
   setErrorHandling,
 } from '@redux/slices/errorSlice';
 import { isRetryableError } from '@utils/apiErrors';
+import { logError } from '@utils/errorLog';
 
 // ─── errorHandlingMiddleware ───────────────────────────────────────────
 export const errorHandlingMiddleware = (store) => (next) => (action) => {
@@ -49,17 +50,19 @@ export const errorHandlingMiddleware = (store) => (next) => (action) => {
 };
 
 // ─── errorLoggingMiddleware ────────────────────────────────────────────
-export const errorLoggingMiddleware = (store) => (next) => (action) => {
-  if (action.type?.endsWith('/rejected') && process.env.NODE_ENV !== 'production') {
+export const errorLoggingMiddleware = () => (next) => (action) => {
+  if (action.type?.endsWith('/rejected')) {
     const error = action.payload;
-    const state = store.getState();
-    console.error('[Redux /rejected]', {
-      action:    action.type,
-      code:      error?.code,
-      message:   error?.message,
-      status:    error?.statusCode,
-      retryable: isRetryableError(error ?? {}),
-      user:      state.auth?.user?.id ?? null,
+    // Registrar en el log de errores del cliente (consola + buffer). Antes
+    // solo se logueaba en dev; ahora tambien en prod para que cualquier
+    // /rejected quede registrado (ventana de diagnostico, "el log").
+    logError({
+      type:    'redux/rejected',
+      context: _extractContext(action.type),
+      code:    error?.code,
+      status:  error?.statusCode,
+      message: error?.message,
+      detail:  { action: action.type, retryable: isRetryableError(error ?? {}) },
     });
   }
   return next(action);

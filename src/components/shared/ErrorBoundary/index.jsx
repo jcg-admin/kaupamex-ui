@@ -5,6 +5,8 @@
 
 import { Component } from 'react';
 
+import { logError } from '@utils/errorLog';
+
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -16,7 +18,12 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    console.error('[ErrorBoundary]', error, info);
+    // Registrar en el log de errores del cliente (consola + buffer).
+    logError({
+      type: 'render/error-boundary',
+      message: error?.message ?? 'Error de renderizado',
+      detail: { stack: info?.componentStack },
+    });
   }
 
   handleReset = () => {

@@ -7,18 +7,17 @@
  *   - Timeout con AbortController
  *   - Interceptores de request/response
  *   - Mock-first via mockInterceptor (PY_*_SOURCE=mock)
- *   - JWT Bearer en memory del modulo (DEC-AUTH-2 de
- *     fix-ui-auth-logout-y-refresh-wiring). Backend Django
- *     usa SIMPLE_JWT con AUTH_HEADER_TYPES=('Bearer',).
- *   - Refresh reactivo al 401 con flag _isRefreshing
- *     (DEC-AUTH-3 + DEC-AUTH-4). Si refresh falla, dispatch
- *     'py:unauthorized' event.
+ *   - Auth por SESION de servidor (ADR-018): la cookie HttpOnly viaja
+ *     sola con credentials:'same-origin'. NO hay tokens JWT ni token
+ *     CSRF en memoria — la sesion sobrevive a la recarga y la defensa
+ *     CSRF es SameSite=Strict + __Host- de la cookie de sesion.
+ *   - 401 = sesion ausente/expirada -> dispatch 'py:unauthorized'
+ *     (UnauthorizedListener cierra el estado y avisa al usuario).
  */
 
 import {
   TimeoutError,
   NetworkError,
-  isRetryableError,
   createErrorFromResponse,
 } from '@utils/apiErrors';
 
@@ -52,43 +51,13 @@ class APIService {
       ...options.headers,
     };
     this._interceptors  = { request: [], response: [], error: [] };
-    // DEC-AUTH-2: tokens en memory del modulo. NO localStorage/
-    // sessionStorage por XSS. Trade-off: reload del browser pierde
-    // la sesion (UX subóptima vs seguridad).
-    this._accessToken   = null;
-    this._refreshToken  = null;
-    this._isRefreshing  = false;
-    // DEC-BC-07: X-Cart-Token para sesion anonima de carrito.
-    // Mismo patron memory-only que tokens de auth: XSS-safe, se
-    // pierde al cerrar tab (aceptable para comprador anonimo).
+    // ADR-018 (migracion a sesion): la auth del web es la cookie de sesion
+    // HttpOnly, que el navegador manda sola (credentials:'same-origin'). No
+    // hay tokens JWT ni token CSRF en memoria: la sesion sobrevive a la
+    // recarga y la defensa CSRF es SameSite=Strict + __Host- de la cookie.
+    // DEC-BC-07: X-Cart-Token para sesion anonima de carrito (memory-only,
+    // XSS-safe, se pierde al cerrar tab — aceptable para comprador anonimo).
     this._cartToken     = null;
-  }
-
-  setAuthToken(token) {
-    this._accessToken = token || null;
-    if (token) this.headers['Authorization'] = `Bearer ${token}`;
-    else delete this.headers['Authorization'];
-  }
-
-  setRefreshToken(token) {
-    this._refreshToken = token || null;
-  }
-
-  getRefreshToken() {
-    return this._refreshToken;
-  }
-
-  clearTokens() {
-    this._accessToken = null;
-    this._refreshToken = null;
-    delete this.headers['Authorization'];
-  }
-
-  clearAuthToken() {
-    // Backwards-compat: limpia solo el access. Para limpiar ambos
-    // usar clearTokens().
-    this._accessToken = null;
-    delete this.headers['Authorization'];
   }
 
   // DEC-BC-07: X-Cart-Token management. Propaga sesion anonima del
@@ -174,8 +143,10 @@ class APIService {
         method:      config.method,
         headers:     config.headers,
         body:        body ? (isFormData ? body : JSON.stringify(body)) : undefined,
-        // DEC-AUTH-1: arquitectura Bearer, no cookies. credentials:
-        // 'include' se removio (sin cookies httpOnly que enviar).
+        // ADR-018 (DEC-STF-AUTH-COOKIE): la cookie de sesion HttpOnly viaja
+        // con la peticion (mismo origin en dev via proxy y en prod mismo
+        // dominio). Restaura la sesion tras recargar sin el JWT en memoria.
+        credentials: 'same-origin',
         signal:      controller.signal,
       });
     } catch (err) {
@@ -200,38 +171,10 @@ class APIService {
       try { errorBody = await response.json(); } catch { /* respuesta sin JSON: errorBody queda {} */ }
 
       if (response.status === 401) {
-        // DEC-AUTH-3 + DEC-AUTH-4: intento de refresh reactivo con
-        // flag _isRefreshing para evitar refreshes concurrentes.
-        const canRetry =
-          !this._isRefreshing &&
-          this._refreshToken &&
-          !path.includes('/auth/refresh/') &&
-          attempt === 1;
-
-        if (canRetry) {
-          this._isRefreshing = true;
-          try {
-            const refreshUrl = `${this.baseURL}/api/v2/auth/refresh/`;
-            const refreshRes = await fetch(refreshUrl, {
-              method:  'POST',
-              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-              body:    JSON.stringify({ refresh: this._refreshToken }),
-            });
-            if (refreshRes.ok) {
-              const refreshData = await refreshRes.json();
-              this.setAuthToken(refreshData.access);
-              if (refreshData.refresh) this.setRefreshToken(refreshData.refresh);
-              this._isRefreshing = false;
-              // Reintentar request original con nuevo token.
-              return this._request(method, path, options, attempt + 1);
-            }
-          } catch {
-            // Cae al cleanup
-          }
-          this._isRefreshing = false;
-        }
-
-        this.clearTokens();
+        // ADR-018: la auth es la cookie de sesion; no hay refresh en memoria
+        // que reintentar. Un 401 significa sesion ausente o expirada -> se
+        // notifica a la app para cerrar el estado de auth y avisar al usuario
+        // (UnauthorizedListener muestra el aviso de sesion expirada).
         window.dispatchEvent(new CustomEvent('py:unauthorized'));
       }
 

@@ -1,17 +1,14 @@
 /**
  * Auth Slice — PracticaYoruba
  *
- * SEGURIDAD (DEC-AUTH-1, DEC-AUTH-2 de fix-ui-auth-logout-
- * y-refresh-wiring):
- *   - Backend usa JWT Bearer (SIMPLE_JWT.AUTH_HEADER_TYPES).
- *   - Tokens (access + refresh) viven en memory del modulo
- *     apiService. NO en Redux state ni localStorage (XSS-
- *     vulnerable). Trade-off aceptado: reload del browser
- *     pierde la sesion.
+ * SEGURIDAD (ADR-018 — migracion a sesion de servidor):
+ *   - La auth del web es la cookie de sesion HttpOnly. El navegador la
+ *     manda sola (credentials:'same-origin'); sobrevive a la recarga.
+ *   - NO hay tokens JWT ni token CSRF en memoria. La defensa CSRF es
+ *     SameSite=Strict + __Host- de la cookie de sesion.
  *   - Redux state guarda solo info del usuario para UI.
- *   - Refresh reactivo: interceptor 401 en apiService llama
- *     refreshSession y reintenta. Si refresh falla, dispatch
- *     'py:unauthorized' event que UnauthorizedListener captura.
+ *   - 401 = sesion ausente/expirada: apiService dispara 'py:unauthorized'
+ *     y UnauthorizedListener cierra el estado y avisa al usuario.
  *
  * Sprint 2: URLs corregidas a /api/v2/, thunks de perfil añadidos.
  * Sprint 5: address CRUD + logout-all-sessions añadidos.
@@ -25,10 +22,15 @@ import { serializeApiError } from '@utils/serializeApiError';
 // ─── URL Constants ───────────────────────────────────────────────────────
 const AUTH_URLS = {
   login:                '/api/v2/auth/login/',
-  logout:               '/api/v2/auth/logout/',
-  refresh:              '/api/v2/auth/refresh/',
+  // ADR-018: logout = cerrar la sesion de servidor (django_logout borra la
+  // fila de sesion). Ya no se usa el blacklist de refresh tokens JWT.
+  logout:               '/api/v2/auth/session/logout/',
   register:             '/api/v2/auth/register/',
   me:                   '/api/v2/auth/me/',
+  // ADR-018: estado de sesion de servidor (cookie HttpOnly). Restaura la
+  // sesion tras recarga; devuelve isAuthenticated + user via la cookie de
+  // sesion (auth unica del SPA, sin tokens en memoria).
+  session:              '/api/v2/auth/session/',
   profile:              '/api/v2/auth/profile/',
   changePassword:       '/api/v2/auth/change-password/',
   // F5 Tier B: verify + resend merged into one endpoint;
@@ -49,16 +51,19 @@ const LOGOUT_ALL_URL = '/api/v2/auth/sessions/';
 // ─── Thunks ─── Session check ───────────────────────────────────────────
 
 /**
- * Verifica si el usuario ya tiene sesion activa al cargar la app.
- * Llama a /api/v2/auth/me/. En modo mock, el interceptor lee
- * localStorage._mock_auth_type para responder sin JWT.
+ * Verifica si el usuario ya tiene sesion activa al cargar la app (ADR-018).
+ * Llama a /api/v2/auth/session/: la cookie de sesion HttpOnly viaja sola, asi
+ * que restaura la sesion tras recargar sin depender de ningun token en memoria.
+ * Es la auth unica del SPA; no hay token CSRF (defensa: SameSite=Strict).
  */
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiService.get(AUTH_URLS.me);
-      return response.data;
+      const response = await apiService.get(AUTH_URLS.session);
+      const data = response.data ?? {};
+      if (!data.isAuthenticated) return rejectWithValue('no-session');
+      return data.user;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
     }
@@ -67,7 +72,12 @@ export const checkAuth = createAsyncThunk(
 
 // ─── Thunks ─── Sprint 1 ─────────────────────────────────────────────
 
-/** Inicia sesion y obtiene tokens JWT. */
+/**
+ * Inicia sesion (ADR-018): el backend establece la cookie de sesion HttpOnly.
+ * No se guardan tokens en memoria — la cookie es la credencial y sobrevive a
+ * la recarga. El backend aun devuelve tokens JWT (dormidos, futuro movil); el
+ * web los ignora.
+ */
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ username, password }, { rejectWithValue }) => {
@@ -81,46 +91,20 @@ export const loginUser = createAsyncThunk(
 );
 
 /**
- * Cierra sesion e invalida el refresh token en blacklist
- * (simplejwt TokenBlacklistView requiere {refresh} en body).
- * Fix D-17 del audit T-102.
+ * Cierra la sesion de servidor (ADR-018): POST /auth/session/logout/ ejecuta
+ * django_logout, que borra la fila de sesion. La cookie deja de autenticar.
  */
 export const logoutUser = createAsyncThunk(
   'auth/logout',
-  async (_, { rejectWithValue }) => {
-    const refresh = apiService.getRefreshToken();
+  async () => {
     try {
-      await apiService.post(AUTH_URLS.logout, refresh ? { refresh } : {});
+      await apiService.post(AUTH_URLS.logout, {});
     } catch {
-      // Proceder con logout local aunque falle el backend
+      // Proceder con logout local aunque falle el backend.
     } finally {
-      apiService.clearTokens();
+      apiService.clearCartToken();
     }
     return null;
-  }
-);
-
-/**
- * Refresca el access token usando el refresh actual.
- * Se llama desde el interceptor 401 del apiService o
- * manualmente. Implementacion D-23 del audit T-102.
- * Backend SIMPLE_JWT.ROTATE_REFRESH_TOKENS=True devuelve
- * nuevo refresh tambien (DEC-AUTH-5).
- */
-export const refreshSession = createAsyncThunk(
-  'auth/refresh',
-  async (_, { rejectWithValue }) => {
-    const refresh = apiService.getRefreshToken();
-    if (!refresh) return rejectWithValue('No refresh token disponible');
-    try {
-      const response = await apiService.post(AUTH_URLS.refresh, { refresh });
-      apiService.setAuthToken(response.data.access);
-      if (response.data.refresh) apiService.setRefreshToken(response.data.refresh);
-      return response.data;
-    } catch (error) {
-      apiService.clearTokens();
-      return rejectWithValue(serializeApiError(error));
-    }
   }
 );
 
@@ -387,8 +371,7 @@ const authSlice = createSlice({
         state.sessionChecked = true;
         state.user = action.payload.user ?? action.payload;
         state.error = null;
-        if (action.payload.access) apiService.setAuthToken(action.payload.access);
-        if (action.payload.refresh) apiService.setRefreshToken(action.payload.refresh);
+        // ADR-018: la auth es la cookie de sesion; no se guardan tokens.
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -584,19 +567,6 @@ const authSlice = createSlice({
       .addCase(requestPasswordReset.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
-
-    // refreshSession (interceptor 401)
-    // H-CICLO21-02: si el refresh falla, limpiar el estado de auth para
-    // que la UI refleje la sesion expirada. El apiService ya llama
-    // clearTokens() y dispara 'py:unauthorized'; aqui cerramos el estado
-    // Redux para que isAuthenticated quede en false.
-    builder
-      .addCase(refreshSession.rejected, (state) => {
-        state.user            = null;
-        state.isAuthenticated = false;
-        state.isLoading       = false;
-        state.error           = null;
       });
 
     // confirmPasswordReset (Sprint 6)

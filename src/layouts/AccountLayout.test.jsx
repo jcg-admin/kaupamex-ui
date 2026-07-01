@@ -11,6 +11,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
+import { CookieConsentProvider } from '@context/CookieConsentContext';
 
 import authReducer from '@redux/slices/authSlice';
 import cartReducer from '@redux/slices/cartSlice';
@@ -43,9 +44,11 @@ function renderLayout() {
   return render(
     <Provider store={buildStore()}>
       <QueryClientProvider client={client}>
-        <MemoryRouter>
-          <AccountLayout />
-        </MemoryRouter>
+        <CookieConsentProvider>
+          <MemoryRouter>
+            <AccountLayout />
+          </MemoryRouter>
+        </CookieConsentProvider>
       </QueryClientProvider>
     </Provider>,
   );

@@ -30,4 +30,16 @@ export const authHandlers = [
   http.get(`${BASE}/api/v2/auth/me/`, () =>
     HttpResponse.json(makeUser()),
   ),
+
+  // ADR-018: estado de sesion de servidor (restauracion tras recarga).
+  http.get(`${BASE}/api/v2/auth/session/`, () =>
+    HttpResponse.json({
+      isAuthenticated: true,
+      user: makeUser(),
+    }),
+  ),
+
+  http.post(`${BASE}/api/v2/auth/session/logout/`, () =>
+    new HttpResponse(null, { status: 204 }),
+  ),
 ];

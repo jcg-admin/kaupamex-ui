@@ -1,0 +1,126 @@
+/**
+ * CookieConsentBanner — estilos (Capa 1)
+ * Barra inferior no-modal. Usa los tokens de la paleta Natural vivo.
+ */
+
+.banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1200;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 18px 24px;
+  background: var(--c-carbon, #1A1F08);
+  border-top: 1px solid var(--line-2, rgba(245, 247, 238, 0.14));
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.35);
+  color: var(--c-ink, #F5F7EE);
+}
+
+.text {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-ink, #F5F7EE);
+}
+
+.body {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--c-ink-dim, #B8B7A5);
+}
+
+.link {
+  color: var(--c-lime-soft, #A8C840);
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--c-lime, #8CB800);
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+/* Aceptar todo y Rechazar todo comparten peso visual (igual prominencia). */
+.primary {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--c-lime, #8CB800);
+  background: var(--c-lime, #8CB800);
+  color: var(--c-base, #0E1400);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    background: var(--c-lime-soft, #A8C840);
+    border-color: var(--c-lime-soft, #A8C840);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--c-ink, #F5F7EE);
+    outline-offset: 2px;
+  }
+}
+
+/* Preferencias: accion terciaria, menor peso (no es aceptar ni rechazar). */
+.secondary {
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line-2, rgba(245, 247, 238, 0.14));
+  background: transparent;
+  color: var(--c-ink, #F5F7EE);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    border-color: var(--c-ink-dim, #B8B7A5);
+    background: rgba(245, 247, 238, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--c-ink, #F5F7EE);
+    outline-offset: 2px;
+  }
+}
+
+@media (max-width: 640px) {
+  .banner {
+    padding: 16px;
+  }
+
+  .actions {
+    width: 100%;
+
+    .primary,
+    .secondary {
+      flex: 1 1 auto;
+      text-align: center;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    transition: none;
+  }
+}
