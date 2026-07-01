@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { fetchWishlist, removeFromWishlist, moveWishlistItemToCart } from '@redux/slices/wishlistSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Price, Button, EmptyState } from '@components/common/primitives';
+import useSortableList, { arrayMove } from '@hooks/ui/useSortableList';
 import styles from './WishlistPage.module.scss';
 
 export default function WishlistPage() {
@@ -21,6 +22,14 @@ export default function WishlistPage() {
   const { items = [], isLoading } = useSelector((s) => s.wishlist || {});
   const [movingAll, setMovingAll]   = useState(false);
   const [moveErrors, setMoveErrors] = useState([]);
+
+  // Orden local (Fase 5, drag-n-drop): reordenamiento en sesión. Se resincroniza
+  // cuando cambia la lista del backend (fetch/add/remove/move). La persistencia
+  // del orden requiere un campo `order` en el API (follow-up documentado).
+  const [sorted, setSorted] = useState(items);
+  useEffect(() => { setSorted(items); }, [items]);
+  const handleReorder = (from, to) => setSorted((prev) => arrayMove(prev, from, to));
+  const { getItemProps } = useSortableList(sorted.length, handleReorder);
 
   useEffect(() => { dispatch(fetchWishlist()); }, [dispatch]);
 
@@ -107,9 +116,23 @@ export default function WishlistPage() {
             )}
 
             {!isLoading && items.length > 0 && (
-              <div className={styles.grid} data-testid="wishlist-grid">
-                {items.map((it) => <WishItem key={it.id} item={it} dispatch={dispatch} />)}
-              </div>
+              <>
+                {sorted.length > 1 && (
+                  <p className={styles.reorderHint}>
+                    Arrastra las piezas (o Ctrl + ↑/↓) para ordenarlas a tu gusto.
+                  </p>
+                )}
+                <div className={styles.grid} data-testid="wishlist-grid">
+                  {sorted.map((it, i) => (
+                    <WishItem
+                      key={it.id}
+                      item={it}
+                      dispatch={dispatch}
+                      dragProps={getItemProps(i)}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </section>
         </div>
@@ -118,12 +141,12 @@ export default function WishlistPage() {
   );
 }
 
-function WishItem({ item, dispatch }) {
+function WishItem({ item, dispatch, dragProps = {} }) {
   const priceChanged = item.price_at_add && item.current_price < item.price_at_add;
   const lowStock = item.is_available && item.stock <= 3;
 
   return (
-    <article className={styles.wishCard}>
+    <article className={`${styles.wishCard} ${styles.wishCardDraggable}`} {...dragProps}>
       <div className={styles.wishImg}>
         {item.image_url
           ? <img src={item.image_url} alt={item.product_name} loading="lazy" />
