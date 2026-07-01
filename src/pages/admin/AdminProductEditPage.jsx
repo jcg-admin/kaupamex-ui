@@ -15,6 +15,7 @@ import apiService from '@services/apiService';
 import { updateProduct, deactivateProduct, activateProduct, clearProductsActionState }
   from '@redux/slices/productsSlice';
 import AdminProductForm from './AdminProductForm';
+import ProductImageReorder from '@components/admin/ProductImageReorder';
 import styles from './AdminProductCreatePage.module.scss';
 
 export default function AdminProductEditPage() {
@@ -92,6 +93,8 @@ export default function AdminProductEditPage() {
         isSubmitting={isActioning}
         actionError={actionError?.message ?? (actionError ? 'Error al guardar los cambios.' : null)}
       />
+
+      <ProductImageReorder productId={id} images={product.images ?? []} />
     </section>
   );
 }

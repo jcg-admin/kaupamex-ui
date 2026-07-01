@@ -35,3 +35,6 @@ npm-debug.log*
 # Playwright
 test-results/
 playwright-report/
+
+# Claude Code agent worktrees (scratch, never committed)
+.claude/worktrees/

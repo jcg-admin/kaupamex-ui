@@ -11,12 +11,13 @@ import { Link } from 'react-router-dom';
 import { useInventory } from '@hooks/domain/useInventory';
 import { DataTable } from '@components/common';
 import { exportToCsv } from '@lib/csvExporter';
+import { exportToExcel } from '@lib/excelExporter';
 import styles from './AdminInventoryPage.module.scss';
 
 const CSV_COLUMNS = [
   { key: 'sku',          header: 'SKU' },
   { key: 'product_name', header: 'Nombre' },
-  { key: 'stock',        header: 'Stock' },
+  { key: 'stock',        header: 'Stock', type: 'number' },
   { key: 'status',       header: 'Estado' },
 ];
 
@@ -69,6 +70,13 @@ export default function AdminInventoryPage() {
             disabled={items.length === 0}
           >
             Exportar CSV
+          </button>
+          <button
+            type="button"
+            onClick={() => exportToExcel(CSV_COLUMNS, items, 'inventario.xls', { sheetName: 'Inventario' })}
+            disabled={items.length === 0}
+          >
+            Exportar Excel
           </button>
           <Link to="/admin/inventory/import" className={styles.importLink}>
             Importar CSV

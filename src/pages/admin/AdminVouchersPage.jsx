@@ -14,6 +14,7 @@ import { useVouchers, VOUCHERS_QUERY_KEY } from '@hooks/domain/useVouchers';
 import { DataTable } from '@components/common';
 import VoucherCreateForm from '@components/admin/VoucherCreateForm';
 import VoucherEditForm from '@components/admin/VoucherEditForm';
+import PromotionsTimeline from '@components/admin/PromotionsTimeline';
 import styles from './AdminVouchersPage.module.scss';
 
 const TYPE_LABEL = {
@@ -133,6 +134,16 @@ export default function AdminVouchersPage() {
             : (actionError?.message ?? 'Ocurrio un error.')}
         </p>
       )}
+
+      <PromotionsTimeline
+        promos={items.map((v) => ({
+          id: v.id,
+          label: v.code,
+          valid_from: v.valid_from,
+          valid_until: v.valid_until,
+        }))}
+        title="Vigencia de cupones"
+      />
 
       <DataTable
         columns={columns}
