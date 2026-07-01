@@ -47,7 +47,11 @@ export default function AddToWishlistButton({ productId, variantId = null }) {
     }
   };
 
-  const alreadyInList = actionError?.code === 'PRODUCTO_YA_EN_WISHLIST'
+  // H-003: el backend emite el codigo canonico `PRODUCT_ALREADY_IN_WISHLIST`
+  // (valor en ingles, convencion del repo: ORDER_NOT_FOUND, INSUFFICIENT_STOCK,
+  // etc.). Antes el front comparaba contra `PRODUCTO_YA_EN_WISHLIST`, que nunca
+  // hacia match y dependia solo del fallback por statusCode 409.
+  const alreadyInList = actionError?.code === 'PRODUCT_ALREADY_IN_WISHLIST'
     || actionError?.statusCode === 409;
   const confirmed = added && lastAction === 'added';
 

@@ -8,7 +8,7 @@
  *   POST /wishlist/{pk}/cart-transfers/
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchWishlist, removeFromWishlist, moveWishlistItemToCart } from '@redux/slices/wishlistSlice';
@@ -19,8 +19,40 @@ import styles from './WishlistPage.module.scss';
 export default function WishlistPage() {
   const dispatch = useDispatch();
   const { items = [], isLoading } = useSelector((s) => s.wishlist || {});
+  const [movingAll, setMovingAll]   = useState(false);
+  const [moveErrors, setMoveErrors] = useState([]);
 
   useEffect(() => { dispatch(fetchWishlist()); }, [dispatch]);
+
+  /**
+   * H-001: "Mover todo al carrito" ejecutaba un bucle `for … await` que
+   * despachaba los items uno a uno; con N piezas la UI quedaba bloqueada
+   * ~N×latencia sin retroalimentacion, y si una pieza fallaba (p. ej. sin
+   * stock) el bucle abortaba y las restantes nunca se movian.
+   *
+   * Ahora se despachan en paralelo con Promise.allSettled: cada pieza se
+   * intenta de forma independiente, se reporta cual fallo y el resto avanza.
+   */
+  const handleMoveAll = async () => {
+    const snapshot = items;           // congela la lista al momento del clic
+    setMovingAll(true);
+    setMoveErrors([]);
+    const results = await Promise.allSettled(
+      snapshot.map((i) => dispatch(moveWishlistItemToCart({ itemId: i.id })).unwrap()),
+    );
+    const errors = [];
+    results.forEach((r, idx) => {
+      if (r.status === 'rejected') {
+        errors.push({
+          id:      snapshot[idx].id,
+          name:    snapshot[idx].product_name,
+          message: r.reason?.message || 'No se pudo mover al carrito.',
+        });
+      }
+    });
+    setMoveErrors(errors);
+    setMovingAll(false);
+  };
 
   return (
     <main className={styles.page}>
@@ -45,11 +77,22 @@ export default function WishlistPage() {
                 </p>
               </div>
               {items.length > 0 && (
-                <Button variant="secondary" onClick={async () => { for (const i of items) { await dispatch(moveWishlistItemToCart({ itemId: i.id })); } }}>
-                  Mover todo al carrito
+                <Button variant="secondary" onClick={handleMoveAll} disabled={movingAll}>
+                  {movingAll ? 'Moviendo…' : 'Mover todo al carrito'}
                 </Button>
               )}
             </header>
+
+            {moveErrors.length > 0 && (
+              <div className={styles.moveErrors} role="alert">
+                <p>No se pudieron mover algunas piezas:</p>
+                <ul>
+                  {moveErrors.map((e) => (
+                    <li key={e.id}>{e.name}: {e.message}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {isLoading && <div className={styles.loading}>Cargando…</div>}
 

@@ -44,6 +44,19 @@
 .lead { color: $text-secondary; margin-top: $spacing-2; max-width: 540px; line-height: $line-height-relaxed; }
 .loading { color: $text-muted; padding: $spacing-12; text-align: center; }
 
+.moveErrors {
+  margin: $spacing-4 0;
+  padding: $spacing-3 $spacing-4;
+  border-radius: 8px;
+  background: rgba($vino, 0.06);
+  border: 1px solid rgba($vino, 0.25);
+  color: $vino;
+  font-size: $font-size-sm;
+
+  p { font-weight: $font-weight-medium; margin: 0 0 $spacing-2; }
+  ul { margin: 0; padding-left: $spacing-4; }
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
