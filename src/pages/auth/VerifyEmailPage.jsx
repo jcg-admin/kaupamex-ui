@@ -126,7 +126,18 @@ export default function VerifyEmailPage() {
           </>
         )}
 
-        {status === STATUS.ERROR && (
+        {status === STATUS.ERROR && error?.code === 'TOKEN_ALREADY_USED' && (
+          <>
+            <p className={styles.success} role="status">
+              Este enlace ya fue utilizado. Si tu cuenta ya esta activa, inicia sesion.
+            </p>
+            <p className={styles.links}>
+              <Link to={loginHref}>Ir a iniciar sesion</Link>
+            </p>
+          </>
+        )}
+
+        {status === STATUS.ERROR && error?.code !== 'TOKEN_ALREADY_USED' && (
           <>
             <p className={styles.error} role="alert">
               El enlace de verificacion no es valido o expiro.

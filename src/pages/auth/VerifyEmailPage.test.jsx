@@ -112,6 +112,26 @@ describe('VerifyEmailPage (UC-AUTH-10)', () => {
     ).toBeInTheDocument();
   });
 
+  it('enlace ya utilizado: muestra aviso + login, sin form de reenvio', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
+        HttpResponse.json(
+          { detail: 'Este enlace ya fue utilizado.', codigo_error: 'TOKEN_ALREADY_USED' },
+          { status: 400 },
+        ),
+      ),
+    );
+    renderPage('?token=usado&next=/checkout');
+    expect(await screen.findByText(/ya fue utilizado/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /iniciar sesion/i }),
+    ).toBeInTheDocument();
+    // No debe ofrecer reenviar (la cuenta ya esta activa).
+    expect(
+      screen.queryByRole('button', { name: /reenviar correo/i }),
+    ).not.toBeInTheDocument();
+  });
+
   it('al reenviar llama POST resend-verification con el email ingresado', async () => {
     server.use(
       http.post(`${BASE}/api/v2/auth/email-verifications/`, () =>
