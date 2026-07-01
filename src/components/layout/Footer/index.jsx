@@ -6,6 +6,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import logoUrl from '@assets/practica-yoruba-logo.png';
+import { useCookieConsent } from '@context/CookieConsentContext';
 import styles from './Footer.module.scss';
 
 // Columnas estaticas (la de "Catalogo" se arma dinamica con categorias reales).
@@ -45,6 +46,9 @@ const COLUMNS = [
 export default function Footer() {
   // Categorias reales de la API (las carga el Header); fallback a [].
   const categories = useSelector((s) => s.catalog?.categories ?? []);
+  // Retiro/edicion del consentimiento de cookies (LFPDPPP): centro de
+  // preferencias siempre accesible desde el pie de pagina.
+  const { openPreferences } = useCookieConsent();
   // T-04: las entradas de auth llevan la pagina actual para regresar a ella
   // tras login/registro (las demas entradas ya lo hacen; el footer no lo hacia).
   const location = useLocation();
@@ -108,6 +112,13 @@ export default function Footer() {
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
           <span>© {new Date().getFullYear()} Práctica Yorùbà · practicayoruba.com</span>
+          <button
+            type="button"
+            className={styles.cookiePrefs}
+            onClick={openPreferences}
+          >
+            Preferencias de cookies
+          </button>
           <span className={styles.payments}>
             <span>Mercado Pago</span>
             <span>SPEI</span>

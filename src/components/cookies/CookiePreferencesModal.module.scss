@@ -1,0 +1,160 @@
+/**
+ * CookiePreferencesModal — estilos (Capa 2)
+ * Contenido del panel de preferencias dentro del Modal de la casa.
+ */
+
+.panel {
+  padding: 4px 4px 8px;
+  color: var(--c-ink, #F5F7EE);
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.intro {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--c-ink-dim, #B8B7A5);
+}
+
+.list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line, rgba(245, 247, 238, 0.08));
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-ink, #F5F7EE);
+}
+
+.desc {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--c-ink-mute, #7A7D62);
+}
+
+.switch {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 44px;
+    height: 24px;
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+.locked {
+  font-size: 12px;
+  color: var(--c-ink-mute, #7A7D62);
+  font-style: italic;
+}
+
+/* Interruptor visual controlado por el checkbox hermano. */
+.slider {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--c-ink-faint, #444838);
+  transition: background 0.15s ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--c-ink, #F5F7EE);
+    transition: transform 0.15s ease;
+  }
+}
+
+input:checked + .slider {
+  background: var(--c-lime, #8CB800);
+
+  &::after {
+    transform: translateX(20px);
+  }
+}
+
+input:focus-visible + .slider {
+  outline: 2px solid var(--c-ink, #F5F7EE);
+  outline-offset: 2px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ghost {
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line-2, rgba(245, 247, 238, 0.14));
+  background: transparent;
+  color: var(--c-ink, #F5F7EE);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--c-ink-dim, #B8B7A5);
+    background: rgba(245, 247, 238, 0.05);
+  }
+}
+
+.save {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--c-lime, #8CB800);
+  background: var(--c-lime, #8CB800);
+  color: var(--c-base, #0E1400);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--c-lime-soft, #A8C840);
+    border-color: var(--c-lime-soft, #A8C840);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slider,
+  .slider::after {
+    transition: none;
+  }
+}
