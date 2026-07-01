@@ -9,7 +9,7 @@
  *   GET /catalogue/categories/
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -44,6 +44,15 @@ export default function CatalogPage() {
   const qParam  = searchParams.get('q')   || '';
   const catParam = searchParams.get('cat') || '';
   const mode = qParam ? 'search' : 'listing';
+
+  // Al entrar al catalogo o cambiar los filtros por URL (?orisha, ?cat, ?q,
+  // ?page), posicionar la vista donde EMPIEZAN los productos, no en el hero.
+  // ScrollToTop excluye /catalog justo para dejar que la pagina lo maneje.
+  const contentRef = useRef(null);
+  const searchKey  = searchParams.toString();
+  useEffect(() => {
+    contentRef.current?.scrollIntoView({ block: 'start' });
+  }, [searchKey]);
 
   useEffect(() => { dispatch(fetchCategories()); }, [dispatch]);
 
@@ -115,7 +124,7 @@ export default function CatalogPage() {
         </div>
       </header>
 
-      <div className={styles.container}>
+      <div className={styles.container} ref={contentRef}>
         <div className={styles.layout}>
           <FilterSidebar dispatch={dispatch} categories={categories} filters={filters} />
 

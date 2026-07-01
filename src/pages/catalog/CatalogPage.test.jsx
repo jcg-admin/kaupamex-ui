@@ -67,6 +67,13 @@ beforeEach(() => {
 
 // =============================================================================
 describe('CatalogPage — listado (UC-CAT-01)', () => {
+  it('posiciona la vista en los productos al entrar (no en el hero)', async () => {
+    const spy = jest.spyOn(window.HTMLElement.prototype, 'scrollIntoView');
+    render(wrap(<CatalogPage />, makeStore()));
+    await waitFor(() => expect(spy).toHaveBeenCalledWith({ block: 'start' }));
+    spy.mockRestore();
+  });
+
   it('muestra el título del catálogo', async () => {
     render(wrap(<CatalogPage />, makeStore()));
     expect(await screen.findByRole('heading', { name: /Objetos rituales/i }))

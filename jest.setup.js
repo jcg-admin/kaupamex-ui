@@ -40,6 +40,10 @@ global.localStorage = _localStorageMock;
 // Mock window.scrollTo
 window.scrollTo = jest.fn();
 
+// Mock Element.scrollIntoView (jsdom no lo implementa; lo usa CatalogPage
+// para posicionar la vista en los productos).
+window.HTMLElement.prototype.scrollIntoView = jest.fn();
+
 // Mock IntersectionObserver (usado en lazy loading e imágenes)
 global.IntersectionObserver = class IntersectionObserver {
   constructor() {}
