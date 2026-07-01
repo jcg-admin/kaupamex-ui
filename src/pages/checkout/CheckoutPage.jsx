@@ -365,6 +365,8 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
         label="Referencias para entrega (opcional)"
         value={address.notes} onChange={set('notes')}
         textarea
+        autoResize
+        maxLength={500}
         placeholder="Edificio color terracota, portero llamarse Don Aldo"
       />
     </div>
