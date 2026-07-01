@@ -67,6 +67,9 @@
   &:focus { border-color: $lime; }
   &::placeholder { color: $text-muted; }
 }
+// El <textarea> (Field textarea) heredaba resize:both del navegador y se
+// podía estirar en horizontal rompiendo el layout. Se limita a vertical.
+textarea.fieldInput { resize: vertical; min-height: 4.5rem; }
 .fieldInputError {
   border-color: $vino-soft;
 }

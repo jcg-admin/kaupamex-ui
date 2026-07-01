@@ -142,6 +142,8 @@ const checkoutSlice = createSlice({
     },
     shippingMethod:    null,
     shippingOptions:   [],
+    shippingLoading:   false,
+    shippingError:     null,
     paymentMethod:     null, // 'mercadopago' | 'paypal'
     orderId:           null,
     paymentData:       null, // { payment_id, checkout_url, ... } per DEC-BC-09
@@ -213,9 +215,22 @@ const checkoutSlice = createSlice({
       });
 
     // GAP-C1: shipping methods loaded from API (UC-CFG-02 buyer side).
+    // Regresión: sólo existía .fulfilled; si el endpoint fallaba, la UI
+    // quedaba colgada en "Cargando…" sin señal de error. Se agregan
+    // .pending/.rejected con estado propio (no el isLoading de orden/pago).
     builder
+      .addCase(fetchShippingMethods.pending, (state) => {
+        state.shippingLoading = true;
+        state.shippingError   = null;
+      })
       .addCase(fetchShippingMethods.fulfilled, (state, action) => {
+        state.shippingLoading = false;
+        state.shippingError   = null;
         state.shippingOptions = action.payload;
+      })
+      .addCase(fetchShippingMethods.rejected, (state, action) => {
+        state.shippingLoading = false;
+        state.shippingError   = action.payload;
       });
 
     // H-CICLO114-03: express checkout thunks (UC-ORD-01-EXT).
