@@ -2,9 +2,10 @@
  * AdminChargebacksPage — PracticaYoruba
  * T-17-B: lista de contracargos recibidos via webhook de MercadoPago.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminChargebacks } from '@hooks/domain/usePayments';
+import DataTable from '@components/common/DataTable/DataTable';
 import styles from './AdminChargebacksPage.module.scss';
 
 const STATUS_OPTIONS = [
@@ -33,6 +34,62 @@ export default function AdminChargebacksPage() {
   const params = status ? { status } : {};
   const { data: chargebacks = [], isLoading, isError } = useAdminChargebacks(params);
 
+  const columns = useMemo(() => [
+    {
+      key: 'gateway_chargeback_id',
+      header: 'ID Gateway',
+      sortable: true,
+      render: (cb) => <span className={styles.mono}>{cb.gateway_chargeback_id}</span>,
+    },
+    {
+      key: 'gateway_payment_id',
+      header: 'Pago MP',
+      sortable: true,
+      render: (cb) => <span className={styles.mono}>{cb.gateway_payment_id}</span>,
+    },
+    {
+      key: 'amount',
+      header: 'Monto',
+      sortable: true,
+      align: 'right',
+      value: (cb) => Number(cb.amount ?? 0),
+      render: (cb) => formatCurrency(cb.amount),
+    },
+    {
+      key: 'status',
+      header: 'Estado',
+      sortable: true,
+      render: (cb) => (
+        <span className={`${styles.badge} ${styles[`badge_${cb.status}`] || ''}`.trim()}>
+          {cb.status}
+        </span>
+      ),
+    },
+    {
+      key: 'reason_code',
+      header: 'Razon',
+      sortable: true,
+      render: (cb) => cb.reason_code || '—',
+    },
+    {
+      key: 'created_at',
+      header: 'Fecha',
+      sortable: true,
+      value: (cb) => (cb.created_at ? new Date(cb.created_at) : null),
+      render: (cb) => formatDate(cb.created_at),
+    },
+    {
+      key: 'detail',
+      header: 'Detalle',
+      filterable: false,
+      render: (cb) => (
+        <Link to={`/admin/chargebacks/${cb.id}`} className={styles.link}>
+          Ver
+        </Link>
+      ),
+    },
+  ], []);
+
   return (
     <section className={styles.page} aria-labelledby="chargebacks-title">
       <header className={styles.header}>
@@ -50,48 +107,20 @@ export default function AdminChargebacksPage() {
         </label>
       </div>
 
-      {isLoading && <p className={styles.info}>Cargando contracargos…</p>}
-      {isError   && <p role="alert" className={styles.error}>Error al cargar contracargos.</p>}
+      {isError && <p role="alert" className={styles.error}>Error al cargar contracargos.</p>}
 
-      {!isLoading && !isError && chargebacks.length === 0 && (
-        <p className={styles.info}>No hay contracargos registrados.</p>
-      )}
-
-      {chargebacks.length > 0 && (
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID Gateway</th>
-              <th>Pago MP</th>
-              <th>Monto</th>
-              <th>Estado</th>
-              <th>Razon</th>
-              <th>Fecha</th>
-              <th>Detalle</th>
-            </tr>
-          </thead>
-          <tbody>
-            {chargebacks.map((cb) => (
-              <tr key={cb.id}>
-                <td className={styles.mono}>{cb.gateway_chargeback_id}</td>
-                <td className={styles.mono}>{cb.gateway_payment_id}</td>
-                <td>{formatCurrency(cb.amount)}</td>
-                <td>
-                  <span className={`${styles.badge} ${styles[`badge_${cb.status}`]}`}>
-                    {cb.status}
-                  </span>
-                </td>
-                <td>{cb.reason_code || '—'}</td>
-                <td>{formatDate(cb.created_at)}</td>
-                <td>
-                  <Link to={`/admin/chargebacks/${cb.id}`} className={styles.link}>
-                    Ver
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {!isError && (
+        <DataTable
+          columns={columns}
+          rows={chargebacks}
+          rowKey={(cb) => cb.id}
+          filterable
+          pageSize={20}
+          loading={isLoading}
+          loadingText="Cargando contracargos…"
+          emptyText="No hay contracargos registrados."
+          caption="Contracargos recibidos"
+        />
       )}
     </section>
   );
