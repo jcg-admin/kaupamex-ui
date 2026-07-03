@@ -11,6 +11,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createProduct, clearProductsActionState } from '@redux/slices/productsSlice';
+import { Card } from '@components/common/primitives';
 import AdminProductForm from './AdminProductForm';
 import styles from './AdminProductCreatePage.module.scss';
 
@@ -44,12 +45,14 @@ export default function AdminProductCreatePage() {
         </p>
       </header>
 
-      <AdminProductForm
-        mode="create"
-        onSubmit={handleSubmit}
-        isSubmitting={isActioning}
-        actionError={actionError?.message ?? (actionError ? 'Error al crear el producto.' : null)}
-      />
+      <Card>
+        <AdminProductForm
+          mode="create"
+          onSubmit={handleSubmit}
+          isSubmitting={isActioning}
+          actionError={actionError?.message ?? (actionError ? 'Error al crear el producto.' : null)}
+        />
+      </Card>
     </section>
   );
 }

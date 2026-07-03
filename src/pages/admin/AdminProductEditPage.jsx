@@ -14,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '@services/apiService';
 import { updateProduct, deactivateProduct, activateProduct, clearProductsActionState }
   from '@redux/slices/productsSlice';
+import { Card } from '@components/common/primitives';
 import AdminProductForm from './AdminProductForm';
 import ProductImageReorder from '@components/admin/ProductImageReorder';
 import ProductImageFieldArray from '@components/admin/ProductImageFieldArray';
@@ -87,13 +88,15 @@ export default function AdminProductEditPage() {
         </button>
       </header>
 
-      <AdminProductForm
-        mode="edit"
-        initialValues={initial}
-        onSubmit={handleSubmit}
-        isSubmitting={isActioning}
-        actionError={actionError?.message ?? (actionError ? 'Error al guardar los cambios.' : null)}
-      />
+      <Card>
+        <AdminProductForm
+          mode="edit"
+          initialValues={initial}
+          onSubmit={handleSubmit}
+          isSubmitting={isActioning}
+          actionError={actionError?.message ?? (actionError ? 'Error al guardar los cambios.' : null)}
+        />
+      </Card>
 
       <ProductImageReorder productId={id} images={product.images ?? []} />
       <ProductImageFieldArray productId={id} images={product.images ?? []} />
