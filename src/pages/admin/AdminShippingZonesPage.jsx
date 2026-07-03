@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 import { useShippingZones, SHIPPING_ZONES_QUERY_KEY } from '@hooks/domain/useShippingZones';
-import { MetaTag, Button } from '@components/common/primitives';
+import { MetaTag, Button, Card } from '@components/common/primitives';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import ConfirmDialog from '@components/common/ConfirmDialog/ConfirmDialog';
 import styles from './AdminShippingZonesPage.module.scss';
@@ -140,8 +140,20 @@ export default function AdminShippingZonesPage() {
         </div>
       </header>
 
-      <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <h2 className={styles.formTitle}>{editingId ? 'Editar zona' : 'Nueva zona'}</h2>
+      <Card
+        as="form"
+        onSubmit={handleSubmit}
+        noValidate
+        title={editingId ? 'Editar zona' : 'Nueva zona'}
+        footer={(
+          <>
+            {editingId && <Button type="button" variant="secondary" onClick={startCreate}>Cancelar</Button>}
+            <Button type="submit" variant="primary" disabled={isSaving}>
+              {isSaving ? 'Guardando…' : editingId ? 'Guardar cambios' : 'Crear zona'}
+            </Button>
+          </>
+        )}
+      >
         <div className={styles.grid}>
           <div className={styles.fieldBlock}>
             <label htmlFor="zone-name" className={styles.label}>Nombre <span className={styles.required} aria-hidden="true">*</span></label>
@@ -168,13 +180,7 @@ export default function AdminShippingZonesPage() {
           </div>
         </div>
         {submitError && <p role="alert" className={styles.apiError}>{submitError}</p>}
-        <div className={styles.formActions}>
-          {editingId && <Button type="button" variant="secondary" onClick={startCreate}>Cancelar</Button>}
-          <Button type="submit" variant="primary" disabled={isSaving}>
-            {isSaving ? 'Guardando…' : editingId ? 'Guardar cambios' : 'Crear zona'}
-          </Button>
-        </div>
-      </form>
+      </Card>
 
       {isError && <p role="alert" className={styles.apiError}>No se pudieron cargar las zonas.</p>}
 

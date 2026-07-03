@@ -21,21 +21,6 @@ $error-readable: color.adjust($error-color, $lightness: 22%);
   color: $text-primary;
 }
 
-.form {
-  background: $bg-surface;
-  border: 1px solid $border-color;
-  border-radius: $border-radius-lg;
-  padding: $spacing-5;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-4;
-}
-
-.formTitle {
-  margin: 0;
-  font-size: $font-size-lg;
-  color: $text-primary;
-}
 
 .grid {
   display: grid;
@@ -87,12 +72,6 @@ $error-readable: color.adjust($error-color, $lightness: 22%);
   border: 1px solid $error-readable;
   border-radius: $border-radius-md;
   padding: 0.5rem;
-}
-
-.formActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: $spacing-3;
 }
 
 .tableWrap { overflow-x: auto; }

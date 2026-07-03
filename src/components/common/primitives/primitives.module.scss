@@ -211,3 +211,60 @@ textarea.fieldInput { resize: vertical; min-height: 4.5rem; }
   justify-content: center;
   flex-wrap: wrap;
 }
+
+// ─── Field required marker (H-06/H-10) ──────────────────────
+.fieldRequired {
+  color: $error-color;
+  font-weight: $font-weight-bold;
+}
+
+// ─── Card / Panel (H-10, patrón CoreUI .card) ───────────────
+.card {
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-xs;
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-4;
+  padding: $spacing-4 $spacing-5;
+  border-bottom: 1px solid $border-color;
+  background: rgba($text-primary, 0.02);
+}
+
+.cardHeadings { min-width: 0; }
+
+.cardTitle {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+}
+
+.cardSubtitle {
+  margin: $spacing-1 0 0;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  flex-shrink: 0;
+}
+
+.cardBody { padding: $spacing-5; }
+
+.cardFooter {
+  padding: $spacing-4 $spacing-5;
+  border-top: 1px solid $border-color;
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-3;
+}
