@@ -45,7 +45,8 @@
   th, td { padding: .5rem .6rem; text-align: left; border-bottom: 1px solid $border-color; }
   th { color: $text-soft; font-weight: 600; font-size: .75rem; text-transform: uppercase; }
 }
-.mono { font-family: monospace; font-size: .85rem; }
+// H-13: los IDs de transacción largos rompían el ancho de la tabla en móvil.
+.mono { font-family: monospace; font-size: .85rem; word-break: break-all; }
 .primaryBtn {
   background: $primary-color; color: $bg-surface; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
