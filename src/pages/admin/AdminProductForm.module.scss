@@ -67,6 +67,11 @@ $error-readable: color.adjust($error-color, $lightness: 22%);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+
+  // H-13: en móvil el par precio/stock se apila para no comprimir los campos.
+  @include media-down-md {
+    grid-template-columns: 1fr;
+  }
 }
 
 .fieldError {
