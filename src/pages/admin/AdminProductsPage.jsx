@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { fetchAdminProducts, deleteProduct, toggleProductFeatured } from '@redux/slices/adminSlice';
 import { MetaTag, Button, Price } from '@components/common/primitives';
 import { DataTable } from '@components/common/DataTable/DataTable';
+import ConfirmDialog from '@components/common/ConfirmDialog/ConfirmDialog';
 import styles from './AdminTablePage.module.scss';
 
 const STATUS = [
@@ -22,6 +23,9 @@ export default function AdminProductsPage() {
   const dispatch = useDispatch();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  // H-04: producto pendiente de confirmación de borrado (diálogo de marca en
+  // vez de window.confirm nativo).
+  const [pendingDelete, setPendingDelete] = useState(null);
   const products = useSelector((s) => s.admin?.products || []);
   const isLoading = useSelector((s) => s.admin?.isLoadingProducts);
   // H-CICLO120-02: leer errores del slice para retroalimentar al admin.
@@ -126,9 +130,7 @@ export default function AdminProductsPage() {
           <button
             type="button"
             className={`${styles.actionBtn} ${styles.actionDelete}`}
-            onClick={() => {
-              if (window.confirm(`¿Eliminar "${p.name}"?`)) dispatch(deleteProduct(p.id));
-            }}
+            onClick={() => setPendingDelete(p)}
             title="Eliminar"
           >×</button>
         </div>
@@ -193,6 +195,21 @@ export default function AdminProductsPage() {
           caption="Productos"
         />
       </div>
+
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Eliminar producto"
+        message={
+          <>¿Seguro que quieres eliminar <strong>{pendingDelete?.name}</strong>? Esta acción no se puede deshacer.</>
+        }
+        confirmLabel="Eliminar"
+        tone="danger"
+        onConfirm={() => {
+          dispatch(deleteProduct(pendingDelete.id));
+          setPendingDelete(null);
+        }}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }
