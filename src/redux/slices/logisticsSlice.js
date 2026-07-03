@@ -26,7 +26,41 @@ export const confirmDelivery = createAsyncThunk(
   },
 );
 
-const initialState = { isActioning: false, actionError: null, lastAction: null };
+/** UC-LOG-01: lista de couriers activos para el selector de creación de guía. */
+export const fetchCouriers = createAsyncThunk(
+  'logistics/fetchCouriers',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get('/api/v2/logistics/couriers/');
+      const data = res.data;
+      return Array.isArray(data) ? data : (data?.results ?? []);
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** UC-LOG-01: crear guía de envío para una orden IN_PREPARATION. */
+export const createShipmentGuide = createAsyncThunk(
+  'logistics/createShipmentGuide',
+  async ({ orderNumber, courierId, trackingNumber, notes }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post('/api/v2/logistics/guides/', {
+        order_number: orderNumber,
+        courier_id: courierId,
+        tracking_number: trackingNumber,
+        ...(notes ? { notes } : {}),
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+const initialState = {
+  isActioning: false, actionError: null, lastAction: null, couriers: [],
+};
 
 const logisticsSlice = createSlice({
   name: 'logistics',
@@ -46,6 +80,18 @@ const logisticsSlice = createSlice({
         state.isActioning = false; state.lastAction = 'delivery_confirmed';
       })
       .addCase(confirmDelivery.rejected, (state, action) => {
+        state.isActioning = false; state.actionError = action.payload;
+      })
+      .addCase(fetchCouriers.fulfilled, (state, action) => {
+        state.couriers = action.payload;
+      })
+      .addCase(createShipmentGuide.pending, (state) => {
+        state.isActioning = true; state.actionError = null;
+      })
+      .addCase(createShipmentGuide.fulfilled, (state) => {
+        state.isActioning = false; state.lastAction = 'guide_created';
+      })
+      .addCase(createShipmentGuide.rejected, (state, action) => {
         state.isActioning = false; state.actionError = action.payload;
       });
   },

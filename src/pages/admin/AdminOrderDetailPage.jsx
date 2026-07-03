@@ -21,6 +21,7 @@ import {
   clearOrdersActionState,
 } from '@redux/slices/ordersSlice';
 import StatusTimeline from '@components/admin/StatusTimeline';
+import AdminGuideCreate from '@components/admin/AdminGuideCreate';
 import styles from './AdminOrderDetailPage.module.scss';
 
 const STATUS_LABEL = {
@@ -173,6 +174,13 @@ export default function AdminOrderDetailPage() {
             <dt>Envio</dt><dd>{formatCurrency(order.value.shipping_cost)}</dd>
             <dt>Total</dt><dd className={styles.total}>{formatCurrency(order.value.total)}</dd>
           </dl>
+        </section>
+      )}
+
+      {/* COV-04a: crear la guía de envío cuando la orden está lista (IN_PREPARATION). */}
+      {order.status === 'IN_PREPARATION' && (
+        <section className={styles.section} aria-label="Guía de envío">
+          <AdminGuideCreate orderNumber={order.order_number} />
         </section>
       )}
 
