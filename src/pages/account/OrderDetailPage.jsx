@@ -22,11 +22,18 @@ import styles from './OrderDetailPage.module.scss';
 // currentStatusIndex was always -1 for DELIVERED because the DELIVERED
 // entry appeared after a non-existent IN_DELIVERY that would shift
 // indices. Removed IN_DELIVERY to align with the model's state machine.
+// P-03: el paso PENDING NO debe decir "Pago aprobado". Un pedido con pago
+// rechazado permanece en estado PENDING (el backend deja Payment=FAILED y
+// Order=PENDING, verificado en services.py:493-526), así que rotular PENDING
+// como "Pago aprobado" mostraba pago confirmado en pedidos rechazados. El
+// pago aprobado es su propio paso (PAID), que el backend fija solo cuando el
+// gateway aprueba.
 const TIMELINE_STEPS = [
-  { id: 'PENDING',        t: 'Pedido confirmado',  detail: 'Pago aprobado' },
-  { id: 'PROCESSING',     t: 'Procesando pago',    detail: 'Gateway confirmó el cargo' },
+  { id: 'PENDING',        t: 'Pedido creado',      detail: 'Pendiente de pago' },
+  { id: 'PROCESSING',     t: 'Procesando pago',    detail: 'Validando el cargo con el gateway' },
+  { id: 'PAID',           t: 'Pago aprobado',      detail: 'El gateway confirmó el cargo' },
   { id: 'IN_PREPARATION', t: 'En preparación',     detail: 'Empacado y sellado' },
-  { id: 'SHIPPED',        t: 'Enviado',            detail: 'Con DHL' },
+  { id: 'SHIPPED',        t: 'Enviado',            detail: 'En camino' },
   { id: 'DELIVERED',      t: 'Entregado',          detail: '' },
 ];
 
@@ -61,7 +68,7 @@ export default function OrderDetailPage() {
             <div className={styles.heroMeta}>
               <MetaTag tone="bronze">Pedido · {new Date(order.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}</MetaTag>
               <span>·</span>
-              <MetaTag tone="coral">{order.status_label || order.status}</MetaTag>
+              <MetaTag tone="coral">{order.status_display || order.status_label || order.status}</MetaTag>
             </div>
             <h1 className={styles.heroTitle}>{order.order_number}</h1>
             {order.eta && (
