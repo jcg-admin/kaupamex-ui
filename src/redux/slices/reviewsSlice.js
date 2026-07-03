@@ -76,7 +76,9 @@ export const approveProductReview = createAsyncThunk(
   'reviews/approve',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), { status: 'APPROVED' });
+      // El backend (ReviewStatusV2View.patch) espera { action: 'approve' }, NO
+      // { status: 'APPROVED' } — enviar status daba 400 INVALID_ACTION en vivo.
+      const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), { action: 'approve' });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -90,7 +92,7 @@ export const rejectProductReview = createAsyncThunk(
   async ({ id, reason }, { rejectWithValue }) => {
     try {
       const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), {
-        status: 'REJECTED',
+        action: 'reject',
         reason: reason || 'CONTENIDO_INAPROPIADO',
       });
       return res.data;
