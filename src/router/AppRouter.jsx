@@ -6,6 +6,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import UnauthorizedListener from '@app/UnauthorizedListener';
+import SessionBootstrap from '@app/SessionBootstrap';
 import GlobalErrorNotifier from '@app/GlobalErrorNotifier';
 import ScrollToTop from '@components/shared/ScrollToTop/ScrollToTop';
 import StorefrontLayout from '@layouts/StorefrontLayout';
@@ -146,6 +147,9 @@ export default function AppRouter() {
           Monta una sola vez al inicio del router; el listener
           window-level captura cualquier 401 desde cualquier tab. */}
       <UnauthorizedListener />
+      {/* H-09: rehidrata la sesión desde la cookie httpOnly al arrancar en
+          cualquier ruta, para que una pestaña nueva no aparezca deslogueada. */}
+      <SessionBootstrap />
       {/* Surface de errores globales (500/red) en una ventana (toast). */}
       <GlobalErrorNotifier />
       {/* Lleva el scroll al tope en cada cambio de ruta (RRv6 no lo hace). */}
