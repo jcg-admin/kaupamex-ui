@@ -30,6 +30,7 @@ export default function ProductPage() {
   const { error: toastError } = useToast();
   const product = useSelector((s) => s.catalog?.currentProduct);
   const isLoading = useSelector((s) => s.catalog?.isLoading);
+  const wishlistItems = useSelector((s) => s.wishlist?.items ?? []);
 
   const [variant, setVariant] = useState(null);
   const [qty, setQty] = useState(1);
@@ -54,6 +55,9 @@ export default function ProductPage() {
   const stock = variant?.stock ?? product.stock;
   const isAvailable = stock > 0;
   const related = product.related_products || [];
+  const inWishlist = wishlistItems.some(
+    (i) => i.product?.id === product.id || i.product_id === product.id,
+  );
 
   const handleAddToCart = () => {
     dispatch(addToCart({
@@ -162,16 +166,21 @@ export default function ProductPage() {
                 </Button>
                 <button
                   type="button"
-                  className={styles.wishBtn}
+                  className={`${styles.wishBtn} ${inWishlist ? styles.wishBtnActive : ''}`}
+                  aria-pressed={inWishlist}
+                  aria-label={inWishlist ? 'Quitar de la lista de deseos' : 'Agregar a la lista de deseos'}
                   onClick={async () => {
                     const outerResult = await dispatch(toggleWishlist({ productId: product.id, variantId: variant?.id }));
                     const innerAction = outerResult?.payload;
-                    if (innerAction && (addToWishlist.rejected.match(innerAction)
-                        || removeFromWishlist.rejected.match(innerAction))) {
+                    const rejected = innerAction && (addToWishlist.rejected.match(innerAction)
+                        || removeFromWishlist.rejected.match(innerAction));
+                    // El 409 PRODUCT_ALREADY_IN_WISHLIST es benigno (carrera de
+                    // hidratacion): el item ya estaba en la lista. No es error.
+                    if (rejected && innerAction.payload?.code !== 'PRODUCT_ALREADY_IN_WISHLIST') {
                       toastError('No se pudo actualizar la lista de deseos');
                     }
                   }}
-                >♡</button>
+                >{inWishlist ? '♥' : '♡'}</button>
               </div>
 
               {/* Availability */}
