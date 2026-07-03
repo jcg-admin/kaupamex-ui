@@ -75,16 +75,35 @@
   padding: $spacing-3 $spacing-2;
 }
 
+.navGroup {
+  margin-top: $spacing-2;
+
+  &:first-child { margin-top: 0; }
+}
+
+// H-10: encabezado de sección colapsable (antes un <p> estático).
 .navSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   font-size: 10px;
   font-weight: $font-weight-semibold;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba($text-primary, 0.35);
   padding: $spacing-3 $spacing-3 $spacing-1;
-  margin-top: $spacing-2;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color $transition-fast;
 
-  &:first-child { margin-top: 0; }
+  &:hover { color: rgba($text-primary, 0.6); }
+}
+
+.navCaret {
+  font-size: 9px;
+  opacity: 0.7;
 }
 
 .navItem {

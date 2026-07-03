@@ -88,4 +88,13 @@ describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
       ).toBeInTheDocument();
     });
   });
+
+  it('colapsa una sección al hacer clic en su encabezado (H-10)', () => {
+    renderApp('/admin');
+    // Con la sección abierta, "Productos" es visible.
+    expect(screen.getByRole('link', { name: /^Productos$/i })).toBeInTheDocument();
+    // Clic en el encabezado "Catálogo" la colapsa.
+    fireEvent.click(screen.getByRole('button', { name: /Catálogo/i }));
+    expect(screen.queryByRole('link', { name: /^Productos$/i })).not.toBeInTheDocument();
+  });
 });
