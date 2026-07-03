@@ -9,6 +9,8 @@
 .detail   {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  // H-13: colapsa a menos columnas en móvil para no comprimir el contenido.
+  @include media-down-md { grid-template-columns: 1fr; }
   gap: 1rem;
   background: $bg-page;
   border: 1px solid $border-color;

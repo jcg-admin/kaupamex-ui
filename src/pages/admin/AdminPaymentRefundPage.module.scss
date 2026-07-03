@@ -8,6 +8,8 @@
 .detail {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  // H-13: colapsa a menos columnas en móvil para no comprimir el contenido.
+  @include media-down-md { grid-template-columns: 1fr; }
   gap: 1rem;
   background: $bg-page;
   border: 1px solid $border-color;
@@ -55,7 +57,7 @@
 }
 .cancelTitle { font-size: 1.1rem; margin: 0 0 .5rem; color: $danger-deep; }
 .dangerBtn {
-  background: $danger-deep; color: #fff; border: 0;
+  background: $danger-deep; color: $white; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: .55; cursor: not-allowed; }
 }
