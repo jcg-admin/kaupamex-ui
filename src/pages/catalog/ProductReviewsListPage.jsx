@@ -65,7 +65,7 @@ export default function ProductReviewsListPage() {
         <ul className={styles.list}>
           {reviews.map((r) => (
             <li key={r.id}>
-              <ReviewItem review={r} />
+              <ReviewItem review={r} productId={productId} />
             </li>
           ))}
         </ul>

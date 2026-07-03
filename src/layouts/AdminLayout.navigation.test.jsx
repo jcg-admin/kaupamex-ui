@@ -62,7 +62,7 @@ function renderApp(initialRoute = '/admin') {
 describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
   it('navega de Dashboard a /admin/logistics y renderiza la pagina (no 404)', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/admin/logistics/`, () =>
+      http.get(`${BASE}/api/v2/logistics/`, () =>
         HttpResponse.json({ group_a: [], group_b: [] }),
       ),
     );

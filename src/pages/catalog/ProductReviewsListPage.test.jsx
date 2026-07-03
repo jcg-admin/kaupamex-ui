@@ -3,10 +3,13 @@
  * UC-REV-02: visitante ve resenas aprobadas de un producto.
  */
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
+import reviewsReducer from '@redux/slices/reviewsSlice';
 import ProductReviewsListPage from './ProductReviewsListPage';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
@@ -14,17 +17,21 @@ const BASE = process.env.API_URL || 'http://localhost:8000';
 const makeQueryClient = () =>
   new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
+const makeStore = () => configureStore({ reducer: { reviews: reviewsReducer } });
+
 const wrap = (path = '/catalog/42/reviews') => (
-  <QueryClientProvider client={makeQueryClient()}>
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route
-          path="/catalog/:productId/reviews"
-          element={<ProductReviewsListPage />}
-        />
-      </Routes>
-    </MemoryRouter>
-  </QueryClientProvider>
+  <Provider store={makeStore()}>
+    <QueryClientProvider client={makeQueryClient()}>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route
+            path="/catalog/:productId/reviews"
+            element={<ProductReviewsListPage />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
+  </Provider>
 );
 
 describe('ProductReviewsListPage (UC-REV-02)', () => {

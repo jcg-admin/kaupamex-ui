@@ -290,7 +290,7 @@ export default function ProductPage() {
             <ul className={styles.reviewsList}>
               {previewReviews.map((r) => (
                 <li key={r.id}>
-                  <ReviewItem review={r} />
+                  <ReviewItem review={r} productId={product.id} />
                 </li>
               ))}
             </ul>
