@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import { MetaTag, Price, Button, SumRow } from '@components/common/primitives';
+import ShipmentTracking from '@components/account/ShipmentTracking';
 import styles from './OrderDetailPage.module.scss';
 
 // H-CICLO108-03: IN_DELIVERY is not a valid Order.status value in the
@@ -94,6 +95,7 @@ export default function OrderDetailPage() {
         <div className={styles.layout}>
           <div className={styles.mainCol}>
             <Timeline order={order} currentIndex={currentStatusIndex} />
+            <ShipmentTracking orderNumber={order.order_number} />
             <ItemsBlock items={order.items || []} />
             <AddressBlock address={order.address} />
           </div>

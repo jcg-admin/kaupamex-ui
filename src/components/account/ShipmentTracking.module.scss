@@ -1,0 +1,38 @@
+@use '@styles/abstracts' as *;
+
+.card {
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-lg;
+  padding: $spacing-5;
+}
+
+.title {
+  margin: 0 0 $spacing-4;
+  font-size: $font-size-lg;
+  color: $text-primary;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: $spacing-2 $spacing-4;
+  margin: 0;
+
+  dt { color: $text-secondary; font-size: $font-size-sm; }
+  dd { margin: 0; color: $text-primary; font-size: $font-size-sm; }
+}
+
+.link {
+  color: $primary-light;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+.lastEvent {
+  margin: $spacing-4 0 0;
+  padding-top: $spacing-3;
+  border-top: 1px solid $border-color;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+}
