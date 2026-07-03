@@ -1,7 +1,7 @@
 /**
  * ShipmentTracking (COV-04b / UC-LOG-06) — visibilidad de envío del comprador.
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
 import ShipmentTracking from './ShipmentTracking';
@@ -34,5 +34,42 @@ describe('ShipmentTracking (COV-04b)', () => {
     // Da tiempo al fetch; el componente no debe montar la sección.
     await new Promise((r) => setTimeout(r, 0));
     expect(container.querySelector('section')).toBeNull();
+  });
+
+  it('permite reportar un problema cuando el envío ya salió', async () => {
+    let posted;
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/buyer/orders/PY-3/guide/`, () =>
+        HttpResponse.json({ tracking_number: 'T', status: 'IN_TRANSIT', courier_name: 'DHL' }),
+      ),
+      http.post(`${BASE}/api/v2/logistics/buyer/orders/PY-3/incident/`, async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json({}, { status: 201 });
+      }),
+    );
+    render(<ShipmentTracking orderNumber="PY-3" />);
+    fireEvent.click(await screen.findByRole('button', { name: /Reportar un problema/ }));
+    fireEvent.change(screen.getByLabelText(/Tipo de problema/), { target: { value: 'DELAY' } });
+    fireEvent.change(screen.getByLabelText(/Descripción/), {
+      target: { value: 'Mi paquete lleva más de dos semanas sin avanzar.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Enviar reporte/ }));
+    await waitFor(() => expect(posted).toEqual(
+      expect.objectContaining({ problem_type: 'DELAY' }),
+    ));
+    expect(await screen.findByText(/Reporte enviado/)).toBeInTheDocument();
+  });
+
+  it('valida la descripción mínima del reporte', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/buyer/orders/PY-4/guide/`, () =>
+        HttpResponse.json({ tracking_number: 'T', status: 'DELIVERED', courier_name: 'DHL' }),
+      ),
+    );
+    render(<ShipmentTracking orderNumber="PY-4" />);
+    fireEvent.click(await screen.findByRole('button', { name: /Reportar un problema/ }));
+    fireEvent.change(screen.getByLabelText(/Descripción/), { target: { value: 'corto' } });
+    fireEvent.click(screen.getByRole('button', { name: /Enviar reporte/ }));
+    expect(await screen.findByText(/al menos 20 caracteres/)).toBeInTheDocument();
   });
 });

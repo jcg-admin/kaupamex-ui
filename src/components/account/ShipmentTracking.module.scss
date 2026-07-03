@@ -36,3 +36,55 @@
   color: $text-secondary;
   font-size: $font-size-sm;
 }
+
+// COV-04b: reportar problema de envío (UC-LOG-07)
+.reportBtn {
+  margin-top: $spacing-4;
+  background: transparent;
+  border: 1px solid $border-strong;
+  border-radius: $border-radius-md;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  &:hover { color: $text-primary; border-color: $text-muted; }
+}
+
+.reportForm {
+  margin-top: $spacing-4;
+  padding-top: $spacing-4;
+  border-top: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.field { display: flex; flex-direction: column; gap: 0.25rem; }
+.fieldLabel { font-size: $font-size-sm; font-weight: 600; color: $text-primary; }
+
+.select, .textarea {
+  border: 1px solid $border-strong;
+  border-radius: $border-radius-md;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  background: $bg-elevated;
+  color: $text-primary;
+  &:focus { outline: none; border-color: $primary-color; box-shadow: 0 0 0 3px rgba($primary-color, 0.25); }
+}
+.textarea { resize: vertical; }
+
+.reportActions { display: flex; justify-content: flex-end; gap: $spacing-3; }
+
+.cancelBtn, .submitBtn {
+  border: 0;
+  border-radius: $border-radius-md;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+.cancelBtn { background: transparent; color: $text-secondary; border: 1px solid $border-strong; }
+.submitBtn { background: $primary-color; color: $text-inverse; }
+
+.reportError { color: $error-color; font-size: $font-size-sm; margin: 0; }
+.reported { color: $lime-soft; font-size: $font-size-sm; margin: $spacing-4 0 0; }
