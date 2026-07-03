@@ -16,10 +16,13 @@
 }
 
 .rating {
-  color:       $amber-500;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
   flex-shrink: 0;
 }
+.starOn  { color: $amber-500; }
+.starOff { color: $border-strong; }
 
 .author {
   font-size:   $font-size-sm;
@@ -79,6 +82,9 @@
 }
 
 .helpfulBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   background: transparent;
   border: 1px solid $border-strong;
   border-radius: $border-radius-md;

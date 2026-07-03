@@ -1,13 +1,21 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { voteReviewHelpful } from '@redux/slices/reviewsSlice';
+import Icon from '@components/common/Icon/Icon';
 import styles from './ReviewItem.module.scss';
 
 function StarRating({ value }) {
   const rounded = Math.max(0, Math.min(5, Math.round(value)));
   return (
-    <span aria-label={`Calificacion ${value}/5`} className={styles.rating}>
-      {'★'.repeat(rounded)}{'☆'.repeat(5 - rounded)}
+    <span aria-label={`Calificacion ${value}/5`} className={styles.rating} role="img">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <Icon
+          key={n}
+          name="star"
+          size={15}
+          className={n <= rounded ? styles.starOn : styles.starOff}
+        />
+      ))}
     </span>
   );
 }
@@ -78,7 +86,8 @@ export default function ReviewItem({ review: r, productId }) {
             disabled={voted || voting}
             aria-pressed={voted}
           >
-            👍 {voted ? 'Gracias' : '¿Te resultó útil?'}
+            <Icon name="thumb-up" size={15} />
+            {voted ? 'Gracias' : '¿Te resultó útil?'}
           </button>
           {count > 0 && (
             <span className={styles.helpfulCount}>

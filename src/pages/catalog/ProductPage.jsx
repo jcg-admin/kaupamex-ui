@@ -21,6 +21,7 @@ import { useToast } from '@context/ToastContext';
 import ProductCard from '@components/catalog/ProductCard';
 import ReviewItem from '@components/catalog/ReviewItem';
 import { MetaTag, Price, Button } from '@components/common/primitives';
+import Icon from '@components/common/Icon/Icon';
 import styles from './ProductPage.module.scss';
 
 export default function ProductPage() {
@@ -180,7 +181,7 @@ export default function ProductPage() {
                       toastError('No se pudo actualizar la lista de deseos');
                     }
                   }}
-                >{inWishlist ? '♥' : '♡'}</button>
+                ><Icon name="heart" size={22} /></button>
               </div>
 
               {/* Availability */}

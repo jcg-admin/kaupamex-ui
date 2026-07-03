@@ -144,7 +144,9 @@
 }
 
 .viewStore {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   color: rgba($text-primary, 0.9);

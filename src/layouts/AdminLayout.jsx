@@ -12,6 +12,7 @@ import { logoutUser } from '@redux/slices/authSlice';
 import { closeSidebar, openSidebar, selectIsSidebarOpen } from '@redux/slices/uiSlice';
 import ToastContainer from '@components/common/Toast/ToastContainer';
 import ErrorBoundary from '@components/shared/ErrorBoundary';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AdminLayout.module.scss';
 
 // H-10 (Fase 4): navegación agrupada en secciones colapsables. Cada grupo
@@ -100,9 +101,11 @@ export default function AdminLayout() {
                   aria-expanded={!isCollapsed}
                 >
                   {group.section}
-                  <span className={styles.navCaret} aria-hidden="true">
-                    {isCollapsed ? '▸' : '▾'}
-                  </span>
+                  <Icon
+                    name={isCollapsed ? 'chevron-right' : 'chevron-down'}
+                    size={14}
+                    className={styles.navCaret}
+                  />
                 </button>
                 {!isCollapsed && group.items.map((item) => (
                   <NavLink
@@ -124,7 +127,7 @@ export default function AdminLayout() {
 
         <div className={styles.sidebarFooter}>
           <Link to="/" className={styles.viewStore}>
-            ← Ver tienda
+            <Icon name="arrow-left" size={16} /> Ver tienda
           </Link>
           <p className={styles.adminName}>
             {user?.first_name} {user?.last_name}
@@ -144,7 +147,7 @@ export default function AdminLayout() {
             onClick={() => dispatch(isSidebarOpen ? closeSidebar() : openSidebar())}
             aria-label="Abrir menú"
           >
-            ☰
+            <Icon name="menu" size={22} />
           </button>
           <span className={styles.headerTitle}>Panel de administración</span>
           <div className={styles.headerUser}>

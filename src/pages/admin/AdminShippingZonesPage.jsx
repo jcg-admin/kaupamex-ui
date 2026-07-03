@@ -13,6 +13,7 @@ import { useShippingZones, SHIPPING_ZONES_QUERY_KEY } from '@hooks/domain/useShi
 import { MetaTag, Button, Card } from '@components/common/primitives';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import ConfirmDialog from '@components/common/ConfirmDialog/ConfirmDialog';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AdminShippingZonesPage.module.scss';
 
 const BASE_URL = '/api/v2/admin/shipping-zones/';
@@ -113,8 +114,8 @@ export default function AdminShippingZonesPage() {
       key: 'actions', header: '',
       render: (z) => (
         <div className={styles.rowActions}>
-          <button type="button" className={styles.actionBtn} onClick={() => startEdit(z)} title="Editar">✎</button>
-          <button type="button" className={`${styles.actionBtn} ${styles.actionDelete}`} onClick={() => setPendingDelete(z)} title="Desactivar">×</button>
+          <button type="button" className={styles.actionBtn} onClick={() => startEdit(z)} title="Editar" aria-label="Editar"><Icon name="pencil" size={16} /></button>
+          <button type="button" className={`${styles.actionBtn} ${styles.actionDelete}`} onClick={() => setPendingDelete(z)} title="Desactivar" aria-label="Desactivar"><Icon name="x" size={16} /></button>
         </div>
       ),
     },

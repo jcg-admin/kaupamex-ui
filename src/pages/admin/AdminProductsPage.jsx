@@ -10,6 +10,7 @@ import { fetchAdminProducts, deleteProduct, toggleProductFeatured } from '@redux
 import { MetaTag, Button, Price } from '@components/common/primitives';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import ConfirmDialog from '@components/common/ConfirmDialog/ConfirmDialog';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
 
 const STATUS = [
@@ -57,7 +58,7 @@ export default function AdminProductsPage() {
       render: (p) => (
         <Link to={`/admin/products/${p.id}/edit`} className={styles.itemName}>
           {p.name}
-          {p.is_featured && <span className={styles.starBadge}>★</span>}
+          {p.is_featured && <span className={styles.starBadge}><Icon name="star" size={13} /></span>}
         </Link>
       ),
     },
@@ -125,14 +126,16 @@ export default function AdminProductsPage() {
             className={styles.actionBtn}
             onClick={() => dispatch(toggleProductFeatured(p.id))}
             title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
-          >★</button>
-          <Link to={`/admin/products/${p.id}/edit`} className={styles.actionBtn} title="Editar">✎</Link>
+            aria-label={p.is_featured ? 'Quitar destacado' : 'Destacar'}
+          ><Icon name="star" size={16} /></button>
+          <Link to={`/admin/products/${p.id}/edit`} className={styles.actionBtn} title="Editar" aria-label="Editar"><Icon name="pencil" size={16} /></Link>
           <button
             type="button"
             className={`${styles.actionBtn} ${styles.actionDelete}`}
             onClick={() => setPendingDelete(p)}
             title="Eliminar"
-          >×</button>
+            aria-label="Eliminar"
+          ><Icon name="x" size={16} /></button>
         </div>
       ),
     },
