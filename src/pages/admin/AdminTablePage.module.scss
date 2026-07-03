@@ -145,6 +145,11 @@
   text-decoration: none;
   font-size: 13px;
   &:hover { border-color: $bronze; color: $bronze-soft; }
+
+  // H-13: objetivo táctil ≥44px en móvil (WCAG 2.5.5) — el ícono sigue chico.
+  @include media-down-md {
+    width: 44px; height: 44px;
+  }
 }
 .actionDelete:hover { border-color: $vino-soft; color: $vino-soft; }
 

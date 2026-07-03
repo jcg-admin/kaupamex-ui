@@ -89,6 +89,9 @@ export default function AdminPermissionsPage() {
           data, checkboxes in cells, tfoot with save buttons per role.
           DataTable assumes fixed column defs and no tfoot. Raw <table> is
           the correct choice here; styles.matrix ≠ styles.table. */}
+      {/* H-13: contenedor con scroll horizontal — la matriz roles×permisos
+          excede el ancho de un teléfono y sin esto el body scrollea de lado. */}
+      <div className={styles.matrixWrap}>
       <table className={styles.matrix}>
         <thead>
           <tr>
@@ -133,6 +136,7 @@ export default function AdminPermissionsPage() {
           </tr>
         </tfoot>
       </table>
+      </div>
     </section>
   );
 }

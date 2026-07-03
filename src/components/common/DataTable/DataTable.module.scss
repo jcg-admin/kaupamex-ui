@@ -43,6 +43,44 @@
   }
 }
 
+// H-13: en móvil las tablas anchas del admin se apilan como tarjetas — cada
+// fila es una tarjeta y cada celda muestra su encabezado (data-label) a la
+// izquierda del valor. Evita el scroll horizontal incómodo en teléfonos.
+@include media-down-md {
+  .table {
+    thead { display: none; }
+
+    tbody tr {
+      display: block;
+      border: 1px solid $border-color;
+      border-radius: $border-radius-md;
+      margin-bottom: $spacing-3;
+      padding: $spacing-1 0;
+    }
+
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: $spacing-3;
+      text-align: right;
+      white-space: normal;
+      border-bottom: 0;
+      padding: $spacing-2 $spacing-3;
+
+      &::before {
+        content: attr(data-label);
+        text-align: left;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: $text-muted;
+        font-weight: $font-weight-semibold;
+      }
+    }
+  }
+}
+
 .caption {
   caption-side: top;
   text-align: left;
