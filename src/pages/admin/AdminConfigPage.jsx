@@ -38,6 +38,12 @@ const ITEMS = [
     to:    '/admin/logistics',
   },
   {
+    uc:    'UC-CFG-02',
+    title: 'Zonas y tiempos de entrega',
+    desc:  'Catalogo de zonas por CP con ventana de dias de entrega y costo (H-12).',
+    to:    '/admin/shipping-zones',
+  },
+  {
     uc:    'UC-CFG-05',
     title: 'Mensajes de contacto',
     desc:  'Bandeja de mensajes recibidos desde el formulario publico (UC-COM-02).',
