@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '@redux/selectors';
 import { logoutUser } from '@redux/slices/authSlice';
@@ -96,6 +96,9 @@ export default function AdminLayout() {
         </nav>
 
         <div className={styles.sidebarFooter}>
+          <Link to="/" className={styles.viewStore}>
+            ← Ver tienda
+          </Link>
           <p className={styles.adminName}>
             {user?.first_name} {user?.last_name}
           </p>

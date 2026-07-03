@@ -49,7 +49,7 @@
 
 .brand {
   padding: $spacing-5 $spacing-6;
-  border-bottom: 1px solid rgba($text-inverse, 0.1);
+  border-bottom: 1px solid rgba($text-primary, 0.1);
   flex-shrink: 0;
 }
 
@@ -65,7 +65,7 @@
   font-size: $font-size-xs;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba($text-inverse, 0.5);
+  color: rgba($text-primary, 0.5);
 }
 
 .nav {
@@ -78,7 +78,7 @@
   font-weight: $font-weight-semibold;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba($text-inverse, 0.35);
+  color: rgba($text-primary, 0.35);
   padding: $spacing-3 $spacing-3 $spacing-1;
   margin-top: $spacing-2;
 
@@ -91,14 +91,14 @@
   border-radius: $border-radius-md;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: rgba($text-inverse, 0.72);
+  color: rgba($text-primary, 0.72);
   text-decoration: none;
   transition: $transition-colors;
   margin-bottom: 1px;
 
   &:hover {
-    background: rgba($text-inverse, 0.08);
-    color: $text-inverse;
+    background: rgba($text-primary, 0.08);
+    color: $text-primary;
   }
 }
 
@@ -110,21 +110,33 @@
 
 .sidebarFooter {
   padding: $spacing-4;
-  border-top: 1px solid rgba($text-inverse, 0.1);
+  border-top: 1px solid rgba($text-primary, 0.1);
   flex-shrink: 0;
 }
 
 .adminName {
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: rgba($text-inverse, 0.8);
+  color: rgba($text-primary, 0.8);
   margin-bottom: $spacing-2;
   @include text-truncate;
 }
 
+.viewStore {
+  display: block;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: rgba($text-primary, 0.9);
+  text-decoration: none;
+  margin-bottom: $spacing-3;
+  transition: color $transition-fast;
+
+  &:hover { color: $primary-light; text-decoration: underline; }
+}
+
 .logoutBtn {
   font-size: $font-size-sm;
-  color: rgba($text-inverse, 0.5);
+  color: rgba($text-primary, 0.65);
   background: none;
   border: none;
   cursor: pointer;

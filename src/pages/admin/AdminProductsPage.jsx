@@ -51,7 +51,7 @@ export default function AdminProductsPage() {
       header: 'Producto',
       sortable: true,
       render: (p) => (
-        <Link to={`/admin/productos/${p.id}`} className={styles.itemName}>
+        <Link to={`/admin/products/${p.id}/edit`} className={styles.itemName}>
           {p.name}
           {p.is_featured && <span className={styles.starBadge}>★</span>}
         </Link>
@@ -122,7 +122,7 @@ export default function AdminProductsPage() {
             onClick={() => dispatch(toggleProductFeatured(p.id))}
             title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
           >★</button>
-          <Link to={`/admin/productos/${p.id}`} className={styles.actionBtn} title="Editar">✎</Link>
+          <Link to={`/admin/products/${p.id}/edit`} className={styles.actionBtn} title="Editar">✎</Link>
           <button
             type="button"
             className={`${styles.actionBtn} ${styles.actionDelete}`}
