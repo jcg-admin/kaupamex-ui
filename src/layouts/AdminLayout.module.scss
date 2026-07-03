@@ -22,7 +22,9 @@
 .sidebar {
   width: $sidebar-width;
   min-height: 100vh;
-  background-color: $secondary-color;
+  // El sidebar debe usar la superficie oscura hundida del dashboard, no
+  // $secondary-color (=$vino #7A1E1E, rojo vino) que rompía el esquema.
+  background-color: $bg-sunken;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;

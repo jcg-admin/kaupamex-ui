@@ -12,7 +12,7 @@
  * The Header does NOT render a notifications bell/button.
  * Notifications UI is handled elsewhere in the app.
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
@@ -92,9 +92,9 @@ describe('Header — navegación y estado de autenticación', () => {
     expect(screen.queryByRole('link', { name: /Mi cuenta/i })).toBeNull();
   });
 
-  it('muestra enlace a "Mi cuenta" para usuarios autenticados', () => {
+  it('muestra el menú "Mi cuenta" para usuarios autenticados', () => {
     renderHeader({ isAuthenticated: true });
-    expect(screen.getByRole('link', { name: /Mi cuenta/i })).toBeInTheDocument();
+    expect(screen.getByText(/Mi cuenta/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Ingresar/i })).toBeNull();
   });
 
@@ -113,14 +113,16 @@ describe('Header — navegación y estado de autenticación', () => {
     expect(cartBtn).toBeInTheDocument();
   });
 
-  it('muestra "Cerrar sesión" solo con sesión activa', () => {
+  it('permite "Cerrar sesión" desde el menú de cuenta', () => {
     renderHeader({ isAuthenticated: true });
-    expect(screen.getByRole('button', { name: /Cerrar sesión/i })).toBeInTheDocument();
+    // El logout ahora vive dentro del dropdown "Mi cuenta": abrir y verificar.
+    fireEvent.click(screen.getByText(/Mi cuenta/i));
+    expect(screen.getByRole('menuitem', { name: /Cerrar sesión/i })).toBeInTheDocument();
   });
 
-  it('oculta "Cerrar sesión" para visitantes anónimos', () => {
+  it('no muestra "Cerrar sesión" para visitantes anónimos', () => {
     renderHeader({ isAuthenticated: false });
-    expect(screen.queryByRole('button', { name: /Cerrar sesión/i })).toBeNull();
+    expect(screen.queryByText(/Cerrar sesión/i)).toBeNull();
   });
 
   it('muestra "Panel admin" solo si el usuario es staff (UC-ADM-08)', () => {
