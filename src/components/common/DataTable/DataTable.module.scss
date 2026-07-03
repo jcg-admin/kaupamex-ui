@@ -31,6 +31,13 @@
     color: $text-primary;
   }
 
+  // Zebra striping (adaptado de ui-core _tables.scss .table-striped): overlay
+  // translúcido sobre filas impares para separar filas densas en el fondo
+  // oscuro del admin. Coexiste con el hover (que gana por especificidad).
+  tbody tr:nth-of-type(odd) {
+    background: color-mix(in srgb, $text-primary 3%, transparent);
+  }
+
   tbody tr:hover {
     background: color-mix(in srgb, $primary-color 6%, transparent);
   }
