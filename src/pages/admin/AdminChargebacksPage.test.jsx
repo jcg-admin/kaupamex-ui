@@ -1,7 +1,7 @@
 /**
  * Tests — AdminChargebacksPage (T-17-B)
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { http, HttpResponse } from 'msw';
@@ -47,6 +47,36 @@ describe('AdminChargebacksPage (T-17-B)', () => {
     expect(await screen.findByText('GCB-001')).toBeInTheDocument();
     expect(screen.getByText('GCB-002')).toBeInTheDocument();
     expect(screen.getByText('chargeback_fraud')).toBeInTheDocument();
+  });
+
+  it('presenta las columnas como encabezados ordenables (DataTable)', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/chargebacks/`, () => HttpResponse.json(CHARGEBACKS)),
+    );
+    render(wrap(<AdminChargebacksPage />));
+    await screen.findByText('GCB-001');
+
+    // DataTable expone cada columna ordenable como <button> dentro del <th>.
+    const montoHeader = screen.getByRole('button', { name: /Monto/i });
+    const th = montoHeader.closest('th');
+    expect(th).toHaveAttribute('aria-sort', 'none');
+
+    fireEvent.click(montoHeader);
+    expect(th).toHaveAttribute('aria-sort', 'ascending');
+  });
+
+  it('filtra por texto de columna (DataTable)', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/chargebacks/`, () => HttpResponse.json(CHARGEBACKS)),
+    );
+    render(wrap(<AdminChargebacksPage />));
+    await screen.findByText('GCB-001');
+
+    const filtro = screen.getByLabelText(/Filtrar por ID Gateway/i);
+    fireEvent.change(filtro, { target: { value: 'GCB-002' } });
+
+    expect(screen.queryByText('GCB-001')).not.toBeInTheDocument();
+    expect(screen.getByText('GCB-002')).toBeInTheDocument();
   });
 
   it('muestra mensaje cuando no hay contracargos', async () => {
