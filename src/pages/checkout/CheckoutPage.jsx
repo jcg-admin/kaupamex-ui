@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
-import { createOrder, initMercadoPago, fetchShippingMethods } from '@redux/slices/checkoutSlice';
+import { createOrder, fetchShippingMethods } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
 import Modal from '@components/common/Modal/Modal';
 import logoUrl from '@assets/practica-yoruba-logo.png';
@@ -121,18 +121,19 @@ export default function CheckoutPage() {
         email, address, shipping_method_id: shippingMethodId,
       })).unwrap();
 
-      let checkout_url = null;
+      // P-01: pago ON-SITE (Checkout API / CardForm, ADR-018). Antes se
+      // redirigía a Checkout Pro (initMercadoPago → init_point →
+      // window.location.href), sacando al comprador del ecommerce. Ahora se
+      // navega a la página de pago on-site, que tokeniza con Mp.js y cobra vía
+      // /api/v2/payments/initiate/ con resultado síncrono, sin redirect.
       if (payment === 'mp') {
-        const result = await dispatch(initMercadoPago({ order_number: order.order_number })).unwrap();
-        checkout_url = result.checkout_url;
+        navigate(`/checkout/payment/${order.order_number}`, {
+          state: { amount: String(order?.total ?? totals?.total ?? '') },
+        });
+        return;
       }
-      // SPEI: checkout_url queda null — pedido PENDING, CLABE enviada por correo.
-
-      if (checkout_url) {
-        window.location.href = checkout_url;
-      } else {
-        navigate(`/order/${order.order_number}/confirmation`);
-      }
+      // SPEI u otros métodos sin tarjeta: pedido PENDING; confirmación directa.
+      navigate(`/order/${order.order_number}/confirmation`);
     } catch (err) {
       console.error(err);
       const msg =

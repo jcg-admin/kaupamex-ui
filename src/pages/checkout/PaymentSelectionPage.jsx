@@ -23,7 +23,7 @@
  * alternativa equivalente para el usuario.
  */
 import { useEffect, useCallback, useState } from 'react';
-import { useParams, useNavigate }            from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector }          from 'react-redux';
 import {
   initiateCheckoutApiPayment,
@@ -206,12 +206,16 @@ export default function PaymentSelectionPage() {
   const { orderId } = useParams();
   const dispatch    = useDispatch();
   const navigate    = useNavigate();
+  const location    = useLocation();
 
   const userEmail = useSelector((s) => s.auth?.user?.email || '');
   const { isActioning, actionError, lastAction, lastInitiation } =
     useSelector((s) => s.payments);
 
-  const [amount] = useState('0.00');
+  // El monto se recibe por navigation-state desde CheckoutPage (confirmAndPay);
+  // es solo para mostrar en el CardForm — el backend cobra el total autoritativo
+  // de la orden sin importar este valor. Fallback '0.00' si se llega por deep-link.
+  const [amount] = useState(location.state?.amount || '0.00');
 
   // view: 'select' | 'mp-card-form' | 'non-card-form' | 'result' | 'non-card-result'
   const [view, setView]                   = useState('select');
