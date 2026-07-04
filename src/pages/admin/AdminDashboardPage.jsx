@@ -195,7 +195,7 @@ function Kpi({ label, value, delta, tone }) {
       <div className={`${styles.kpiValue} ${styles[`kpi_${tone}`]}`}>{value}</div>
       {delta != null && (
         <div className={`${styles.kpiDelta} ${positive ? styles.kpiDeltaUp : styles.kpiDeltaDown}`}>
-          {positive ? '↑' : '↓'} {Math.abs(delta)}% vs ayer
+          <Icon name={positive ? 'chevron-up' : 'chevron-down'} size={12} /> {Math.abs(delta)}% vs ayer
         </div>
       )}
     </div>
