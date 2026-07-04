@@ -126,6 +126,17 @@ export default function CheckoutPage() {
     }
     setFieldErrors({});
 
+    // DEC-BC-25: sin un método de envío seleccionado no se puede continuar. En
+    // producción, si /shipping-methods/ viene vacío el comprador no debe poder
+    // generar una orden sin envío ni costo (el backend además lo rechaza).
+    if (shipping === null || shipping === undefined) {
+      setSubmitError(
+        'Selecciona un método de envío para continuar. Si no aparece ninguno, ' +
+        'no es posible completar la compra por ahora.',
+      );
+      return;
+    }
+
     // En vez de crear la orden directo, se pide confirmación explícita de que
     // los datos de envío son correctos (reemplaza el bloqueo por zona).
     setShowConfirm(true);
@@ -409,8 +420,9 @@ function ShippingOptions({ options = [], selected, onSelect, loading = false, er
   }
   if (options.length === 0) {
     return (
-      <p className={styles.optionSub}>
-        No hay métodos de envío disponibles por ahora.
+      <p className={styles.optionSub} role="alert">
+        No hay métodos de envío disponibles por ahora, así que no es posible
+        completar la compra. Intenta más tarde o contáctanos.
       </p>
     );
   }

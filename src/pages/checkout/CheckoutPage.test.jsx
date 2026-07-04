@@ -242,6 +242,33 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () 
     ).toBeInTheDocument();
   });
 
+  it('bloquea el envío si no hay métodos de envío disponibles', async () => {
+    // DEC-BC-25: en producción /shipping-methods/ puede venir vacío; sin un
+    // método seleccionado no se puede continuar ni crear la orden.
+    server.use(
+      http.get(`${BASE}/api/v2/shipping-methods/`, () => HttpResponse.json([])),
+    );
+    let orderCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/orders/`, () => {
+        orderCalled = true;
+        return HttpResponse.json({ order_number: 'X1' });
+      }),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    // El estado vacío avisa que no se puede completar la compra.
+    expect(
+      await screen.findByText(/no es posible completar la compra/i),
+    ).toBeInTheDocument();
+    await fillValidAddress(user);
+    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    expect(
+      await screen.findByText(/Selecciona un método de envío/i),
+    ).toBeInTheDocument();
+    expect(orderCalled).toBe(false);
+  });
+
   it('con datos válidos muestra el diálogo y no crea la orden hasta confirmar', async () => {
     let orderCalled = false;
     server.use(
