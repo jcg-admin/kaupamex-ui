@@ -202,6 +202,11 @@
   cursor: pointer;
   &:hover { border-color: $vino-soft; color: $vino-soft; }
 }
+.wishBtnActive {
+  border-color: $vino-soft;
+  color: $vino-soft;
+  background: rgba($vino-soft, 0.08);
+}
 
 // Availability
 .availability {

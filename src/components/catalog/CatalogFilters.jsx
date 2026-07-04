@@ -21,6 +21,7 @@ import { useState, useEffect } from 'react';
 import { useCategories } from '@hooks/domain/useCategories';
 import { RangeSlider, Chip, Offcanvas } from '@components/common';
 import { Button } from '@components/common/primitives';
+import Icon from '@components/common/Icon/Icon';
 import styles from './CatalogFilters.module.scss';
 
 const PRICE_CEILING_DEFAULT = 10000;
@@ -138,8 +139,8 @@ export default function CatalogFilters({
 
       {/* UC-CAT-04: categoria (checkboxes accesibles, multi-seleccion) */}
       <fieldset className={styles.group}>
-        <legend className={styles.groupTitle}>Categoria</legend>
-        <div className={styles.checkList} role="group" aria-label="Categoria">
+        <legend className={styles.groupTitle}>Categoría</legend>
+        <div className={styles.checkList} role="group" aria-label="Categoría">
           {flat.map((c) => (
             <label
               key={c.id}
@@ -183,7 +184,7 @@ export default function CatalogFilters({
                 min="0"
                 value={priceMin}
                 onChange={(e) => setPriceMin(e.target.value)}
-                aria-label="Precio minimo"
+                aria-label="Precio mínimo"
               />
             </label>
             <label className={styles.priceLabel}>
@@ -194,7 +195,7 @@ export default function CatalogFilters({
                 min="0"
                 value={priceMax}
                 onChange={(e) => setPriceMax(e.target.value)}
-                aria-label="Precio maximo"
+                aria-label="Precio máximo"
               />
             </label>
           </div>
@@ -227,7 +228,7 @@ export default function CatalogFilters({
         Filtros{hasAnyActive ? ' · activos' : ''}
       </button>
 
-      <aside className={styles.filters} aria-label="Filtros del catalogo">
+      <aside className={styles.filters} aria-label="Filtros del catálogo">
         <h2 className={styles.title}>Filtros</h2>
         {renderBody('d')}
       </aside>
@@ -246,7 +247,7 @@ export default function CatalogFilters({
             onClick={() => setMobileOpen(false)}
             aria-label="Cerrar filtros"
           >
-            ✕
+            <Icon name="x" size={18} />
           </button>
         </div>
         {renderBody('m')}

@@ -114,7 +114,7 @@ export default function VoucherCreateForm({ onClose }) {
 
         <form onSubmit={handleSubmit} noValidate className={styles.form}>
           <div className={styles.field}>
-            <label htmlFor="voucher-code">Codigo</label>
+            <label htmlFor="voucher-code">Código</label>
             <input
               id="voucher-code"
               name="code"
@@ -137,7 +137,7 @@ export default function VoucherCreateForm({ onClose }) {
             >
               <option value="PERCENTAGE">Porcentaje</option>
               <option value="FIXED">Monto fijo</option>
-              <option value="FREE_SHIPPING">Envio gratis</option>
+              <option value="FREE_SHIPPING">Envío gratis</option>
             </select>
           </div>
 
@@ -156,7 +156,7 @@ export default function VoucherCreateForm({ onClose }) {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="voucher-max-uses">Usos maximos (opcional)</label>
+            <label htmlFor="voucher-max-uses">Usos máximos (opcional)</label>
             <input
               id="voucher-max-uses"
               name="max_uses"

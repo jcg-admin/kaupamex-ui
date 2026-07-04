@@ -45,7 +45,7 @@ export default function AdminOrdersDashboardPage() {
   const latestColumns = useMemo(() => [
     {
       key: 'order_number',
-      header: 'Numero',
+      header: 'Número',
       sortable: true,
       render: (o) => (
         <Link to={`/admin/orders/${o.order_number}`}>{o.order_number}</Link>
@@ -129,15 +129,15 @@ export default function AdminOrdersDashboardPage() {
       </section>
 
       <section aria-labelledby="day-title" className={styles.section}>
-        <h2 id="day-title">Resumen del dia</h2>
+        <h2 id="day-title">Resumen del día</h2>
         <dl className={styles.day}>
           <dt>Pagos aprobados hoy</dt><dd>{daySummary.orders_count ?? 0}</dd>
-          <dt>Ingresos del dia</dt><dd>{formatCurrency(daySummary.total_revenue ?? 0)}</dd>
+          <dt>Ingresos del día</dt><dd>{formatCurrency(daySummary.total_revenue ?? 0)}</dd>
         </dl>
       </section>
 
       <section aria-labelledby="latest-title" className={styles.section}>
-        <h2 id="latest-title">Ultimos pedidos</h2>
+        <h2 id="latest-title">Últimos pedidos</h2>
         {latestOrders.length === 0 ? (
           <p>No hay pedidos recientes.</p>
         ) : (
@@ -145,7 +145,7 @@ export default function AdminOrdersDashboardPage() {
             columns={latestColumns}
             rows={latestOrders}
             rowKey={(o) => o.order_number}
-            caption="Ultimos pedidos"
+            caption="Últimos pedidos"
           />
         )}
       </section>

@@ -12,6 +12,7 @@ import { DataTable } from '@components/common';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
 import { exportToCsv } from '@lib/csvExporter';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
 
 const CSV_COLUMNS = [
@@ -137,7 +138,7 @@ export default function AdminOrdersPage() {
           columns={[
             { key: 'order_number', header: 'Pedido',
               render: (o) => (
-                <Link to={`/admin/pedidos/${o.order_number}`} className={`${styles.itemName} ${styles.mono}`}>
+                <Link to={`/admin/orders/${o.order_number}`} className={`${styles.itemName} ${styles.mono}`}>
                   {o.order_number}
                 </Link>
               ) },
@@ -162,7 +163,7 @@ export default function AdminOrdersPage() {
               ) },
             { key: 'actions',      header: '',
               render: (o) => (
-                <Link to={`/admin/pedidos/${o.order_number}`} className={styles.actionBtn} title="Ver">→</Link>
+                <Link to={`/admin/orders/${o.order_number}`} className={styles.actionBtn} title="Ver" aria-label="Ver"><Icon name="arrow-right" size={16} /></Link>
               ) },
           ]}
           rows={orders}

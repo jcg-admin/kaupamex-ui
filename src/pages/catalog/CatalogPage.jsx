@@ -62,8 +62,10 @@ export default function CatalogPage() {
     if (catParam) dispatch(setFilter({ category: [catParam] }));
   }, [catParam, dispatch]);
 
-  // Re-fetch whenever listing filters or page change (but not in search mode)
-  useEffect(() => {
+  // Carga del listado/búsqueda actual. Extraído a un callback para poder
+  // reintentar desde el botón del estado de error (antes el mensaje decía
+  // "Inténtalo de nuevo" pero no había forma de hacerlo sin recargar).
+  const loadCatalog = useCallback(() => {
     if (qParam) dispatch(searchProducts({ q: qParam }));
     else dispatch(fetchProducts({
       category: (filters.category && filters.category.length) ? filters.category : undefined,
@@ -75,6 +77,9 @@ export default function CatalogPage() {
     }));
   }, [dispatch, qParam, filters.category, filters.priceMin, filters.priceMax,
       filters.inStock, filters.ordering, pagination.page]);
+
+  // Re-fetch whenever listing filters or page change (but not in search mode)
+  useEffect(() => { loadCatalog(); }, [loadCatalog]);
 
   const handleSearch = useCallback((q) => setSearchParams({ q }), [setSearchParams]);
   const handleClearSearch = useCallback(() => {
@@ -145,7 +150,14 @@ export default function CatalogPage() {
 
             {apiError && !loading && (
               <div className={styles.errorBox} role="alert">
-                No se pudieron cargar los productos. Inténtalo de nuevo.
+                <p>No se pudieron cargar los productos.</p>
+                {(apiError.message || apiError.statusCode) && (
+                  <p className={styles.errorDetail}>
+                    {apiError.statusCode ? `Error ${apiError.statusCode}` : 'Error de red'}
+                    {apiError.message ? ` — ${apiError.message}` : ''}
+                  </p>
+                )}
+                <Button variant="secondary" onClick={loadCatalog}>Reintentar</Button>
               </div>
             )}
 
@@ -310,7 +322,7 @@ function PriceFilter({ dispatch, filters }) {
           type="number"
           placeholder="Mín MXN"
           value={lo}
-          aria-label="Precio minimo"
+          aria-label="Precio mínimo"
           onChange={(e) => setLo(e.target.value)}
           onBlur={() => apply(lo, hi)}
           className={styles.sliderInput}
@@ -319,7 +331,7 @@ function PriceFilter({ dispatch, filters }) {
           type="number"
           placeholder="Máx MXN"
           value={hi}
-          aria-label="Precio maximo"
+          aria-label="Precio máximo"
           onChange={(e) => setHi(e.target.value)}
           onBlur={() => apply(lo, hi)}
           className={styles.sliderInput}

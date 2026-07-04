@@ -11,6 +11,7 @@ import wishlistReducer, {
   addToWishlist,
   removeFromWishlist,
   moveWishlistItemToCart,
+  toggleWishlist,
   clearWishlistActionState,
 } from './wishlistSlice';
 
@@ -183,5 +184,41 @@ describe('wishlistSlice — UC-WISH-01..03', () => {
     store.dispatch(clearWishlistActionState());
     expect(store.getState().wishlist.actionError).toBe(null);
     expect(store.getState().wishlist.lastAction).toBe(null);
+  });
+
+  // ── toggleWishlist: decide add/remove por el estado REAL en items ──
+  // Regresión: antes items quedaba vacío fuera de WishlistPage → el toggle
+  // siempre reintentaba "add" y el backend respondía 409 (falso error).
+
+  it('toggleWishlist remueve si el producto ya está (item shape real product.id)', async () => {
+    let deleteCalled = false;
+    server.use(
+      http.get(`${BASE}/api/v2/wishlist/`, () =>
+        HttpResponse.json([{ id: 55, product: { id: 7 } }]),
+      ),
+      http.delete(`${BASE}/api/v2/wishlist/55/`, () => {
+        deleteCalled = true;
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const store = makeStore();
+    await store.dispatch(fetchWishlist());
+    await store.dispatch(toggleWishlist({ productId: 7 }));
+    expect(deleteCalled).toBe(true);
+    expect(store.getState().wishlist.items).toEqual([]);
+  });
+
+  it('toggleWishlist agrega si el producto NO está', async () => {
+    let postCalled = false;
+    server.use(
+      http.post(`${BASE}/api/v2/wishlist/`, () => {
+        postCalled = true;
+        return HttpResponse.json({ id: 99, product: { id: 8 } }, { status: 201 });
+      }),
+    );
+    const store = makeStore();
+    await store.dispatch(toggleWishlist({ productId: 8 }));
+    expect(postCalled).toBe(true);
+    expect(store.getState().wishlist.items[0]).toMatchObject({ id: 99 });
   });
 });

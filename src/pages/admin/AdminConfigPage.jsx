@@ -33,9 +33,15 @@ const ITEMS = [
   },
   {
     uc:    'UC-CFG-02',
-    title: 'Metodos y costos de envio',
+    title: 'Métodos y costos de envío',
     desc:  'Couriers y guias de envio operativas (panel UC-LOG-08).',
     to:    '/admin/logistics',
+  },
+  {
+    uc:    'UC-CFG-02',
+    title: 'Zonas y tiempos de entrega',
+    desc:  'Catalogo de zonas por CP con ventana de dias de entrega y costo (H-12).',
+    to:    '/admin/shipping-zones',
   },
   {
     uc:    'UC-CFG-05',
@@ -45,7 +51,7 @@ const ITEMS = [
   },
   {
     uc:    'UC-CFG-04',
-    title: 'Gestionar contenido estatico',
+    title: 'Gestionar contenido estático',
     desc:  'Edicion de paginas estaticas: Sobre Nosotros, Terminos, FAQ.',
     to:    null,
     pending: true,

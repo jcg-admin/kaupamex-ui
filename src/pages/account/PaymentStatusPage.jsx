@@ -73,7 +73,7 @@ export default function PaymentStatusPage() {
               </dd>
             </div>
             <div>
-              <dt>Metodo</dt>
+              <dt>Método</dt>
               <dd>{GATEWAY_LABEL[payment.gateway] ?? payment.gateway ?? '—'}</dd>
             </div>
             <div>
@@ -92,7 +92,7 @@ export default function PaymentStatusPage() {
             </div>
             {payment.error_code && (
               <div>
-                <dt>Codigo de error</dt>
+                <dt>Código de error</dt>
                 <dd className={styles.errorCode}>{payment.error_code}</dd>
               </div>
             )}

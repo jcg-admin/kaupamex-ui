@@ -3,7 +3,7 @@
  * Componentes pequeños reutilizados en todas las pages.
  */
 
-import { useRef, useLayoutEffect } from 'react';
+import { useRef, useLayoutEffect, useId } from 'react';
 import { cx } from '@utils/cx';
 import styles from './primitives.module.scss';
 
@@ -76,9 +76,23 @@ export function Field({
   // El contador se muestra si se pide explicitamente o si hay un maxLength.
   const withCount = textarea && (showCount || maxLength != null);
 
+  // H-10/H-06: a11y del campo — id estable para enlazar el mensaje de error,
+  // aria-invalid/describedby cuando hay error, y aria-required. El asterisco
+  // se marca visualmente (aria-hidden) porque aria-required lo comunica al SR.
+  const uid = useId();
+  const errorId = `${uid}-error`;
+  const a11y = {
+    'aria-required': required || undefined,
+    'aria-invalid': error ? true : undefined,
+    'aria-describedby': error ? errorId : undefined,
+  };
+
   return (
     <label className={styles.field}>
-      <span className={styles.fieldLabel}>{label}</span>
+      <span className={styles.fieldLabel}>
+        {label}
+        {required && <span className={styles.fieldRequired} aria-hidden="true"> *</span>}
+      </span>
       {textarea ? (
         <AutoTextarea
           name={name}
@@ -89,6 +103,7 @@ export function Field({
           className={inputClass}
           maxLength={maxLength}
           autoResize={autoResize}
+          {...a11y}
           {...rest}
         />
       ) : (
@@ -102,6 +117,7 @@ export function Field({
           autoComplete={autoComplete}
           type={type}
           maxLength={maxLength}
+          {...a11y}
           {...rest}
         />
       )}
@@ -110,7 +126,7 @@ export function Field({
           {maxLength != null ? `${len}/${maxLength}` : len}
         </span>
       )}
-      {error && <span className={styles.fieldError}>{error}</span>}
+      {error && <span id={errorId} className={styles.fieldError}>{error}</span>}
       {!error && hint && <span className={styles.fieldHint}>{hint}</span>}
     </label>
   );
@@ -158,5 +174,32 @@ export function EmptyState({ icon = '◯', title, description, children }) {
       {description && <p className={styles.emptyDesc}>{description}</p>}
       {children && <div className={styles.emptyActions}>{children}</div>}
     </div>
+  );
+}
+
+/**
+ * Card / Panel — superficie elevada con header (título + acciones), body y
+ * footer opcionales. Base del rediseño admin (H-10, patrón CoreUI .card).
+ * Adaptado nativo — no es dependencia runtime.
+ */
+export function Card({
+  title, subtitle, actions, footer, children,
+  as: Tag = 'section', className = '', bodyClassName = '', ...rest
+}) {
+  const hasHeader = title || subtitle || actions;
+  return (
+    <Tag className={cx(styles.card, className)} {...rest}>
+      {hasHeader && (
+        <header className={styles.cardHeader}>
+          <div className={styles.cardHeadings}>
+            {title && <h2 className={styles.cardTitle}>{title}</h2>}
+            {subtitle && <p className={styles.cardSubtitle}>{subtitle}</p>}
+          </div>
+          {actions && <div className={styles.cardActions}>{actions}</div>}
+        </header>
+      )}
+      <div className={cx(styles.cardBody, bodyClassName)}>{children}</div>
+      {footer && <footer className={styles.cardFooter}>{footer}</footer>}
+    </Tag>
   );
 }

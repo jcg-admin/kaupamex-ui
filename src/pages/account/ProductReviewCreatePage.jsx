@@ -152,7 +152,7 @@ export default function ProductReviewCreatePage() {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="review-title-field">Titulo</label>
+          <label htmlFor="review-title-field">Título</label>
           <input
             id="review-title-field"
             type="text"

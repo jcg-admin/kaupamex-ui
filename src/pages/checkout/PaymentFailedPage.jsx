@@ -14,6 +14,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { retryPayment } from '@redux/slices/paymentsSlice';
 import apiService from '@services/apiService';
 import { MetaTag, Button } from '@components/common/primitives';
+import Icon from '@components/common/Icon/Icon';
 import styles from './PaymentFailedPage.module.scss';
 
 const ERROR_MESSAGES = {
@@ -46,7 +47,7 @@ export default function PaymentFailedPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <header className={styles.hero}>
-          <div className={styles.xIcon}>✕</div>
+          <div className={styles.xIcon}><Icon name="x" size={40} /></div>
           <MetaTag tone="vino">Pago no completado</MetaTag>
           <h1 className={styles.title}>
             Mercado Pago <em>rechazó</em> tu pago
@@ -104,7 +105,7 @@ export default function PaymentFailedPage() {
 
         <div className={styles.supportBox}>
           <span>¿Necesitas ayuda? Podemos atenderte por correo o teléfono.</span>
-          <Link to="/help" className={styles.supportLink}>Contactar soporte →</Link>
+          <Link to="/help" className={styles.supportLink}>Contactar soporte <Icon name="arrow-right" size={14} /></Link>
         </div>
       </div>
     </main>

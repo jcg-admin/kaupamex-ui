@@ -50,4 +50,18 @@ describe('Field (textarea)', () => {
     render(<Field label="Auto" name="a" textarea autoResize value="linea" onChange={() => {}} />);
     expect(screen.getByRole('textbox').tagName).toBe('TEXTAREA');
   });
+
+  it('required marca aria-required y asterisco (H-06/H-10)', () => {
+    render(<Field label="Nombre" name="n" required value="" onChange={() => {}} />);
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByText('Nombre').textContent).toContain('*');
+  });
+
+  it('error enlaza aria-invalid + aria-describedby al mensaje', () => {
+    render(<Field label="Email" name="e" error="Correo inválido" value="" onChange={() => {}} />);
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    const msg = screen.getByText('Correo inválido');
+    expect(input.getAttribute('aria-describedby')).toBe(msg.getAttribute('id'));
+  });
 });

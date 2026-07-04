@@ -23,6 +23,7 @@ import {
 import Calendar from './Calendar';
 import useClickOutside from '@hooks/ui/useClickOutside';
 import useEscapeKey    from '@hooks/ui/useEscapeKey';
+import Icon from '@components/common/Icon/Icon';
 import styles from './DatePicker.module.scss';
 
 function formatDate(date, locale, format = {}) {
@@ -190,7 +191,7 @@ const DatePicker = forwardRef(function DatePicker({
           readOnly
         />
         {cleaner && date && (
-          <button type="button" className={styles.cleaner} onClick={clear} aria-label="Limpiar fecha">✕</button>
+          <button type="button" className={styles.cleaner} onClick={clear} aria-label="Limpiar fecha"><Icon name="x" size={14} /></button>
         )}
         <span
           className={styles.indicator}

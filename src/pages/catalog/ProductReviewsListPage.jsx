@@ -11,6 +11,7 @@
 import { useParams } from 'react-router-dom';
 import { useProductReviews } from '@hooks/domain/useReviews';
 import ReviewItem from '@components/catalog/ReviewItem';
+import Icon from '@components/common/Icon/Icon';
 import styles from './ProductReviewsListPage.module.scss';
 
 export default function ProductReviewsListPage() {
@@ -46,7 +47,9 @@ export default function ProductReviewsListPage() {
             aria-label={`${Number(average).toFixed(1)} de 5`}
             className={styles.summaryStars}
           >
-            {'★'.repeat(avgRounded)}{'☆'.repeat(5 - avgRounded)}
+            {Array.from({ length: 5 }, (_, i) => (
+              <Icon key={i} name={i < avgRounded ? 'star-solid' : 'star'} size={16} />
+            ))}
           </span>
           <span className={styles.total}>
             {total} {total === 1 ? 'resena' : 'resenas'}
@@ -65,7 +68,7 @@ export default function ProductReviewsListPage() {
         <ul className={styles.list}>
           {reviews.map((r) => (
             <li key={r.id}>
-              <ReviewItem review={r} />
+              <ReviewItem review={r} productId={productId} />
             </li>
           ))}
         </ul>

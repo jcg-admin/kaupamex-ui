@@ -30,7 +30,7 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
   it('renderiza el dialogo con campos de codigo, tipo y valor', () => {
     render(wrap(<VoucherCreateForm onClose={() => {}} />, makeStore()));
     expect(screen.getByRole('dialog', { name: /Nuevo cupon/i })).toBeInTheDocument();
-    expect(screen.getByLabelText(/Codigo/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Código/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Tipo/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Valor/i)).toBeInTheDocument();
   });
@@ -43,7 +43,7 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
 
   it('valida porcentaje entre 0 y 100', () => {
     render(wrap(<VoucherCreateForm onClose={() => {}} />, makeStore()));
-    fireEvent.change(screen.getByLabelText(/Codigo/i), {
+    fireEvent.change(screen.getByLabelText(/Código/i), {
       target: { value: 'TEST10' },
     });
     // Type field uses "PERCENTAGE" (not "PERCENT")
@@ -59,7 +59,7 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
 
   it('valida que el valor fijo sea mayor a 0', () => {
     render(wrap(<VoucherCreateForm onClose={() => {}} />, makeStore()));
-    fireEvent.change(screen.getByLabelText(/Codigo/i), {
+    fireEvent.change(screen.getByLabelText(/Código/i), {
       target: { value: 'TEST10' },
     });
     fireEvent.change(screen.getByLabelText(/Tipo/i), {
@@ -85,7 +85,7 @@ describe('VoucherCreateForm (UC-PRO-01)', () => {
     );
 
     render(wrap(<VoucherCreateForm onClose={() => {}} />, makeStore()));
-    fireEvent.change(screen.getByLabelText(/Codigo/i),
+    fireEvent.change(screen.getByLabelText(/Código/i),
       { target: { value: 'WELCOME20' } });
     // Use PERCENTAGE (not PERCENT) — actual component field value
     fireEvent.change(screen.getByLabelText(/Tipo/i),

@@ -53,7 +53,7 @@ export default function TwoFactorPage() {
             onChange={setCode}
             autoFocus
             name="otp"
-            aria-label="Codigo de verificacion de seis digitos"
+            aria-label="Código de verificacion de seis digitos"
           />
 
           {error && (

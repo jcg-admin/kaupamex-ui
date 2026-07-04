@@ -109,9 +109,7 @@ export default function AdminCategoriesPage() {
   return (
     <section className={styles.page} aria-labelledby="admin-categories-title">
       <header className={styles.header}>
-        <h1 id="admin-categories-title" className={styles.title}>
-          Categorias
-        </h1>
+        <h1 id="admin-categories-title" className={styles.title}>Categorías</h1>
         <p className={styles.subtitle}>
           Gestiona el arbol de categorias del catalogo.
         </p>
@@ -136,7 +134,7 @@ export default function AdminCategoriesPage() {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="cat-description">Descripcion</label>
+          <label htmlFor="cat-description">Descripción</label>
           <textarea
             id="cat-description"
             name="description"
@@ -147,14 +145,14 @@ export default function AdminCategoriesPage() {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="cat-parent">Categoria padre (opcional)</label>
+          <label htmlFor="cat-parent">Categoría padre (opcional)</label>
           <select
             id="cat-parent"
             name="parent_id"
             value={form.parent_id}
             onChange={handleChange}
           >
-            <option value="">— Categoria raiz —</option>
+            <option value="">— Categoría raíz —</option>
             {categories
               .filter((c) => c.id !== editingId)
               .map((c) => (
@@ -218,13 +216,13 @@ export default function AdminCategoriesPage() {
         rowKey={(c) => c.id}
         loading={isLoading}
         emptyText="Sin categorias registradas."
-        caption="Categorias del catalogo"
+        caption="Categorías del catálogo"
         pageSize={0}
       />
 
       {/* H-CICLO105-03: pagination controls for paginated category list */}
       {totalPages > 1 && (
-        <nav className={styles.pagination} aria-label="Paginas de categorias">
+        <nav className={styles.pagination} aria-label="Páginas de categorías">
           <button
             type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}

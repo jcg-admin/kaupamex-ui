@@ -1,4 +1,10 @@
+@use 'sass:color';
 @use '@styles/abstracts' as *;
+
+// H-05/H-06: token de error legible sobre el fondo oscuro del admin. El wine
+// base ($vino-soft #9A4040) da ~2.9:1 — por debajo de AA. Se aclara para pasar
+// el contraste mínimo de texto (≥4.5:1).
+$error-readable: color.adjust($error-color, $lightness: 22%);
 
 .form {
   display: flex;
@@ -16,13 +22,41 @@
 .label {
   font-weight: 600;
   font-size: 0.9rem;
+  color: $text-primary;
+}
+
+// H-06: asterisco de campo obligatorio, visible y con color de atención.
+.required {
+  color: $error-readable;
+  font-weight: 700;
 }
 
 .input, .select, .textarea {
-  border: 1px solid $gray-400;
-  border-radius: 4px;
+  border: 1px solid $border-strong;
+  border-radius: $border-radius-md;
   padding: 0.5rem;
   font-size: 0.95rem;
+  background: $bg-elevated;
+  color: $text-primary;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.25);
+  }
+}
+
+// H-06: estado inválido marcado sobre el propio control (no solo el mensaje),
+// para que se vea QUÉ campo falta.
+.inputError {
+  border-color: $error-readable;
+
+  &:focus {
+    border-color: $error-readable;
+    box-shadow: 0 0 0 3px rgba($error-readable, 0.25);
+  }
 }
 
 .textarea {
@@ -33,19 +67,24 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+
+  // H-13: en móvil el par precio/stock se apila para no comprimir los campos.
+  @include media-down-md {
+    grid-template-columns: 1fr;
+  }
 }
 
 .fieldError {
-  color: $danger-strong;
+  color: $error-readable;
   font-size: 0.85rem;
   margin: 0;
 }
 
 .apiError {
-  background: $danger-bg;
-  color: $danger-strong;
-  border: 1px solid $error-border;
-  border-radius: 4px;
+  background: rgba($error-color, 0.12);
+  color: $error-readable;
+  border: 1px solid $error-readable;
+  border-radius: $border-radius-md;
   padding: 0.5rem;
 }
 
@@ -54,13 +93,18 @@
   gap: 0.5rem;
 }
 
+// H-05: el primario era $gray-950 (#0E1400, casi negro) sobre superficie
+// oscura — invisible. Se usa el primario de marca (lime) con texto inverso.
 .btnPrimary {
-  background: $gray-950;
-  color: white;
+  background: $primary-color;
+  color: $text-inverse;
+  font-weight: 600;
   border: 0;
-  border-radius: 4px;
+  border-radius: $border-radius-md;
   padding: 0.6rem 1rem;
   cursor: pointer;
+
+  &:hover:not(:disabled) { background: $primary-dark; }
 
   &:disabled {
     opacity: 0.6;

@@ -69,16 +69,16 @@ describe('CatalogFilters (UC-CAT-04 + UC-CAT-05)', () => {
 
   it('emite onChange con price_min y price_max al aplicar precio (UC-CAT-05)', () => {
     const { onChange } = renderFilters();
-    fireEvent.change(screen.getByLabelText(/precio minimo/i), { target: { value: '100' } });
-    fireEvent.change(screen.getByLabelText(/precio maximo/i), { target: { value: '500' } });
+    fireEvent.change(screen.getByLabelText(/precio mínimo/i), { target: { value: '100' } });
+    fireEvent.change(screen.getByLabelText(/precio máximo/i), { target: { value: '500' } });
     fireEvent.click(screen.getByRole('button', { name: /aplicar precio/i }));
     expect(onChange).toHaveBeenCalledWith({ price_min: 100, price_max: 500 });
   });
 
   it('rechaza precio maximo menor que minimo y muestra error inline', () => {
     const { onChange } = renderFilters();
-    fireEvent.change(screen.getByLabelText(/precio minimo/i), { target: { value: '500' } });
-    fireEvent.change(screen.getByLabelText(/precio maximo/i), { target: { value: '100' } });
+    fireEvent.change(screen.getByLabelText(/precio mínimo/i), { target: { value: '500' } });
+    fireEvent.change(screen.getByLabelText(/precio máximo/i), { target: { value: '100' } });
     fireEvent.click(screen.getByRole('button', { name: /aplicar precio/i }));
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByRole('alert')).toHaveTextContent(/maximo no puede ser menor/i);

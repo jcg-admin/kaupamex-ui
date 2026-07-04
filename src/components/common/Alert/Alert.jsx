@@ -26,15 +26,17 @@
  */
 import { useState, useEffect, useCallback, useId } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import Icon from '@components/common/Icon/Icon';
 import styles from './Alert.module.scss';
 
-const DEFAULT_ICONS = {
-  success: '✓',
-  danger:  '✕',
-  error:   '✕',
-  warning: '⚠',
-  info:    'ℹ',
-  neutral: '·',
+// Nombres de icono SVG (Icon component) por variante — reemplaza los glifos
+// de texto (✓ ✕ ⚠ ℹ) por SVG inline. `neutral` no lleva icono.
+const DEFAULT_ICON_NAMES = {
+  success: 'check',
+  danger:  'warning',
+  error:   'warning',
+  warning: 'warning',
+  info:    'info',
 };
 
 export default function Alert({
@@ -72,7 +74,11 @@ export default function Alert({
     onClosed?.();
   }, [onClosed]);
 
-  const resolvedIcon = icon !== undefined ? icon : DEFAULT_ICONS[variant] ?? '·';
+  // `icon` prop (ReactNode) tiene prioridad; si no, se resuelve el SVG por variante.
+  const iconName = DEFAULT_ICON_NAMES[variant];
+  const resolvedIcon = icon !== undefined
+    ? icon
+    : (iconName ? <Icon name={iconName} size={18} /> : null);
 
   return (
     <AnimatePresence onExitComplete={handleExitComplete}>
@@ -105,7 +111,7 @@ export default function Alert({
               onClick={handleClose}
               aria-label="Cerrar alerta"
             >
-              ✕
+              <Icon name="x" size={16} />
             </button>
           )}
         </motion.div>

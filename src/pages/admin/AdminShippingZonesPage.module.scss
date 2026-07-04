@@ -1,0 +1,95 @@
+@use 'sass:color';
+@use '@styles/abstracts' as *;
+
+$error-readable: color.adjust($error-color, $lightness: 22%);
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.title {
+  margin: $spacing-1 0 0;
+  font-size: $font-size-2xl;
+  color: $text-primary;
+}
+
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: $spacing-4;
+}
+
+.fieldBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: $text-primary;
+}
+
+.required { color: $error-readable; font-weight: 700; }
+
+.input {
+  border: 1px solid $border-strong;
+  border-radius: $border-radius-md;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+  background: $bg-elevated;
+  color: $text-primary;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.25);
+  }
+}
+
+.inputError {
+  border-color: $error-readable;
+  &:focus { border-color: $error-readable; box-shadow: 0 0 0 3px rgba($error-readable, 0.25); }
+}
+
+.fieldError { color: $error-readable; font-size: 0.85rem; margin: 0; }
+
+.apiError {
+  background: rgba($error-color, 0.12);
+  color: $error-readable;
+  border: 1px solid $error-readable;
+  border-radius: $border-radius-md;
+  padding: 0.5rem;
+}
+
+.tableWrap { overflow-x: auto; }
+
+.rowActions { display: flex; gap: $spacing-2; }
+
+.actionBtn {
+  background: transparent;
+  border: 1px solid $border-strong;
+  border-radius: $border-radius-md;
+  color: $text-secondary;
+  width: 2rem; height: 2rem;
+  cursor: pointer;
+
+  &:hover { color: $text-primary; border-color: $text-muted; }
+}
+
+.actionDelete:hover {
+  color: $error-readable;
+  border-color: $error-readable;
+}

@@ -11,6 +11,7 @@ import { fetchProfile } from '@redux/slices/authSlice';
 import { fetchOrders } from '@redux/slices/ordersSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Button, Price } from '@components/common/primitives';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AccountPage.module.scss';
 
 export default function AccountPage() {
@@ -130,7 +131,7 @@ function QuickCard({ to, t, d }) {
     <Link to={to} className={styles.quickCard}>
       <h4>{t}</h4>
       <p>{d}</p>
-      <span className={styles.quickArrow}>→</span>
+      <span className={styles.quickArrow}><Icon name="arrow-right" size={16} /></span>
     </Link>
   );
 }

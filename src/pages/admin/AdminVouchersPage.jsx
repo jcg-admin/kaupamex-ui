@@ -12,6 +12,7 @@ import {
 } from '@redux/slices/vouchersSlice';
 import { useVouchers, VOUCHERS_QUERY_KEY } from '@hooks/domain/useVouchers';
 import { DataTable } from '@components/common';
+import { MetaTag } from '@components/common/primitives';
 import VoucherCreateForm from '@components/admin/VoucherCreateForm';
 import VoucherEditForm from '@components/admin/VoucherEditForm';
 import PromotionsTimeline from '@components/admin/PromotionsTimeline';
@@ -63,12 +64,12 @@ export default function AdminVouchersPage() {
   };
 
   const columns = useMemo(() => [
-    { key: 'code',         header: 'Codigo',        sortable: true },
+    { key: 'code',         header: 'Código',        sortable: true },
     { key: 'voucher_type', header: 'Tipo',           sortable: true,
       render: (v) => TYPE_LABEL[v.voucher_type] ?? v.voucher_type },
     { key: 'discount',     header: 'Valor',
       render: (v) => formatValue(v) },
-    { key: 'max_uses',     header: 'Usos maximos',
+    { key: 'max_uses',     header: 'Usos máximos',
       render: (v) => v.max_uses ?? 'Sin limite' },
     { key: 'valid_until',  header: 'Vigencia',
       render: (v) => v.valid_until ? v.valid_until.slice(0, 10) : '—' },
@@ -109,9 +110,12 @@ export default function AdminVouchersPage() {
   return (
     <section className={styles.page} aria-labelledby="vouchers-title">
       <header className={styles.header}>
-        <h1 id="vouchers-title" className={styles.title}>
-          Gestión de Cupones
-        </h1>
+        <div>
+          <MetaTag tone="bronze">Ventas · {totalCount} {totalCount === 1 ? 'cupón' : 'cupones'}</MetaTag>
+          <h1 id="vouchers-title" className={styles.title}>
+            Gestión de Cupones
+          </h1>
+        </div>
         <button
           type="button"
           className={styles.primaryBtn}

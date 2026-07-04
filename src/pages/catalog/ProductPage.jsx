@@ -21,6 +21,7 @@ import { useToast } from '@context/ToastContext';
 import ProductCard from '@components/catalog/ProductCard';
 import ReviewItem from '@components/catalog/ReviewItem';
 import { MetaTag, Price, Button } from '@components/common/primitives';
+import Icon from '@components/common/Icon/Icon';
 import styles from './ProductPage.module.scss';
 
 export default function ProductPage() {
@@ -30,6 +31,7 @@ export default function ProductPage() {
   const { error: toastError } = useToast();
   const product = useSelector((s) => s.catalog?.currentProduct);
   const isLoading = useSelector((s) => s.catalog?.isLoading);
+  const wishlistItems = useSelector((s) => s.wishlist?.items ?? []);
 
   const [variant, setVariant] = useState(null);
   const [qty, setQty] = useState(1);
@@ -54,6 +56,9 @@ export default function ProductPage() {
   const stock = variant?.stock ?? product.stock;
   const isAvailable = stock > 0;
   const related = product.related_products || [];
+  const inWishlist = wishlistItems.some(
+    (i) => i.product?.id === product.id || i.product_id === product.id,
+  );
 
   const handleAddToCart = () => {
     dispatch(addToCart({
@@ -162,16 +167,21 @@ export default function ProductPage() {
                 </Button>
                 <button
                   type="button"
-                  className={styles.wishBtn}
+                  className={`${styles.wishBtn} ${inWishlist ? styles.wishBtnActive : ''}`}
+                  aria-pressed={inWishlist}
+                  aria-label={inWishlist ? 'Quitar de la lista de deseos' : 'Agregar a la lista de deseos'}
                   onClick={async () => {
                     const outerResult = await dispatch(toggleWishlist({ productId: product.id, variantId: variant?.id }));
                     const innerAction = outerResult?.payload;
-                    if (innerAction && (addToWishlist.rejected.match(innerAction)
-                        || removeFromWishlist.rejected.match(innerAction))) {
+                    const rejected = innerAction && (addToWishlist.rejected.match(innerAction)
+                        || removeFromWishlist.rejected.match(innerAction));
+                    // El 409 PRODUCT_ALREADY_IN_WISHLIST es benigno (carrera de
+                    // hidratacion): el item ya estaba en la lista. No es error.
+                    if (rejected && innerAction.payload?.code !== 'PRODUCT_ALREADY_IN_WISHLIST') {
                       toastError('No se pudo actualizar la lista de deseos');
                     }
                   }}
-                >♡</button>
+                ><Icon name="heart" size={22} /></button>
               </div>
 
               {/* Availability */}
@@ -263,8 +273,13 @@ export default function ProductPage() {
                     aria-label={`${Number(reviewsAvg).toFixed(1)} de 5`}
                     className={styles.reviewsStars}
                   >
-                    {'★'.repeat(Math.round(Number(reviewsAvg)))}
-                    {'☆'.repeat(5 - Math.round(Number(reviewsAvg)))}
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Icon
+                        key={i}
+                        name={i < Math.round(Number(reviewsAvg)) ? 'star-solid' : 'star'}
+                        size={16}
+                      />
+                    ))}
                   </span>
                   <span className={styles.reviewsCount}>
                     {reviewsTotal} {reviewsTotal === 1 ? 'reseña' : 'reseñas'}
@@ -281,7 +296,7 @@ export default function ProductPage() {
             <ul className={styles.reviewsList}>
               {previewReviews.map((r) => (
                 <li key={r.id}>
-                  <ReviewItem review={r} />
+                  <ReviewItem review={r} productId={product.id} />
                 </li>
               ))}
             </ul>

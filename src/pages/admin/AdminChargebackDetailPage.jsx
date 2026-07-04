@@ -54,7 +54,7 @@ export default function AdminChargebackDetailPage() {
         <div><dt>Fecha</dt><dd>{formatDate(cb.created_at)}</dd></div>
         {cb.description && (
           <div className={styles.fullRow}>
-            <dt>Descripcion</dt>
+            <dt>Descripción</dt>
             <dd>{cb.description}</dd>
           </div>
         )}

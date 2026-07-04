@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { fetchAdminMetrics } from '@redux/slices/adminSlice';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import { DataTable } from '@components/common/DataTable/DataTable';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AdminDashboardPage.module.scss';
 
 export default function AdminDashboardPage() {
@@ -26,7 +27,7 @@ export default function AdminDashboardPage() {
       sortable: true,
       render: (o) => (
         <span className={styles.mono}>
-          <Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link>
+          <Link to={`/admin/orders/${o.order_number}`}>{o.order_number}</Link>
         </span>
       ),
     },
@@ -135,7 +136,7 @@ export default function AdminDashboardPage() {
                   <div className={styles.alertTitle}>{a.title}</div>
                   <div className={styles.alertDesc}>{a.description}</div>
                 </div>
-                {a.action_to && <Link to={a.action_to} className={styles.alertCta}>→</Link>}
+                {a.action_to && <Link to={a.action_to} className={styles.alertCta} aria-label="Ver"><Icon name="arrow-right" size={16} /></Link>}
               </li>
             ))}
             {(!m.alerts || m.alerts.length === 0) && (
@@ -194,7 +195,7 @@ function Kpi({ label, value, delta, tone }) {
       <div className={`${styles.kpiValue} ${styles[`kpi_${tone}`]}`}>{value}</div>
       {delta != null && (
         <div className={`${styles.kpiDelta} ${positive ? styles.kpiDeltaUp : styles.kpiDeltaDown}`}>
-          {positive ? '↑' : '↓'} {Math.abs(delta)}% vs ayer
+          <Icon name={positive ? 'chevron-up' : 'chevron-down'} size={12} /> {Math.abs(delta)}% vs ayer
         </div>
       )}
     </div>

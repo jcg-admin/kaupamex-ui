@@ -33,11 +33,20 @@ function formatPrice(amount) {
   return formatCurrency(amount, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-export default function ProductCard({ product, inWishlist = false }) {
+export default function ProductCard({ product, inWishlist: inWishlistProp = false }) {
   const dispatch        = useDispatch();
   const navigate        = useNavigate();
   const location        = useLocation();
   const isAuthenticated = useSelector((s) => s.auth?.isAuthenticated);
+  // El corazón lleno se deriva del estado real en Redux (hidratado por
+  // StorefrontLayout al autenticarse). El prop `inWishlist` queda como
+  // override opcional para vistas que ya conocen el estado.
+  const inWishlistStore = useSelector((s) =>
+    (s.wishlist?.items ?? []).some(
+      (i) => i.product?.id === product?.id || i.product_id === product?.id,
+    ),
+  );
+  const inWishlist = inWishlistProp || inWishlistStore;
   const { error: toastError } = useToast();
   if (!product) return null;
 
@@ -75,9 +84,15 @@ export default function ProductCard({ product, inWishlist = false }) {
     // itself does not throw or rejectWithValue).
     const outerResult = await dispatch(toggleWishlist({ productId: id }));
     const innerAction = outerResult?.payload;
-    if (innerAction && addToWishlist.rejected.match(innerAction)
-        || innerAction && removeFromWishlist.rejected.match(innerAction)) {
-      toastError('No se pudo actualizar la lista de deseos');
+    const rejected = innerAction && (addToWishlist.rejected.match(innerAction)
+      || removeFromWishlist.rejected.match(innerAction));
+    if (rejected) {
+      // Un 409 PRODUCT_ALREADY_IN_WISHLIST no es un fallo real: el producto ya
+      // está en la lista (carrera o items aún sin hidratar). No mostrar error.
+      const code = innerAction.payload?.code;
+      if (code !== 'PRODUCT_ALREADY_IN_WISHLIST') {
+        toastError('No se pudo actualizar la lista de deseos');
+      }
     }
   };
 

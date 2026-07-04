@@ -45,6 +45,8 @@
 .steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  // H-13: colapsa a menos columnas en móvil para no comprimir el contenido.
+  @include media-down-md { grid-template-columns: 1fr; }
   border: 1px solid $border-medium;
   margin-bottom: $spacing-8;
 }

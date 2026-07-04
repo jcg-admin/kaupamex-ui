@@ -27,7 +27,7 @@ const STATUS_LABEL = {
 const STATUS_OPTIONS = [
   { value: '',               label: 'Todos los estados' },
   { value: 'OPEN',           label: 'Abierto' },
-  { value: 'IN_PROGRESS',    label: 'En atencion' },
+  { value: 'IN_PROGRESS',    label: 'En atención' },
   { value: 'AWAITING_USER',  label: 'Esperando comprador' },
   { value: 'RESOLVED',       label: 'Resuelto' },
   { value: 'CLOSED',         label: 'Cerrado' },

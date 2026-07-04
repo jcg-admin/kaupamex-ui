@@ -95,7 +95,7 @@ export default function AdminReportTopSellersPage() {
       )}
 
       {inactivePct != null && (
-        <div className={styles.totals} aria-label="Resumen del catalogo">
+        <div className={styles.totals} aria-label="Resumen del catálogo">
           <div className={styles.metric}>
             <span className={styles.metricLabel}>Productos activos sin ventas</span>
             <span className={styles.metricValue}>{inactivePct}%</span>

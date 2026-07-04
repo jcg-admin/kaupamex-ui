@@ -69,7 +69,7 @@ export default function CategoryListPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Categorias</h1>
+        <h1 className={styles.title}>Categorías</h1>
         <p className={styles.subtitle}>
           Explora el catalogo Yoruba por familias de productos.
         </p>
@@ -78,7 +78,7 @@ export default function CategoryListPage() {
       {isLoading && (
         <div className={styles.loading} aria-live="polite">
           <div className={styles.spinner} />
-          <p>Cargando categorias...</p>
+          <p>Cargando categorías...</p>
         </div>
       )}
 
@@ -95,7 +95,7 @@ export default function CategoryListPage() {
       )}
 
       {!isLoading && tree.length > 0 && (
-        <ul className={styles.tree} aria-label="Arbol de categorias" data-testid="category-tree">
+        <ul className={styles.tree} aria-label="Árbol de categorías" data-testid="category-tree">
           {tree.map((root) => (
             <CategoryNode key={root.id} node={root} />
           ))}

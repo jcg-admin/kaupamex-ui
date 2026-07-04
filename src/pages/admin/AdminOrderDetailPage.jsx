@@ -21,6 +21,7 @@ import {
   clearOrdersActionState,
 } from '@redux/slices/ordersSlice';
 import StatusTimeline from '@components/admin/StatusTimeline';
+import AdminGuideCreate from '@components/admin/AdminGuideCreate';
 import styles from './AdminOrderDetailPage.module.scss';
 
 const STATUS_LABEL = {
@@ -135,7 +136,7 @@ export default function AdminOrderDetailPage() {
       </section>
 
       <section aria-labelledby="items-title" className={styles.section}>
-        <h2 id="items-title">Articulos</h2>
+        <h2 id="items-title">Artículos</h2>
         <ul className={styles.items}>
           {(order.items ?? []).map((item) => (
             <li key={item.id} className={styles.itemRow}>
@@ -170,9 +171,16 @@ export default function AdminOrderDetailPage() {
           <dl className={styles.totals}>
             <dt>Subtotal</dt><dd>{formatCurrency(order.value.subtotal)}</dd>
             <dt>IVA</dt><dd>{formatCurrency(order.value.tax)}</dd>
-            <dt>Envio</dt><dd>{formatCurrency(order.value.shipping_cost)}</dd>
+            <dt>Envío</dt><dd>{formatCurrency(order.value.shipping_cost)}</dd>
             <dt>Total</dt><dd className={styles.total}>{formatCurrency(order.value.total)}</dd>
           </dl>
+        </section>
+      )}
+
+      {/* COV-04a: crear la guía de envío cuando la orden está lista (IN_PREPARATION). */}
+      {order.status === 'IN_PREPARATION' && (
+        <section className={styles.section} aria-label="Guía de envío">
+          <AdminGuideCreate orderNumber={order.order_number} />
         </section>
       )}
 

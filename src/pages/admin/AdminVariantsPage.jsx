@@ -64,7 +64,7 @@ export default function AdminVariantsPage() {
 
   const columns = useMemo(() => [
     { key: 'variant_type', header: 'Tipo', sortable: true },
-    { key: 'option_name', header: 'Opcion', sortable: true },
+    { key: 'option_name', header: 'Opción', sortable: true },
     { key: 'stock', header: 'Stock', sortable: true, align: 'right' },
     {
       key: 'price',
@@ -140,7 +140,7 @@ export default function AdminVariantsPage() {
             </select>
           </div>
           <div className={styles.field}>
-            <label htmlFor="option-name">Opcion</label>
+            <label htmlFor="option-name">Opción</label>
             <input
               id="option-name"
               type="text"

@@ -152,6 +152,6 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
     render(wrap(<AdminOrdersPage />));
     await screen.findByText('PY-2026-000101');
     const link = screen.getByRole('link', { name: 'PY-2026-000101' });
-    expect(link).toHaveAttribute('href', '/admin/pedidos/PY-2026-000101');
+    expect(link).toHaveAttribute('href', '/admin/orders/PY-2026-000101');
   });
 });

@@ -6,6 +6,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import UnauthorizedListener from '@app/UnauthorizedListener';
+import SessionBootstrap from '@app/SessionBootstrap';
 import GlobalErrorNotifier from '@app/GlobalErrorNotifier';
 import ScrollToTop from '@components/shared/ScrollToTop/ScrollToTop';
 import StorefrontLayout from '@layouts/StorefrontLayout';
@@ -92,6 +93,8 @@ const AdminOrdersDashboardPage = lazy(() => import('@pages/admin/AdminOrdersDash
 const AdminUsersPage      = lazy(() => import('@pages/admin/AdminUsersPage'));
 const AdminUserDetailPage = lazy(() => import('@pages/admin/AdminUserDetailPage'));
 const AdminVouchersPage   = lazy(() => import('@pages/admin/AdminVouchersPage'));
+const AdminShippingZonesPage = lazy(() => import('@pages/admin/AdminShippingZonesPage'));
+const AdminCouriersPage   = lazy(() => import('@pages/admin/AdminCouriersPage'));
 const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 const AdminReturnsPage    = lazy(() => import('@pages/admin/AdminReturnsPage'));
 const AdminReturnDetailPage = lazy(() => import('@pages/admin/AdminReturnDetailPage'));
@@ -146,6 +149,9 @@ export default function AppRouter() {
           Monta una sola vez al inicio del router; el listener
           window-level captura cualquier 401 desde cualquier tab. */}
       <UnauthorizedListener />
+      {/* H-09: rehidrata la sesión desde la cookie httpOnly al arrancar en
+          cualquier ruta, para que una pestaña nueva no aparezca deslogueada. */}
+      <SessionBootstrap />
       {/* Surface de errores globales (500/red) en una ventana (toast). */}
       <GlobalErrorNotifier />
       {/* Lleva el scroll al tope en cada cambio de ruta (RRv6 no lo hace). */}
@@ -354,6 +360,10 @@ export default function AppRouter() {
               <Route path="admin/logistics"                       element={<AdminLogisticsPage />} />
               {/* UC-CFG-01..05 — Hub de configuracion */}
               <Route path="admin/config"                          element={<AdminConfigPage />} />
+              {/* H-12 — Catálogo de zonas de envío + tiempos de entrega */}
+              <Route path="admin/shipping-zones"                  element={<AdminShippingZonesPage />} />
+              {/* UC-LOG-01 soporte — Catálogo de paqueterías (couriers) */}
+              <Route path="admin/couriers"                        element={<AdminCouriersPage />} />
             </Route>
           </Route>
 

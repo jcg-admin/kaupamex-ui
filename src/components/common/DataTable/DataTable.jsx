@@ -37,6 +37,7 @@
  */
 import { useMemo, useState, useCallback, useId } from 'react';
 import { Alert } from '../Alert/Alert';
+import Icon from '@components/common/Icon/Icon';
 import { applyFilter, applySort, applyPage } from '@lib/dataQuery';
 import styles from './DataTable.module.scss';
 
@@ -189,6 +190,9 @@ export default function DataTable({
                   <td
                     key={column.key}
                     className={column.align === 'right' ? styles.right : undefined}
+                    // H-13: etiqueta por celda para el modo tarjeta en móvil
+                    // (thead se oculta; cada celda muestra su columna vía ::before).
+                    data-label={typeof column.header === 'string' ? column.header : ''}
                   >
                     {column.render ? column.render(row) : (row?.[column.key] ?? '—')}
                   </td>
@@ -208,7 +212,7 @@ export default function DataTable({
             disabled={safePage <= 1}
             aria-label="Página anterior"
           >
-            ‹ Anterior
+            <Icon name="chevron-left" size={14} /> Anterior
           </button>
           <span className={styles.pageStatus} aria-live="polite">
             Página {safePage} de {totalPages}
@@ -220,7 +224,7 @@ export default function DataTable({
             disabled={safePage >= totalPages}
             aria-label="Página siguiente"
           >
-            Siguiente ›
+            Siguiente <Icon name="chevron-right" size={14} />
           </button>
         </nav>
       )}

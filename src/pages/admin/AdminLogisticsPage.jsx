@@ -68,7 +68,7 @@ export default function AdminLogisticsPage() {
     },
     {
       key: 'action',
-      header: 'Accion',
+      header: 'Acción',
       filterable: false,
       render: (o) => (
         <Link to={`/admin/orders/${o.order_id}`} className={styles.actionLink}>
@@ -85,12 +85,12 @@ export default function AdminLogisticsPage() {
     { key: 'courier_code', header: 'Courier', sortable: true, render: (g) => g.courier_code ?? '—' },
     { key: 'tracking_number', header: 'Tracking', render: (g) => g.tracking_number ?? '—' },
     // H-CICLO36-03: API devuelve status (no last_status)
-    { key: 'status', header: 'Ultimo estado', sortable: true, render: (g) => g.status ?? '—' },
+    { key: 'status', header: 'Último estado', sortable: true, render: (g) => g.status ?? '—' },
     // H-CICLO36-03: la respuesta del panel no incluye last_event_at
     { key: 'event_at', header: 'Fecha', filterable: false, render: () => '—' },
     {
       key: 'action',
-      header: 'Accion',
+      header: 'Acción',
       filterable: false,
       render: (g) => (
         <button
@@ -108,10 +108,10 @@ export default function AdminLogisticsPage() {
   return (
     <section className={styles.page} aria-labelledby="logistics-title">
       <header className={styles.header}>
-        <h1 id="logistics-title" className={styles.title}>Logistica</h1>
+        <h1 id="logistics-title" className={styles.title}>Logística</h1>
         <p className={styles.subtitle}>
-          Panel operacional de envios — punto de entrada para crear
-          guias, registrar rastreos y confirmar entregas.
+          Panel operacional de envíos — punto de entrada para crear
+          guías, registrar rastreos y confirmar entregas.
         </p>
       </header>
 
@@ -130,7 +130,7 @@ export default function AdminLogisticsPage() {
       {isError   && <p role="alert">No se pudo cargar el panel de logistica.</p>}
 
       {!isLoading && !isError && groupA.length === 0 && groupB.length === 0 && (
-        <p className={styles.empty}>No hay envios pendientes de atencion.</p>
+        <p className={styles.empty}>No hay envíos pendientes de atención.</p>
       )}
 
       {!isLoading && !isError && (groupA.length > 0 || groupB.length > 0) && (
@@ -150,16 +150,16 @@ export default function AdminLogisticsPage() {
           </section>
 
           <section className={styles.group} aria-labelledby="group-b-title">
-            <h2 id="group-b-title">En transito</h2>
+            <h2 id="group-b-title">En tránsito</h2>
             <p className={styles.meta}>
               Guias activas con ultimo evento del courier (UC-LOG-02 / UC-LOG-03 / UC-LOG-05).
             </p>
             <DataTable
               columns={groupBColumns}
               rows={groupB}
-              emptyText="Sin envios en transito."
+              emptyText="Sin envíos en tránsito."
               rowKey={(g) => g.guide_id}
-              caption="Guias activas en transito"
+              caption="Guías activas en tránsito"
             />
           </section>
         </>

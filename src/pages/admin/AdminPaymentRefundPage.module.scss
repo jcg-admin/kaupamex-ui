@@ -8,6 +8,8 @@
 .detail {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  // H-13: colapsa a menos columnas en móvil para no comprimir el contenido.
+  @include media-down-md { grid-template-columns: 1fr; }
   gap: 1rem;
   background: $bg-page;
   border: 1px solid $border-color;
@@ -43,7 +45,8 @@
   th, td { padding: .5rem .6rem; text-align: left; border-bottom: 1px solid $border-color; }
   th { color: $text-soft; font-weight: 600; font-size: .75rem; text-transform: uppercase; }
 }
-.mono { font-family: monospace; font-size: .85rem; }
+// H-13: los IDs de transacción largos rompían el ancho de la tabla en móvil.
+.mono { font-family: monospace; font-size: .85rem; word-break: break-all; }
 .primaryBtn {
   background: $primary-color; color: $bg-surface; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
@@ -55,7 +58,7 @@
 }
 .cancelTitle { font-size: 1.1rem; margin: 0 0 .5rem; color: $danger-deep; }
 .dangerBtn {
-  background: $danger-deep; color: #fff; border: 0;
+  background: $danger-deep; color: $white; border: 0;
   padding: .6rem 1.2rem; border-radius: .35rem; font-weight: 600; cursor: pointer;
   &:disabled { opacity: .55; cursor: not-allowed; }
 }

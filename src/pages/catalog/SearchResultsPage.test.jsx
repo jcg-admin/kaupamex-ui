@@ -145,7 +145,7 @@ describe('SearchResultsPage (UC-CAT-03 + UC-CAT-03-EXT)', () => {
     expect(
       await screen.findByText(/no encontramos productos/i),
     ).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /explora el catalogo completo/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /explora el catálogo completo/i })).toBeInTheDocument();
   });
 
   it('muestra estado de error si la API falla', async () => {

@@ -129,7 +129,7 @@ export default function SearchResultsPage() {
                   <li>Revisa la ortografia del termino.</li>
                   <li>Usa terminos mas generales o sinonimos.</li>
                   <li>
-                    <Link to="/catalog">Explora el catalogo completo</Link>.
+                    <Link to="/catalog">Explora el catálogo completo</Link>.
                   </li>
                   <li>
                     Si buscas un articulo Yoruba especifico,{' '}

@@ -73,9 +73,11 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
       ),
     );
     let approvedId;
+    let approveBody;
     server.use(
-      http.patch(`${BASE}/api/v2/admin/reviews/:id/status/`, ({ params }) => {
+      http.patch(`${BASE}/api/v2/admin/reviews/:id/status/`, async ({ params, request }) => {
         approvedId = params.id;
+        approveBody = await request.json();
         return HttpResponse.json({ id: params.id, status: 'APPROVED' });
       }),
     );
@@ -84,6 +86,8 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /^Aprobar$/i }));
 
     await waitFor(() => expect(approvedId).toBe('5'));
+    // El backend espera { action: 'approve' } — no { status }.
+    expect(approveBody).toEqual({ action: 'approve' });
   });
 
   it('al hacer clic en Rechazar, hace PATCH al endpoint status con motivo', async () => {
@@ -97,9 +101,11 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
       ),
     );
     let rejectedId;
+    let rejectBody;
     server.use(
-      http.patch(`${BASE}/api/v2/admin/reviews/:id/status/`, ({ params }) => {
+      http.patch(`${BASE}/api/v2/admin/reviews/:id/status/`, async ({ params, request }) => {
         rejectedId = params.id;
+        rejectBody = await request.json();
         return HttpResponse.json({ id: params.id, status: 'REJECTED' });
       }),
     );
@@ -108,6 +114,9 @@ describe('AdminReviewsModerationPage (UC-REV-03)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Rechazar/i }));
 
     await waitFor(() => expect(rejectedId).toBe('5'));
+    // El backend espera { action: 'reject', reason } — no { status }.
+    expect(rejectBody.action).toBe('reject');
+    expect(rejectBody.reason).toBeTruthy();
   });
 
   it('muestra estado vacio cuando no hay resenas pendientes', async () => {

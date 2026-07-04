@@ -16,10 +16,13 @@
 }
 
 .rating {
-  color:       $amber-500;
-  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
   flex-shrink: 0;
 }
+.starOn  { color: $amber-500; }
+.starOff { color: $border-strong; }
 
 .author {
   font-size:   $font-size-sm;
@@ -67,4 +70,35 @@
   transition:    opacity 0.15s;
 
   &:hover { opacity: 0.85; }
+}
+
+// COV-02: voto "útil" (UC-REV-02)
+.helpfulRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  margin-top: $spacing-3;
+  flex-wrap: wrap;
+}
+
+.helpfulBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid $border-strong;
+  border-radius: $border-radius-md;
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  transition: color $transition-fast, border-color $transition-fast;
+
+  &:hover:not(:disabled) { color: $primary-color; border-color: $primary-color; }
+  &:disabled { opacity: 0.7; cursor: default; }
+}
+
+.helpfulCount {
+  font-size: $font-size-xs;
+  color: $text-muted;
 }

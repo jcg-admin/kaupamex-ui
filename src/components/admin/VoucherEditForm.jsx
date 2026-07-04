@@ -118,7 +118,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
           {!isImmutable && (
             <>
               <div className={styles.field}>
-                <label htmlFor="edit-code">Codigo</label>
+                <label htmlFor="edit-code">Código</label>
                 <input
                   id="edit-code"
                   name="code"
@@ -141,7 +141,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
                 >
                   <option value="FIXED">Monto fijo</option>
                   <option value="PERCENTAGE">Porcentaje</option>
-                  <option value="FREE_SHIPPING">Envio gratis</option>
+                  <option value="FREE_SHIPPING">Envío gratis</option>
                 </select>
               </div>
             </>
@@ -185,7 +185,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
                 )}
               </div>
               <div className={styles.field}>
-                <label htmlFor="edit-max-discount">Descuento maximo (opcional)</label>
+                <label htmlFor="edit-max-discount">Descuento máximo (opcional)</label>
                 <input
                   id="edit-max-discount"
                   name="max_discount"
@@ -199,7 +199,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
           )}
 
           <div className={styles.field}>
-            <label htmlFor="edit-min-order">Monto minimo del carrito</label>
+            <label htmlFor="edit-min-order">Monto mínimo del carrito</label>
             <input
               id="edit-min-order"
               name="min_order_amount"

@@ -85,7 +85,7 @@ describe('AdminVariantsPage (UC-CHT-03)', () => {
 
     fireEvent.change(screen.getByLabelText(/Tipo de variante/i),
       { target: { value: 'Tamano' } });
-    fireEvent.change(screen.getByLabelText(/Opcion/i),
+    fireEvent.change(screen.getByLabelText(/Opción/i),
       { target: { value: 'Mediano' } });
     fireEvent.change(screen.getByLabelText(/Stock inicial/i),
       { target: { value: '5' } });

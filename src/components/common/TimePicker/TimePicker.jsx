@@ -25,6 +25,7 @@ import {
 } from 'react';
 import useClickOutside from '@hooks/ui/useClickOutside';
 import useEscapeKey    from '@hooks/ui/useEscapeKey';
+import Icon from '@components/common/Icon/Icon';
 import styles from './TimePicker.module.scss';
 
 // Generar las opciones de la rueda (0–23, 0–59)
@@ -249,7 +250,7 @@ const TimePicker = forwardRef(function TimePicker({
             aria-label="Limpiar hora"
             tabIndex={-1}
           >
-            ✕
+            <Icon name="x" size={14} />
           </button>
         )}
       </div>

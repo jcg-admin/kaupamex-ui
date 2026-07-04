@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { fetchAdminUsers, setPage } from '@redux/slices/adminSlice';
 import { MetaTag, Button } from '@components/common/primitives';
 import { DataTable } from '@components/common';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
 
 const ROLE_FILTERS = [
@@ -137,7 +138,7 @@ export default function AdminUsersPage() {
             { key: 'name',         header: 'Usuario',
               render: (u) => (
                 <>
-                  <Link to={`/admin/usuarios/${u.id}`} className={styles.itemName}>
+                  <Link to={`/admin/users/${u.id}`} className={styles.itemName}>
                     {u.first_name} {u.last_name}
                   </Link>
                   <div className={styles.muted}>@{u.username}</div>
@@ -163,7 +164,7 @@ export default function AdminUsersPage() {
                 : '—' },
             { key: 'actions',      header: '',
               render: (u) => (
-                <Link to={`/admin/usuarios/${u.id}`} className={styles.actionBtn} title="Ver">→</Link>
+                <Link to={`/admin/users/${u.id}`} className={styles.actionBtn} title="Ver" aria-label="Ver"><Icon name="arrow-right" size={16} /></Link>
               ) },
           ]}
           rows={users}

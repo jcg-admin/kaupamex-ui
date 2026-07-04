@@ -70,7 +70,7 @@ export default function AdminQuestionsModerationPage() {
       )}
 
       {!isLoading && questions.length === 0 && (
-        <p className={styles.empty}>No hay preguntas pendientes de moderacion.</p>
+        <p className={styles.empty}>No hay preguntas pendientes de moderación.</p>
       )}
 
       <ul className={styles.list}>

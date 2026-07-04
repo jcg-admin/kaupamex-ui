@@ -5,6 +5,7 @@
 
 import { NavLink } from 'react-router-dom';
 import logoUrl from '@assets/practica-yoruba-logo.png';
+import Icon from '@components/common/Icon/Icon';
 import styles from './AdminSidebar.module.scss';
 
 const ADMIN_NAV = [
@@ -56,7 +57,7 @@ export default function AdminSidebar() {
       </nav>
 
       <div className={styles.footer}>
-        <NavLink to="/" className={styles.exitLink}>← Ir al storefront</NavLink>
+        <NavLink to="/" className={styles.exitLink}><Icon name="arrow-left" size={14} /> Ir al storefront</NavLink>
       </div>
     </aside>
   );

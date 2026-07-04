@@ -7,13 +7,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectToasts } from '@redux/selectors';
 import { removeToast } from '@redux/slices/uiSlice';
 import { toReadableString } from '@utils/toReadableString';
+import Icon from '@components/common/Icon/Icon';
 import styles from './ToastContainer.module.scss';
 
-const ICONS = {
-  success: '✓',
-  error:   '✕',
-  warning: '⚠',
-  info:    'i',
+// Nombres de icono SVG por tipo de toast (reemplazan los glifos ✓ ✕ ⚠ i).
+const ICON_NAMES = {
+  success: 'check',
+  error:   'warning',
+  warning: 'warning',
+  info:    'info',
 };
 
 export default function ToastContainer() {
@@ -32,7 +34,9 @@ export default function ToastContainer() {
         const message = toReadableString(t.message, '');
         return (
         <div key={t.id} className={`${styles.toast} ${styles[`toast--${t.type}`]}`}>
-          <span className={styles.icon}>{ICONS[t.type] ?? 'i'}</span>
+          <span className={styles.icon} aria-hidden="true">
+            <Icon name={ICON_NAMES[t.type] ?? 'info'} size={18} />
+          </span>
           <div className={styles.body}>
             {title   && <p className={styles.title}>{title}</p>}
             {message && <p className={styles.message}>{message}</p>}
@@ -42,7 +46,7 @@ export default function ToastContainer() {
             onClick={() => dispatch(removeToast(t.id))}
             aria-label="Cerrar notificación"
           >
-            ✕
+            <Icon name="x" size={16} />
           </button>
         </div>
         );

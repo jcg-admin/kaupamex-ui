@@ -62,11 +62,11 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
     );
     render(wrap(<AdminProductCreatePage />, makeStore()));
     expect(await screen.findByLabelText(/Nombre/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Descripcion corta/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Descripcion completa/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Descripción corta/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Descripción completa/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Precio sin IVA/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/Stock inicial/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Categoria/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Categoría/i)).toBeInTheDocument();
   });
 
   it('carga las categorias al montar', async () => {
@@ -109,15 +109,15 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
 
     fireEvent.change(screen.getByLabelText(/Nombre/i),
       { target: { value: 'Collar Oshun dorado' } });
-    fireEvent.change(screen.getByLabelText(/Descripcion corta/i),
+    fireEvent.change(screen.getByLabelText(/Descripción corta/i),
       { target: { value: 'Collar artesanal Yoruba' } });
-    fireEvent.change(screen.getByLabelText(/Descripcion completa/i),
+    fireEvent.change(screen.getByLabelText(/Descripción completa/i),
       { target: { value: 'Collar de cuentas amarillas para Oshun.' } });
     fireEvent.change(screen.getByLabelText(/Precio sin IVA/i),
       { target: { value: '1250.00' } });
     fireEvent.change(screen.getByLabelText(/Stock inicial/i),
       { target: { value: '8' } });
-    fireEvent.change(screen.getByLabelText(/Categoria/i),
+    fireEvent.change(screen.getByLabelText(/Categoría/i),
       { target: { value: '1' } });
 
     fireEvent.click(screen.getByRole('button', { name: /Crear producto/i }));
@@ -143,15 +143,15 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
 
     fireEvent.change(screen.getByLabelText(/Nombre/i),
       { target: { value: 'Producto valido' } });
-    fireEvent.change(screen.getByLabelText(/Descripcion corta/i),
+    fireEvent.change(screen.getByLabelText(/Descripción corta/i),
       { target: { value: 'descripcion corta' } });
-    fireEvent.change(screen.getByLabelText(/Descripcion completa/i),
+    fireEvent.change(screen.getByLabelText(/Descripción completa/i),
       { target: { value: 'descripcion larga' } });
     fireEvent.change(screen.getByLabelText(/Precio sin IVA/i),
       { target: { value: '10' } });
     fireEvent.change(screen.getByLabelText(/Stock inicial/i),
       { target: { value: '1' } });
-    fireEvent.change(screen.getByLabelText(/Categoria/i),
+    fireEvent.change(screen.getByLabelText(/Categoría/i),
       { target: { value: '1' } });
     fireEvent.click(screen.getByRole('button', { name: /Crear producto/i }));
 

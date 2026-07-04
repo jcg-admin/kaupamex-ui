@@ -51,3 +51,38 @@ test.describe('reviews / create', () => {
     await expect(page).toHaveURL(/\/auth\/login/, { timeout: 8000 });
   });
 });
+
+test.describe('reviews / public list', () => {
+  test('product reviews list renders from a catalog product', async ({ page }) => {
+    // Navigate through the catalog to reach a real product, then open its
+    // public reviews list (UC-REV-02). Resilient to unknown seeded ids.
+    await page.goto('/catalog');
+    const firstProduct = page.locator('a[href*="/catalog/"]').first();
+    await expect(firstProduct).toBeVisible({ timeout: 12000 });
+    await firstProduct.click();
+    const match = new URL(page.url()).pathname.match(/\/catalog\/([^/]+)/);
+    if (match) {
+      await page.goto(`/catalog/${match[1]}/reviews`);
+      await expect(page.getByRole('heading', { name: /rese/i }).first())
+        .toBeVisible({ timeout: 10000 });
+    }
+  });
+});
+
+test.describe('reviews / admin moderation', () => {
+  test('moderation route requires auth', async ({ page }) => {
+    // Anonymous users must be bounced to login (admin-guarded route).
+    await page.goto('/admin/reviews/moderation');
+    await expect(page).toHaveURL(/\/auth\/login/, { timeout: 8000 });
+  });
+
+  test('moderation queue renders for an admin', async ({ page }) => {
+    await page.goto('/auth/login');
+    await page.getByTestId('login-email').fill(process.env.E2E_ADMIN_EMAIL || 'testadmin@example.com');
+    await page.getByTestId('login-password').fill(process.env.E2E_ADMIN_PASS || 'Admin1234!');
+    await page.getByTestId('login-submit').click();
+    await expect(page).not.toHaveURL(/\/auth\/login/, { timeout: 10000 });
+    await page.goto('/admin/reviews/moderation');
+    await expect(page.locator('main, section').first()).toBeVisible({ timeout: 12000 });
+  });
+});

@@ -17,6 +17,7 @@ import { serializeApiError } from '@utils/serializeApiError';
 
 const PUBLIC_CREATE_URL         = (productId) => `/api/v2/products/${productId}/reviews/`;
 const REVIEW_IMAGES_URL         = (productId, reviewId) => `/api/v2/products/${productId}/reviews/${reviewId}/images/`;
+const HELPFUL_VOTE_URL          = (productId, reviewId) => `/api/v2/products/${productId}/reviews/${reviewId}/helpful-votes/`;
 // F3 Tier B: approve/reject merged into PATCH /admin/reviews/<id>/status/
 const ADMIN_MODERATE_STATUS_URL = (id) => `/api/v2/admin/reviews/${id}/status/`;
 
@@ -76,7 +77,9 @@ export const approveProductReview = createAsyncThunk(
   'reviews/approve',
   async ({ id }, { rejectWithValue }) => {
     try {
-      const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), { status: 'APPROVED' });
+      // El backend (ReviewStatusV2View.patch) espera { action: 'approve' }, NO
+      // { status: 'APPROVED' } — enviar status daba 400 INVALID_ACTION en vivo.
+      const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), { action: 'approve' });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -90,10 +93,23 @@ export const rejectProductReview = createAsyncThunk(
   async ({ id, reason }, { rejectWithValue }) => {
     try {
       const res = await apiService.patch(ADMIN_MODERATE_STATUS_URL(id), {
-        status: 'REJECTED',
+        action: 'reject',
         reason: reason || 'CONTENIDO_INAPROPIADO',
       });
       return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** UC-REV-02: comprador marca una reseña como útil (sin body). */
+export const voteReviewHelpful = createAsyncThunk(
+  'reviews/voteHelpful',
+  async ({ productId, reviewId }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(HELPFUL_VOTE_URL(productId, reviewId));
+      return res.data; // { helpful_count }
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
     }

@@ -210,7 +210,7 @@ export default function AdminPriceSyncPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="price-sync-cat">Categoria (slug)</label>
+            <label htmlFor="price-sync-cat">Categoría (slug)</label>
             <input
               id="price-sync-cat"
               type="text"
@@ -220,7 +220,7 @@ export default function AdminPriceSyncPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="price-sync-min">Precio actual minimo</label>
+            <label htmlFor="price-sync-min">Precio actual mínimo</label>
             <input
               id="price-sync-min"
               type="number"
@@ -231,7 +231,7 @@ export default function AdminPriceSyncPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="price-sync-max">Precio actual maximo</label>
+            <label htmlFor="price-sync-max">Precio actual máximo</label>
             <input
               id="price-sync-max"
               type="number"

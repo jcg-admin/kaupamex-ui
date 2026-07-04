@@ -62,7 +62,7 @@ function renderApp(initialRoute = '/admin') {
 describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
   it('navega de Dashboard a /admin/logistics y renderiza la pagina (no 404)', async () => {
     server.use(
-      http.get(`${BASE}/api/v2/admin/logistics/`, () =>
+      http.get(`${BASE}/api/v2/logistics/`, () =>
         HttpResponse.json({ group_a: [], group_b: [] }),
       ),
     );
@@ -87,5 +87,14 @@ describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
         screen.getByRole('heading', { name: /^Configuracion$/i, level: 1 }),
       ).toBeInTheDocument();
     });
+  });
+
+  it('colapsa una sección al hacer clic en su encabezado (H-10)', () => {
+    renderApp('/admin');
+    // Con la sección abierta, "Productos" es visible.
+    expect(screen.getByRole('link', { name: /^Productos$/i })).toBeInTheDocument();
+    // Clic en el encabezado "Catálogo" la colapsa.
+    fireEvent.click(screen.getByRole('button', { name: /Catálogo/i }));
+    expect(screen.queryByRole('link', { name: /^Productos$/i })).not.toBeInTheDocument();
   });
 });
