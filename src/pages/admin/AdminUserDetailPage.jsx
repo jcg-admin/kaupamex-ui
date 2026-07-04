@@ -27,7 +27,7 @@ export default function AdminUserDetailPage() {
       key: 'order_number',
       header: 'Número',
       sortable: true,
-      render: (o) => <Link to={`/admin/pedidos/${o.order_number}`}>{o.order_number}</Link>,
+      render: (o) => <Link to={`/admin/orders/${o.order_number}`}>{o.order_number}</Link>,
     },
     {
       key: 'created_at',
@@ -167,7 +167,7 @@ export default function AdminUserDetailPage() {
         <section className={styles.card} style={{ gridColumn: '1 / -1' }}>
           <header className={styles.cardHeader}>
             <h2 className={styles.cardTitle}>Pedidos recientes</h2>
-            <Link to={`/admin/pedidos?user=${user.id}`} className={styles.cardLink}>
+            <Link to={`/admin/orders?user=${user.id}`} className={styles.cardLink}>
               Ver todos →
             </Link>
           </header>
