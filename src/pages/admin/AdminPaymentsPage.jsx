@@ -124,7 +124,7 @@ export default function AdminPaymentsPage() {
           Reporte de transacciones
         </h1>
         <p className={styles.subtitle}>
-          Pagos y reembolsos registrados via Mercado Pago y PayPal.
+          Pagos y reembolsos registrados vía Mercado Pago.
         </p>
       </header>
 
