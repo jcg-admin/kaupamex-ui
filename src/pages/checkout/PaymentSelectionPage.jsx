@@ -274,8 +274,9 @@ export default function PaymentSelectionPage() {
   return (
     <section className={styles.page} aria-labelledby="payment-title">
       <header className={styles.header}>
+        <span className={styles.kicker}>Paso 04 · Pago</span>
         <h1 id="payment-title" className={styles.title}>
-          Elige tu metodo de pago
+          Elige tu método de pago
         </h1>
         <p className={styles.subtitle}>
           Orden <strong>{orderId}</strong>
@@ -320,7 +321,7 @@ export default function PaymentSelectionPage() {
       {view === 'select' && (
         <>
           <div className={styles.gateway}>
-            <h2 className={styles.gatewayTitle}>Mercado Pago</h2>
+            <h2 className={styles.gatewayTitle}>Método de pago</h2>
             <ul className={styles.methodList} data-testid="mp-method-list">
               {METHOD_CONFIG.map((method) => (
                 <li key={method.id} className={styles.methodItem}>

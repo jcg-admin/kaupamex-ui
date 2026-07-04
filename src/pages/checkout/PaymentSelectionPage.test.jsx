@@ -65,9 +65,12 @@ afterEach(() => {
 });
 
 describe('PaymentSelectionPage', () => {
-  it('muestra el titulo y todos los metodos disponibles', () => {
+  it('muestra el paso, el título y todos los métodos disponibles', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    expect(screen.getByRole('heading', { name: /Elige tu metodo de pago/i })).toBeInTheDocument();
+    // PG-03: encabezado del mockup 1.0.1.
+    expect(screen.getByText(/Paso 04 · Pago/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Elige tu método de pago/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^Método de pago$/i })).toBeInTheDocument();
     expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-oxxo')).toBeInTheDocument();
