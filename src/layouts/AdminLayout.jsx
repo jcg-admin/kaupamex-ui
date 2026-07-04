@@ -42,6 +42,7 @@ const ADMIN_NAV = [
   { section: 'Operaciones', items: [
     { to: '/admin/inventory',            label: 'Inventario' },
     { to: '/admin/logistics',            label: 'Logística' },
+    { to: '/admin/couriers',             label: 'Paqueterías' },
     { to: '/admin/shipping-zones',       label: 'Zonas de entrega' },
     { to: '/admin/reports',              label: 'Reportes: Dashboard', end: true },
     { to: '/admin/reports/sales',        label: 'Reportes: Ventas' },

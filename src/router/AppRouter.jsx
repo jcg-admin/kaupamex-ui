@@ -94,6 +94,7 @@ const AdminUsersPage      = lazy(() => import('@pages/admin/AdminUsersPage'));
 const AdminUserDetailPage = lazy(() => import('@pages/admin/AdminUserDetailPage'));
 const AdminVouchersPage   = lazy(() => import('@pages/admin/AdminVouchersPage'));
 const AdminShippingZonesPage = lazy(() => import('@pages/admin/AdminShippingZonesPage'));
+const AdminCouriersPage   = lazy(() => import('@pages/admin/AdminCouriersPage'));
 const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 const AdminReturnsPage    = lazy(() => import('@pages/admin/AdminReturnsPage'));
 const AdminReturnDetailPage = lazy(() => import('@pages/admin/AdminReturnDetailPage'));
@@ -361,6 +362,8 @@ export default function AppRouter() {
               <Route path="admin/config"                          element={<AdminConfigPage />} />
               {/* H-12 — Catálogo de zonas de envío + tiempos de entrega */}
               <Route path="admin/shipping-zones"                  element={<AdminShippingZonesPage />} />
+              {/* UC-LOG-01 soporte — Catálogo de paqueterías (couriers) */}
+              <Route path="admin/couriers"                        element={<AdminCouriersPage />} />
             </Route>
           </Route>
 

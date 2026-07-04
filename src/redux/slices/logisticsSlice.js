@@ -40,6 +40,53 @@ export const fetchCouriers = createAsyncThunk(
   },
 );
 
+/** Crear un courier (paquetería). name y code son obligatorios y únicos. */
+export const createCourier = createAsyncThunk(
+  'logistics/createCourier',
+  async ({ name, code, trackingUrlTemplate }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post('/api/v2/logistics/couriers/', {
+        name, code,
+        ...(trackingUrlTemplate ? { tracking_url_template: trackingUrlTemplate } : {}),
+      });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** Actualizar un courier (p. ej. reactivarlo con is_active). */
+export const updateCourier = createAsyncThunk(
+  'logistics/updateCourier',
+  async ({ courierId, ...fields }, { rejectWithValue }) => {
+    try {
+      const body = {};
+      if (fields.name !== undefined) body.name = fields.name;
+      if (fields.code !== undefined) body.code = fields.code;
+      if (fields.trackingUrlTemplate !== undefined) body.tracking_url_template = fields.trackingUrlTemplate;
+      if (fields.isActive !== undefined) body.is_active = fields.isActive;
+      const res = await apiService.patch(`/api/v2/logistics/couriers/${courierId}/`, body);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** Desactivar un courier (soft: is_active=false vía DELETE). */
+export const deactivateCourier = createAsyncThunk(
+  'logistics/deactivateCourier',
+  async (courierId, { rejectWithValue }) => {
+    try {
+      await apiService.delete(`/api/v2/logistics/couriers/${courierId}/`);
+      return { courierId };
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
 /** Guía existente de una orden (admin, por order_number). null si no hay. */
 export const fetchOrderGuide = createAsyncThunk(
   'logistics/fetchOrderGuide',
@@ -131,6 +178,35 @@ const logisticsSlice = createSlice({
       })
       .addCase(fetchCouriers.fulfilled, (state, action) => {
         state.couriers = action.payload;
+      })
+      .addCase(createCourier.pending, (state) => {
+        state.isActioning = true; state.actionError = null;
+      })
+      .addCase(createCourier.fulfilled, (state, action) => {
+        state.isActioning = false; state.lastAction = 'courier_created';
+        state.couriers = [...state.couriers, action.payload]
+          .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      })
+      .addCase(createCourier.rejected, (state, action) => {
+        state.isActioning = false; state.actionError = action.payload;
+      })
+      .addCase(updateCourier.fulfilled, (state, action) => {
+        state.isActioning = false; state.lastAction = 'courier_updated';
+        state.couriers = state.couriers.map(
+          (c) => (c.id === action.payload.id ? action.payload : c),
+        );
+      })
+      .addCase(updateCourier.rejected, (state, action) => {
+        state.isActioning = false; state.actionError = action.payload;
+      })
+      .addCase(deactivateCourier.fulfilled, (state, action) => {
+        state.isActioning = false; state.lastAction = 'courier_deactivated';
+        state.couriers = state.couriers.map(
+          (c) => (c.id === action.payload.courierId ? { ...c, is_active: false } : c),
+        );
+      })
+      .addCase(deactivateCourier.rejected, (state, action) => {
+        state.isActioning = false; state.actionError = action.payload;
       })
       .addCase(createShipmentGuide.pending, (state) => {
         state.isActioning = true; state.actionError = null;
