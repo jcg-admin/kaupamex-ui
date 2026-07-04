@@ -12,6 +12,7 @@ import {
 } from '@redux/slices/vouchersSlice';
 import { useVouchers, VOUCHERS_QUERY_KEY } from '@hooks/domain/useVouchers';
 import { DataTable } from '@components/common';
+import { MetaTag } from '@components/common/primitives';
 import VoucherCreateForm from '@components/admin/VoucherCreateForm';
 import VoucherEditForm from '@components/admin/VoucherEditForm';
 import PromotionsTimeline from '@components/admin/PromotionsTimeline';
@@ -109,9 +110,12 @@ export default function AdminVouchersPage() {
   return (
     <section className={styles.page} aria-labelledby="vouchers-title">
       <header className={styles.header}>
-        <h1 id="vouchers-title" className={styles.title}>
-          Gestión de Cupones
-        </h1>
+        <div>
+          <MetaTag tone="bronze">Ventas · {totalCount} {totalCount === 1 ? 'cupón' : 'cupones'}</MetaTag>
+          <h1 id="vouchers-title" className={styles.title}>
+            Gestión de Cupones
+          </h1>
+        </div>
         <button
           type="button"
           className={styles.primaryBtn}
