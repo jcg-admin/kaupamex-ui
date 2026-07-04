@@ -137,7 +137,7 @@ export default function VoucherCreateForm({ onClose }) {
             >
               <option value="PERCENTAGE">Porcentaje</option>
               <option value="FIXED">Monto fijo</option>
-              <option value="FREE_SHIPPING">Envio gratis</option>
+              <option value="FREE_SHIPPING">Envío gratis</option>
             </select>
           </div>
 

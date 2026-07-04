@@ -222,7 +222,7 @@ export default function AdminCategoriesPage() {
 
       {/* H-CICLO105-03: pagination controls for paginated category list */}
       {totalPages > 1 && (
-        <nav className={styles.pagination} aria-label="Paginas de categorias">
+        <nav className={styles.pagination} aria-label="Páginas de categorías">
           <button
             type="button"
             onClick={() => setPage((p) => Math.max(1, p - 1))}

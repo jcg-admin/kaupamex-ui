@@ -41,11 +41,11 @@ describe('AdminConfigPage (hub de configuracion)', () => {
     ).toHaveAttribute('href', '/admin/payments');
     // UC-CFG-04 — contenido estatico (pendiente API; el hub solo lo enuncia)
     expect(
-      screen.getByText(/Gestionar contenido estatico/i),
+      screen.getByText(/Gestionar contenido estático/i),
     ).toBeInTheDocument();
     // UC-CFG-02 — metodos y costos de envio (relacionado al panel logistico)
     expect(
-      screen.getByRole('link', { name: /Metodos y costos de envio/i }),
+      screen.getByRole('link', { name: /Métodos y costos de envío/i }),
     ).toHaveAttribute('href', '/admin/logistics');
   });
 

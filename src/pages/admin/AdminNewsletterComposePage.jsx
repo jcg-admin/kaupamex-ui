@@ -13,7 +13,7 @@ import styles from './AdminNewsletterComposePage.module.scss';
 
 const SEGMENTS = [
   { value: 'ALL_ACTIVE', label: 'Todos los suscriptores activos' },
-  { value: 'NEW_30D',    label: 'Suscriptores nuevos (ultimos 30 dias)' },
+  { value: 'NEW_30D',    label: 'Suscriptores nuevos (últimos 30 días)' },
   { value: 'OLDEST',     label: 'Suscriptores antiguos (mas de 1 ano)' },
 ];
 

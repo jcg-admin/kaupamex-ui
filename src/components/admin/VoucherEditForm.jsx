@@ -141,7 +141,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
                 >
                   <option value="FIXED">Monto fijo</option>
                   <option value="PERCENTAGE">Porcentaje</option>
-                  <option value="FREE_SHIPPING">Envio gratis</option>
+                  <option value="FREE_SHIPPING">Envío gratis</option>
                 </select>
               </div>
             </>

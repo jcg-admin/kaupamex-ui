@@ -33,7 +33,7 @@ const ITEMS = [
   },
   {
     uc:    'UC-CFG-02',
-    title: 'Metodos y costos de envio',
+    title: 'Métodos y costos de envío',
     desc:  'Couriers y guias de envio operativas (panel UC-LOG-08).',
     to:    '/admin/logistics',
   },
@@ -51,7 +51,7 @@ const ITEMS = [
   },
   {
     uc:    'UC-CFG-04',
-    title: 'Gestionar contenido estatico',
+    title: 'Gestionar contenido estático',
     desc:  'Edicion de paginas estaticas: Sobre Nosotros, Terminos, FAQ.',
     to:    null,
     pending: true,

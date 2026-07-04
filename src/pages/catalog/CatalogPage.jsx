@@ -310,7 +310,7 @@ function PriceFilter({ dispatch, filters }) {
           type="number"
           placeholder="Mín MXN"
           value={lo}
-          aria-label="Precio minimo"
+          aria-label="Precio mínimo"
           onChange={(e) => setLo(e.target.value)}
           onBlur={() => apply(lo, hi)}
           className={styles.sliderInput}
@@ -319,7 +319,7 @@ function PriceFilter({ dispatch, filters }) {
           type="number"
           placeholder="Máx MXN"
           value={hi}
-          aria-label="Precio maximo"
+          aria-label="Precio máximo"
           onChange={(e) => setHi(e.target.value)}
           onBlur={() => apply(lo, hi)}
           className={styles.sliderInput}

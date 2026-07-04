@@ -101,7 +101,7 @@ export default function SearchHistoryPage() {
       {!isLoading && !isError && items.length === 0 && (
         <p className={styles.empty}>
           Aun no tienes busquedas guardadas. Empieza desde el{' '}
-          <Link to="/catalog">catalogo</Link>.
+          <Link to="/catalog">catálogo</Link>.
         </p>
       )}
 

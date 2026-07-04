@@ -137,7 +137,7 @@ export default function AdminOrdersDashboardPage() {
       </section>
 
       <section aria-labelledby="latest-title" className={styles.section}>
-        <h2 id="latest-title">Ultimos pedidos</h2>
+        <h2 id="latest-title">Últimos pedidos</h2>
         {latestOrders.length === 0 ? (
           <p>No hay pedidos recientes.</p>
         ) : (
@@ -145,7 +145,7 @@ export default function AdminOrdersDashboardPage() {
             columns={latestColumns}
             rows={latestOrders}
             rowKey={(o) => o.order_number}
-            caption="Ultimos pedidos"
+            caption="Últimos pedidos"
           />
         )}
       </section>

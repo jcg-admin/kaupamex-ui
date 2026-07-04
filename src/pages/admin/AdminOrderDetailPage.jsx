@@ -171,7 +171,7 @@ export default function AdminOrderDetailPage() {
           <dl className={styles.totals}>
             <dt>Subtotal</dt><dd>{formatCurrency(order.value.subtotal)}</dd>
             <dt>IVA</dt><dd>{formatCurrency(order.value.tax)}</dd>
-            <dt>Envio</dt><dd>{formatCurrency(order.value.shipping_cost)}</dd>
+            <dt>Envío</dt><dd>{formatCurrency(order.value.shipping_cost)}</dd>
             <dt>Total</dt><dd className={styles.total}>{formatCurrency(order.value.total)}</dd>
           </dl>
         </section>

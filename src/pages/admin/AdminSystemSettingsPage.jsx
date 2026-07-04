@@ -30,8 +30,8 @@ const FIELDS = [
   { key: 'phone',                   label: 'Teléfono de soporte',      type: 'tel' },
   { key: 'iva_rate',                label: 'Tasa de IVA (%)',          type: 'number' },
   { key: 'currency',                label: 'Moneda (ISO-4217)',        type: 'text' },
-  { key: 'free_shipping_threshold', label: 'Umbral envio gratis (MXN)', type: 'number' },
-  { key: 'min_stock_threshold',     label: 'Umbral de stock minimo',   type: 'number' },
+  { key: 'free_shipping_threshold', label: 'Umbral envío gratis (MXN)', type: 'number' },
+  { key: 'min_stock_threshold',     label: 'Umbral de stock mínimo',   type: 'number' },
 ];
 
 export default function AdminSystemSettingsPage() {
