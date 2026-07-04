@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
-import { createOrder, fetchShippingMethods } from '@redux/slices/checkoutSlice';
+import { createOrder, fetchShippingMethods, fetchShippingZones } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
 import Modal from '@components/common/Modal/Modal';
 import logoUrl from '@assets/practica-yoruba-logo.png';
@@ -34,6 +34,8 @@ export default function CheckoutPage() {
   const shippingOptions = useSelector((s) => s.checkout?.shippingOptions ?? []);
   const shippingLoading = useSelector((s) => s.checkout?.shippingLoading ?? false);
   const shippingError   = useSelector((s) => s.checkout?.shippingError ?? null);
+  // G-ENV-01: zonas públicas (con free_threshold por zona) para el resumen.
+  const shippingZones   = useSelector((s) => s.checkout?.shippingZones ?? []);
   const { items = [], totals = {} } = cart;
 
   const [email, setEmail] = useState(auth.user?.email || '');
@@ -57,6 +59,7 @@ export default function CheckoutPage() {
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
   useEffect(() => { dispatch(fetchShippingMethods()); }, [dispatch]);
+  useEffect(() => { dispatch(fetchShippingZones()); }, [dispatch]);
 
   // Auto-select first shipping method once the list loads
   useEffect(() => {
@@ -125,6 +128,17 @@ export default function CheckoutPage() {
       return;
     }
     setFieldErrors({});
+
+    // DEC-BC-25: sin un método de envío seleccionado no se puede continuar. En
+    // producción, si /shipping-methods/ viene vacío el comprador no debe poder
+    // generar una orden sin envío ni costo (el backend además lo rechaza).
+    if (shipping === null || shipping === undefined) {
+      setSubmitError(
+        'Selecciona un método de envío para continuar. Si no aparece ninguno, ' +
+        'no es posible completar la compra por ahora.',
+      );
+      return;
+    }
 
     // En vez de crear la orden directo, se pide confirmación explícita de que
     // los datos de envío son correctos (reemplaza el bloqueo por zona).
@@ -233,7 +247,7 @@ export default function CheckoutPage() {
             </Section>
           </div>
 
-          <CheckoutSummary items={items} totals={totals} shipping={shipping} shippingOptions={shippingOptions} submitting={submitting} />
+          <CheckoutSummary items={items} totals={totals} shipping={shipping} shippingOptions={shippingOptions} zones={shippingZones} zipCode={address.zip_code} submitting={submitting} />
         </div>
       </form>
 
@@ -409,8 +423,9 @@ function ShippingOptions({ options = [], selected, onSelect, loading = false, er
   }
   if (options.length === 0) {
     return (
-      <p className={styles.optionSub}>
-        No hay métodos de envío disponibles por ahora.
+      <p className={styles.optionSub} role="alert">
+        No hay métodos de envío disponibles por ahora, así que no es posible
+        completar la compra. Intenta más tarde o contáctanos.
       </p>
     );
   }
@@ -480,10 +495,33 @@ function PaymentMethods({ selected, onSelect }) {
   );
 }
 
-function CheckoutSummary({ items, totals, shipping, shippingOptions = [], submitting }) {
+// G-ENV-01: resuelve la zona del C.P. igual que el backend (prefijo más largo
+// que sea inicio del C.P. gana). Espejo de ShippingZone.resolve_for_zip.
+function resolveZoneForZip(zones, zip) {
+  const digits = String(zip || '').replace(/\D/g, '');
+  if (!digits) return null;
+  const matches = (zones || []).filter(
+    (z) => z.zip_code_prefix && digits.startsWith(String(z.zip_code_prefix)),
+  );
+  if (!matches.length) return null;
+  return matches.reduce((a, b) =>
+    String(b.zip_code_prefix).length > String(a.zip_code_prefix).length ? b : a);
+}
+
+function CheckoutSummary({ items, totals, shipping, shippingOptions = [], zones = [], zipCode = '', submitting }) {
   // Derive shipping cost from the selected dynamic option (GAP-C1).
   const selectedShipping = shippingOptions.find((o) => o.id === shipping) || shippingOptions[0];
-  const shippingCost = selectedShipping ? Number(selectedShipping.cost) : 0;
+  const baseShippingCost = selectedShipping ? Number(selectedShipping.cost) : 0;
+  // G-ENV-01: refleja el envío gratis/costo POR ZONA (espejo del backend). Si la
+  // zona del C.P. define costo, se usa; si define umbral y el subtotal neto lo
+  // alcanza, el envío es gratis. Sin zona, cae al costo del método.
+  const zone = resolveZoneForZip(zones, zipCode);
+  const zoneCost = zone && zone.cost != null ? Number(zone.cost) : null;
+  const effectiveBase = zoneCost != null ? zoneCost : baseShippingCost;
+  const subtotalNet = (Number(totals.subtotal) || 0) - (Number(totals.discount) || 0);
+  const zoneFree = !!zone && zone.free_threshold != null
+    && subtotalNet >= Number(zone.free_threshold);
+  const shippingCost = zoneFree ? 0 : effectiveBase;
   const shippingLabel = shippingCost > 0
     ? `$${shippingCost.toLocaleString('es-MX')} MXN`
     : 'Gratis';
@@ -518,6 +556,11 @@ function CheckoutSummary({ items, totals, shipping, shippingOptions = [], submit
           <SumRow label="Subtotal" value={`$${(totals.subtotal || 0).toLocaleString('es-MX')} MXN`} />
           {totals.discount > 0 && <SumRow label="Descuento" value={`−$${totals.discount.toLocaleString('es-MX')} MXN`} tone="lime" />}
           <SumRow label="Envío" value={shippingLabel} tone={shippingTone} />
+          {zoneFree && (
+            <div className={styles.freeShipNote} data-testid="zone-free-ship">
+              Envío GRATIS en tu zona por tu compra
+            </div>
+          )}
           <SumRow label="IVA incluido" value={`$${(totals.tax_included || 0).toLocaleString('es-MX')} MXN`} muted />
           <div className={styles.summaryTotalRow}>
             <span>Total</span>

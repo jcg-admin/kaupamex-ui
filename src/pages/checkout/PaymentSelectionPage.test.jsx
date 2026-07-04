@@ -35,6 +35,7 @@ jest.mock('@hooks/useMpCardForm', () => ({
 
 import paymentsReducer from '@redux/slices/paymentsSlice';
 import cardsReducer    from '@redux/slices/cardsSlice';
+import ordersReducer   from '@redux/slices/ordersSlice';
 import PaymentSelectionPage from './PaymentSelectionPage';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
@@ -44,13 +45,17 @@ const makeStore = () =>
     reducer: {
       payments: paymentsReducer,
       cards:    cardsReducer,
+      orders:   ordersReducer,
       auth:     () => ({ user: { email: 'buyer@test.com' } }),
     },
   });
 
-const wrap = (ui, store, path = '/checkout/payment/ORD-001') => (
+// H-PP-04: el monto llega por navigation-state. Por defecto se pasa un monto
+// válido (como en el flujo real desde CheckoutPage). El caso deep-link/reload
+// (sin monto) se prueba aparte pasando state: null.
+const wrap = (ui, store, { path = '/checkout/payment/ORD-001', state = { amount: '500.00' } } = {}) => (
   <Provider store={store}>
-    <MemoryRouter initialEntries={[path]}>
+    <MemoryRouter initialEntries={[{ pathname: path, state }]}>
       <Routes>
         <Route path="/checkout/payment/:orderId" element={ui} />
         <Route path="/order/:orderId/confirmation" element={<div>Confirmación</div>} />
@@ -67,9 +72,8 @@ afterEach(() => {
 describe('PaymentSelectionPage', () => {
   it('muestra el paso, el título y todos los métodos disponibles', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    // PG-03: encabezado del mockup 1.0.1.
+    // PG-03 / T-PP-C3: encabezado del mockup 1.0.1 (h1 "Método de pago").
     expect(screen.getByText(/Paso 04 · Pago/i)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /Elige tu método de pago/i })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /^Método de pago$/i })).toBeInTheDocument();
     expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
@@ -77,10 +81,57 @@ describe('PaymentSelectionPage', () => {
     expect(screen.getByTestId('method-btn-clabe')).toBeInTheDocument();
   });
 
+  it('H-PP-01: el título del paso cambia en el resultado del pago', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+        HttpResponse.json({
+          gateway_payment_id: 'mp-gw-h01',
+          status:             'rejected',
+          status_detail:      'cc_rejected_insufficient_amount',
+          order_number:       'ORD-001',
+        }),
+      ),
+    );
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    // Selección: el h1 es "Método de pago".
+    expect(screen.getByRole('heading', { name: /^Método de pago$/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
+    await act(async () => { mockCardFormSubmitFn?.(); });
+    // Resultado: el h1 pasa a reflejar el estado, no queda fijo en selección.
+    expect(
+      await screen.findByRole('heading', { name: /No pudimos procesar tu pago/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /^Método de pago$/i })).not.toBeInTheDocument();
+  });
+
   it('muestra el CardForm al hacer click en tarjeta MP', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.click(screen.getByTestId('method-btn-mp-card'));
     expect(screen.getByTestId('mp-card-form')).toBeInTheDocument();
+  });
+
+  it('H-PP-04: sin monto en navigation-state, recupera el total y monta el CardForm', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/orders/ORD-001/`, () =>
+        HttpResponse.json({ order_number: 'ORD-001', value: { total: '500.00' } }),
+      ),
+    );
+    render(wrap(<PaymentSelectionPage />, makeStore(), { state: null }));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
+    // El CardForm no se monta hasta tener el total autoritativo de la orden.
+    expect(await screen.findByTestId('mp-card-form')).toBeInTheDocument();
+  });
+
+  it('H-PP-04: sin monto ni total recuperable, avisa y no monta el CardForm', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/orders/ORD-001/`, () =>
+        HttpResponse.json({ detail: 'not found' }, { status: 404 }),
+      ),
+    );
+    render(wrap(<PaymentSelectionPage />, makeStore(), { state: null }));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
+    expect(await screen.findByTestId('amount-unavailable')).toBeInTheDocument();
+    expect(screen.queryByTestId('mp-card-form')).not.toBeInTheDocument();
   });
 
   it('UC-PAY-01-V2: CardForm tokeniza y POST a /api/v2/payments/initiate/', async () => {

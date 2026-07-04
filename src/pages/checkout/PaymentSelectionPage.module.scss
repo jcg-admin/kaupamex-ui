@@ -10,19 +10,25 @@
   margin-bottom: 1.5rem;
 }
 
-// PG-03: kicker de paso ("Paso 04 · Pago") del mockup 1.0.1.
+// PG-03 / T-PP-C3: kicker de paso ("Paso 04 · Pago") del mockup 1.0.1.
+// Mono + bronce + tracking amplio, como el mockup.
 .kicker {
   display: block;
-  font-size: .72rem;
-  letter-spacing: .08em;
+  font-family: $font-family-mono;
+  font-size: .7rem;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  color: $text-soft;
-  margin-bottom: .35rem;
+  color: $bronze;
+  margin-bottom: .5rem;
 }
 
+// T-PP-C3: h1 por sub-estado (H-PP-01), tipografía display (Fraunces).
 .title {
-  font-size: 1.75rem;
-  margin: 0 0 .25rem;
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3.6vw, 2.25rem);
+  letter-spacing: -.01em;
+  margin: 0 0 .35rem;
   color: $text-strong;
 }
 
@@ -31,16 +37,16 @@
   margin: 0;
 }
 
+// T-PP-C3: contenedor liviano; el peso visual lo lleva el panel interno
+// (MpCardForm / NonCardPaymentForm), para no anidar dos recuadros.
 .gateway {
-  border: 1px solid $border-color;
-  border-radius: .5rem;
-  padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background: $bg-page;
 }
 
 .gatewayTitle {
-  font-size: 1.15rem;
+  font-family: $font-family-display;
+  font-weight: 500;
+  font-size: 1.1rem;
   margin: 0 0 .75rem;
   color: $text-strong;
 }
@@ -76,7 +82,9 @@
 .secondaryBtn { background: $indigo-900; color: $bg-surface; }
 
 .legal {
-  font-size: .85rem;
+  font-family: $font-family-mono;
+  font-size: .72rem;
+  letter-spacing: .04em;
   color: $text-soft;
   margin-top: 1rem;
 }
@@ -105,10 +113,12 @@
   margin-bottom: 1rem;
 }
 
+// T-PP-C5: título de resultado en display (Fraunces), como el mockup.
 .resultStatus {
-  font-weight: 700;
-  font-size: 1.1rem;
-  margin: 0 0 .25rem;
+  font-family: $font-family-display;
+  font-weight: 500;
+  font-size: 1.4rem;
+  margin: 0 0 .35rem;
 }
 
 .resultDetail {
@@ -117,19 +127,41 @@
   margin: 0 0 .75rem;
 }
 
+// T-PP-C5: fila "procesando" con spinner lima del mockup.
 .processing {
-  font-size: .9rem;
-  color: $text-soft;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-family: $font-family-mono;
+  font-size: .78rem;
+  letter-spacing: .06em;
+  color: $bronze;
   margin-top: .5rem;
 }
 
+.spinner {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 2px solid rgba($bronze, .25);
+  border-top-color: $lime;
+  border-radius: 50%;
+  animation: py-spin .9s linear infinite;
+}
+
+@keyframes py-spin {
+  to { transform: rotate(360deg); }
+}
+
+// T-PP-C3: selector de método en grid de tarjetas (mockup 1.0.1):
+// repeat(auto-fit, minmax(...)) para que fluya en columnas según el ancho.
 .methodList {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .75rem;
 }
 
 .methodItem {
@@ -138,20 +170,21 @@
 
 .methodBtn {
   width: 100%;
+  height: 100%;
   text-align: left;
   background: $bg-surface;
-  border: 1px solid $border-color;
+  border: 1px solid rgba($bronze, .22);
   border-radius: .4rem;
-  padding: .75rem 1rem;
+  padding: 1rem 1.1rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: .15rem;
+  gap: .3rem;
   transition: border-color .15s, background .15s;
 
   &:hover {
-    border-color: $primary-color;
-    background: $bg-page;
+    border-color: $lime;
+    background: rgba($lime, .06);
   }
 
   &:disabled {
@@ -160,14 +193,16 @@
   }
 }
 
+// Nombre del método en tipografía display (Fraunces), como el mockup.
 .methodLabel {
-  font-weight: 600;
-  font-size: .95rem;
+  font-family: $font-family-display;
+  font-weight: 500;
+  font-size: 1.05rem;
   color: $text-strong;
 }
 
 .methodDesc {
-  font-size: .82rem;
+  font-size: .8rem;
   color: $text-soft;
 }
 
@@ -187,32 +222,38 @@
   }
 }
 
+// T-PP-C6: bloque CLABE del pendiente SPEI (mockup) — fondo hundido, borde
+// bronce y número en mono grande.
 .clabeBox {
-  background: $bg-surface;
-  border: 1px solid $border-color;
+  background: $bg-sunken;
+  border: 1px solid rgba($bronze, .3);
   border-radius: .35rem;
-  padding: .75rem 1rem;
+  padding: .9rem 1.1rem;
   margin: .75rem 0;
 }
 
 .clabeLabel {
-  font-size: .82rem;
-  color: $text-soft;
-  margin: 0 0 .2rem;
+  font-family: $font-family-mono;
+  font-size: .65rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: $bronze;
+  margin: 0 0 .35rem;
 }
 
 .clabeNumber {
-  font-size: 1.1rem;
-  font-weight: 700;
-  font-family: monospace;
-  letter-spacing: .08em;
+  font-family: $font-family-mono;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: .1em;
   color: $text-strong;
   margin: 0;
   word-break: break-all;
 }
 
 .expiry {
-  font-size: .9rem;
+  font-family: $font-family-mono;
+  font-size: .8rem;
   color: $text-secondary;
   margin: .5rem 0;
 }

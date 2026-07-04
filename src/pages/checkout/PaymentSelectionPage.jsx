@@ -30,6 +30,7 @@ import {
   initiateNonCardPayment,
   clearPaymentsActionState,
 } from '@redux/slices/paymentsSlice';
+import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
 import { paymentStatusDetail } from '@lib/paymentStatusDetail';
@@ -116,7 +117,7 @@ function formatExpiry(isoDate) {
   if (!isoDate) return null;
   try {
     return new Date(isoDate).toLocaleString('es-MX', {
-      year: 'month', month: 'long', day: 'numeric',
+      year: 'numeric', month: 'long', day: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
   } catch {
@@ -217,10 +218,29 @@ export default function PaymentSelectionPage() {
   const { isActioning, actionError, lastAction, lastInitiation } =
     useSelector((s) => s.payments);
 
-  // El monto se recibe por navigation-state desde CheckoutPage (confirmAndPay);
-  // es solo para mostrar en el CardForm — el backend cobra el total autoritativo
-  // de la orden sin importar este valor. Fallback '0.00' si se llega por deep-link.
-  const [amount] = useState(location.state?.amount || '0.00');
+  // H-PP-04: el monto se recibe por navigation-state desde CheckoutPage
+  // (confirmAndPay). El estado de auth/nav vive en memoria del módulo y un
+  // reload (o un deep-link a esta URL) lo pierde, dejando el monto en '0.00'.
+  // Montar el CardForm de MP.js con amount<=0 hace fallar onFormMounted
+  // ("No se pudo cargar el formulario de pago"). Por eso, si el monto no viene
+  // por navigation-state, se RE-OBTIENE el total autoritativo de la orden
+  // (GET /orders/<n>/ → value.total) y no se monta el CardForm hasta tenerlo.
+  const orderDetail    = useSelector((s) => s.orders?.current);
+  const isLoadingOrder = useSelector((s) => s.orders?.isLoadingDetail ?? false);
+  const navAmount      = location.state?.amount;
+  const navValid       = Number(navAmount) > 0;
+
+  useEffect(() => {
+    if (!navValid) dispatch(fetchOrderDetail(orderId));
+  }, [navValid, orderId, dispatch]);
+
+  const recoveredTotal = orderDetail?.order_number === orderId
+    ? orderDetail?.value?.total
+    : null;
+  const amount = navValid
+    ? String(navAmount)
+    : (Number(recoveredTotal) > 0 ? String(recoveredTotal) : '');
+  const amountReady = Number(amount) > 0;
 
   // view: 'select' | 'mp-card-form' | 'non-card-form' | 'result' | 'non-card-result'
   const [view, setView]                   = useState('select');
@@ -298,12 +318,22 @@ export default function PaymentSelectionPage() {
 
   const cardResultLabel = CARD_RESULT_LABELS[lastInitiation?.status] || { text: lastInitiation?.status, cls: 'warning' };
 
+  // H-PP-01: el h1 refleja el sub-estado (mockup 1.0.1), no un título fijo.
+  // Durante la selección y los sub-formularios el mockup mantiene "Método de
+  // pago" (el panel de tarjeta lleva su propio h2); en el resultado el h1 pasa
+  // a "¡Pago aprobado!" / "No pudimos procesar tu pago", etc.
+  const heading = (() => {
+    if (view === 'result')          return cardResultLabel.text;
+    if (view === 'non-card-result') return 'Instrucciones de pago';
+    return 'Método de pago';
+  })();
+
   return (
     <section className={styles.page} aria-labelledby="payment-title">
       <header className={styles.header}>
         <span className={styles.kicker}>Paso 04 · Pago</span>
         <h1 id="payment-title" className={styles.title}>
-          Elige tu método de pago
+          {heading}
         </h1>
         <p className={styles.subtitle}>
           Orden <strong>{orderId}</strong>
@@ -347,28 +377,25 @@ export default function PaymentSelectionPage() {
         />
       )}
 
-      {/* Method selector */}
+      {/* Method selector — grid de tarjetas (mockup 1.0.1) */}
       {view === 'select' && (
         <>
-          <div className={styles.gateway}>
-            <h2 className={styles.gatewayTitle}>Método de pago</h2>
-            <ul className={styles.methodList} data-testid="mp-method-list">
-              {METHOD_CONFIG.map((method) => (
-                <li key={method.id} className={styles.methodItem}>
-                  <button
-                    type="button"
-                    className={styles.methodBtn}
-                    onClick={() => onSelectMethod(method)}
-                    disabled={isActioning}
-                    data-testid={`method-btn-${method.id}`}
-                  >
-                    <span className={styles.methodLabel}>{method.label}</span>
-                    <span className={styles.methodDesc}>{method.description}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className={styles.methodList} data-testid="mp-method-list">
+            {METHOD_CONFIG.map((method) => (
+              <li key={method.id} className={styles.methodItem}>
+                <button
+                  type="button"
+                  className={styles.methodBtn}
+                  onClick={() => onSelectMethod(method)}
+                  disabled={isActioning}
+                  data-testid={`method-btn-${method.id}`}
+                >
+                  <span className={styles.methodLabel}>{method.label}</span>
+                  <span className={styles.methodDesc}>{method.description}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
 
           <p className={styles.legal}>
             Al continuar, aceptas procesar tu pago a través del proveedor seleccionado.
@@ -380,14 +407,28 @@ export default function PaymentSelectionPage() {
       {view === 'mp-card-form' && (
         <div className={styles.gateway}>
           <h2 className={styles.gatewayTitle}>Tarjeta de crédito o débito</h2>
-          <MpCardForm
-            amount={amount}
-            payerEmail={userEmail}
-            onPayment={onMpPayment}
-            onCancel={() => setView('select')}
-          />
+          {/* H-PP-04: no montar el CardForm con amount<=0 (rompe MP.js). */}
+          {amountReady ? (
+            <MpCardForm
+              amount={amount}
+              payerEmail={userEmail}
+              onPayment={onMpPayment}
+              onCancel={() => setView('select')}
+            />
+          ) : isLoadingOrder ? (
+            <p className={styles.processing} role="status" aria-live="polite">
+              <span className={styles.spinner} aria-hidden="true" />
+              Recuperando el total de tu orden…
+            </p>
+          ) : (
+            <p role="alert" className={styles.error} data-testid="amount-unavailable">
+              No pudimos recuperar el total de tu orden. Vuelve al carrito e
+              inténtalo de nuevo.
+            </p>
+          )}
           {isActioning && (
             <p className={styles.processing} aria-live="polite">
+              <span className={styles.spinner} aria-hidden="true" />
               Procesando pago...
             </p>
           )}
@@ -407,6 +448,7 @@ export default function PaymentSelectionPage() {
           />
           {isActioning && (
             <p className={styles.processing} aria-live="polite">
+              <span className={styles.spinner} aria-hidden="true" />
               Generando instrucciones de pago...
             </p>
           )}

@@ -1,18 +1,24 @@
 @use '@styles/abstracts' as *;
 
+// T-PP-C3: panel OXXO/SPEI del mockup 1.0.1 — recuadro tintado con borde bronce.
 .container {
-  padding: .75rem 0;
+  padding: 1.4rem;
+  border: 1px solid rgba($bronze, .2);
+  border-radius: .4rem;
+  background: rgba($bg-surface, .5);
 }
 
 .title {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-family: $font-family-display;
+  font-size: 1.15rem;
+  font-weight: 500;
   color: $text-strong;
-  margin: 0 0 .4rem;
+  margin: 0 0 .5rem;
 }
 
 .description {
   font-size: .9rem;
+  line-height: 1.55;
   color: $text-soft;
   margin: 0 0 1.1rem;
 }

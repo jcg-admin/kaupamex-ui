@@ -11,6 +11,7 @@ const CREATE_ORDER_URL       = '/api/v2/orders/';
 // CheckoutPage uses Checkout Pro (redirect). V2 endpoint requires MP CardForm token.
 const PAYMENTS_URL           = '/api/v1/payments/initiate/';
 const SHIPPING_METHODS_URL   = '/api/v2/shipping-methods/';
+const SHIPPING_ZONES_URL     = '/api/v2/shipping-zones/';
 const ELIGIBILITY_URL        = '/api/v2/checkout/eligibility/';
 const EXPRESS_CHECKOUT_URL   = '/api/v2/checkout/express/';
 
@@ -83,6 +84,24 @@ export const fetchShippingMethods = createAsyncThunk(
 );
 
 /**
+ * G-ENV-01: catálogo público de zonas de envío para reflejar el envío gratis
+ * por zona en el resumen. GET /api/v2/shipping-zones/ →
+ * [{ id, name, zip_code_prefix, estimated_days_min, estimated_days_max, cost,
+ *    free_threshold }]. Endpoint público — sin auth.
+ */
+export const fetchShippingZones = createAsyncThunk(
+  'checkout/fetchShippingZones',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(SHIPPING_ZONES_URL);
+      return Array.isArray(res.data) ? res.data : (res.data?.results ?? []);
+    } catch (error) {
+      return rejectWithValue(serializeApiError(error));
+    }
+  }
+);
+
+/**
  * UC-ORD-01-EXT: verifica elegibilidad para checkout express.
  * GET /api/v2/checkout/eligibility/ → { express_available, default_address, ... }
  * H-CICLO114-03: thunk faltante — ExpressCheckoutPage lo importaba pero no
@@ -144,6 +163,8 @@ const checkoutSlice = createSlice({
     shippingOptions:   [],
     shippingLoading:   false,
     shippingError:     null,
+    // G-ENV-01: zonas públicas (con free_threshold por zona).
+    shippingZones:     [],
     paymentMethod:     null, // 'mercadopago' | 'paypal'
     orderId:           null,
     paymentData:       null, // { payment_id, checkout_url, ... } per DEC-BC-09
@@ -231,6 +252,13 @@ const checkoutSlice = createSlice({
       .addCase(fetchShippingMethods.rejected, (state, action) => {
         state.shippingLoading = false;
         state.shippingError   = action.payload;
+      });
+
+    // G-ENV-01: catálogo público de zonas (para el envío gratis por zona).
+    // Silencioso: si falla, el resumen cae al costo del método (sin romper).
+    builder
+      .addCase(fetchShippingZones.fulfilled, (state, action) => {
+        state.shippingZones = action.payload;
       });
 
     // H-CICLO114-03: express checkout thunks (UC-ORD-01-EXT).

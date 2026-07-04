@@ -13,10 +13,17 @@
   font-size: .9rem;
 }
 
+// T-PP-C3: panel de tarjeta del mockup 1.0.1 — recuadro tintado con borde
+// bronce; los campos reales los renderiza MP.js (SecureFields en iframes,
+// BR-009), así que solo se estiliza el contenedor, labels y placeholders.
 .form {
   display: flex;
   flex-direction: column;
-  gap: .75rem;
+  gap: 1rem;
+  padding: 1.4rem;
+  border: 1px solid rgba($bronze, .2);
+  border-radius: .4rem;
+  background: rgba($bg-surface, .5);
 }
 
 .row {
@@ -27,26 +34,30 @@
 .row2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: .75rem;
+  gap: 1rem;
 }
 
+// Labels en mono, mayúsculas y tracking amplio, como el mockup.
 .label {
   display: flex;
   flex-direction: column;
-  gap: .25rem;
-  font-size: .85rem;
-  color: $text-secondary;
-  font-weight: 500;
+  gap: .4rem;
+  font-family: $font-family-mono;
+  font-size: .65rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: $text-soft;
+  font-weight: 400;
 }
 
 // MP.js injects its iframe here; height must be fixed so the iframe is visible
 .iframe {
-  height: 40px;
-  border: 1px solid $border-color;
+  height: 44px;
+  border: 1px solid rgba($bronze, .3);
   border-radius: .25rem;
   padding: 0;
   overflow: hidden;
-  background: $bg-surface;
+  background: $bg-sunken;
   // Ensure MP iframe fills the container
   iframe {
     width: 100%;
@@ -56,11 +67,11 @@
 }
 
 .select {
-  height: 40px;
-  border: 1px solid $border-color;
+  height: 44px;
+  border: 1px solid rgba($bronze, .3);
   border-radius: .25rem;
-  padding: 0 .5rem;
-  background: $bg-surface;
+  padding: 0 .6rem;
+  background: $bg-sunken;
   color: $text-primary;
   font-size: .9rem;
   width: 100%;
