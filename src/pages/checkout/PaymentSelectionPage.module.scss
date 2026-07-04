@@ -37,16 +37,16 @@
   margin: 0;
 }
 
+// T-PP-C3: contenedor liviano; el peso visual lo lleva el panel interno
+// (MpCardForm / NonCardPaymentForm), para no anidar dos recuadros.
 .gateway {
-  border: 1px solid $border-color;
-  border-radius: .5rem;
-  padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background: $bg-page;
 }
 
 .gatewayTitle {
-  font-size: 1.15rem;
+  font-family: $font-family-display;
+  font-weight: 500;
+  font-size: 1.1rem;
   margin: 0 0 .75rem;
   color: $text-strong;
 }
@@ -82,7 +82,9 @@
 .secondaryBtn { background: $indigo-900; color: $bg-surface; }
 
 .legal {
-  font-size: .85rem;
+  font-family: $font-family-mono;
+  font-size: .72rem;
+  letter-spacing: .04em;
   color: $text-soft;
   margin-top: 1rem;
 }
