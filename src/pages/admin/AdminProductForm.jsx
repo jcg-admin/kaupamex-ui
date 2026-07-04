@@ -195,7 +195,7 @@ export default function AdminProductForm({
         <select
           {...controlProps('category_id', 'product-category', { required: true, base: styles.select })}
         >
-          <option value="">— Selecciona una categoria —</option>
+          <option value="">— Selecciona una categoría —</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}

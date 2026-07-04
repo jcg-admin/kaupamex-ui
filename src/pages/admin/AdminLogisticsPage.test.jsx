@@ -81,12 +81,12 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     );
     render(wrap());
     expect(
-      await screen.findByRole('heading', { name: /Logistica/i, level: 1 }),
+      await screen.findByRole('heading', { name: /Logística/i, level: 1 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByRole('heading', { name: /Pendientes de despacho/i }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /En transito/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /En tránsito/i })).toBeInTheDocument();
   });
 
   it('lista las ordenes del Grupo A con accion Crear guia', async () => {
@@ -139,7 +139,7 @@ describe('AdminLogisticsPage (UC-LOG-08)', () => {
     );
     render(wrap());
     expect(
-      await screen.findByText(/No hay envios pendientes/i),
+      await screen.findByText(/No hay envíos pendientes/i),
     ).toBeInTheDocument();
   });
 

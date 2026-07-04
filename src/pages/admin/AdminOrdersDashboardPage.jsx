@@ -129,10 +129,10 @@ export default function AdminOrdersDashboardPage() {
       </section>
 
       <section aria-labelledby="day-title" className={styles.section}>
-        <h2 id="day-title">Resumen del dia</h2>
+        <h2 id="day-title">Resumen del día</h2>
         <dl className={styles.day}>
           <dt>Pagos aprobados hoy</dt><dd>{daySummary.orders_count ?? 0}</dd>
-          <dt>Ingresos del dia</dt><dd>{formatCurrency(daySummary.total_revenue ?? 0)}</dd>
+          <dt>Ingresos del día</dt><dd>{formatCurrency(daySummary.total_revenue ?? 0)}</dd>
         </dl>
       </section>
 

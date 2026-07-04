@@ -59,7 +59,7 @@ export default function PaymentRetryPage() {
 
       <form onSubmit={onSubmit} className={styles.form} aria-label="Reintentar pago">
         <fieldset className={styles.fieldset}>
-          <legend>Selecciona el metodo de pago</legend>
+          <legend>Selecciona el método de pago</legend>
           {GATEWAYS.map((g) => (
             <label key={g.value} className={styles.option}>
               <input
