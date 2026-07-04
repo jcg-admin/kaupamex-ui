@@ -273,8 +273,13 @@ export default function ProductPage() {
                     aria-label={`${Number(reviewsAvg).toFixed(1)} de 5`}
                     className={styles.reviewsStars}
                   >
-                    {'★'.repeat(Math.round(Number(reviewsAvg)))}
-                    {'☆'.repeat(5 - Math.round(Number(reviewsAvg)))}
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <Icon
+                        key={i}
+                        name={i < Math.round(Number(reviewsAvg)) ? 'star-solid' : 'star'}
+                        size={16}
+                      />
+                    ))}
                   </span>
                   <span className={styles.reviewsCount}>
                     {reviewsTotal} {reviewsTotal === 1 ? 'reseña' : 'reseñas'}

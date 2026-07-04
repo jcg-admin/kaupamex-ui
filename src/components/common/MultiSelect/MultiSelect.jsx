@@ -30,6 +30,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion';
 import useClickOutside from '@hooks/ui/useClickOutside';
 import useEscapeKey    from '@hooks/ui/useEscapeKey';
+import Icon from '@components/common/Icon/Icon';
 import styles from './MultiSelect.module.scss';
 
 const MultiSelect = forwardRef(function MultiSelect({
@@ -156,7 +157,7 @@ const MultiSelect = forwardRef(function MultiSelect({
             onClick={e => { e.stopPropagation(); setVal(sel.filter(x => x !== v)); }}
             aria-label={`Eliminar ${label}`}
             className={styles.tagRemove}
-          >×</button>
+          ><Icon name="x" size={12} /></button>
         </span>
       );
     });
@@ -195,9 +196,11 @@ const MultiSelect = forwardRef(function MultiSelect({
             onClick={e => { e.stopPropagation(); deselectAllFn(); }}
             aria-label="Limpiar selección"
             tabIndex={-1}
-          >✕</button>
+          ><Icon name="x" size={14} /></button>
         )}
-        <span className={styles.indicator} aria-hidden="true">▾</span>
+        <span className={styles.indicator} aria-hidden="true">
+          <Icon name="chevron-down" size={16} />
+        </span>
       </div>
 
       {/* Panel */}

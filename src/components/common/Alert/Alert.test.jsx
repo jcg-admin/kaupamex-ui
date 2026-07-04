@@ -60,8 +60,9 @@ describe('Alert', () => {
   });
 
   it('renderiza icono por defecto según variante', () => {
-    render(<Alert variant="success">OK</Alert>);
-    expect(screen.getByText('✓')).toBeInTheDocument();
+    // El icono default ahora es un SVG inline (Icon component), no un glifo.
+    const { container } = render(<Alert variant="success">OK</Alert>);
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
   it('icono personalizado sobreescribe el default', () => {

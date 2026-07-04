@@ -31,6 +31,7 @@ import {
 } from 'react';
 import useClickOutside from '@hooks/ui/useClickOutside';
 import useEscapeKey    from '@hooks/ui/useEscapeKey';
+import Icon from '@components/common/Icon/Icon';
 import styles from './Autocomplete.module.scss';
 
 const Autocomplete = forwardRef(function Autocomplete({
@@ -247,12 +248,14 @@ const Autocomplete = forwardRef(function Autocomplete({
             aria-label="Limpiar selección"
             tabIndex={-1}
           >
-            ✕
+            <Icon name="x" size={14} />
           </button>
         )}
         {/* indicator — equivale a _config.indicator en ui-core */}
         {indicator && (
-          <span className={styles.indicator} aria-hidden="true" onClick={toggle}>▾</span>
+          <span className={styles.indicator} aria-hidden="true" onClick={toggle}>
+            <Icon name="chevron-down" size={16} />
+          </span>
         )}
       </div>
 
