@@ -22,23 +22,43 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-function computePosition(refEl, placement, offsetPx) {
+function computePosition(refEl, floatEl, placement, offsetPx) {
   const rect = refEl.getBoundingClientRect();
-  const scrollX = window.scrollX || 0;
-  const scrollY = window.scrollY || 0;
 
-  let top;
-  let left = rect.left + scrollX;
+  // El flotante (Dropdown/Popover/Tooltip) se renderiza DENTRO de un wrapper
+  // `position: relative`, así que su `position: absolute` se resuelve respecto
+  // de ese wrapper (su offsetParent), NO del documento. Por eso las coordenadas
+  // deben ser relativas al offsetParent: usar coords de documento
+  // (rect.left + scrollX) empujaba el panel ~Xpx a la derecha del trigger y lo
+  // sacaba de la pantalla (bug "Mi cuenta" fuera de pantalla, #77).
+  const offsetParent = floatEl && floatEl.offsetParent;
 
-  if (placement.startsWith('top')) {
-    top = rect.top + scrollY - offsetPx;
-  } else {
-    // bottom (default)
-    top = rect.bottom + scrollY + offsetPx;
+  if (offsetParent && offsetParent !== document.body) {
+    const opRect = offsetParent.getBoundingClientRect();
+    // `-end` alinea el borde DERECHO del panel con el de la referencia (útil
+    // en triggers pegados al borde derecho, p.ej. "Mi cuenta" del Header);
+    // el resto alinea por la izquierda.
+    const left = (placement.endsWith('-end') && floatEl)
+      ? rect.right - floatEl.offsetWidth - opRect.left + offsetParent.scrollLeft
+      : rect.left - opRect.left + offsetParent.scrollLeft;
+    const top = placement.startsWith('top')
+      ? rect.top - opRect.top + offsetParent.scrollTop - offsetPx
+      : rect.bottom - opRect.top + offsetParent.scrollTop + offsetPx;
+    return {
+      position: 'absolute',
+      top: `${Math.round(top)}px`,
+      left: `${Math.round(left)}px`,
+    };
   }
 
-  // *-start alinea con el borde izquierdo de la referencia (ya aplicado);
-  // sin sufijo, lo dejamos en el mismo left por simplicidad nativa.
+  // Fallback (flotante en <body> o sin offsetParent posicionado): coordenadas
+  // de documento clásicas.
+  const scrollX = window.scrollX || 0;
+  const scrollY = window.scrollY || 0;
+  const left = rect.left + scrollX;
+  const top = placement.startsWith('top')
+    ? rect.top + scrollY - offsetPx
+    : rect.bottom + scrollY + offsetPx;
   return {
     position: 'absolute',
     top: `${Math.round(top)}px`,
@@ -62,7 +82,7 @@ export default function useFloating({
   const update = useCallback(() => {
     if (!referenceRef.current) return;
     setFloatingStyles(
-      computePosition(referenceRef.current, placement, offsetPx),
+      computePosition(referenceRef.current, floatingRef.current, placement, offsetPx),
     );
   }, [placement, offsetPx]);
 
@@ -79,8 +99,13 @@ export default function useFloating({
   );
 
   const setFloating = useCallback((node) => {
+    if (floatingRef.current === node) return;
     floatingRef.current = node;
-  }, []);
+    // El flotante monta DESPUÉS que la referencia (AnimatePresence al abrir).
+    // Recalcular ahora que ya existe su offsetParent, para posicionarlo
+    // relativo al wrapper y no dejarlo en el (0,0) inicial.
+    if (node) update();
+  }, [update]);
 
   useEffect(() => {
     if (!enabled) return undefined;
