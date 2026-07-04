@@ -113,6 +113,11 @@ textarea.fieldInput { resize: vertical; min-height: 4.5rem; }
   line-height: $btn-line-height;
   cursor: pointer;
   transition: $transition-default;
+  // Fallback de color: si llega un variant desconocido (typo o variant nuevo
+  // sin clase, p.ej. el histórico variant="danger"), la base NO debe caer al
+  // negro por defecto del navegador — invisible sobre el tema oscuro. Cada
+  // variant sobrescribe este color; esto solo actúa como red de seguridad.
+  color: $text-primary;
 
   &:disabled {
     opacity: 0.5;
@@ -146,6 +151,22 @@ textarea.fieldInput { resize: vertical; min-height: 4.5rem; }
   background: $vino;
   color: $text-primary;
   &:hover:not(:disabled) { background: $vino-soft; }
+}
+// Variant semántico destructivo. Antes NO existía: los usos de
+// variant="danger" (p.ej. AdminGuideCreate "Cancelar guía") caían al fallback
+// de la base sin estilo de énfasis. En esta paleta el rojo de peligro es la
+// familia vino ($color-danger = $error-color = $vino-soft).
+.btn_danger {
+  background: $color-danger;
+  color: $text-primary;
+  &:hover:not(:disabled) { background: $vino; }
+}
+// Variant semántico positivo (aprobar / confirmar). success = lime en la
+// paleta; se usa $success-strong ($lime-deep) para diferenciarlo del primary.
+.btn_success {
+  background: $success-strong;
+  color: $bg-page;
+  &:hover:not(:disabled) { background: $lime; }
 }
 .btn_sm { padding: $btn-padding-y-sm $btn-padding-x-sm; font-size: $btn-font-size-sm; }
 .btn_lg { padding: $btn-padding-y-lg $btn-padding-x-lg; font-size: $btn-font-size-lg; }

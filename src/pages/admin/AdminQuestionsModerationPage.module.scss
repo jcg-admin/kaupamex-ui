@@ -13,7 +13,7 @@
   padding: 0.85rem 1rem;
 }
 
-.meta { color: rgba(0, 0, 0, 0.6); margin: 0 0 0.5rem; font-size: 0.9rem; }
+.meta { color: $text-muted; margin: 0 0 0.5rem; font-size: 0.9rem; }
 .question { margin: 0 0 0.75rem; font-size: 1rem; }
 
 .actions {
@@ -54,6 +54,6 @@
   cursor: pointer;
 }
 
-.empty { color: rgba(0, 0, 0, 0.6); font-style: italic; }
+.empty { color: $text-muted; font-style: italic; }
 .success { color: $success-strong; }
 .error { color: $danger-strong; }

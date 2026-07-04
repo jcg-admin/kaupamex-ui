@@ -1,0 +1,45 @@
+@use '@styles/abstracts' as *;
+
+.wrap {
+  border: 1px solid $border-strong;
+  border-radius: 6px;
+  overflow: hidden;
+  background: $bg-surface;
+  &:focus-within { border-color: $lime; }
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-1;
+  padding: $spacing-1 $spacing-2;
+  border-bottom: 1px solid $border-color;
+  background: $bg-page;
+}
+
+.ttBold   { font-weight: $font-weight-bold; }
+.ttItalic { font-style: italic; }
+
+.editor {
+  min-height: 8rem;
+  max-height: 24rem;
+  overflow-y: auto;
+  padding: $spacing-3;
+  color: $text-primary;
+  font-size: $font-size-md;
+  line-height: 1.6;
+
+  &:focus { outline: none; }
+
+  // El contenido enriquecido dentro del área editable.
+  :where(ul, ol) { margin: $spacing-2 0; padding-left: 1.4em; }
+  :where(strong) { font-weight: $font-weight-bold; }
+  :where(em) { font-style: italic; }
+  :where(p) { margin: 0 0 $spacing-2; }
+
+  // Placeholder cuando está vacío (usa el atributo data-placeholder).
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: $text-muted;
+  }
+}

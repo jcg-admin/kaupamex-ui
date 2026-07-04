@@ -4,7 +4,8 @@
  * SearchModal — ecommerce-ui
  * Overlay de búsqueda rápida activado por el Header (toggleSearch).
  * Muestra resultados en vivo mientras el usuario escribe (≥ 2 caracteres).
- * Al confirmar navega a /search?q=<término>.
+ * Al confirmar navega a /catalog?q=<término> — superficie canónica de
+ * resultados (browse + búsqueda unificados, DEC-SEARCH-01).
  *
  * Renderiza cuando uiSlice.isSearchOpen = true.
  */
@@ -61,7 +62,7 @@ export default function SearchModal() {
     const q = query.trim();
     if (!q) return;
     dispatch(closeSearch());
-    navigate(`/search?q=${encodeURIComponent(q)}`);
+    navigate(`/catalog?q=${encodeURIComponent(q)}`);
   };
 
   const handleResultClick = () => dispatch(closeSearch());

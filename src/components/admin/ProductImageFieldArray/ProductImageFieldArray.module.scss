@@ -9,51 +9,69 @@
 }
 .error {
   font-size: $font-size-sm;
-  color: #9a3b3b;
+  color: $error-color;
   margin: 0 0 $spacing-3;
 }
 .ok {
   font-size: $font-size-sm;
-  color: #2e6b2e;
+  color: $success-color;
   margin: 0 0 $spacing-3;
 }
-.list {
+// Galería en grid responsivo: cada imagen es una tarjeta con preview grande,
+// su alt-text y el selector de portada. Antes era una lista vertical de filas
+// con thumbs de 72px — poco útil con varias imágenes (#79).
+.grid {
   list-style: none;
   margin: 0 0 $spacing-4;
   padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: $spacing-4;
+}
+.card {
   display: flex;
   flex-direction: column;
-  gap: $spacing-3;
-}
-.item {
-  display: flex;
-  align-items: center;
-  gap: $spacing-3;
-  padding: $spacing-2;
+  gap: $spacing-2;
+  padding: $spacing-3;
   border: 1px solid $border-color;
+  border-radius: 8px;
+  background: $bg-surface;
+  transition: border-color 0.15s ease;
+}
+.cardCover {
+  border-color: $lime;
+  box-shadow: 0 0 0 1px $lime;
+}
+.preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 6px;
+  overflow: hidden;
+  background: $bg-page;
 }
 .thumb {
-  width: 72px;
-  height: 72px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 4px;
-  flex-shrink: 0;
   display: block;
 }
-.fields {
-  display: flex;
-  align-items: center;
-  gap: $spacing-4;
-  flex: 1;
-  flex-wrap: wrap;
+.badge {
+  position: absolute;
+  top: $spacing-2;
+  left: $spacing-2;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: $lime;
+  color: $bg-page;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.02em;
 }
 .field {
   display: flex;
   flex-direction: column;
   gap: $spacing-1;
-  flex: 1;
-  min-width: 180px;
 }
 .label {
   font-size: $font-size-sm;
@@ -72,13 +90,5 @@
   font-size: $font-size-sm;
   white-space: nowrap;
 }
-.save {
-  padding: $spacing-2 $spacing-4;
-  border: none;
-  border-radius: 4px;
-  background: #4a1e1e;
-  color: #fff;
-  font-size: $font-size-sm;
-  cursor: pointer;
-  &:disabled { opacity: 0.6; cursor: default; }
-}
+// El botón "Guardar imágenes" ahora usa el primitivo Button (variant primary);
+// la clase local .save quedó obsoleta y se retiró.

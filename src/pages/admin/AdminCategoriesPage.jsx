@@ -22,6 +22,7 @@ import {
   clearCategoriesActionState,
 } from '@redux/slices/categoriesSlice';
 import { DataTable } from '@components/common';
+import { Button } from '@components/common/primitives';
 import CategoryTreeReorder from '@components/admin/CategoryTreeReorder';
 import styles from './AdminCategoriesPage.module.scss';
 
@@ -168,13 +169,13 @@ export default function AdminCategoriesPage() {
         )}
 
         <div className={styles.actions}>
-          <button type="submit" disabled={isActioning}>
+          <Button type="submit" variant="primary" disabled={isActioning}>
             {editingId ? 'Guardar cambios' : 'Crear categoria'}
-          </button>
+          </Button>
           {editingId && (
-            <button type="button" onClick={reset} disabled={isActioning}>
+            <Button type="button" variant="ghost" onClick={reset} disabled={isActioning}>
               Cancelar
-            </button>
+            </Button>
           )}
         </div>
       </form>
@@ -197,17 +198,19 @@ export default function AdminCategoriesPage() {
           { key: 'actions',   header: 'Acciones',
             render: (c) => (
               <>
-                <button type="button" onClick={() => handleEdit(c)}>
+                <Button type="button" variant="secondary" size="sm" onClick={() => handleEdit(c)}>
                   Editar
-                </button>
+                </Button>
                 {c.is_active !== false && (
-                  <button
+                  <Button
                     type="button"
+                    variant="vino"
+                    size="sm"
                     onClick={() => handleDeactivate(c.id)}
                     disabled={isActioning}
                   >
                     Desactivar
-                  </button>
+                  </Button>
                 )}
               </>
             ) },
@@ -223,23 +226,27 @@ export default function AdminCategoriesPage() {
       {/* H-CICLO105-03: pagination controls for paginated category list */}
       {totalPages > 1 && (
         <nav className={styles.pagination} aria-label="Páginas de categorías">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
           >
             ← Anterior
-          </button>
+          </Button>
           <span className={styles.pageInfo}>
             Pagina {page} de {totalPages} ({totalCount} categorias)
           </span>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
           >
             Siguiente →
-          </button>
+          </Button>
         </nav>
       )}
     </section>

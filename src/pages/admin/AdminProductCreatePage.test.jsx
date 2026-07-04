@@ -111,8 +111,11 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
       { target: { value: 'Collar Oshun dorado' } });
     fireEvent.change(screen.getByLabelText(/Descripción corta/i),
       { target: { value: 'Collar artesanal Yoruba' } });
-    fireEvent.change(screen.getByLabelText(/Descripción completa/i),
-      { target: { value: 'Collar de cuentas amarillas para Oshun.' } });
+    // "Descripción completa" es un editor contentEditable (RichTextEditor):
+    // se setea el contenido y se dispara `input`, no `change` con value.
+    const descFull1 = screen.getByLabelText(/Descripción completa/i);
+    descFull1.innerHTML = 'Collar de cuentas amarillas para Oshun.';
+    fireEvent.input(descFull1);
     fireEvent.change(screen.getByLabelText(/Precio sin IVA/i),
       { target: { value: '1250.00' } });
     fireEvent.change(screen.getByLabelText(/Stock inicial/i),
@@ -145,8 +148,9 @@ describe('AdminProductCreatePage (UC-CAT-09)', () => {
       { target: { value: 'Producto valido' } });
     fireEvent.change(screen.getByLabelText(/Descripción corta/i),
       { target: { value: 'descripcion corta' } });
-    fireEvent.change(screen.getByLabelText(/Descripción completa/i),
-      { target: { value: 'descripcion larga' } });
+    const descFull2 = screen.getByLabelText(/Descripción completa/i);
+    descFull2.innerHTML = 'descripcion larga';
+    fireEvent.input(descFull2);
     fireEvent.change(screen.getByLabelText(/Precio sin IVA/i),
       { target: { value: '10' } });
     fireEvent.change(screen.getByLabelText(/Stock inicial/i),

@@ -14,7 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import apiService from '@services/apiService';
 import { updateProduct, deactivateProduct, activateProduct, clearProductsActionState }
   from '@redux/slices/productsSlice';
-import { Card } from '@components/common/primitives';
+import { Card, Button } from '@components/common/primitives';
 import AdminProductForm from './AdminProductForm';
 import ProductImageReorder from '@components/admin/ProductImageReorder';
 import ProductImageFieldArray from '@components/admin/ProductImageFieldArray';
@@ -79,13 +79,14 @@ export default function AdminProductEditPage() {
           SKU: <strong>{product.sku}</strong> · Estado:{' '}
           <strong>{product.is_active ? 'Activo' : 'Inactivo'}</strong>
         </p>
-        <button
+        <Button
+          variant="secondary"
           type="button"
           onClick={handleToggleActive}
           disabled={isActioning}
         >
           {product.is_active ? 'Desactivar producto' : 'Reactivar producto'}
-        </button>
+        </Button>
       </header>
 
       <Card>

@@ -178,27 +178,35 @@ export default function AdminUsersPage() {
 
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
             disabled={currentPage === 1}
             onClick={() => dispatch(setPage(currentPage - 1))}
           >
             ← Anterior
-          </button>
+          </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
+            <Button
               key={p}
-              className={p === currentPage ? styles.pageActive : ''}
+              type="button"
+              variant={p === currentPage ? 'primary' : 'ghost'}
+              size="sm"
               onClick={() => dispatch(setPage(p))}
             >
               {p}
-            </button>
+            </Button>
           ))}
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
             disabled={currentPage === totalPages}
             onClick={() => dispatch(setPage(currentPage + 1))}
           >
             Siguiente →
-          </button>
+          </Button>
         </div>
       )}
     </div>

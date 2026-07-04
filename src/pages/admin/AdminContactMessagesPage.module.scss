@@ -59,7 +59,7 @@
 
 .customerEmail {
   font-size: 0.8rem;
-  color: rgba(0, 0, 0, 0.6);
+  color: $text-muted;
 }
 
 .detailLink {
@@ -68,7 +68,7 @@
 }
 
 .empty {
-  color: rgba(0, 0, 0, 0.6);
+  color: $text-muted;
   font-style: italic;
 }
 

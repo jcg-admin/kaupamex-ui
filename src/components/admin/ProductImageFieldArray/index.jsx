@@ -11,6 +11,7 @@
  */
 import { useState } from 'react';
 import apiService from '@services/apiService';
+import { Button } from '@components/common/primitives';
 import styles from './ProductImageFieldArray.module.scss';
 
 const normalize = (images) =>
@@ -62,42 +63,41 @@ export default function ProductImageFieldArray({ productId, images = [], onSaved
       <h2 className={styles.title}>Metadata de imágenes</h2>
       {error && <p role="alert" className={styles.error}>{error}</p>}
       {saved && !error && <p role="status" className={styles.ok}>Cambios guardados.</p>}
-      <ul className={styles.list}>
+      <ul className={styles.grid}>
         {rows.map((r) => (
-          <li key={r.id} className={styles.item}>
-            <img src={r.image_url} alt={r.alt_text} className={styles.thumb} />
-            <div className={styles.fields}>
-              <label className={styles.field}>
-                <span className={styles.label}>Texto alternativo</span>
-                <input
-                  type="text"
-                  className={styles.input}
-                  value={r.alt_text}
-                  maxLength={200}
-                  onChange={(e) => setAlt(r.id, e.target.value)}
-                />
-              </label>
-              <label className={styles.cover}>
-                <input
-                  type="radio"
-                  name={`cover-${productId}`}
-                  checked={r.is_cover}
-                  onChange={() => setCover(r.id)}
-                />
-                <span>Portada</span>
-              </label>
+          <li
+            key={r.id}
+            className={`${styles.card} ${r.is_cover ? styles.cardCover : ''}`}
+          >
+            <div className={styles.preview}>
+              <img src={r.image_url} alt={r.alt_text} className={styles.thumb} />
+              {r.is_cover && <span className={styles.badge}>Portada</span>}
             </div>
+            <label className={styles.field}>
+              <span className={styles.label}>Texto alternativo</span>
+              <input
+                type="text"
+                className={styles.input}
+                value={r.alt_text}
+                maxLength={200}
+                onChange={(e) => setAlt(r.id, e.target.value)}
+              />
+            </label>
+            <label className={styles.cover}>
+              <input
+                type="radio"
+                name={`cover-${productId}`}
+                checked={r.is_cover}
+                onChange={() => setCover(r.id)}
+              />
+              <span>Usar como portada</span>
+            </label>
           </li>
         ))}
       </ul>
-      <button
-        type="button"
-        className={styles.save}
-        onClick={handleSave}
-        disabled={saving}
-      >
+      <Button type="button" variant="primary" onClick={handleSave} disabled={saving}>
         {saving ? 'Guardando…' : 'Guardar imágenes'}
-      </button>
+      </Button>
     </section>
   );
 }
