@@ -15,11 +15,12 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-// Checkout Pro/PayPal (redirect flow). v1/initiate removed in F7;
-// generic v2 endpoint accepts { order_number, gateway } for redirect flows.
-const V1_INITIATE_URL  = '/api/v2/payments/initiate/';
-// Checkout API (on-site CardForm, ADR-018). Same URL, different payload.
-const V2_CHECKOUT_API_URL = '/api/v2/payments/initiate/';
+// Endpoint unificado de inicio de pago (v1/initiate se removió en F7). Un solo
+// endpoint v2 sirve los tres flujos según el payload:
+//   - Checkout API on-site (CardForm, ADR-018): { order_number, token, ... }
+//   - Sin tarjeta (OXXO/SPEI, UC-PAY-13):        { order_number, payment_method_id }
+//   - Redirect (Checkout Pro/PayPal):            { order_number, gateway }
+const INITIATE_URL     = '/api/v2/payments/initiate/';
 const ADMIN_REFUND_URL    = '/api/v2/payments/admin';
 const ADMIN_CANCEL_URL    = (paymentId) => `/api/v2/admin/payments/${paymentId}/cancel/`;
 
@@ -44,7 +45,7 @@ export const initiateCheckoutApiPayment = createAsyncThunk(
   'payments/initiateCheckoutApi',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(V2_CHECKOUT_API_URL, payload);
+      const res = await apiService.post(INITIATE_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -66,7 +67,7 @@ export const initiateNonCardPayment = createAsyncThunk(
   'payments/initiateNonCard',
   async (payload, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(V2_CHECKOUT_API_URL, payload);
+      const res = await apiService.post(INITIATE_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -77,15 +78,15 @@ export const initiateNonCardPayment = createAsyncThunk(
 /**
  * UC-PAY-02: inicia el pago con PayPal (Checkout Pro — redirect).
  *
- * Usa V1 endpoint: PayPal no tiene CardForm, se paga por redirect.
- * Acepta `{ order_number }`. Respuesta: `{ checkout_url, ... }`.
+ * PayPal no tiene CardForm: se paga por redirect con `{ order_number,
+ * gateway: 'PAYPAL' }`. Respuesta: `{ checkout_url, ... }`.
  */
 export const initiatePayPalPayment = createAsyncThunk(
   'payments/initiatePayPal',
   async ({ order_number }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(
-        V1_INITIATE_URL,
+        INITIATE_URL,
         { order_number, gateway: 'PAYPAL' }
       );
       return res.data;
@@ -103,7 +104,7 @@ export const retryPayment = createAsyncThunk(
   'payments/retry',
   async ({ order_number, gateway }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(V2_CHECKOUT_API_URL, { order_number, gateway });
+      const res = await apiService.post(INITIATE_URL, { order_number, gateway });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -121,7 +122,7 @@ export const initiateMercadoPagoPayment = createAsyncThunk(
     try {
       const payload = { order_number, gateway: 'MERCADOPAGO' };
       if (installments) payload.installments = Number(installments);
-      const res = await apiService.post(V1_INITIATE_URL, payload);
+      const res = await apiService.post(INITIATE_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
