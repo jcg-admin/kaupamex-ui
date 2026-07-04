@@ -25,7 +25,7 @@ test.describe('catalog / browse', () => {
 
 test.describe('catalog / search', () => {
   test('search route renders results or empty state', async ({ page }) => {
-    await page.goto('/search?q=product');
+    await page.goto('/catalog?q=product');
     await expect(
       page.getByTestId('search-results').or(page.getByText(/sin resultados/i).or(page.getByText(/0 resultado/i)))
     ).toBeVisible({ timeout: 12000 });
