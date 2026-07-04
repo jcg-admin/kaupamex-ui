@@ -88,6 +88,8 @@ beforeEach(() => {
         { id: 2, name: 'Expedito · 24 horas',  cost: '280.00', estimated_days: 1, free_threshold: null },
       ]),
     ),
+    // G-ENV-01: por defecto, sin zonas (cada test que lo necesite lo sobrescribe).
+    http.get(`${BASE}/api/v2/shipping-zones/`, () => HttpResponse.json([])),
   );
 });
 
@@ -174,6 +176,43 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(screen.getByRole('heading', { name: /Método de envío/i })).toBeInTheDocument();
     // Shipping options load dynamically from /api/v2/shipping-methods/
     expect(await screen.findByText(/Estándar resguardado/i)).toBeInTheDocument();
+  });
+
+  it('G-ENV-01: refleja envío GRATIS por zona en el resumen', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/shipping-zones/`, () =>
+        HttpResponse.json([
+          { id: 1, name: 'CDMX', zip_code_prefix: '06', estimated_days_min: 1,
+            estimated_days_max: 1, cost: '99.00', free_threshold: '800.00' },
+        ]),
+      ),
+    );
+    const store = configureStore({
+      reducer: {
+        checkout: checkoutReducer, orders: ordersReducer, auth: authReducer,
+        addresses: addressesReducer, cart: cartReducer,
+      },
+      preloadedState: {
+        auth: { user: { id: 1, email: 'a@b.com' }, isAuthenticated: true,
+                accessToken: 't', refreshToken: 'r', status: 'idle', error: null },
+        // Subtotal 1000 ≥ umbral de zona 800 → envío gratis.
+        cart: { items: [{ id: 1, product_name: 'X', unit_price: 500, quantity: 2 }],
+                totals: { subtotal: 1000, total: 1000 } },
+      },
+    });
+    const user = userEvent.setup();
+    render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/checkout']}>
+          <Routes>
+            <Route path="/checkout" element={<CheckoutPage />} />
+          </Routes>
+        </MemoryRouter>
+      </Provider>,
+    );
+    // Al escribir un C.P. de la zona metro, el resumen marca envío gratis.
+    await user.type(screen.getByLabelText(/C\.P\./i), '06600');
+    expect(await screen.findByTestId('zone-free-ship')).toBeInTheDocument();
   });
 });
 

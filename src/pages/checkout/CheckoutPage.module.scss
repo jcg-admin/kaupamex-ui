@@ -224,6 +224,15 @@
   line-height: $line-height-relaxed;
   a { color: $coral; }
 }
+// G-ENV-01: aviso de envío gratis por zona.
+.freeShipNote {
+  margin-top: $spacing-1;
+  font-family: $font-family-mono;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: $lime;
+  text-align: right;
+}
 
 // ─────────────────────────────────────────────────────────────────────
 // Footer
