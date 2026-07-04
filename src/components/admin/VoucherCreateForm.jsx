@@ -114,7 +114,7 @@ export default function VoucherCreateForm({ onClose }) {
 
         <form onSubmit={handleSubmit} noValidate className={styles.form}>
           <div className={styles.field}>
-            <label htmlFor="voucher-code">Codigo</label>
+            <label htmlFor="voucher-code">Código</label>
             <input
               id="voucher-code"
               name="code"

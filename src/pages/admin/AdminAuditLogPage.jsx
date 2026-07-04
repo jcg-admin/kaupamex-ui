@@ -89,7 +89,7 @@ export default function AdminAuditLogPage() {
             render: (e) => new Date(e.timestamp).toLocaleString('es-MX') },
           { key: 'actor',          header: 'Actor',
             render: (e) => e.actor_email ?? e.actor_id ?? '—' },
-          { key: 'action',         header: 'Accion',         sortable: true },
+          { key: 'action',         header: 'Acción',         sortable: true },
           { key: 'resource',       header: 'Recurso',
             render: (e) => e.resource_type ? `${e.resource_type}#${e.resource_id}` : '—' },
           { key: 'correlation_id', header: 'Correlation ID',

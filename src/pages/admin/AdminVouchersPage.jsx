@@ -64,12 +64,12 @@ export default function AdminVouchersPage() {
   };
 
   const columns = useMemo(() => [
-    { key: 'code',         header: 'Codigo',        sortable: true },
+    { key: 'code',         header: 'Código',        sortable: true },
     { key: 'voucher_type', header: 'Tipo',           sortable: true,
       render: (v) => TYPE_LABEL[v.voucher_type] ?? v.voucher_type },
     { key: 'discount',     header: 'Valor',
       render: (v) => formatValue(v) },
-    { key: 'max_uses',     header: 'Usos maximos',
+    { key: 'max_uses',     header: 'Usos máximos',
       render: (v) => v.max_uses ?? 'Sin limite' },
     { key: 'valid_until',  header: 'Vigencia',
       render: (v) => v.valid_until ? v.valid_until.slice(0, 10) : '—' },

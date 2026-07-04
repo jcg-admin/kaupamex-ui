@@ -210,7 +210,7 @@ export default function AdminPriceSyncPage() {
             />
           </div>
           <div className={styles.field}>
-            <label htmlFor="price-sync-cat">Categoria (slug)</label>
+            <label htmlFor="price-sync-cat">Categoría (slug)</label>
             <input
               id="price-sync-cat"
               type="text"

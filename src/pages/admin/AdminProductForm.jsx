@@ -149,7 +149,7 @@ export default function AdminProductForm({
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="product-short-desc" className={styles.label}>Descripcion corta<RequiredMark /></label>
+        <label htmlFor="product-short-desc" className={styles.label}>Descripción corta<RequiredMark /></label>
         <input
           {...controlProps('short_description', 'product-short-desc', { required: true })}
           type="text"
@@ -159,7 +159,7 @@ export default function AdminProductForm({
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="product-desc" className={styles.label}>Descripcion completa<RequiredMark /></label>
+        <label htmlFor="product-desc" className={styles.label}>Descripción completa<RequiredMark /></label>
         <textarea
           {...controlProps('description', 'product-desc', { required: true, base: styles.textarea })}
           rows={6}
@@ -191,7 +191,7 @@ export default function AdminProductForm({
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="product-category" className={styles.label}>Categoria<RequiredMark /></label>
+        <label htmlFor="product-category" className={styles.label}>Categoría<RequiredMark /></label>
         <select
           {...controlProps('category_id', 'product-category', { required: true, base: styles.select })}
         >

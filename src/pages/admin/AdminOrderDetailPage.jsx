@@ -136,7 +136,7 @@ export default function AdminOrderDetailPage() {
       </section>
 
       <section aria-labelledby="items-title" className={styles.section}>
-        <h2 id="items-title">Articulos</h2>
+        <h2 id="items-title">Artículos</h2>
         <ul className={styles.items}>
           {(order.items ?? []).map((item) => (
             <li key={item.id} className={styles.itemRow}>

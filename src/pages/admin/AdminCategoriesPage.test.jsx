@@ -46,7 +46,7 @@ describe('AdminCategoriesPage (UC-CAT-06)', () => {
     );
     render(wrap());
     expect(
-      await screen.findByRole('heading', { name: /Categorias/i, level: 1 }),
+      await screen.findByRole('heading', { name: /Categorías/i, level: 1 }),
     ).toBeInTheDocument();
     expect(await screen.findByRole('cell', { name: 'Collares' })).toBeInTheDocument();
   });

@@ -58,32 +58,32 @@ export default function AdminReviewsModerationPage() {
     <section className={styles.page} aria-labelledby="moderation-title">
       <header className={styles.header}>
         <h1 id="moderation-title" className={styles.title}>
-          Moderacion de resenas
+          Moderación de reseñas
         </h1>
       </header>
 
       {isLoading && <p>Cargando cola…</p>}
       {isError && (
         <p role="alert" className={styles.error}>
-          No se pudo cargar la cola de moderacion.
+          No se pudo cargar la cola de moderación.
         </p>
       )}
 
       {actionError && (
         <p role="alert" className={styles.error}>
-          {actionError.message || 'No se pudo aplicar la moderacion.'}
+          {actionError.message || 'No se pudo aplicar la moderación.'}
         </p>
       )}
 
       {lastAction === 'approved' && (
-        <p role="status" className={styles.success}>Resena aprobada.</p>
+        <p role="status" className={styles.success}>Reseña aprobada.</p>
       )}
       {lastAction === 'rejected' && (
-        <p role="status" className={styles.success}>Resena rechazada.</p>
+        <p role="status" className={styles.success}>Reseña rechazada.</p>
       )}
 
       {!isLoading && reviews.length === 0 && (
-        <p className={styles.empty}>No hay resenas pendientes de moderacion.</p>
+        <p className={styles.empty}>No hay reseñas pendientes de moderación.</p>
       )}
 
       {/* H-CICLO106-02: controles de paginacion para navegar la cola de
@@ -99,7 +99,7 @@ export default function AdminReviewsModerationPage() {
           >
             Anterior
           </button>
-          <span>Pagina {page}</span>
+          <span>Página {page}</span>
           <button
             type="button"
             className={styles.secondaryBtn}

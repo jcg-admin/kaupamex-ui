@@ -68,7 +68,7 @@ export default function AdminLogisticsPage() {
     },
     {
       key: 'action',
-      header: 'Accion',
+      header: 'Acción',
       filterable: false,
       render: (o) => (
         <Link to={`/admin/orders/${o.order_id}`} className={styles.actionLink}>
@@ -85,12 +85,12 @@ export default function AdminLogisticsPage() {
     { key: 'courier_code', header: 'Courier', sortable: true, render: (g) => g.courier_code ?? '—' },
     { key: 'tracking_number', header: 'Tracking', render: (g) => g.tracking_number ?? '—' },
     // H-CICLO36-03: API devuelve status (no last_status)
-    { key: 'status', header: 'Ultimo estado', sortable: true, render: (g) => g.status ?? '—' },
+    { key: 'status', header: 'Último estado', sortable: true, render: (g) => g.status ?? '—' },
     // H-CICLO36-03: la respuesta del panel no incluye last_event_at
     { key: 'event_at', header: 'Fecha', filterable: false, render: () => '—' },
     {
       key: 'action',
-      header: 'Accion',
+      header: 'Acción',
       filterable: false,
       render: (g) => (
         <button

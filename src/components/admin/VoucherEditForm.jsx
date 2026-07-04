@@ -118,7 +118,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
           {!isImmutable && (
             <>
               <div className={styles.field}>
-                <label htmlFor="edit-code">Codigo</label>
+                <label htmlFor="edit-code">Código</label>
                 <input
                   id="edit-code"
                   name="code"

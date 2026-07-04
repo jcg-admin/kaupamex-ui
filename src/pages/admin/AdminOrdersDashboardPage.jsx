@@ -45,7 +45,7 @@ export default function AdminOrdersDashboardPage() {
   const latestColumns = useMemo(() => [
     {
       key: 'order_number',
-      header: 'Numero',
+      header: 'Número',
       sortable: true,
       render: (o) => (
         <Link to={`/admin/orders/${o.order_number}`}>{o.order_number}</Link>

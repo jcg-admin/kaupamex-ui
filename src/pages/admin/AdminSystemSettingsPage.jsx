@@ -27,7 +27,7 @@ import styles from './AdminSystemSettingsPage.module.scss';
 const FIELDS = [
   { key: 'site_name',               label: 'Nombre del sitio',         type: 'text' },
   { key: 'support_email',           label: 'Email de contacto',        type: 'email' },
-  { key: 'phone',                   label: 'Telefono de soporte',      type: 'tel' },
+  { key: 'phone',                   label: 'Teléfono de soporte',      type: 'tel' },
   { key: 'iva_rate',                label: 'Tasa de IVA (%)',          type: 'number' },
   { key: 'currency',                label: 'Moneda (ISO-4217)',        type: 'text' },
   { key: 'free_shipping_threshold', label: 'Umbral envio gratis (MXN)', type: 'number' },
