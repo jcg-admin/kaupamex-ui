@@ -417,6 +417,7 @@ export default function PaymentSelectionPage() {
             />
           ) : isLoadingOrder ? (
             <p className={styles.processing} role="status" aria-live="polite">
+              <span className={styles.spinner} aria-hidden="true" />
               Recuperando el total de tu orden…
             </p>
           ) : (
@@ -427,6 +428,7 @@ export default function PaymentSelectionPage() {
           )}
           {isActioning && (
             <p className={styles.processing} aria-live="polite">
+              <span className={styles.spinner} aria-hidden="true" />
               Procesando pago...
             </p>
           )}
@@ -446,6 +448,7 @@ export default function PaymentSelectionPage() {
           />
           {isActioning && (
             <p className={styles.processing} aria-live="polite">
+              <span className={styles.spinner} aria-hidden="true" />
               Generando instrucciones de pago...
             </p>
           )}
