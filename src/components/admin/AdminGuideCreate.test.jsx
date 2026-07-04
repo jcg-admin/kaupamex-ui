@@ -9,6 +9,10 @@ import { server } from '@mocks/server';
 import logisticsReducer from '@redux/slices/logisticsSlice';
 import AdminGuideCreate from './AdminGuideCreate';
 
+// jsdom no implementa <dialog>.showModal() — polyfill (igual que Modal.test).
+HTMLDialogElement.prototype.showModal = jest.fn(function () { this.open = true; });
+HTMLDialogElement.prototype.close     = jest.fn(function () { this.open = false; });
+
 const BASE = process.env.API_URL || 'http://localhost:8000';
 const store = () => configureStore({ reducer: { logistics: logisticsReducer } });
 const wrap = (props) => (
@@ -82,5 +86,29 @@ describe('AdminGuideCreate (COV-04a)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Actualizar estado/ }));
     await waitFor(() => expect(patched).toEqual({ status: 'PICKED_UP' }));
     expect(await screen.findByText(/Estado actualizado/)).toBeInTheDocument();
+  });
+
+  it('cancela la guía vía el endpoint dedicado tras confirmar', async () => {
+    let cancelled = false;
+    server.use(
+      http.get(`${BASE}/api/v2/logistics/admin/orders/:num/guide/`, () =>
+        HttpResponse.json({ id: 9, tracking_number: 'T-9', status: 'CREATED', courier: { name: 'DHL' } }),
+      ),
+      http.post(`${BASE}/api/v2/logistics/guides/9/cancel/`, () => {
+        cancelled = true;
+        return HttpResponse.json({ cancelled: true, tracking_number: 'T-9' });
+      }),
+    );
+    render(wrap());
+    await screen.findByText('T-9');
+    // Abre el diálogo de confirmación.
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar guía' }));
+    // Confirma dentro del diálogo (el botón de confirmación comparte etiqueta).
+    const confirmBtns = await screen.findAllByRole('button', { name: 'Cancelar guía' });
+    fireEvent.click(confirmBtns[confirmBtns.length - 1]);
+    await waitFor(() => expect(cancelled).toBe(true));
+    expect(await screen.findByText(/Guía cancelada/)).toBeInTheDocument();
+    // Ya cancelada: no debe ofrecer avanzar estado.
+    expect(screen.queryByLabelText(/Avanzar estado/)).not.toBeInTheDocument();
   });
 });

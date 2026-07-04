@@ -70,6 +70,23 @@ export const updateGuide = createAsyncThunk(
   },
 );
 
+/**
+ * Cancelar una guía de envío (soft-delete en el backend). Usa el endpoint
+ * dedicado `/cancel/` — distinto de PATCH status, porque además marca la guía
+ * como eliminada. No admite guías ya entregadas o canceladas (400).
+ */
+export const cancelGuide = createAsyncThunk(
+  'logistics/cancelGuide',
+  async (guideId, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post(`/api/v2/logistics/guides/${guideId}/cancel/`, {});
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
 /** UC-LOG-01: crear guía de envío para una orden IN_PREPARATION. */
 export const createShipmentGuide = createAsyncThunk(
   'logistics/createShipmentGuide',
@@ -122,6 +139,15 @@ const logisticsSlice = createSlice({
         state.isActioning = false; state.lastAction = 'guide_created';
       })
       .addCase(createShipmentGuide.rejected, (state, action) => {
+        state.isActioning = false; state.actionError = action.payload;
+      })
+      .addCase(cancelGuide.pending, (state) => {
+        state.isActioning = true; state.actionError = null;
+      })
+      .addCase(cancelGuide.fulfilled, (state) => {
+        state.isActioning = false; state.lastAction = 'guide_cancelled';
+      })
+      .addCase(cancelGuide.rejected, (state, action) => {
         state.isActioning = false; state.actionError = action.payload;
       });
   },
