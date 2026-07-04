@@ -39,7 +39,7 @@
   flex-direction: column;
 }
 
-.metricLabel { color: rgba(0, 0, 0, 0.6); font-size: 0.85rem; }
+.metricLabel { color: $text-muted; font-size: 0.85rem; }
 .metricValue { font-size: 1.5rem; font-weight: 700; }
 
 .filters {
@@ -103,4 +103,4 @@
 }
 
 .error { color: $danger-strong; }
-.empty { padding: 1rem 0; color: rgba(0, 0, 0, 0.6); }
+.empty { padding: 1rem 0; color: $text-muted; }

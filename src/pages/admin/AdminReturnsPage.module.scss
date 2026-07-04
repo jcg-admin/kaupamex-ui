@@ -27,7 +27,7 @@
   flex-direction: column;
 }
 
-.metricLabel { color: rgba(0, 0, 0, 0.6); font-size: 0.85rem; }
+.metricLabel { color: $text-muted; font-size: 0.85rem; }
 .metricValue { font-size: 1.5rem; font-weight: 700; }
 
 .filters {
@@ -70,7 +70,7 @@
   display: flex;
   flex-direction: column;
 }
-.customerEmail { color: rgba(0, 0, 0, 0.55); font-size: 0.85rem; }
+.customerEmail { color: $text-muted; font-size: 0.85rem; }
 
 .detailLink {
   color: $color-primary;
@@ -83,7 +83,7 @@
 .empty {
   padding: 2rem;
   text-align: center;
-  color: rgba(0, 0, 0, 0.6);
+  color: $text-muted;
 }
 
 .error { color: $color-danger; }

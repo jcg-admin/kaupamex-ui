@@ -21,7 +21,7 @@
 }
 
 .title { font-size: 1.5rem; margin: 0; }
-.meta  { color: rgba(0, 0, 0, 0.6); margin: 0.35rem 0 0; }
+.meta  { color: $text-muted; margin: 0.35rem 0 0; }
 
 .block {
   background: $bg-surface;
@@ -34,8 +34,8 @@
 .blockTitle { font-size: 1rem; margin: 0 0 0.5rem; }
 
 .reason       { margin: 0; font-weight: 600; }
-.description  { margin: 0.4rem 0 0; color: rgba(0, 0, 0, 0.75); }
-.customerEmail { color: rgba(0, 0, 0, 0.55); font-size: 0.9rem; }
+.description  { margin: 0.4rem 0 0; color: $text-muted; }
+.customerEmail { color: $text-muted; font-size: 0.9rem; }
 
 .items {
   margin: 0;
@@ -51,7 +51,7 @@
   align-items: center;
 }
 
-.itemQty { color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; }
+.itemQty { color: $text-muted; font-size: 0.9rem; }
 
 .badgePending   { @include badge-base; background: rgba(244, 162, 0, 0.18);   color: $amber-700; }
 /* stylelint-disable-next-line color-no-hex */
@@ -60,5 +60,5 @@
 .badgeRejected  { @include badge-base; background: rgba(220, 53, 69, 0.18);   color: $danger-strong; }
 .badgeCompleted { @include badge-base; background: rgba(40, 167, 69, 0.18);   color: $success-strong; }
 
-.empty { color: rgba(0, 0, 0, 0.6); margin: 0; }
+.empty { color: $text-muted; margin: 0; }
 .error { color: $color-danger; }
