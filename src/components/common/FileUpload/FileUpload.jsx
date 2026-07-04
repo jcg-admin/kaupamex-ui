@@ -19,6 +19,7 @@
  *   id           string                 id del input (para asociacion label)
  */
 import { useId, useRef } from 'react';
+import Icon from '@components/common/Icon/Icon';
 import styles from './FileUpload.module.scss';
 
 function formatBytes(bytes) {
@@ -107,7 +108,7 @@ export default function FileUpload({
                 aria-label={`Quitar ${file.name}`}
                 disabled={disabled}
               >
-                ✕
+                <Icon name="x" size={14} />
               </button>
             </li>
           ))}

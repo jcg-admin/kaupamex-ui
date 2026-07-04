@@ -15,6 +15,7 @@ import { closeSearch }                  from '@redux/slices/uiSlice';
 import { selectIsSearchOpen }           from '@redux/selectors';
 import { useSearch, isQueryValid }      from '@hooks/domain/useSearch';
 import useFocusTrap                      from '@hooks/ui/useFocusTrap';
+import Icon from '@components/common/Icon/Icon';
 import styles from './SearchModal.module.scss';
 
 export default function SearchModal() {
@@ -129,7 +130,7 @@ export default function SearchModal() {
             onClick={() => dispatch(closeSearch())}
             aria-label="Cerrar búsqueda"
           >
-            ✕
+            <Icon name="x" size={18} />
           </button>
         </form>
 

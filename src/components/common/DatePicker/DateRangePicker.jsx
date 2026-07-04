@@ -25,6 +25,7 @@ import Calendar from './Calendar';
 import TimePicker from '../TimePicker/TimePicker';
 import useClickOutside from '@hooks/ui/useClickOutside';
 import useEscapeKey    from '@hooks/ui/useEscapeKey';
+import Icon from '@components/common/Icon/Icon';
 import styles from './DateRangePicker.module.scss';
 
 function fmt(date, locale) {
@@ -180,7 +181,7 @@ const DateRangePicker = forwardRef(function DateRangePicker({
           readOnly
         />
         {cleaner && (selStart || selEnd) && (
-          <button type="button" className={styles.cleaner} onClick={e => { e.stopPropagation(); clear(); }} aria-label="Limpiar rango">✕</button>
+          <button type="button" className={styles.cleaner} onClick={e => { e.stopPropagation(); clear(); }} aria-label="Limpiar rango"><Icon name="x" size={14} /></button>
         )}
         <span className={styles.indicator} aria-hidden="true">📅</span>
       </div>
