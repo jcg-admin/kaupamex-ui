@@ -1,0 +1,62 @@
+@use '@styles/abstracts' as *;
+
+.page {
+  padding: $spacing-6;
+  max-width: 960px;
+}
+
+.header {
+  margin-bottom: $spacing-5;
+}
+
+.title {
+  font-size: $font-size-xl;
+  color: $text-primary;
+  margin: 0 0 $spacing-2;
+}
+
+.lead {
+  color: $text-secondary;
+  font-size: $font-size-sm;
+  max-width: 60ch;
+}
+
+.state {
+  color: $text-secondary;
+  padding: $spacing-5 0;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid $border-medium;
+  border-radius: $border-radius-sm;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+
+  th,
+  td {
+    padding: $spacing-3 $spacing-4;
+    text-align: left;
+    border-bottom: 1px solid $border-soft;
+    color: $text-primary;
+  }
+
+  th {
+    color: $text-secondary;
+    font-weight: $font-weight-semibold;
+    background: $bg-surface;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.num {
+  text-align: right;
+  font-family: $font-family-mono;
+}
