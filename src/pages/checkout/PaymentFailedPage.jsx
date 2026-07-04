@@ -15,16 +15,9 @@ import { retryPayment } from '@redux/slices/paymentsSlice';
 import apiService from '@services/apiService';
 import { MetaTag, Button } from '@components/common/primitives';
 import Icon from '@components/common/Icon/Icon';
+import { paymentStatusDetail } from '@lib/paymentStatusDetail';
 import styles from './PaymentFailedPage.module.scss';
 
-const ERROR_MESSAGES = {
-  cc_rejected_insufficient_amount:    { t: 'Fondos insuficientes', d: 'El banco emisor de tu tarjeta no autorizó el cargo. Verifica tu límite de crédito o intenta con otra tarjeta.' },
-  cc_rejected_bad_filled_card_number: { t: 'Número de tarjeta incorrecto', d: 'Verifica los datos de la tarjeta e intenta de nuevo.' },
-  cc_rejected_bad_filled_security_code: { t: 'CVV incorrecto', d: 'Verifica el código de seguridad al reverso de tu tarjeta.' },
-  cc_rejected_bad_filled_date:        { t: 'Fecha de vencimiento incorrecta', d: 'Verifica la fecha de expiración de tu tarjeta.' },
-  cc_rejected_call_for_authorize:     { t: 'Autorización requerida', d: 'Debes autorizar el monto con tu banco antes de reintentar.' },
-  cc_rejected_other_reason:           { t: 'Pago rechazado', d: 'Tu banco rechazó el cargo. Intenta con otro método de pago.' },
-};
 
 export default function PaymentFailedPage() {
   const { id } = useParams();
@@ -41,7 +34,7 @@ export default function PaymentFailedPage() {
   if (!order) return <div className={styles.loading}>Cargando…</div>;
 
   const lastFailed = history.find((h) => h.status === 'FAILED') || {};
-  const errorInfo = ERROR_MESSAGES[lastFailed.gateway_error_code] || ERROR_MESSAGES.cc_rejected_other_reason;
+  const errorInfo = paymentStatusDetail(lastFailed.gateway_error_code);
 
   return (
     <main className={styles.page}>

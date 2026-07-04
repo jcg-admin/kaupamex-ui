@@ -146,10 +146,13 @@ function AddressCard({ address, onSetDefault, onDelete }) {
 }
 
 function EmptySlot() {
+  // H-15: "slot libre" era un placeholder de desarrollo (anglicismo) que se
+  // coló a producción. El usuario es hispanohablante: se nombra la casilla de
+  // dirección disponible en español claro.
   return (
     <article className={styles.emptySlot}>
       <span className={styles.emptyPlus}>+</span>
-      <span>slot libre</span>
+      <span>Casilla disponible</span>
     </article>
   );
 }

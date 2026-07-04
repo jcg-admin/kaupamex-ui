@@ -121,7 +121,12 @@ export default function Header() {
             {isAuth ? (
               <Dropdown
                 placement="bottom-end"
-                trigger={<span className={styles.actionLink}>Mi cuenta <Icon name="chevron-down" size={14} /></span>}
+                trigger={(
+                  <span className={styles.accountTrigger}>
+                    <span className={styles.accountTriggerLabel}>Mi cuenta</span>
+                    <Icon name="chevron-down" size={14} className={styles.accountTriggerCaret} />
+                  </span>
+                )}
               >
                 <DropdownItem onClick={() => navigate('/account')}>Mi cuenta</DropdownItem>
                 <DropdownItem onClick={() => navigate('/account/orders')}>Mis pedidos</DropdownItem>
@@ -142,9 +147,10 @@ export default function Header() {
               </button>
             )}
 
-            <Link to="/account/wishlist" className={styles.actionLink}>
-              Deseos
-            </Link>
+            {/* H-12: se retiró el enlace suelto "Deseos". Con "Mi cuenta" ya
+                como dropdown (incluye "Lista de deseos"), el enlace duplicaba
+                el acceso y saturaba la barra. Para invitados, la lista de
+                deseos exige login, así que tampoco aporta un acceso directo. */}
 
             <Link
               to="/cart"

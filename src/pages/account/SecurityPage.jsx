@@ -12,21 +12,20 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { changePassword, logoutAllSessions } from '@redux/slices/authSlice';
+import { useActiveSessions, useRevokeSession } from '@hooks/domain/useActiveSessions';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Button } from '@components/common/primitives';
 import { PasswordInput } from '@components/common';
 import styles from './SecurityPage.module.scss';
 
-const MOCK_SESSIONS = [
-  { id: 1, device: 'Chrome · macOS',    location: 'Ciudad de México · MX', when: 'Activa ahora', current: true },
-  { id: 2, device: 'Safari · iOS',      location: 'Guadalajara · MX',      when: 'hace 3 días' },
-  { id: 3, device: 'Firefox · Windows', location: 'Ciudad de México · MX', when: 'hace 12 días' },
-];
-
 export default function SecurityPage() {
   const dispatch = useDispatch();
   const [pwd, setPwd] = useState({ current: '', next: '', confirm: '' });
   const [err, setErr] = useState('');
+  // H-16 / UC-AUTH-17: sesiones reales (por dispositivo/IP), no datos mock.
+  const { data: sessionsData, isLoading: sessionsLoading } = useActiveSessions();
+  const revoke = useRevokeSession();
+  const sessions = sessionsData?.results ?? [];
 
   const handleChangePwd = async (e) => {
     e.preventDefault();
@@ -82,10 +81,21 @@ export default function SecurityPage() {
             </Card>
 
             {/* Sessions */}
-            <Card title="Sesiones activas" subtitle="Lugares donde tu cuenta está iniciada hoy">
+            <Card title="Sesiones activas" subtitle="Dispositivos donde tu cuenta está iniciada">
               <div className={styles.sessions}>
-                {MOCK_SESSIONS.map((s) => (
-                  <SessionRow key={s.id} session={s} />
+                {sessionsLoading && <p className={styles.cardLead}>Cargando sesiones…</p>}
+                {!sessionsLoading && sessions.length === 0 && (
+                  <p className={styles.cardLead} data-testid="sessions-empty">
+                    No hay otras sesiones activas registradas.
+                  </p>
+                )}
+                {sessions.map((s) => (
+                  <SessionRow
+                    key={s.id}
+                    session={s}
+                    onRevoke={() => revoke.mutate(s.id)}
+                    revoking={revoke.isPending}
+                  />
                 ))}
               </div>
               <Button variant="secondary" onClick={() => dispatch(logoutAllSessions())}>
@@ -120,16 +130,34 @@ function Card({ title, subtitle, tone = 'default', children }) {
   );
 }
 
-function SessionRow({ session }) {
+function formatWhen(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function SessionRow({ session, onRevoke, revoking }) {
+  const isCurrent = session.is_current;
   return (
     <div className={styles.sessionRow}>
       <div className={styles.sessionDevice}>{session.device}</div>
-      <div className={styles.sessionLoc}>{session.location}</div>
-      <div className={`${styles.sessionWhen} ${session.current ? styles.sessionCurrent : ''}`}>
-        {session.current ? '● ACTIVA · ESTE DISPOSITIVO' : session.when.toUpperCase()}
+      <div className={styles.sessionLoc}>{session.ip_address || 'IP desconocida'}</div>
+      <div className={`${styles.sessionWhen} ${isCurrent ? styles.sessionCurrent : ''}`}>
+        {isCurrent
+          ? '● ACTIVA · ESTE DISPOSITIVO'
+          : `ÚLTIMA ACTIVIDAD · ${formatWhen(session.last_activity).toUpperCase()}`}
       </div>
-      {!session.current ? (
-        <button type="button" className={styles.sessionClose}>Cerrar</button>
+      {!isCurrent ? (
+        <button
+          type="button"
+          className={styles.sessionClose}
+          onClick={onRevoke}
+          disabled={revoking}
+          data-testid={`session-revoke-${session.id}`}
+        >
+          {revoking ? 'Cerrando…' : 'Cerrar'}
+        </button>
       ) : (
         <span className={styles.sessionDash}>—</span>
       )}

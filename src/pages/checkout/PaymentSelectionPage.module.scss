@@ -10,6 +10,16 @@
   margin-bottom: 1.5rem;
 }
 
+// PG-03: kicker de paso ("Paso 04 · Pago") del mockup 1.0.1.
+.kicker {
+  display: block;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: $text-soft;
+  margin-bottom: .35rem;
+}
+
 .title {
   font-size: 1.75rem;
   margin: 0 0 .25rem;
@@ -80,16 +90,16 @@
 }
 
 .success {
-  border: 1px solid #4caf50;
-  background: #f0fff0;
+  border: 1px solid $success-border;
+  background: $success-bg;
   border-radius: .5rem;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
 }
 
 .warning {
-  border: 1px solid #ff9800;
-  background: #fff8f0;
+  border: 1px solid $warning-border;
+  background: $warning-bg;
   border-radius: .5rem;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;

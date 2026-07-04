@@ -32,17 +32,22 @@ import {
 } from '@redux/slices/paymentsSlice';
 import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
+import { paymentStatusDetail } from '@lib/paymentStatusDetail';
+import apiService from '@services/apiService';
 import styles from './PaymentSelectionPage.module.scss';
+
+// PG-10: cada cuánto se sondea el estado de un pago diferido (OXXO/SPEI).
+const STATUS_POLL_MS = 6000;
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
 
 const CARD_RESULT_LABELS = {
-  approved:   { text: '¡Pago aprobado!',  cls: 'success' },
-  rejected:   { text: 'Pago rechazado.',   cls: 'error'   },
-  pending:    { text: 'Pago en proceso.',  cls: 'warning' },
-  in_process: { text: 'Pago en proceso.',  cls: 'warning' },
+  approved:   { text: '¡Pago aprobado!',            cls: 'success' },
+  rejected:   { text: 'No pudimos procesar tu pago', cls: 'error'   },
+  pending:    { text: 'Procesando tu pago',          cls: 'warning' },
+  in_process: { text: 'Procesando tu pago',          cls: 'warning' },
 };
 
 // Métodos MP que no usan CardForm (igual que NON_CARD_METHOD_IDS del backend).
@@ -237,6 +242,28 @@ export default function PaymentSelectionPage() {
     }
   }, [lastAction, lastInitiation]);
 
+  // PG-10: los métodos diferidos (OXXO/SPEI) se confirman por webhook. Mientras
+  // el pago siga pendiente, se sondea GET /status/ y al acreditarse se navega a
+  // la confirmación — el comprador no tiene que refrescar la página.
+  const nonCardPending = view === 'non-card-result'
+    && ['pending', 'in_process'].includes(lastInitiation?.status);
+  useEffect(() => {
+    if (!nonCardPending) return undefined;
+    const timer = setInterval(async () => {
+      try {
+        const { data } = await apiService.get(`/api/v2/payments/${orderId}/status/`);
+        const st = String(data?.status || '').toLowerCase();
+        if (st === 'approved' || st === 'paid') {
+          clearInterval(timer);
+          navigate(`/order/${orderId}/confirmation`);
+        }
+      } catch {
+        // Reintentar en el siguiente tick; un fallo de red no rompe la espera.
+      }
+    }, STATUS_POLL_MS);
+    return () => clearInterval(timer);
+  }, [nonCardPending, orderId, navigate]);
+
   const onMpPayment = useCallback(({ token, payment_method_id, issuerId, installments, payer }) => {
     dispatch(initiateCheckoutApiPayment({
       order_number:                orderId,
@@ -274,8 +301,9 @@ export default function PaymentSelectionPage() {
   return (
     <section className={styles.page} aria-labelledby="payment-title">
       <header className={styles.header}>
+        <span className={styles.kicker}>Paso 04 · Pago</span>
         <h1 id="payment-title" className={styles.title}>
-          Elige tu metodo de pago
+          Elige tu método de pago
         </h1>
         <p className={styles.subtitle}>
           Orden <strong>{orderId}</strong>
@@ -292,8 +320,11 @@ export default function PaymentSelectionPage() {
       {view === 'result' && lastInitiation && (
         <div className={styles[cardResultLabel.cls] || styles.gateway} data-testid="payment-result">
           <p className={styles.resultStatus}>{cardResultLabel.text}</p>
+          {/* PG-08: mensaje humano del status_detail (nunca el código crudo). */}
           {lastInitiation.status_detail && (
-            <p className={styles.resultDetail}>{lastInitiation.status_detail}</p>
+            <p className={styles.resultDetail} data-testid="result-detail">
+              {paymentStatusDetail(lastInitiation.status_detail).d}
+            </p>
           )}
           <p>Pago: <strong>{lastInitiation.gateway_payment_id || lastInitiation.payment_id}</strong></p>
           <button
@@ -320,7 +351,7 @@ export default function PaymentSelectionPage() {
       {view === 'select' && (
         <>
           <div className={styles.gateway}>
-            <h2 className={styles.gatewayTitle}>Mercado Pago</h2>
+            <h2 className={styles.gatewayTitle}>Método de pago</h2>
             <ul className={styles.methodList} data-testid="mp-method-list">
               {METHOD_CONFIG.map((method) => (
                 <li key={method.id} className={styles.methodItem}>

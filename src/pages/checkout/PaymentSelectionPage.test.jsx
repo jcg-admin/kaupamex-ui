@@ -65,9 +65,12 @@ afterEach(() => {
 });
 
 describe('PaymentSelectionPage', () => {
-  it('muestra el titulo y todos los metodos disponibles', () => {
+  it('muestra el paso, el título y todos los métodos disponibles', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
-    expect(screen.getByRole('heading', { name: /Elige tu metodo de pago/i })).toBeInTheDocument();
+    // PG-03: encabezado del mockup 1.0.1.
+    expect(screen.getByText(/Paso 04 · Pago/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Elige tu método de pago/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^Método de pago$/i })).toBeInTheDocument();
     expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-oxxo')).toBeInTheDocument();
@@ -136,6 +139,31 @@ describe('PaymentSelectionPage', () => {
     });
   });
 
+  it('PG-08: pago rechazado muestra el motivo humano, no el código crudo', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+        HttpResponse.json({
+          gateway_payment_id: 'mp-gw-003',
+          status:             'rejected',
+          status_detail:      'cc_rejected_insufficient_amount',
+          order_number:       'ORD-001',
+          amount:             '500.00',
+        }),
+      ),
+    );
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
+    await act(async () => { mockCardFormSubmitFn?.(); });
+
+    await waitFor(() => {
+      const result = screen.getByTestId('payment-result');
+      expect(result).toHaveTextContent(/No pudimos procesar tu pago/);
+      // El detalle es el mensaje humano, no el código crudo.
+      expect(screen.getByTestId('result-detail')).toHaveTextContent(/banco emisor/i);
+      expect(screen.getByTestId('result-detail')).not.toHaveTextContent(/cc_rejected/);
+    });
+  });
+
   it('muestra mensaje de error si el gateway falla', async () => {
     server.use(
       http.post(`${BASE}/api/v2/payments/initiate/`, () =>
@@ -150,6 +178,39 @@ describe('PaymentSelectionPage', () => {
     await act(async () => { mockCardFormSubmitFn?.(); });
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/AMOUNT_MISMATCH/);
+  });
+
+  it('PG-10: OXXO/SPEI pendiente sondea el estado y navega al confirmarse', async () => {
+    jest.useFakeTimers();
+    server.use(
+      http.get(`${BASE}/api/v2/payments/:id/status/`, () =>
+        HttpResponse.json({ status: 'approved' }),
+      ),
+    );
+    const store = configureStore({
+      reducer: {
+        payments: paymentsReducer,
+        cards:    cardsReducer,
+        auth:     () => ({ user: { email: 'buyer@test.com' } }),
+      },
+      preloadedState: {
+        payments: {
+          isActioning: false, actionError: null, lastAction: 'mp_non_card',
+          lastInitiation: {
+            gateway: 'mercadopago', status: 'pending',
+            external_resource_url: 'https://mp.com/voucher/oxxo/abc',
+            date_of_expiration: '2026-07-07T00:00:00Z',
+          },
+          lastRefund: null, lastCancellation: null,
+        },
+      },
+    });
+    render(wrap(<PaymentSelectionPage />, store));
+    expect(screen.getByTestId('non-card-result')).toBeInTheDocument();
+    // Al vencer el intervalo, /status/ devuelve approved → navega a confirmación.
+    await act(async () => { await jest.advanceTimersByTimeAsync(6000); });
+    expect(screen.getByText('Confirmación')).toBeInTheDocument();
+    jest.useRealTimers();
   });
 
   it('vuelve a la seleccion al cancelar el CardForm', () => {

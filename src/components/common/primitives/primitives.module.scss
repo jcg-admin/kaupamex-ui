@@ -66,6 +66,17 @@
 
   &:focus { border-color: $lime; }
   &::placeholder { color: $text-muted; }
+
+  // H-05: los campos de solo lectura (usuario, correo) sí están bloqueados
+  // (readOnly en el input) pero se veían iguales que uno editable. Se les da
+  // una apariencia deshabilitada para comunicar que no se pueden cambiar.
+  &:read-only {
+    background: $bg-surface;
+    color: $text-secondary;
+    cursor: not-allowed;
+    border-style: dashed;
+  }
+  &:read-only:focus { border-color: $border-medium; }
 }
 // El <textarea> (Field textarea) heredaba resize:both del navegador y se
 // podía estirar en horizontal rompiendo el layout. Se limita a vertical.

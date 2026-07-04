@@ -2,13 +2,14 @@
  * ReturnCreatePage — PracticaYoruba
  * UC-RET-01: Solicitar devolucion (Comprador)
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   createReturnRequest,
   clearReturnsActionState,
 } from '@redux/slices/returnsSlice';
+import { fetchOrders } from '@redux/slices/ordersSlice';
 import styles from './ReturnCreatePage.module.scss';
 
 const REASONS = [
@@ -58,12 +59,24 @@ export default function ReturnCreatePage() {
   const { isActioning, actionError, lastAction, lastCreatedId } =
     useSelector((s) => s.returns);
 
+  // H-17: solo se pueden devolver órdenes ENTREGADAS (UC-RET-01 PRE-01). Se
+  // cargan las del usuario ya elegibles y se ofrecen en un selector, en vez de
+  // un campo libre donde podía teclear cualquier número. Si no hay ninguna
+  // elegible, no hay nada que solicitar (vacío honesto). El endpoint ya filtra
+  // por estado y por usuario (orders/views.py:353).
+  const eligibleOrders = useSelector((s) => s.orders?.list ?? []);
+  const ordersLoading  = useSelector((s) => s.orders?.isLoading ?? false);
+
   const [fields, setFields] = useState(() => ({
     ...INITIAL,
     order_number: searchParams.get('order') ?? '',
   }));
   const [photos, setPhotos] = useState([]);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    dispatch(fetchOrders({ filter: 'DELIVERED' }));
+  }, [dispatch]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -129,6 +142,31 @@ export default function ReturnCreatePage() {
     );
   }
 
+  const presetOrder = fields.order_number;
+  const presetOrderMissing =
+    presetOrder && !eligibleOrders.some((o) => o.order_number === presetOrder);
+
+  // Vacío honesto (H-17): sin órdenes elegibles y sin una orden ya traída por
+  // contexto (?order=), no hay nada que devolver.
+  if (!ordersLoading && eligibleOrders.length === 0 && !presetOrder) {
+    return (
+      <section className={styles.page} aria-labelledby="return-empty-title">
+        <header className={styles.header}>
+          <h1 id="return-empty-title" className={styles.title}>
+            Solicitar devolución
+          </h1>
+        </header>
+        <p className={styles.description} data-testid="return-empty">
+          No tienes pedidos entregados elegibles para devolución. Solo puedes
+          solicitar la devolución de un pedido ya entregado y dentro del plazo.
+        </p>
+        <Link to="/account/orders" className={styles.primaryBtn}>
+          Ver mis pedidos
+        </Link>
+      </section>
+    );
+  }
+
   return (
     <section className={styles.page} aria-labelledby="return-new-title">
       <header className={styles.header}>
@@ -136,24 +174,37 @@ export default function ReturnCreatePage() {
           Solicitar devolución
         </h1>
         <p className={styles.description}>
-          Indícanos qué orden y por qué necesitas devolver el producto. El
+          Elige el pedido entregado y cuéntanos por qué necesitas devolverlo. El
           plazo y la elegibilidad se verifican al enviar la solicitud.
         </p>
       </header>
 
       <form onSubmit={handleSubmit} noValidate className={styles.form}>
         <div className={styles.field}>
-          <label htmlFor="return-order">Número de orden a devolver</label>
-          <input
+          <label htmlFor="return-order">Pedido a devolver</label>
+          <select
             id="return-order"
             name="order_number"
-            type="text"
-            placeholder="Ej. PY-AB12CD34"
             value={fields.order_number}
             onChange={handleChange}
             aria-invalid={Boolean(errors.order_number)}
             data-testid="return-order-number"
-          />
+          >
+            <option value="" disabled>
+              Selecciona un pedido entregado…
+            </option>
+            {presetOrderMissing && (
+              <option value={presetOrder}>{presetOrder}</option>
+            )}
+            {eligibleOrders.map((o) => (
+              <option key={o.order_number} value={o.order_number}>
+                {o.order_number}
+                {o.created_at
+                  ? ` · ${new Date(o.created_at).toLocaleDateString('es-MX')}`
+                  : ''}
+              </option>
+            ))}
+          </select>
           {errors.order_number && (
             <span className={styles.error}>{errors.order_number}</span>
           )}

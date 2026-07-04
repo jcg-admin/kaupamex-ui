@@ -10,7 +10,7 @@
 
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import { MetaTag, Price, Button, SumRow } from '@components/common/primitives';
 import ShipmentTracking from '@components/account/ShipmentTracking';
@@ -39,6 +39,12 @@ const TIMELINE_STEPS = [
 ];
 
 const STATUS_ORDER = TIMELINE_STEPS.map(s => s.id);
+
+// PG-12: estados en los que la orden cuenta como "pagada" y el recibo PDF está
+// disponible (§4 del análisis de pasarela).
+const PAID_STATUSES = new Set([
+  'PAID', 'PROCESSING', 'IN_PREPARATION', 'SHIPPED', 'DELIVERED',
+]);
 
 export default function OrderDetailPage() {
   const { id } = useParams();
@@ -79,6 +85,19 @@ export default function OrderDetailPage() {
             )}
           </div>
           <div className={styles.heroActions}>
+            {/* PG-12: recibo PDF de una orden ya pagada (GET /payments/<order>/receipt/).
+                Enlace directo al API: el navegador manda la cookie de sesión y
+                descarga el PDF. Órdenes pagadas per §4 del análisis de pasarela. */}
+            {PAID_STATUSES.has(order.status) && (
+              <a
+                href={`/api/v2/payments/${order.order_number}/receipt/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="receipt-link"
+              >
+                <Button variant="secondary" size="sm">Descargar recibo</Button>
+              </a>
+            )}
             {order.invoice_url && (
               <a href={order.invoice_url} target="_blank" rel="noopener noreferrer">
                 <Button variant="secondary" size="sm">Descargar factura</Button>
@@ -244,7 +263,14 @@ function PaymentCard({ payment }) {
 }
 
 function SupportCard({ order }) {
+  const navigate = useNavigate();
   const canRefund = order.status === 'DELIVERED' && !order.refund_requested;
+  // H-14: los botones no tenían onClick — eran controles muertos. "Solicitar
+  // ayuda" abre un ticket de soporte prellenado con el pedido; "Solicitar
+  // reembolso" abre el flujo de devolución. Ambas rutas ya existen en el
+  // router (support/tickets/new, account/returns/new); el pedido viaja como
+  // query param para que el formulario destino lo asocie.
+  const orderRef = encodeURIComponent(order.order_number);
   return (
     <div className={styles.sideCardOutline}>
       <MetaTag tone="bronze">¿Hay algo con tu pedido?</MetaTag>
@@ -252,9 +278,23 @@ function SupportCard({ order }) {
         Si necesitas ayuda con esta entrega o quieres solicitar reembolso, podemos atenderte.
       </p>
       <div className={styles.supportActions}>
-        <Button variant="secondary" block size="sm">Solicitar ayuda</Button>
+        <Button
+          variant="secondary"
+          block
+          size="sm"
+          onClick={() => navigate(`/support/tickets/new?order=${orderRef}`)}
+        >
+          Solicitar ayuda
+        </Button>
         {canRefund && (
-          <Button variant="ghost" block size="sm">Solicitar reembolso</Button>
+          <Button
+            variant="ghost"
+            block
+            size="sm"
+            onClick={() => navigate(`/account/returns/new?order=${orderRef}`)}
+          >
+            Solicitar reembolso
+          </Button>
         )}
       </div>
     </div>

@@ -28,6 +28,12 @@ export default function ProfilePage() {
   if (!user) return null;
   const initials = `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase();
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  // H-04: el Teléfono MX es de EXACTAMENTE 10 dígitos. El checkout ya lo
+  // restringe (setDigits) pero el perfil dejaba escribir cualquier largo y
+  // caracteres no numéricos; la API los guardaba mal. Se descartan no-dígitos
+  // y se corta a 10 mientras el usuario escribe (misma regla que checkout).
+  const setDigits = (k, max) => (e) =>
+    setForm({ ...form, [k]: e.target.value.replace(/\D/g, '').slice(0, max) });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -102,7 +108,15 @@ export default function ProfilePage() {
                 {/* username y email son de solo lectura — no editables via este endpoint */}
                 <Field label="Nombre de usuario" value={user.username} readOnly hint="El usuario no se puede cambiar desde aquí" />
                 <Field label="Correo electrónico" type="email" value={user.email} readOnly hint="Cambiar el correo requiere re-verificación" />
-                <Field label="Teléfono"       value={form.phone}     onChange={set('phone')} />
+                <Field
+                  label="Teléfono"
+                  value={form.phone}
+                  onChange={setDigits('phone', 10)}
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  placeholder="10 dígitos"
+                />
               </div>
               <div className={styles.formActions}>
                 <Button type="submit" variant="primary">Guardar cambios</Button>

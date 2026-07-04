@@ -27,6 +27,21 @@ export default function AccountPage() {
   if (!user) return null;
   const completeness = user.profile_completeness ?? 0;
   const initials = `${user.first_name?.[0] || ''}${user.last_name?.[0] || ''}`.toUpperCase();
+  // H-06: el API devuelve pending_fields con las claves crudas del modelo en
+  // ingles (phone, avatar, addresses). El usuario es hispanohablante: se
+  // traducen a espanol formal (no coloquial) para mostrarlas. Si aparece una
+  // clave nueva sin traduccion, se cae al valor original para no ocultarla.
+  const FIELD_LABELS = {
+    phone:       'teléfono',
+    avatar:      'foto de perfil',
+    addresses:   'direcciones',
+    first_name:  'nombre',
+    last_name:   'apellido',
+    birth_date:  'fecha de nacimiento',
+    email:       'correo electrónico',
+  };
+  const fieldLabel = (f) => FIELD_LABELS[f] || f;
+  const pendingLabels = (user.pending_fields ?? []).map(fieldLabel);
 
   return (
     <main className={styles.page}>
@@ -58,14 +73,14 @@ export default function AccountPage() {
                   <MetaTag tone="bronze">Completa tu perfil</MetaTag>
                   <h3 className={styles.completenessTitle}>
                     Tu perfil está al {completeness}%
-                    {user.pending_fields?.length > 0 && ` · falta ${user.pending_fields[0]}`}
+                    {pendingLabels.length > 0 && ` · falta tu ${pendingLabels[0]}`}
                   </h3>
                   <div className={styles.completenessBar}>
                     <div style={{ width: `${completeness}%` }} />
                   </div>
                   <div className={styles.completenessDesc}>
-                    {user.pending_fields?.length > 0
-                      ? `Solo te falta agregar ${user.pending_fields.join(', ')} para completar.`
+                    {pendingLabels.length > 0
+                      ? `Solo te falta agregar ${pendingLabels.join(', ')} para completar.`
                       : 'Casi terminas.'}
                   </div>
                 </div>

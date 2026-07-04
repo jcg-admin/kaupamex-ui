@@ -18,6 +18,7 @@ const ADMIN_NAV = [
   { section: 'Comunidad', items: [
     { to: '/admin/users',      label: 'Usuarios' },
     { to: '/admin/vouchers',   label: 'Vouchers' },
+    { to: '/admin/marketing/wishlist', label: 'Más deseados' },
   ]},
   { section: 'Configuración', items: [
     { to: '/admin/categories',      label: 'Categorías' },
