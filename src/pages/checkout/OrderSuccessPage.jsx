@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import apiService from '@services/apiService';
 import { MetaTag, Price, Button } from '@components/common/primitives';
+import Icon from '@components/common/Icon/Icon';
 import styles from './OrderSuccessPage.module.scss';
 
 export default function OrderSuccessPage() {
@@ -34,7 +35,7 @@ export default function OrderSuccessPage() {
     <main className={styles.page}>
       <div className={styles.container}>
         <header className={styles.hero}>
-          <div className={styles.checkIcon}>✓</div>
+          <div className={styles.checkIcon}><Icon name="check" size={40} /></div>
           <MetaTag tone="lime">Pedido confirmado · {order.payment?.gateway_label || 'Pago'} aprobó tu pago</MetaTag>
           <h1 className={styles.title}>
             Gracias{firstName ? `, ${firstName}` : ''}. <em>Bendiciones</em> para tu práctica.
