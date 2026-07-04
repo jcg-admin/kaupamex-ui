@@ -218,6 +218,15 @@
   border: 1px solid $vino;
   background: rgba($vino, 0.08);
   color: $text-primary;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $spacing-3;
+}
+.errorDetail {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-secondary;
 }
 
 .grid {
