@@ -318,12 +318,22 @@ export default function PaymentSelectionPage() {
 
   const cardResultLabel = CARD_RESULT_LABELS[lastInitiation?.status] || { text: lastInitiation?.status, cls: 'warning' };
 
+  // H-PP-01: el h1 refleja el sub-estado (mockup 1.0.1), no un título fijo.
+  // Durante la selección y los sub-formularios el mockup mantiene "Método de
+  // pago" (el panel de tarjeta lleva su propio h2); en el resultado el h1 pasa
+  // a "¡Pago aprobado!" / "No pudimos procesar tu pago", etc.
+  const heading = (() => {
+    if (view === 'result')          return cardResultLabel.text;
+    if (view === 'non-card-result') return 'Instrucciones de pago';
+    return 'Método de pago';
+  })();
+
   return (
     <section className={styles.page} aria-labelledby="payment-title">
       <header className={styles.header}>
         <span className={styles.kicker}>Paso 04 · Pago</span>
         <h1 id="payment-title" className={styles.title}>
-          Elige tu método de pago
+          {heading}
         </h1>
         <p className={styles.subtitle}>
           Orden <strong>{orderId}</strong>
@@ -367,28 +377,25 @@ export default function PaymentSelectionPage() {
         />
       )}
 
-      {/* Method selector */}
+      {/* Method selector — grid de tarjetas (mockup 1.0.1) */}
       {view === 'select' && (
         <>
-          <div className={styles.gateway}>
-            <h2 className={styles.gatewayTitle}>Método de pago</h2>
-            <ul className={styles.methodList} data-testid="mp-method-list">
-              {METHOD_CONFIG.map((method) => (
-                <li key={method.id} className={styles.methodItem}>
-                  <button
-                    type="button"
-                    className={styles.methodBtn}
-                    onClick={() => onSelectMethod(method)}
-                    disabled={isActioning}
-                    data-testid={`method-btn-${method.id}`}
-                  >
-                    <span className={styles.methodLabel}>{method.label}</span>
-                    <span className={styles.methodDesc}>{method.description}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul className={styles.methodList} data-testid="mp-method-list">
+            {METHOD_CONFIG.map((method) => (
+              <li key={method.id} className={styles.methodItem}>
+                <button
+                  type="button"
+                  className={styles.methodBtn}
+                  onClick={() => onSelectMethod(method)}
+                  disabled={isActioning}
+                  data-testid={`method-btn-${method.id}`}
+                >
+                  <span className={styles.methodLabel}>{method.label}</span>
+                  <span className={styles.methodDesc}>{method.description}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
 
           <p className={styles.legal}>
             Al continuar, aceptas procesar tu pago a través del proveedor seleccionado.

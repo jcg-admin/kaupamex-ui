@@ -10,19 +10,25 @@
   margin-bottom: 1.5rem;
 }
 
-// PG-03: kicker de paso ("Paso 04 · Pago") del mockup 1.0.1.
+// PG-03 / T-PP-C3: kicker de paso ("Paso 04 · Pago") del mockup 1.0.1.
+// Mono + bronce + tracking amplio, como el mockup.
 .kicker {
   display: block;
-  font-size: .72rem;
-  letter-spacing: .08em;
+  font-family: $font-family-mono;
+  font-size: .7rem;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  color: $text-soft;
-  margin-bottom: .35rem;
+  color: $bronze;
+  margin-bottom: .5rem;
 }
 
+// T-PP-C3: h1 por sub-estado (H-PP-01), tipografía display (Fraunces).
 .title {
-  font-size: 1.75rem;
-  margin: 0 0 .25rem;
+  font-family: $font-family-display;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3.6vw, 2.25rem);
+  letter-spacing: -.01em;
+  margin: 0 0 .35rem;
   color: $text-strong;
 }
 
@@ -123,13 +129,15 @@
   margin-top: .5rem;
 }
 
+// T-PP-C3: selector de método en grid de tarjetas (mockup 1.0.1):
+// repeat(auto-fit, minmax(...)) para que fluya en columnas según el ancho.
 .methodList {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .75rem;
 }
 
 .methodItem {
@@ -138,20 +146,21 @@
 
 .methodBtn {
   width: 100%;
+  height: 100%;
   text-align: left;
   background: $bg-surface;
-  border: 1px solid $border-color;
+  border: 1px solid rgba($bronze, .22);
   border-radius: .4rem;
-  padding: .75rem 1rem;
+  padding: 1rem 1.1rem;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: .15rem;
+  gap: .3rem;
   transition: border-color .15s, background .15s;
 
   &:hover {
-    border-color: $primary-color;
-    background: $bg-page;
+    border-color: $lime;
+    background: rgba($lime, .06);
   }
 
   &:disabled {
@@ -160,14 +169,16 @@
   }
 }
 
+// Nombre del método en tipografía display (Fraunces), como el mockup.
 .methodLabel {
-  font-weight: 600;
-  font-size: .95rem;
+  font-family: $font-family-display;
+  font-weight: 500;
+  font-size: 1.05rem;
   color: $text-strong;
 }
 
 .methodDesc {
-  font-size: .82rem;
+  font-size: .8rem;
   color: $text-soft;
 }
 
