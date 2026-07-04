@@ -5,7 +5,9 @@
 # Idempotente: ejecuta 'git config core.hooksPath .githooks' relativo a
 # la raiz del submodulo ui/.
 #
-# El hook pre-commit valida zero lazy imports en src/**.
+# Instala TODOS los hooks vendored en .githooks/ (chmod + core.hooksPath):
+#   - pre-commit  -> gates zero lazy imports + canon-idioma en src/**.
+#   - commit-msg  -> convencion Tim Pope (.claude/rules/commit-conventions.md).
 # Ver docs/source/gestion/pm/ui/iniciativas/eliminar-lazy-imports-ui/.
 # =============================================================================
 set -euo pipefail
