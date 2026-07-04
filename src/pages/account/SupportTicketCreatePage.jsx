@@ -2,28 +2,32 @@
  * SupportTicketCreatePage — PracticaYoruba
  * UC-SUPP-01: Crear ticket de soporte (Comprador)
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   createSupportTicket,
   clearSupportTicketActionState,
 } from '@redux/slices/supportTicketsSlice';
+import { fetchOrders } from '@redux/slices/ordersSlice';
 import styles from './SupportTicketCreatePage.module.scss';
 
+// H-18: los valores deben coincidir con SupportTicket.Category del backend
+// (GENERAL, ORDER, DAMAGED, URGENT, FRAUD). Antes se enviaba 'PRODUCT', que no
+// es una categoría válida y el API rechazaba con 400.
 const CATEGORIES = [
   { value: 'GENERAL', label: 'Consulta general' },
   { value: 'ORDER',   label: 'Problema con un pedido' },
-  { value: 'PRODUCT', label: 'Producto defectuoso' },
+  { value: 'DAMAGED', label: 'Producto defectuoso o dañado' },
   { value: 'URGENT',  label: 'Urgente' },
   { value: 'FRAUD',   label: 'Fraude' },
 ];
 
 const INITIAL_FIELDS = {
-  subject:  '',
-  body:     '',
-  category: 'GENERAL',
-  order_id: '',
+  subject:      '',
+  body:         '',
+  category:     'GENERAL',
+  order_number: '',
 };
 
 function validate({ subject, body }) {
@@ -39,10 +43,22 @@ function validate({ subject, body }) {
 
 export default function SupportTicketCreatePage() {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const { isActioning, actionError, lastAction, lastCreatedId } =
     useSelector((s) => s.supportTickets);
-  const [fields, setFields] = useState(INITIAL_FIELDS);
+  // H-18: se ofrece un selector con los pedidos del comprador (opcional). El
+  // API resuelve order_number -> order_id; la lista de pedidos solo expone
+  // order_number. Se pre-selecciona ?order= cuando se llega desde un pedido.
+  const orders = useSelector((s) => s.orders?.list ?? []);
+  const [fields, setFields] = useState(() => ({
+    ...INITIAL_FIELDS,
+    order_number: searchParams.get('order') ?? '',
+  }));
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    dispatch(fetchOrders({ filter: 'all' }));
+  }, [dispatch]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -58,10 +74,10 @@ export default function SupportTicketCreatePage() {
       return;
     }
     const payload = {
-      subject:  fields.subject.trim(),
-      body:     fields.body.trim(),
-      category: fields.category,
-      order_id: fields.order_id || null,
+      subject:      fields.subject.trim(),
+      body:         fields.body.trim(),
+      category:     fields.category,
+      order_number: fields.order_number || null,
     };
     dispatch(createSupportTicket(payload));
   };
@@ -154,15 +170,24 @@ export default function SupportTicketCreatePage() {
         </div>
 
         <div className={styles.field}>
-          <label htmlFor="ticket-order-id">Orden relacionada (opcional)</label>
-          <input
-            id="ticket-order-id"
-            name="order_id"
-            type="text"
-            placeholder="Ej. ORD-12345678"
-            value={fields.order_id}
+          <label htmlFor="ticket-order-number">Pedido relacionado (opcional)</label>
+          <select
+            id="ticket-order-number"
+            name="order_number"
+            value={fields.order_number}
             onChange={handleChange}
-          />
+            data-testid="ticket-order-number"
+          >
+            <option value="">— Sin pedido relacionado —</option>
+            {orders.map((o) => (
+              <option key={o.order_number} value={o.order_number}>
+                {o.order_number}
+                {o.created_at
+                  ? ` · ${new Date(o.created_at).toLocaleDateString('es-MX')}`
+                  : ''}
+              </option>
+            ))}
+          </select>
         </div>
 
         {actionError && (
