@@ -16,6 +16,7 @@
 import { useState, useRef } from 'react';
 import { useAdminCategories } from '@hooks/domain/useCategories';
 import { FileUpload } from '@components/common';
+import RichTextEditor from '@components/common/RichTextEditor/RichTextEditor';
 import styles from './AdminProductForm.module.scss';
 
 const DEFAULTS = {
@@ -159,10 +160,20 @@ export default function AdminProductForm({
       </div>
 
       <div className={styles.field}>
-        <label htmlFor="product-desc" className={styles.label}>Descripción completa<RequiredMark /></label>
-        <textarea
-          {...controlProps('description', 'product-desc', { required: true, base: styles.textarea })}
-          rows={6}
+        <label id="product-desc-label" htmlFor="product-desc" className={styles.label}>Descripción completa<RequiredMark /></label>
+        <RichTextEditor
+          id="product-desc"
+          name="description"
+          ref={(el) => { controlRefs.current.description = el; }}
+          value={fields.description}
+          placeholder="Describe el producto: materiales, uso ritual, medidas…"
+          onChange={(html) => handleChange({ target: { name: 'description', value: html } })}
+          ariaProps={{
+            'aria-labelledby': 'product-desc-label',
+            'aria-required': true,
+            'aria-invalid': errors.description ? true : undefined,
+            'aria-describedby': errors.description ? 'product-desc-error' : undefined,
+          }}
         />
         {fieldError('description', 'product-desc')}
       </div>
