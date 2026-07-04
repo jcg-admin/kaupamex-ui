@@ -19,6 +19,7 @@ import { logoutUser } from '@redux/slices/authSlice';
 import { fetchCategories } from '@redux/slices/catalogSlice';
 import SearchModal from '@components/common/SearchModal/SearchModal';
 import Dropdown, { DropdownItem, DropdownDivider } from '@components/common/Dropdown/Dropdown';
+import Icon from '@components/common/Icon/Icon';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Header.module.scss';
 
@@ -120,7 +121,7 @@ export default function Header() {
             {isAuth ? (
               <Dropdown
                 placement="bottom-end"
-                trigger={<span className={styles.actionLink}>Mi cuenta ▾</span>}
+                trigger={<span className={styles.actionLink}>Mi cuenta <Icon name="chevron-down" size={14} /></span>}
               >
                 <DropdownItem onClick={() => navigate('/account')}>Mi cuenta</DropdownItem>
                 <DropdownItem onClick={() => navigate('/account/orders')}>Mis pedidos</DropdownItem>
@@ -175,7 +176,7 @@ export default function Header() {
           ))}
           <span className={styles.navSpacer} />
           <Link to="/catalog" className={styles.navLinkAccent}>
-            · Catálogo completo →
+            · Catálogo completo <Icon name="arrow-right" size={14} />
           </Link>
         </div>
       </nav>

@@ -19,6 +19,7 @@ import {
 import {
   MetaTag, Price, Button, SumRow, EmptyState,
 } from '@components/common/primitives';
+import Icon from '@components/common/Icon/Icon';
 import styles from './CartPage.module.scss';
 
 const FREE_SHIPPING_THRESHOLD = 1500;
@@ -107,7 +108,7 @@ function FreeShippingBar({ subtotal, threshold }) {
       <div className={styles.fsBarHeader}>
         <span>
           {pct >= 100 ? (
-            <><span className={styles.fsBarCheck}>✓</span> <strong>Tu pedido califica para envío gratis</strong></>
+            <><span className={styles.fsBarCheck}><Icon name="check" size={14} /></span> <strong>Tu pedido califica para envío gratis</strong></>
           ) : (
             <>
               Te faltan <strong>${remaining.toLocaleString('es-MX')}</strong> para envío gratis
@@ -163,9 +164,9 @@ function CartItem({ item, dispatch }) {
         </div>
       </div>
       <div className={styles.qtyBox}>
-        <button type="button" onClick={() => handleQty(-1)} aria-label="Reducir">−</button>
+        <button type="button" onClick={() => handleQty(-1)} aria-label="Reducir"><Icon name="minus" size={14} /></button>
         <span>{item.quantity}</span>
-        <button type="button" onClick={() => handleQty(+1)} aria-label="Aumentar">+</button>
+        <button type="button" onClick={() => handleQty(+1)} aria-label="Aumentar"><Icon name="plus" size={14} /></button>
       </div>
       <div className={styles.itemPrice}>
         <Price amount={item.unit_price * item.quantity} size="sm" />
@@ -178,7 +179,7 @@ function CartItem({ item, dispatch }) {
         className={styles.itemRemove}
         onClick={handleRemove}
         aria-label="Eliminar"
-      >×</button>
+      ><Icon name="x" size={16} /></button>
     </div>
   );
 }
@@ -283,7 +284,7 @@ function CartSummary({
         </div>
 
         <Button variant="primary" block size="lg" onClick={onCheckout} data-testid="cart-checkout">
-          Continuar al checkout →
+          Continuar al checkout <Icon name="arrow-right" size={16} />
         </Button>
         <Link to="/catalog" className={styles.summaryBack}>
           Seguir explorando
