@@ -24,11 +24,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  // Envolver: con muchos chips de filtro + buscador + DateRangePicker (p.ej.
+  // AdminOrdersPage con 9 estados) una sola fila desborda horizontalmente en
+  // desktop. flex-wrap deja caer los controles a la siguiente línea.
+  flex-wrap: wrap;
   margin-bottom: $spacing-5;
   gap: $spacing-4;
   @media (max-width: $bp-md) { flex-direction: column; align-items: stretch; }
 }
-.filters { display: flex; gap: 6px; }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
 .filterBtn {
   padding: 8px 14px;
   border: 1px solid $border-medium;
