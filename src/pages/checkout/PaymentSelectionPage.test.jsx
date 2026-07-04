@@ -139,6 +139,31 @@ describe('PaymentSelectionPage', () => {
     });
   });
 
+  it('PG-08: pago rechazado muestra el motivo humano, no el código crudo', async () => {
+    server.use(
+      http.post(`${BASE}/api/v2/payments/initiate/`, () =>
+        HttpResponse.json({
+          gateway_payment_id: 'mp-gw-003',
+          status:             'rejected',
+          status_detail:      'cc_rejected_insufficient_amount',
+          order_number:       'ORD-001',
+          amount:             '500.00',
+        }),
+      ),
+    );
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    fireEvent.click(screen.getByTestId('method-btn-mp-card'));
+    await act(async () => { mockCardFormSubmitFn?.(); });
+
+    await waitFor(() => {
+      const result = screen.getByTestId('payment-result');
+      expect(result).toHaveTextContent(/No pudimos procesar tu pago/);
+      // El detalle es el mensaje humano, no el código crudo.
+      expect(screen.getByTestId('result-detail')).toHaveTextContent(/banco emisor/i);
+      expect(screen.getByTestId('result-detail')).not.toHaveTextContent(/cc_rejected/);
+    });
+  });
+
   it('muestra mensaje de error si el gateway falla', async () => {
     server.use(
       http.post(`${BASE}/api/v2/payments/initiate/`, () =>

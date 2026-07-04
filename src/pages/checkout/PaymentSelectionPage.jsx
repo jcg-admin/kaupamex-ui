@@ -32,6 +32,7 @@ import {
 } from '@redux/slices/paymentsSlice';
 import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
+import { paymentStatusDetail } from '@lib/paymentStatusDetail';
 import styles from './PaymentSelectionPage.module.scss';
 
 // ---------------------------------------------------------------------------
@@ -39,10 +40,10 @@ import styles from './PaymentSelectionPage.module.scss';
 // ---------------------------------------------------------------------------
 
 const CARD_RESULT_LABELS = {
-  approved:   { text: '¡Pago aprobado!',  cls: 'success' },
-  rejected:   { text: 'Pago rechazado.',   cls: 'error'   },
-  pending:    { text: 'Pago en proceso.',  cls: 'warning' },
-  in_process: { text: 'Pago en proceso.',  cls: 'warning' },
+  approved:   { text: '¡Pago aprobado!',            cls: 'success' },
+  rejected:   { text: 'No pudimos procesar tu pago', cls: 'error'   },
+  pending:    { text: 'Procesando tu pago',          cls: 'warning' },
+  in_process: { text: 'Procesando tu pago',          cls: 'warning' },
 };
 
 // Métodos MP que no usan CardForm (igual que NON_CARD_METHOD_IDS del backend).
@@ -293,8 +294,11 @@ export default function PaymentSelectionPage() {
       {view === 'result' && lastInitiation && (
         <div className={styles[cardResultLabel.cls] || styles.gateway} data-testid="payment-result">
           <p className={styles.resultStatus}>{cardResultLabel.text}</p>
+          {/* PG-08: mensaje humano del status_detail (nunca el código crudo). */}
           {lastInitiation.status_detail && (
-            <p className={styles.resultDetail}>{lastInitiation.status_detail}</p>
+            <p className={styles.resultDetail} data-testid="result-detail">
+              {paymentStatusDetail(lastInitiation.status_detail).d}
+            </p>
           )}
           <p>Pago: <strong>{lastInitiation.gateway_payment_id || lastInitiation.payment_id}</strong></p>
           <button
