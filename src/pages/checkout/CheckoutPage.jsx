@@ -84,6 +84,27 @@ export default function CheckoutPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedAddresses]);
 
+  // H-03: cuando el usuario NO tiene direcciones guardadas (comprador nuevo),
+  // el formulario quedaba totalmente vacío aunque su perfil ya tuviera nombre y
+  // teléfono. Se pre-rellenan destinatario y teléfono desde el perfil como
+  // punto de partida; los campos de dirección siguen en blanco (no están en el
+  // perfil). Solo aplica si no hay dirección guardada ni datos ya escritos.
+  useEffect(() => {
+    const u = auth.user;
+    if (!u || savedAddresses.length > 0) return;
+    if (address.recipient_name || address.phone) return;
+    const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim();
+    const phone = (u.phone || '').replace(/\D/g, '').slice(0, 10);
+    if (!fullName && !phone) return;
+    setAddress((prev) => ({
+      ...prev,
+      recipient_name: fullName,
+      phone,
+      country: prev.country || 'MX',
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.user, savedAddresses]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitError(null);

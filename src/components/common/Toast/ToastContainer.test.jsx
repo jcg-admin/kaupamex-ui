@@ -5,7 +5,7 @@
  * contenedor no debe pintar "[object Object]" si `message`/`title` llega como
  * objeto por cualquier ruta.
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 
@@ -47,5 +47,25 @@ describe('ToastContainer — coercion defensiva', () => {
   it('renderiza un message string normal sin cambios', () => {
     renderWithToast({ type: 'info', message: 'Todo bien' });
     expect(screen.getByText('Todo bien')).toBeInTheDocument();
+  });
+});
+
+describe('ToastContainer — auto-descarte (H-10)', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
+
+  it('descarta un toast despachado directo tras 4s (default)', () => {
+    // AddToWishlistButton despacha addToast directo (sin ToastContext). Antes
+    // este toast se quedaba fijo porque nadie programaba su remocion.
+    renderWithToast({ type: 'success', message: 'Se agregó a tu lista de deseos.' });
+    expect(screen.getByText(/Se agregó a tu lista/)).toBeInTheDocument();
+    act(() => { jest.advanceTimersByTime(4000); });
+    expect(screen.queryByText(/Se agregó a tu lista/)).toBeNull();
+  });
+
+  it('respeta duration=0 (toast fijo, no se auto-descarta)', () => {
+    renderWithToast({ type: 'info', message: 'Persistente', duration: 0 });
+    act(() => { jest.advanceTimersByTime(60000); });
+    expect(screen.getByText('Persistente')).toBeInTheDocument();
   });
 });

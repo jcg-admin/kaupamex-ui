@@ -47,7 +47,7 @@ export default function ProductCard({ product, inWishlist: inWishlistProp = fals
     ),
   );
   const inWishlist = inWishlistProp || inWishlistStore;
-  const { error: toastError } = useToast();
+  const { success: toastSuccess, error: toastError } = useToast();
   if (!product) return null;
 
   const {
@@ -82,6 +82,9 @@ export default function ProductCard({ product, inWishlist: inWishlistProp = fals
     // the inner action's type to detect rejection without relying on
     // toggleWishlist.rejected (which never fires because the thunk function
     // itself does not throw or rejectWithValue).
+    // Estado antes del toggle: define si esta accion agrega o quita, para dar
+    // el mensaje de confirmacion correcto.
+    const wasInWishlist = inWishlist;
     const outerResult = await dispatch(toggleWishlist({ productId: id }));
     const innerAction = outerResult?.payload;
     const rejected = innerAction && (addToWishlist.rejected.match(innerAction)
@@ -93,6 +96,15 @@ export default function ProductCard({ product, inWishlist: inWishlistProp = fals
       if (code !== 'PRODUCT_ALREADY_IN_WISHLIST') {
         toastError('No se pudo actualizar la lista de deseos');
       }
+      return;
+    }
+    // H-07: el corazón del catálogo no daba ninguna confirmación al hacer clic
+    // (a diferencia de AddToWishlistButton en la ficha). El usuario no sabía si
+    // se guardó. Se avisa con un toast según la acción efectiva.
+    if (wasInWishlist) {
+      toastSuccess('Se quitó de tu lista de deseos');
+    } else {
+      toastSuccess('Se agregó a tu lista de deseos');
     }
   };
 

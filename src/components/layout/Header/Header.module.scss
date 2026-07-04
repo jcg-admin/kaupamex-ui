@@ -184,6 +184,40 @@
     &:not(.cartBtn) { display: none; }
   }
 }
+// H-12: gatillo del dropdown "Mi cuenta". Antes usaba .actionLink (texto plano
+// + chevron de 14px), que (1) se ocultaba en móvil por la regla
+// `.actionLink:not(.cartBtn){display:none}` —el usuario perdía el acceso a su
+// cuenta en móvil— y (2) tenía una flecha poco visible. Ahora es un pill
+// bordeado, visible en todos los breakpoints, con caret que rota al abrir.
+.accountTrigger {
+  display: inline-flex; align-items: center; gap: $spacing-2;
+  color: $text-primary;
+  padding: 8px $spacing-4;
+  border: 1px solid $border-medium;
+  border-radius: $border-radius-sm;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  transition: $transition-colors;
+
+  &:hover { border-color: $bronze; color: $bronze; }
+
+  // El chevron hereda el color del texto y baja un pelo para alinear óptico.
+  svg { display: block; }
+}
+.accountTriggerCaret {
+  transition: transform 0.18s ease;
+}
+// Cuando el Dropdown marca el trigger como expandido, rota el caret.
+[aria-expanded='true'] .accountTriggerCaret,
+.accountTrigger[aria-expanded='true'] .accountTriggerCaret {
+  transform: rotate(180deg);
+}
+@media (max-width: $bp-md) {
+  // En móvil se muestra solo el caret dentro del pill para ahorrar espacio,
+  // pero el gatillo SIGUE visible (a diferencia de .actionLink).
+  .accountTriggerLabel { display: none; }
+  .accountTrigger { padding: 8px $spacing-3; }
+}
 .cartBtn {
   display: inline-flex; align-items: center; gap: $spacing-2;
   color: $text-primary;

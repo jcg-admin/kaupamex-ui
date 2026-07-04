@@ -10,7 +10,7 @@
 
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import { MetaTag, Price, Button, SumRow } from '@components/common/primitives';
 import ShipmentTracking from '@components/account/ShipmentTracking';
@@ -244,7 +244,14 @@ function PaymentCard({ payment }) {
 }
 
 function SupportCard({ order }) {
+  const navigate = useNavigate();
   const canRefund = order.status === 'DELIVERED' && !order.refund_requested;
+  // H-14: los botones no tenían onClick — eran controles muertos. "Solicitar
+  // ayuda" abre un ticket de soporte prellenado con el pedido; "Solicitar
+  // reembolso" abre el flujo de devolución. Ambas rutas ya existen en el
+  // router (support/tickets/new, account/returns/new); el pedido viaja como
+  // query param para que el formulario destino lo asocie.
+  const orderRef = encodeURIComponent(order.order_number);
   return (
     <div className={styles.sideCardOutline}>
       <MetaTag tone="bronze">¿Hay algo con tu pedido?</MetaTag>
@@ -252,9 +259,23 @@ function SupportCard({ order }) {
         Si necesitas ayuda con esta entrega o quieres solicitar reembolso, podemos atenderte.
       </p>
       <div className={styles.supportActions}>
-        <Button variant="secondary" block size="sm">Solicitar ayuda</Button>
+        <Button
+          variant="secondary"
+          block
+          size="sm"
+          onClick={() => navigate(`/support/tickets/new?order=${orderRef}`)}
+        >
+          Solicitar ayuda
+        </Button>
         {canRefund && (
-          <Button variant="ghost" block size="sm">Solicitar reembolso</Button>
+          <Button
+            variant="ghost"
+            block
+            size="sm"
+            onClick={() => navigate(`/account/returns/new?order=${orderRef}`)}
+          >
+            Solicitar reembolso
+          </Button>
         )}
       </div>
     </div>
