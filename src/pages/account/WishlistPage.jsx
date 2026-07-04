@@ -17,6 +17,7 @@ import { addToast } from '@redux/slices/uiSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Price, Button, EmptyState } from '@components/common/primitives';
 import useSortableList, { arrayMove } from '@hooks/ui/useSortableList';
+import Icon from '@components/common/Icon/Icon';
 import styles from './WishlistPage.module.scss';
 
 export default function WishlistPage() {
@@ -137,7 +138,7 @@ export default function WishlistPage() {
 
             {!isLoading && items.length === 0 && (
               <EmptyState
-                icon="♡"
+                icon={<Icon name="heart" size={36} />}
                 title="No tienes piezas guardadas"
                 description="Cuando encuentres una pieza que quieras pero no quieras comprar ahora, guárdala aquí."
               >
@@ -189,7 +190,7 @@ function WishItem({ item, dispatch, onMove, dragProps = {} }) {
           className={styles.removeBtn}
           onClick={() => dispatch(removeFromWishlist(item.id))}
           aria-label="Quitar de deseos"
-        >×</button>
+        ><Icon name="x" size={16} /></button>
       </div>
       <div className={styles.wishBody}>
         <div className={styles.wishTags}>
