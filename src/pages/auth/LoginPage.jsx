@@ -27,6 +27,11 @@ export default function LoginPage() {
   // hay ninguno, se regresa a la pagina anterior (historial), no a /account.
   const from = location.state?.from;
   const nextValue = safeNext(searchParams.get('next')) || safeNext(fromLocation(from));
+  // El reset de contraseña redirige a /auth/login?reset=ok. Se usa para (1)
+  // confirmar visualmente el éxito y (2) NO hacer navigate(-1) tras el login
+  // —el "atrás" del historial es /auth/reset-password → /auth/forgot-password,
+  // así que el usuario quedaba "expulsado" al flujo de recuperación.
+  const resetOk = searchParams.get('reset') === 'ok';
   // Acarrea el destino al tab "Crear cuenta" para que el flujo de registro +
   // verificacion por email lo conserve (DEC-STF-AUTH-NEXT).
   const registerHref = nextValue
@@ -46,7 +51,10 @@ export default function LoginPage() {
       // T-04: destino explicito (?next= o state.from) si existe; si no,
       // regresar a la pagina anterior (historial); fallback a la home cuando
       // no hay historial de app (pestana nueva / primera carga).
+      // EXCEPCION reset: tras cambiar la contraseña, el "atras" del historial
+      // es el flujo de recuperacion; se va a /account, no navigate(-1).
       if (nextValue) navigate(nextValue, { replace: true });
+      else if (resetOk) navigate('/account', { replace: true });
       else if (window.history.length > 1) navigate(-1);
       else navigate('/', { replace: true });
     } catch (err) {
@@ -70,6 +78,12 @@ export default function LoginPage() {
           <p className={styles.lead}>
             Usa el correo y contraseña con los que abriste tu cuenta.
           </p>
+
+          {resetOk && (
+            <p role="status" className={styles.resetNotice} data-testid="login-reset-ok">
+              Tu contraseña se actualizó. Inicia sesión con la nueva.
+            </p>
+          )}
 
           <form className={styles.form} onSubmit={handleSubmit}>
             <Field

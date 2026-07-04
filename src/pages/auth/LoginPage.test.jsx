@@ -93,4 +93,20 @@ describe('LoginPage redirect (T-04)', () => {
     expect(args).not.toContain('https://malo.com/phish');
     expect(args).not.toContain('/account');
   });
+
+  it('con ?reset=ok muestra el aviso de contraseña actualizada', () => {
+    renderLogin(['/auth/login?reset=ok']);
+    expect(screen.getByTestId('login-reset-ok')).toBeInTheDocument();
+  });
+
+  it('con ?reset=ok tras login va a /account, NO navigate(-1)', async () => {
+    // El bug: navigate(-1) devolvia al flujo de recuperacion
+    // (reset-password -> forgot-password) y "expulsaba" al usuario.
+    renderLogin(['/auth/login?reset=ok']);
+    submit();
+    await waitFor(() =>
+      expect(mockNavigate).toHaveBeenCalledWith('/account', { replace: true }),
+    );
+    expect(mockNavigate).not.toHaveBeenCalledWith(-1);
+  });
 });
