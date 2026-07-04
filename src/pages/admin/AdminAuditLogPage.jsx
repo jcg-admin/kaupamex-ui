@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { useAuditLog } from '@hooks/domain/useAuditLog';
 import { DataTable } from '@components/common';
+import { Button } from '@components/common/primitives';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
 import styles from './AdminAuditLogPage.module.scss';
@@ -78,7 +79,7 @@ export default function AdminAuditLogPage() {
             }}
           />
         </label>
-        <button type="submit">Filtrar</button>
+        <Button type="submit" variant="primary">Filtrar</Button>
       </form>
 
       {isError && <p role="alert">No se pudo cargar el log.</p>}
@@ -106,20 +107,24 @@ export default function AdminAuditLogPage() {
       {entries.length > 0 && (
         <div className={styles.pagination}>
           <span>{count} entradas · Pagina {page}</span>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
           >
             Anterior
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setPage((p) => p + 1)}
             disabled={!hasNext}
           >
             Siguiente
-          </button>
+          </Button>
         </div>
       )}
     </section>

@@ -6,6 +6,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminSupportTickets } from '@hooks/domain/useSupportTickets';
 import { DataTable } from '@components/common';
+import { Button } from '@components/common/primitives';
 import styles from './AdminSupportPage.module.scss';
 
 const PAGE_SIZE = 20;
@@ -169,21 +170,23 @@ export default function AdminSupportPage() {
 
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <button disabled={page === 1} onClick={() => setLocalPage(page - 1)}>
+          <Button type="button" variant="ghost" size="sm" disabled={page === 1} onClick={() => setLocalPage(page - 1)}>
             ← Anterior
-          </button>
+          </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-            <button
+            <Button
               key={p}
-              className={p === page ? styles.pageActive : ''}
+              type="button"
+              variant={p === page ? 'primary' : 'ghost'}
+              size="sm"
               onClick={() => setLocalPage(p)}
             >
               {p}
-            </button>
+            </Button>
           ))}
-          <button disabled={page === totalPages} onClick={() => setLocalPage(page + 1)}>
+          <Button type="button" variant="ghost" size="sm" disabled={page === totalPages} onClick={() => setLocalPage(page + 1)}>
             Siguiente →
-          </button>
+          </Button>
         </div>
       )}
     </section>

@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInventory } from '@hooks/domain/useInventory';
 import { DataTable } from '@components/common';
+import { Button } from '@components/common/primitives';
 import { exportToCsv } from '@lib/csvExporter';
 import { exportToExcel } from '@lib/excelExporter';
 import styles from './AdminInventoryPage.module.scss';
@@ -64,20 +65,24 @@ export default function AdminInventoryPage() {
           Inventario
         </h1>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => exportToCsv(CSV_COLUMNS, items, 'inventario.csv')}
             disabled={items.length === 0}
           >
             Exportar CSV
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => exportToExcel(CSV_COLUMNS, items, 'inventario.xls', { sheetName: 'Inventario' })}
             disabled={items.length === 0}
           >
             Exportar Excel
-          </button>
+          </Button>
           <Link to="/admin/inventory/import" className={styles.importLink}>
             Importar CSV
           </Link>

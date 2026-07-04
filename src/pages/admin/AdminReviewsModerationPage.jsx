@@ -16,6 +16,7 @@ import {
   clearReviewsActionState,
 } from '@redux/slices/reviewsSlice';
 import { useAdminReviewsModeration } from '@hooks/domain/useReviews';
+import { Button } from '@components/common/primitives';
 import styles from './AdminReviewsModerationPage.module.scss';
 
 const REJECT_REASONS = [
@@ -91,23 +92,25 @@ export default function AdminReviewsModerationPage() {
           controles el admin solo ve las primeras 50 resenas pendientes. */}
       {(hasNext || hasPrev) && (
         <div className={styles.pagination}>
-          <button
+          <Button
             type="button"
-            className={styles.secondaryBtn}
+            variant="ghost"
+            size="sm"
             onClick={() => setPage((p) => p - 1)}
             disabled={!hasPrev || isLoading}
           >
             Anterior
-          </button>
+          </Button>
           <span>Página {page}</span>
-          <button
+          <Button
             type="button"
-            className={styles.secondaryBtn}
+            variant="ghost"
+            size="sm"
             onClick={() => setPage((p) => p + 1)}
             disabled={!hasNext || isLoading}
           >
             Siguiente
-          </button>
+          </Button>
         </div>
       )}
 

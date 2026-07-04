@@ -17,6 +17,7 @@ import {
 import {
   updateRolePermissions, clearPermissionsActionState,
 } from '@redux/slices/permissionsSlice';
+import { Button } from '@components/common/primitives';
 import styles from './AdminPermissionsPage.module.scss';
 
 export default function AdminPermissionsPage() {
@@ -124,13 +125,15 @@ export default function AdminPermissionsPage() {
             <td></td>
             {roles.map((r) => (
               <td key={r.role}>
-                <button
+                <Button
                   type="button"
+                  variant="primary"
+                  size="sm"
                   onClick={() => handleSave(r.role)}
                   disabled={isActioning}
                 >
                   Guardar {r.role}
-                </button>
+                </Button>
               </td>
             ))}
           </tr>
