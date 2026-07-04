@@ -1,37 +1,48 @@
 /**
- * AdminGuideCreate — UC-LOG-01
+ * AdminGuideCreate — UC-LOG-01 / UC-LOG-02
  *
- * Formulario para crear la guía de envío de una orden IN_PREPARATION desde el
- * detalle admin del pedido. Cubre el hueco COV-04a: antes el panel prometía
- * "crear guías" pero no había UI (el botón era un Link muerto).
- *
- * POST /api/v2/logistics/guides/ { order_number, courier_id, tracking_number, notes? }
+ * Gestión de la guía de envío de una orden desde el detalle admin del pedido.
+ * Si la orden aún no tiene guía muestra el formulario de creación (COV-04a);
+ * si ya existe, muestra su estado y permite avanzarlo / actualizar el rastreo
+ * (register-tracking). Todo por order_number (la UI no conoce el pk).
  */
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  fetchCouriers, createShipmentGuide, clearLogisticsActionState,
+  fetchCouriers, fetchOrderGuide, createShipmentGuide, updateGuide,
+  clearLogisticsActionState,
 } from '@redux/slices/logisticsSlice';
 import { Card, Field, Button } from '@components/common/primitives';
 import styles from './AdminGuideCreate.module.scss';
+
+const STATUS_LABEL = {
+  CREATED: 'Guía creada', PICKED_UP: 'Recolectado', IN_TRANSIT: 'En tránsito',
+  DELIVERED: 'Entregado', INCIDENT: 'Incidencia', CANCELLED: 'Cancelado',
+};
+const STATUS_OPTIONS = ['PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
 
 export default function AdminGuideCreate({ orderNumber }) {
   const dispatch = useDispatch();
   const couriers = useSelector((s) => s.logistics?.couriers ?? []);
   const isActioning = useSelector((s) => s.logistics?.isActioning);
 
+  const [guide, setGuide] = useState(null);
   const [courierId, setCourierId] = useState('');
   const [tracking, setTracking] = useState('');
   const [notes, setNotes] = useState('');
+  const [newStatus, setNewStatus] = useState('');
   const [error, setError] = useState(null);
-  const [created, setCreated] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   useEffect(() => {
     dispatch(fetchCouriers());
+    dispatch(fetchOrderGuide(orderNumber)).then((res) => {
+      if (fetchOrderGuide.fulfilled.match(res) && res.payload) setGuide(res.payload);
+    });
     return () => { dispatch(clearLogisticsActionState()); };
-  }, [dispatch]);
+  }, [dispatch, orderNumber]);
 
-  const handleSubmit = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault();
     setError(null);
     if (!courierId) { setError('Selecciona un courier.'); return; }
@@ -40,25 +51,58 @@ export default function AdminGuideCreate({ orderNumber }) {
       orderNumber, courierId: Number(courierId), trackingNumber: tracking.trim(), notes: notes.trim(),
     }));
     if (createShipmentGuide.fulfilled.match(res)) {
-      setCreated(res.payload);
+      setGuide(res.payload);
+      setNotice('Guía creada.');
     } else {
       setError(res.payload?.detail || res.payload?.message || 'No se pudo crear la guía.');
     }
   };
 
-  if (created) {
+  const handleUpdateStatus = async () => {
+    if (!newStatus) return;
+    setError(null); setNotice(null);
+    const res = await dispatch(updateGuide({ guideId: guide.id, status: newStatus }));
+    if (updateGuide.fulfilled.match(res)) {
+      setGuide(res.payload);
+      setNewStatus('');
+      setNotice('Estado actualizado.');
+    } else {
+      setError(res.payload?.detail || res.payload?.message || 'No se pudo actualizar el estado.');
+    }
+  };
+
+  // --- Guía existente: gestión de estado ---
+  if (guide) {
     return (
       <Card title="Guía de envío">
-        <p className={styles.ok}>
-          Guía creada con rastreo <strong>{created.tracking_number}</strong>
-          {created.courier?.name ? ` · ${created.courier.name}` : ''}.
-        </p>
+        <dl className={styles.summary}>
+          <dt>Paquetería</dt><dd>{guide.courier?.name || '—'}</dd>
+          <dt>Rastreo</dt><dd>{guide.tracking_number}</dd>
+          <dt>Estado</dt><dd>{STATUS_LABEL[guide.status] || guide.status}</dd>
+        </dl>
+        <div className={styles.grid}>
+          <label className={styles.field}>
+            <span className={styles.label}>Avanzar estado</span>
+            <select className={styles.select} value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+              <option value="">— Selecciona —</option>
+              {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+            </select>
+          </label>
+          <div className={styles.inlineAction}>
+            <Button type="button" variant="primary" onClick={handleUpdateStatus} disabled={isActioning || !newStatus}>
+              {isActioning ? 'Actualizando…' : 'Actualizar estado'}
+            </Button>
+          </div>
+        </div>
+        {notice && <p role="status" className={styles.ok}>{notice}</p>}
+        {error && <p role="alert" className={styles.error}>{error}</p>}
       </Card>
     );
   }
 
+  // --- Sin guía: creación ---
   return (
-    <Card as="form" onSubmit={handleSubmit} noValidate title="Crear guía de envío"
+    <Card as="form" onSubmit={handleCreate} noValidate title="Crear guía de envío"
       footer={<Button type="submit" variant="primary" disabled={isActioning}>
         {isActioning ? 'Creando…' : 'Crear guía'}
       </Button>}

@@ -40,6 +40,36 @@ export const fetchCouriers = createAsyncThunk(
   },
 );
 
+/** Guía existente de una orden (admin, por order_number). null si no hay. */
+export const fetchOrderGuide = createAsyncThunk(
+  'logistics/fetchOrderGuide',
+  async (orderNumber, { rejectWithValue }) => {
+    try {
+      const res = await apiService.get(`/api/v2/logistics/admin/orders/${orderNumber}/guide/`);
+      return res.data;
+    } catch (err) {
+      if (err?.response?.status === 404) return null; // sin guía aún
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
+/** UC-LOG-02: actualizar estado y/o rastreo de una guía existente. */
+export const updateGuide = createAsyncThunk(
+  'logistics/updateGuide',
+  async ({ guideId, status, trackingNumber }, { rejectWithValue }) => {
+    try {
+      const body = {};
+      if (status) body.status = status;
+      if (trackingNumber) body.tracking_number = trackingNumber;
+      const res = await apiService.patch(`/api/v2/logistics/guides/${guideId}/`, body);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
 /** UC-LOG-01: crear guía de envío para una orden IN_PREPARATION. */
 export const createShipmentGuide = createAsyncThunk(
   'logistics/createShipmentGuide',
