@@ -174,7 +174,7 @@ export default function AdminInventoryPage() {
             className={styles.pageBtn}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={currentPage <= 1}
-            aria-label="Pagina anterior"
+            aria-label="Página anterior"
           >
             ← Anterior
           </button>
@@ -186,7 +186,7 @@ export default function AdminInventoryPage() {
             className={styles.pageBtn}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage >= totalPages}
-            aria-label="Pagina siguiente"
+            aria-label="Página siguiente"
           >
             Siguiente →
           </button>

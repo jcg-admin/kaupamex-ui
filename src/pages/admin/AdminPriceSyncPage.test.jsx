@@ -117,8 +117,8 @@ describe('AdminPriceSyncPage (UC-CAT-12)', () => {
     renderPage();
     fireEvent.click(screen.getByRole('tab', { name: /ajuste porcentual/i }));
     fireEvent.change(screen.getByLabelText(/porcentaje de ajuste/i), { target: { value: '5' } });
-    fireEvent.change(screen.getByLabelText(/categoria/i), { target: { value: 'collares' } });
-    fireEvent.change(screen.getByLabelText(/precio actual minimo/i), { target: { value: '100' } });
+    fireEvent.change(screen.getByLabelText(/categoría/i), { target: { value: 'collares' } });
+    fireEvent.change(screen.getByLabelText(/precio actual mínimo/i), { target: { value: '100' } });
     fireEvent.click(screen.getByRole('button', { name: /generar vista previa/i }));
     await waitFor(() =>
       expect(lastPostBody).toMatchObject({

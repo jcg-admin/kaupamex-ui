@@ -156,7 +156,7 @@ export default function VoucherCreateForm({ onClose }) {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="voucher-max-uses">Usos maximos (opcional)</label>
+            <label htmlFor="voucher-max-uses">Usos máximos (opcional)</label>
             <input
               id="voucher-max-uses"
               name="max_uses"

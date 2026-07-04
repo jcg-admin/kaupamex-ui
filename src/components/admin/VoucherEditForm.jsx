@@ -185,7 +185,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
                 )}
               </div>
               <div className={styles.field}>
-                <label htmlFor="edit-max-discount">Descuento maximo (opcional)</label>
+                <label htmlFor="edit-max-discount">Descuento máximo (opcional)</label>
                 <input
                   id="edit-max-discount"
                   name="max_discount"
@@ -199,7 +199,7 @@ export default function VoucherEditForm({ voucher, onClose }) {
           )}
 
           <div className={styles.field}>
-            <label htmlFor="edit-min-order">Monto minimo del carrito</label>
+            <label htmlFor="edit-min-order">Monto mínimo del carrito</label>
             <input
               id="edit-min-order"
               name="min_order_amount"

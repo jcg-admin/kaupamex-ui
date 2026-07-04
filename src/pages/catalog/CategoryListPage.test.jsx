@@ -40,7 +40,7 @@ const renderPage = () => {
 };
 
 describe('CategoryListPage (UC-CAT-08)', () => {
-  it('muestra heading «Categorias»', async () => {
+  it('muestra heading «Categorías»', async () => {
     server.use(
       http.get(`${BASE}/api/v2/categories/`, () =>
         HttpResponse.json({ results: TREE, count: TREE.length }),
@@ -48,7 +48,7 @@ describe('CategoryListPage (UC-CAT-08)', () => {
     );
     renderPage();
     expect(
-      await screen.findByRole('heading', { name: /categorias/i, level: 1 }),
+      await screen.findByRole('heading', { name: /categorías/i, level: 1 }),
     ).toBeInTheDocument();
   });
 
