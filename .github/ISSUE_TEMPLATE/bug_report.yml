@@ -1,0 +1,82 @@
+name: Bug report
+description: A page or component is not working correctly.
+labels: ["type:bug"]
+
+body:
+  - type: textarea
+    attributes:
+      label: Describe the bug
+      description: >-
+        A clear and concise description of what is wrong, including the expected
+        behaviour and what actually happened.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Page, route or component
+      description: >-
+        Where the bug happens (e.g. ``/checkout``, ``PaymentSelectionPage``,
+        Header dropdown).
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Repro steps
+      description: >-
+        What were you doing when the bug happened? Detailed steps help
+        maintainers reproduce and fix it. Issues without repro steps may be
+        closed.
+      placeholder: |
+        1. Log in as a buyer
+        2. Add a product to the cart and go to checkout
+        3. Select OXXO and submit
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: How often does this bug happen?
+      options:
+        - Every time
+        - Often
+        - Sometimes
+        - Only once
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Browser and version
+      description: e.g. Chrome 140, Safari 18, Firefox 130.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Console and network errors
+      render: text
+      description: >-
+        Paste any relevant browser console errors or failing network requests
+        (method, URL, status). Do not paste tokens or cookies.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Screenshots (light and dark)
+      description: >-
+        For visual issues, attach screenshots in both light and dark modes.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: >-
+        Any other context: related issue or PR, use case (UC-...), finding
+        (F-NN), or task (T-NNN).
+    validations:
+      required: false
