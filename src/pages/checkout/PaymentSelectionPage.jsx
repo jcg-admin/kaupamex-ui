@@ -33,7 +33,11 @@ import {
 import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
 import { paymentStatusDetail } from '@lib/paymentStatusDetail';
+import apiService from '@services/apiService';
 import styles from './PaymentSelectionPage.module.scss';
+
+// PG-10: cada cuánto se sondea el estado de un pago diferido (OXXO/SPEI).
+const STATUS_POLL_MS = 6000;
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -237,6 +241,28 @@ export default function PaymentSelectionPage() {
       setView('non-card-result');
     }
   }, [lastAction, lastInitiation]);
+
+  // PG-10: los métodos diferidos (OXXO/SPEI) se confirman por webhook. Mientras
+  // el pago siga pendiente, se sondea GET /status/ y al acreditarse se navega a
+  // la confirmación — el comprador no tiene que refrescar la página.
+  const nonCardPending = view === 'non-card-result'
+    && ['pending', 'in_process'].includes(lastInitiation?.status);
+  useEffect(() => {
+    if (!nonCardPending) return undefined;
+    const timer = setInterval(async () => {
+      try {
+        const { data } = await apiService.get(`/api/v2/payments/${orderId}/status/`);
+        const st = String(data?.status || '').toLowerCase();
+        if (st === 'approved' || st === 'paid') {
+          clearInterval(timer);
+          navigate(`/order/${orderId}/confirmation`);
+        }
+      } catch {
+        // Reintentar en el siguiente tick; un fallo de red no rompe la espera.
+      }
+    }, STATUS_POLL_MS);
+    return () => clearInterval(timer);
+  }, [nonCardPending, orderId, navigate]);
 
   const onMpPayment = useCallback(({ token, payment_method_id, issuerId, installments, payer }) => {
     dispatch(initiateCheckoutApiPayment({

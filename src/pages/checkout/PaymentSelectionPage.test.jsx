@@ -180,6 +180,39 @@ describe('PaymentSelectionPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/AMOUNT_MISMATCH/);
   });
 
+  it('PG-10: OXXO/SPEI pendiente sondea el estado y navega al confirmarse', async () => {
+    jest.useFakeTimers();
+    server.use(
+      http.get(`${BASE}/api/v2/payments/:id/status/`, () =>
+        HttpResponse.json({ status: 'approved' }),
+      ),
+    );
+    const store = configureStore({
+      reducer: {
+        payments: paymentsReducer,
+        cards:    cardsReducer,
+        auth:     () => ({ user: { email: 'buyer@test.com' } }),
+      },
+      preloadedState: {
+        payments: {
+          isActioning: false, actionError: null, lastAction: 'mp_non_card',
+          lastInitiation: {
+            gateway: 'mercadopago', status: 'pending',
+            external_resource_url: 'https://mp.com/voucher/oxxo/abc',
+            date_of_expiration: '2026-07-07T00:00:00Z',
+          },
+          lastRefund: null, lastCancellation: null,
+        },
+      },
+    });
+    render(wrap(<PaymentSelectionPage />, store));
+    expect(screen.getByTestId('non-card-result')).toBeInTheDocument();
+    // Al vencer el intervalo, /status/ devuelve approved → navega a confirmación.
+    await act(async () => { await jest.advanceTimersByTimeAsync(6000); });
+    expect(screen.getByText('Confirmación')).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
   it('vuelve a la seleccion al cancelar el CardForm', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
     fireEvent.click(screen.getByTestId('method-btn-mp-card'));

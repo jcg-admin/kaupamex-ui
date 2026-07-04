@@ -98,6 +98,27 @@ describe('OrderDetailPage (UC-ORD-04 cancelar)', () => {
     await screen.findByRole('heading', { name: /PY-2026-000001/i });
     expect(screen.queryByRole('button', { name: /Cancelar este pedido/i })).not.toBeInTheDocument();
   });
+
+  it('PG-12: ofrece descargar recibo cuando la orden está pagada', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () =>
+        HttpResponse.json({ ...ORDER, status: 'PAID' }),
+      ),
+    );
+    render(wrap(<OrderDetailPage />));
+    await screen.findByRole('heading', { name: /PY-2026-000001/i });
+    const link = screen.getByTestId('receipt-link');
+    expect(link).toHaveAttribute('href', '/api/v2/payments/PY-2026-000001/receipt/');
+  });
+
+  it('PG-12: no ofrece recibo si la orden está pendiente de pago', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/orders/PY-2026-000001/`, () => HttpResponse.json(ORDER)),
+    );
+    render(wrap(<OrderDetailPage />));
+    await screen.findByRole('heading', { name: /PY-2026-000001/i });
+    expect(screen.queryByTestId('receipt-link')).not.toBeInTheDocument();
+  });
 });
 
 describe('OrderDetailPage (UC-ORD-05 editar direccion)', () => {

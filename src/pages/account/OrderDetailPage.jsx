@@ -40,6 +40,12 @@ const TIMELINE_STEPS = [
 
 const STATUS_ORDER = TIMELINE_STEPS.map(s => s.id);
 
+// PG-12: estados en los que la orden cuenta como "pagada" y el recibo PDF está
+// disponible (§4 del análisis de pasarela).
+const PAID_STATUSES = new Set([
+  'PAID', 'PROCESSING', 'IN_PREPARATION', 'SHIPPED', 'DELIVERED',
+]);
+
 export default function OrderDetailPage() {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -79,6 +85,19 @@ export default function OrderDetailPage() {
             )}
           </div>
           <div className={styles.heroActions}>
+            {/* PG-12: recibo PDF de una orden ya pagada (GET /payments/<order>/receipt/).
+                Enlace directo al API: el navegador manda la cookie de sesión y
+                descarga el PDF. Órdenes pagadas per §4 del análisis de pasarela. */}
+            {PAID_STATUSES.has(order.status) && (
+              <a
+                href={`/api/v2/payments/${order.order_number}/receipt/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="receipt-link"
+              >
+                <Button variant="secondary" size="sm">Descargar recibo</Button>
+              </a>
+            )}
             {order.invoice_url && (
               <a href={order.invoice_url} target="_blank" rel="noopener noreferrer">
                 <Button variant="secondary" size="sm">Descargar factura</Button>
