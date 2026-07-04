@@ -8,16 +8,6 @@
 <!-- What changed and why. Keep it focused on the user-facing or behavioural impact. -->
 
 
-## AI assistance disclosure (required)
-
-<!-- Select exactly ONE. -->
-
-- [ ] No AI tools were used in preparing this PR.
-- [ ] AI tools were used; I have disclosed which ones below and reviewed and verified their output.
-
-<!-- If used, name the tool(s) here: -->
-
-
 ## Checklist
 
 - [ ] Node v22 gate passed before install/test (`nvm use`; `.nvmrc` = 22).
