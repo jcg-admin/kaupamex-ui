@@ -3,9 +3,15 @@
  * UC-ORD-01: Identificación · Dirección · Envío · Pago
  * Login requerido antes de llegar aquí (ProtectedRoute).
  *
+ * Envío (supersede DEC-BC-19 / DEC-BC-25): el comprador NO selecciona método
+ * de envío. El envío lo configura el administrador y se deriva por zona en el
+ * backend (api@358ffaa, resolve_shipping_quote). Política actual open-closed:
+ * envío GRATIS siempre; el costo por debajo de umbral queda pendiente de
+ * decisión. La UI solo muestra el envío derivado (gratis), no ofrece elección.
+ *
  * Endpoints:
  *   GET /auth/addresses/
- *   POST /checkout/
+ *   POST /checkout/                     (sin shipping_method_id)
  *   POST /api/v2/payments/initiate/ (gateway: MERCADOPAGO)
  *   SPEI: sin llamada a /initiate/ — pedido queda PENDING, CLABE por correo.
  */
@@ -14,7 +20,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
-import { createOrder, fetchShippingMethods, fetchShippingZones } from '@redux/slices/checkoutSlice';
+import { createOrder } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
 import Modal from '@components/common/Modal/Modal';
 import logoUrl from '@assets/practica-yoruba-logo.png';
@@ -30,20 +36,12 @@ export default function CheckoutPage() {
   // el usuario tuviera direcciones guardadas. Se lee addresses.items y se pre-rellena
   // el formulario con la dirección por defecto (is_default=true) si existe.
   const savedAddresses = useSelector((s) => s.addresses?.items ?? []);
-  // GAP-C1: shipping methods loaded dynamically from /api/v2/shipping-methods/
-  const shippingOptions = useSelector((s) => s.checkout?.shippingOptions ?? []);
-  const shippingLoading = useSelector((s) => s.checkout?.shippingLoading ?? false);
-  const shippingError   = useSelector((s) => s.checkout?.shippingError ?? null);
-  // G-ENV-01: zonas públicas (con free_threshold por zona) para el resumen.
-  const shippingZones   = useSelector((s) => s.checkout?.shippingZones ?? []);
   const { items = [], totals = {} } = cart;
 
   const [email, setEmail] = useState(auth.user?.email || '');
   // H-CICLO40-06: country debe ser código ISO alpha-2 (max 2 chars). Inicializar
   // con 'MX' evita que el campo quede vacío y falle la validación del API.
   const [address, setAddress] = useState({ country: 'MX' });
-  // GAP-C1: shipping state holds numeric DB id (or null until methods load)
-  const [shipping, setShipping] = useState(null);
   const [payment, setPayment] = useState('mp');
   const [submitting, setSubmitting] = useState(false);
   // H-CICLO46-04: el catch anterior solo llamaba console.error — el usuario
@@ -58,15 +56,6 @@ export default function CheckoutPage() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
-  useEffect(() => { dispatch(fetchShippingMethods()); }, [dispatch]);
-  useEffect(() => { dispatch(fetchShippingZones()); }, [dispatch]);
-
-  // Auto-select first shipping method once the list loads
-  useEffect(() => {
-    if (shippingOptions.length > 0 && shipping === null) {
-      setShipping(shippingOptions[0].id);
-    }
-  }, [shippingOptions, shipping]);
 
   // Pre-rellenar con la dirección por defecto cuando llegan las direcciones guardadas
   useEffect(() => {
@@ -129,19 +118,9 @@ export default function CheckoutPage() {
     }
     setFieldErrors({});
 
-    // DEC-BC-25: sin un método de envío seleccionado no se puede continuar. En
-    // producción, si /shipping-methods/ viene vacío el comprador no debe poder
-    // generar una orden sin envío ni costo (el backend además lo rechaza).
-    if (shipping === null || shipping === undefined) {
-      setSubmitError(
-        'Selecciona un método de envío para continuar. Si no aparece ninguno, ' +
-        'no es posible completar la compra por ahora.',
-      );
-      return;
-    }
-
-    // En vez de crear la orden directo, se pide confirmación explícita de que
-    // los datos de envío son correctos (reemplaza el bloqueo por zona).
+    // El envío se deriva por zona en el backend (gratis por ahora): no hay
+    // método de envío que el comprador deba seleccionar. Se pide confirmación
+    // explícita de que los datos de envío son correctos antes de crear la orden.
     setShowConfirm(true);
   };
 
@@ -150,11 +129,9 @@ export default function CheckoutPage() {
     setSubmitError(null);
     setSubmitting(true);
     try {
-      // GAP-C1: shipping holds the numeric DB id from /api/v2/shipping-methods/.
-      const shippingMethodId = Number.isFinite(Number(shipping)) ? Number(shipping) : null;
-      const order = await dispatch(createOrder({
-        email, address, shipping_method_id: shippingMethodId,
-      })).unwrap();
+      // Sin shipping_method_id: el backend deriva el envío por zona
+      // (api@358ffaa). El comprador no elige método de envío.
+      const order = await dispatch(createOrder({ email, address })).unwrap();
 
       // P-01: pago ON-SITE (Checkout API / CardForm, ADR-018). Antes se
       // redirigía a Checkout Pro (initMercadoPago → init_point →
@@ -232,14 +209,8 @@ export default function CheckoutPage() {
               />
             </Section>
 
-            <Section n="03" title="Método de envío">
-              <ShippingOptions
-                options={shippingOptions}
-                selected={shipping}
-                onSelect={setShipping}
-                loading={shippingLoading}
-                error={shippingError}
-              />
+            <Section n="03" title="Envío">
+              <ShippingInfo />
             </Section>
 
             <Section n="04" title="Forma de pago">
@@ -247,7 +218,7 @@ export default function CheckoutPage() {
             </Section>
           </div>
 
-          <CheckoutSummary items={items} totals={totals} shipping={shipping} shippingOptions={shippingOptions} zones={shippingZones} zipCode={address.zip_code} submitting={submitting} />
+          <CheckoutSummary items={items} totals={totals} submitting={submitting} />
         </div>
       </form>
 
@@ -409,52 +380,22 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
   );
 }
 
-function ShippingOptions({ options = [], selected, onSelect, loading = false, error = null }) {
-  if (error) {
-    return (
-      <p className={styles.optionSub} role="alert">
-        No se pudieron cargar los métodos de envío. Recarga la página o
-        inténtalo de nuevo en unos minutos.
-      </p>
-    );
-  }
-  if (loading) {
-    return <p className={styles.optionSub}>Cargando métodos de envío…</p>;
-  }
-  if (options.length === 0) {
-    return (
-      <p className={styles.optionSub} role="alert">
-        No hay métodos de envío disponibles por ahora, así que no es posible
-        completar la compra. Intenta más tarde o contáctanos.
-      </p>
-    );
-  }
+// Envío derivado (supersede DEC-BC-19/DEC-BC-25): el comprador no selecciona
+// nada. El administrador configura el envío; el backend lo deriva por zona.
+// Política actual: GRATIS siempre (open-closed; costo bajo umbral pendiente).
+function ShippingInfo() {
   return (
-    <div className={styles.options}>
-      {options.map((o) => {
-        const cost = Number(o.cost);
-        const isFree = cost === 0;
-        const priceLabel = isFree ? 'GRATIS' : `$${cost.toLocaleString('es-MX')} MXN`;
-        const days = o.estimated_days === 1 ? '1 día hábil' : `${o.estimated_days} días hábiles`;
-        const isSelected = selected === o.id;
-        return (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => onSelect(o.id)}
-            className={`${styles.optionCard} ${styles.optionCardWide} ${isSelected ? styles.optionCardActive : ''}`}
-          >
-            <span className={`${styles.radio} ${isSelected ? styles.radioActive : ''}`} />
-            <div>
-              <div className={styles.optionTitle}>{o.name}</div>
-              <div className={styles.optionSub}>{days}</div>
-            </div>
-            <div className={styles.optionPrice}>
-              <span className={isFree ? styles.optionPriceLime : ''}>{priceLabel}</span>
-            </div>
-          </button>
-        );
-      })}
+    <div className={styles.shippingInfo} data-testid="shipping-info">
+      <span className={`${styles.radio} ${styles.radioActive}`} />
+      <div>
+        <div className={styles.optionTitle}>Envío a domicilio</div>
+        <div className={styles.optionSub}>
+          El costo de envío lo calculamos automáticamente según tu zona.
+        </div>
+      </div>
+      <div className={styles.optionPrice}>
+        <span className={styles.optionPriceLime}>GRATIS</span>
+      </div>
     </div>
   );
 }
@@ -495,39 +436,11 @@ function PaymentMethods({ selected, onSelect }) {
   );
 }
 
-// G-ENV-01: resuelve la zona del C.P. igual que el backend (prefijo más largo
-// que sea inicio del C.P. gana). Espejo de ShippingZone.resolve_for_zip.
-function resolveZoneForZip(zones, zip) {
-  const digits = String(zip || '').replace(/\D/g, '');
-  if (!digits) return null;
-  const matches = (zones || []).filter(
-    (z) => z.zip_code_prefix && digits.startsWith(String(z.zip_code_prefix)),
-  );
-  if (!matches.length) return null;
-  return matches.reduce((a, b) =>
-    String(b.zip_code_prefix).length > String(a.zip_code_prefix).length ? b : a);
-}
-
-function CheckoutSummary({ items, totals, shipping, shippingOptions = [], zones = [], zipCode = '', submitting }) {
-  // Derive shipping cost from the selected dynamic option (GAP-C1).
-  const selectedShipping = shippingOptions.find((o) => o.id === shipping) || shippingOptions[0];
-  const baseShippingCost = selectedShipping ? Number(selectedShipping.cost) : 0;
-  // G-ENV-01: refleja el envío gratis/costo POR ZONA (espejo del backend). Si la
-  // zona del C.P. define costo, se usa; si define umbral y el subtotal neto lo
-  // alcanza, el envío es gratis. Sin zona, cae al costo del método.
-  const zone = resolveZoneForZip(zones, zipCode);
-  const zoneCost = zone && zone.cost != null ? Number(zone.cost) : null;
-  const effectiveBase = zoneCost != null ? zoneCost : baseShippingCost;
-  const subtotalNet = (Number(totals.subtotal) || 0) - (Number(totals.discount) || 0);
-  const zoneFree = !!zone && zone.free_threshold != null
-    && subtotalNet >= Number(zone.free_threshold);
-  const shippingCost = zoneFree ? 0 : effectiveBase;
-  const shippingLabel = shippingCost > 0
-    ? `$${shippingCost.toLocaleString('es-MX')} MXN`
-    : 'Gratis';
-  const shippingTone = shippingCost > 0 ? '' : 'lime';
-  // Displayed total = cart subtotal_net + shipping cost (tax is already included
-  // in totals.total from the cart API; we add the local shipping offset).
+function CheckoutSummary({ items, totals, submitting }) {
+  // Envío GRATIS siempre (política open-closed; el costo por debajo de umbral
+  // queda pendiente de decisión — supersede DEC-BC-19/25). El total mostrado es
+  // el del carrito (IVA ya incluido en totals.total); el offset de envío es 0.
+  const shippingCost = 0;
   const cartTotal = Number(totals.total) || 0;
   const displayTotal = cartTotal + shippingCost;
 
@@ -555,12 +468,10 @@ function CheckoutSummary({ items, totals, shipping, shippingOptions = [], zones 
         <div className={styles.summaryTotals}>
           <SumRow label="Subtotal" value={`$${(totals.subtotal || 0).toLocaleString('es-MX')} MXN`} />
           {totals.discount > 0 && <SumRow label="Descuento" value={`−$${totals.discount.toLocaleString('es-MX')} MXN`} tone="lime" />}
-          <SumRow label="Envío" value={shippingLabel} tone={shippingTone} />
-          {zoneFree && (
-            <div className={styles.freeShipNote} data-testid="zone-free-ship">
-              Envío GRATIS en tu zona por tu compra
-            </div>
-          )}
+          <SumRow label="Envío" value="Gratis" tone="lime" />
+          <div className={styles.freeShipNote} data-testid="free-ship">
+            Envío GRATIS a todo México
+          </div>
           <SumRow label="IVA incluido" value={`$${(totals.tax_included || 0).toLocaleString('es-MX')} MXN`} muted />
           <div className={styles.summaryTotalRow}>
             <span>Total</span>
