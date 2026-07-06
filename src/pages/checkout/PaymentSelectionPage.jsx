@@ -22,9 +22,10 @@
  * Se muestra el enlace a `external_resource_url` (voucher MP-hosted) como
  * alternativa equivalente para el usuario.
  */
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector }          from 'react-redux';
+import { usePaymentMethods } from '@hooks/domain/usePayments';
 import {
   initiateCheckoutApiPayment,
   initiateNonCardPayment,
@@ -56,9 +57,11 @@ const NON_CARD_IDS = new Set([
   'oxxo', 'clabe', 'paycash', 'banamex', 'serfin', 'bancomer', 'account_money',
 ]);
 
-// Labels y descripciones para mostrar en el selector estático de métodos.
-// En producción estos datos vienen de GET /api/v2/payments/methods/ (usePaymentMethods).
-const METHOD_CONFIG = [
+// T-PP-02: los métodos vienen dinámicamente de GET /api/v2/payments/methods/
+// (usePaymentMethods → MpPaymentMethodsView). Esta lista es el FALLBACK cuando
+// el endpoint no está disponible (p. ej. gateway sin configurar → 503) o
+// devuelve vacío: el flujo de pago nunca se queda sin opciones.
+const FALLBACK_METHODS = [
   {
     id:          'mp-card',
     label:       'Tarjeta de crédito o débito',
@@ -108,6 +111,45 @@ const METHOD_CONFIG = [
     type:        'non-card',
   },
 ];
+
+// Copys curados por id de método MP (para etiquetas/descripciones cuando el
+// endpoint devuelve el catálogo real). Si MP trae un id desconocido, se usa su
+// `name` y una descripción genérica.
+const METHOD_COPY = FALLBACK_METHODS.reduce((acc, m) => {
+  acc[m.id] = { label: m.label, description: m.description };
+  return acc;
+}, {});
+
+// payment_type_id de MP que enrutan al CardForm vs al formulario no-tarjeta.
+const CARD_TYPES     = new Set(['credit_card', 'debit_card']);
+const NON_CARD_TYPES = new Set(['ticket', 'bank_transfer', 'account_money']);
+
+// T-PP-02: mapea la respuesta de GET /payments/methods/ al selector. Colapsa
+// todas las marcas de tarjeta (visa, master, amex…) en una sola entrada
+// 'mp-card' (el CardForm ya detecta la marca); cada método no-tarjeta es su
+// propia entrada, con copy curado por id o el `name` que devuelve MP.
+function buildDisplayMethods(apiMethods) {
+  if (!Array.isArray(apiMethods) || apiMethods.length === 0) return [];
+  const list = [];
+  const hasCard = apiMethods.some((m) => CARD_TYPES.has(m.payment_type_id));
+  if (hasCard) {
+    list.push(METHOD_COPY['mp-card']
+      ? { id: 'mp-card', type: 'card', ...METHOD_COPY['mp-card'] }
+      : { id: 'mp-card', type: 'card', label: 'Tarjeta de crédito o débito',
+          description: 'Paga con tu tarjeta de forma segura.' });
+  }
+  for (const m of apiMethods) {
+    if (!NON_CARD_TYPES.has(m.payment_type_id)) continue;
+    const copy = METHOD_COPY[m.id];
+    list.push({
+      id:          m.id,
+      type:        'non-card',
+      label:       copy?.label || m.name || m.id,
+      description: copy?.description || 'Paga con este método de forma segura.',
+    });
+  }
+  return list;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -217,6 +259,15 @@ export default function PaymentSelectionPage() {
   const userEmail = useSelector((s) => s.auth?.user?.email || '');
   const { isActioning, actionError, lastAction, lastInitiation } =
     useSelector((s) => s.payments);
+
+  // T-PP-02: catálogo de métodos de pago dinámico (GET /payments/methods/).
+  // Si el endpoint no responde o viene vacío, cae a la lista curada
+  // (FALLBACK_METHODS) para no dejar el paso de pago sin opciones.
+  const { data: apiMethods } = usePaymentMethods();
+  const methods = useMemo(() => {
+    const dynamic = buildDisplayMethods(apiMethods);
+    return dynamic.length > 0 ? dynamic : FALLBACK_METHODS;
+  }, [apiMethods]);
 
   // H-PP-04: el monto se recibe por navigation-state desde CheckoutPage
   // (confirmAndPay). El estado de auth/nav vive en memoria del módulo y un
@@ -381,7 +432,7 @@ export default function PaymentSelectionPage() {
       {view === 'select' && (
         <>
           <ul className={styles.methodList} data-testid="mp-method-list">
-            {METHOD_CONFIG.map((method) => (
+            {methods.map((method) => (
               <li key={method.id} className={styles.methodItem}>
                 <button
                   type="button"
