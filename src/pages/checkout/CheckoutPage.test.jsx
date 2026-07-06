@@ -9,7 +9,7 @@
  *   - No h1 "Finalizar compra" — sections have h2 titles
  *   - AddressForm fields: "Nombre completo del destinatario", "Calle y número",
  *     "Alcaldía / Municipio", "Estado", "C.P.", etc.
- *   - Submit button: "Confirmar y pagar" (not "Confirmar pedido")
+ *   - Submit button: "Continuar al pago" (not "Confirmar pedido")
  *   - No shipping-method selector; ·03· Envío es informativo (GRATIS)
  *   - Creates order via POST /api/v2/orders/ (checkoutSlice), sin shipping_method_id
  *   - fetchAddresses dispatch requires addresses slice in store
@@ -114,7 +114,7 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     render(wrap());
 
     await fillAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     // Diálogo de confirmación: confirmar para crear la orden.
     await user.click(await screen.findByTestId('confirm-pay'));
 
@@ -137,7 +137,7 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     render(wrap());
 
     await fillAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     await user.click(await screen.findByTestId('confirm-pay'));
 
     expect(
@@ -145,11 +145,11 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     ).toBeInTheDocument();
   });
 
-  it('el boton "Confirmar y pagar" esta habilitado por defecto', () => {
+  it('el boton "Continuar al pago" esta habilitado por defecto', () => {
     render(wrap());
-    // Component button is "Confirmar y pagar" — no terms checkbox required
+    // Component button is "Continuar al pago" — no terms checkbox required
     expect(
-      screen.getByRole('button', { name: /Confirmar y pagar/i })
+      screen.getByRole('button', { name: /Continuar al pago/i })
     ).not.toBeDisabled();
   });
 
@@ -202,7 +202,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5)', () => {
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user, { phone: '551234567' }); // 9 dígitos
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     expect(await screen.findByText(/10 dígitos/i)).toBeInTheDocument();
     expect(orderCalled).toBe(false);
   });
@@ -218,7 +218,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5)', () => {
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user, { zip: '123' }); // 3 dígitos
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     expect(await screen.findByText(/5 dígitos/i)).toBeInTheDocument();
     expect(orderCalled).toBe(false);
   });
@@ -242,7 +242,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5)', () => {
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     expect(await screen.findByText(/Revisa tus datos de envío/i)).toBeInTheDocument();
     expect(orderCalled).toBe(false);
   });
@@ -258,7 +258,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5)', () => {
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     await screen.findByText(/Revisa tus datos de envío/i);
     await user.click(screen.getByRole('button', { name: /^Revisar$/i }));
     expect(orderCalled).toBe(false);

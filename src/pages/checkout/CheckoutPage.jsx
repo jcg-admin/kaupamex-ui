@@ -42,7 +42,6 @@ export default function CheckoutPage() {
   // H-CICLO40-06: country debe ser código ISO alpha-2 (max 2 chars). Inicializar
   // con 'MX' evita que el campo quede vacío y falle la validación del API.
   const [address, setAddress] = useState({ country: 'MX' });
-  const [payment, setPayment] = useState('mp');
   const [submitting, setSubmitting] = useState(false);
   // H-CICLO46-04: el catch anterior solo llamaba console.error — el usuario
   // nunca veía retroalimentación si createOrder o initMercadoPago/initPayPal
@@ -133,19 +132,13 @@ export default function CheckoutPage() {
       // (api@358ffaa). El comprador no elige método de envío.
       const order = await dispatch(createOrder({ email, address })).unwrap();
 
-      // P-01: pago ON-SITE (Checkout API / CardForm, ADR-018). Antes se
-      // redirigía a Checkout Pro (initMercadoPago → init_point →
-      // window.location.href), sacando al comprador del ecommerce. Ahora se
-      // navega a la página de pago on-site, que tokeniza con Mp.js y cobra vía
-      // /api/v2/payments/initiate/ con resultado síncrono, sin redirect.
-      if (payment === 'mp') {
-        navigate(`/checkout/payment/${order.order_number}`, {
-          state: { amount: String(order?.total ?? totals?.total ?? '') },
-        });
-        return;
-      }
-      // SPEI u otros métodos sin tarjeta: pedido PENDING; confirmación directa.
-      navigate(`/order/${order.order_number}/confirmation`);
+      // El método de pago se elige en la pantalla de pago (PaymentSelectionPage,
+      // paso 04 del mockup): tarjeta on-site (Mp.js, ADR-018) u OXXO/SPEI/etc.
+      // CheckoutPage solo captura contacto + dirección + envío (pantalla 1) y
+      // pasa el monto autoritativo por navigation-state (H-PP-04).
+      navigate(`/checkout/payment/${order.order_number}`, {
+        state: { amount: String(order?.total ?? totals?.total ?? '') },
+      });
     } catch (err) {
       console.error(err);
       const msg =
@@ -211,10 +204,6 @@ export default function CheckoutPage() {
 
             <Section n="03" title="Envío">
               <ShippingInfo />
-            </Section>
-
-            <Section n="04" title="Forma de pago">
-              <PaymentMethods selected={payment} onSelect={setPayment} />
             </Section>
           </div>
 
@@ -400,42 +389,6 @@ function ShippingInfo() {
   );
 }
 
-const PAYMENT_INFO = {
-  gateway: 'Al confirmar, te llevamos a la página segura del proveedor para completar el cobro. Tus datos de tarjeta nunca tocan nuestros servidores. Volvarás aquí automáticamente al terminar.',
-  spei:    'Al confirmar, te enviaremos una CLABE bancaria a tu correo. Tienes 24 horas para realizar la transferencia; mientras tanto tu pedido queda reservado.',
-};
-
-function PaymentMethods({ selected, onSelect }) {
-  const opts = [
-    { id: 'mp',   t: 'Mercado Pago',          sub: 'Tarjeta · SPEI · OXXO Pay · 6 meses sin intereses', external: true  },
-    { id: 'spei', t: 'Transferencia SPEI',     sub: 'Recibirás CLABE única · pedido reservado 24 hrs',     external: false },
-  ];
-  const infoText = selected === 'spei' ? PAYMENT_INFO.spei : PAYMENT_INFO.gateway;
-  return (
-    <div className={styles.options}>
-      {opts.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          onClick={() => onSelect(o.id)}
-          className={`${styles.optionCard} ${styles.optionCardWide} ${selected === o.id ? styles.optionCardActive : ''}`}
-        >
-          <span className={`${styles.radio} ${selected === o.id ? styles.radioActive : ''}`} />
-          <div>
-            <div className={styles.optionTitle}>{o.t}</div>
-            <div className={styles.optionSub}>{o.sub}</div>
-          </div>
-          {o.external && <span className={styles.optionExternal}>Externo ↗</span>}
-        </button>
-      ))}
-      <div className={styles.infoBox}>
-        <span className={styles.infoBoxIcon}>· i ·</span>
-        <div>{infoText}</div>
-      </div>
-    </div>
-  );
-}
-
 function CheckoutSummary({ items, totals, submitting }) {
   // Envío GRATIS siempre (política open-closed; el costo por debajo de umbral
   // queda pendiente de decisión — supersede DEC-BC-19/25). El total mostrado es
@@ -478,7 +431,7 @@ function CheckoutSummary({ items, totals, submitting }) {
             <Price amount={displayTotal} size="lg" />
           </div>
           <Button type="submit" variant="primary" block size="lg" disabled={submitting} data-testid="checkout-submit">
-            {submitting ? 'Procesando…' : 'Confirmar y pagar'}
+            {submitting ? 'Procesando…' : 'Continuar al pago'}
           </Button>
           <div className={styles.summaryDisclaimer}>
             Al confirmar aceptas los <Link to="/info/terminos">términos</Link> y el{' '}
