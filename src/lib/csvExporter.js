@@ -4,7 +4,7 @@
  * Exportación client-side de arrays a CSV con descarga inmediata.
  * Reimplementación nativa del patrón de @progress/kno-csv (dist/es/csv.js):
  *   encabezados + filas, CRLF (\r\n), escape de comillas (doblar "") y
- *   celdas que contienen coma, BOM UTF-8 (﻿) para compatibilidad Excel.
+ *   celdas que contienen coma, BOM UTF-8 (\uFEFF) para compatibilidad Excel.
  *
  * Atribución: patrón portado de @progress/kno-csv (exportCSVToBlob,
  * toCSV, escapeCSVValue). Simplificado: sin datos agrupados, sin
@@ -35,7 +35,7 @@ export function toCsvString(columns, rows) {
   const body = rows.map((row) =>
     columns.map((c) => escapeCell(row[c.key])).join(','),
   ).join(CRLF);
-  return `﻿${headers}${CRLF}${body}`;
+  return `\uFEFF${headers}${CRLF}${body}`;
 }
 
 /**

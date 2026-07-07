@@ -1,6 +1,7 @@
 @use 'variables' as *;
 @use 'sass:color';
 @use 'sass:map';
+@use 'sass:list';
 
 // ═══════════════════════════════════════════════════════════════════════
 // MIXINS SCSS — PracticaYoruba E-commerce
@@ -403,7 +404,7 @@
     4: $shadow-lg,
     5: $shadow-xl,
   );
-  box-shadow: map-get($shadows, $n);
+  box-shadow: map.get($shadows, $n);
 
   @media (prefers-reduced-motion: no-preference) {
     transition: box-shadow $transition-fast;
@@ -413,7 +414,7 @@
 // Portado de ui-core-5.25.0/scss/mixins/_transition.scss
 // Respeta prefers-reduced-motion de forma automatica
 @mixin transition($transition...) {
-  @if length($transition) == 0 {
+  @if list.length($transition) == 0 {
     $transition: $transition-base;
   }
   transition: $transition;
@@ -437,7 +438,7 @@
 
 // Portado de ui-core-5.25.0/scss/mixins/_visually-hidden.scss
 @mixin visually-hidden-focusable {
-  &:not(:focus):not(:focus-within) {
+  &:not(:focus, :focus-within) {
     @include visually-hidden;
   }
 }

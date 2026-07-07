@@ -20,7 +20,7 @@ describe('toCsvString', () => {
   it('genera encabezados y filas separados por CRLF', () => {
     const rows = [{ name: 'Collar', price: 100, notes: '' }];
     const csv = toCsvString(COLUMNS, rows);
-    const lines = csv.replace(/^﻿/, '').split('\r\n');
+    const lines = csv.replace(/^\uFEFF/, '').split('\r\n');
     expect(lines[0]).toBe('Nombre,Precio,Notas');
     expect(lines[1]).toBe('Collar,100,');
   });
@@ -45,7 +45,7 @@ describe('toCsvString', () => {
   it('convierte null/undefined a cadena vacía', () => {
     const rows = [{ name: null, price: undefined, notes: 'ok' }];
     const csv = toCsvString(COLUMNS, rows);
-    const dataLine = csv.replace(/^﻿/, '').split('\r\n')[1];
+    const dataLine = csv.replace(/^\uFEFF/, '').split('\r\n')[1];
     expect(dataLine).toBe(',,ok');
   });
 });

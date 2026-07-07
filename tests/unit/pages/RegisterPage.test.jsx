@@ -55,7 +55,10 @@ describe('RegisterPage', () => {
 
   it('no pide nombre de usuario (lo autogenera el backend)', () => {
     renderPage();
-    expect(screen.getByLabelText('Nombre')).toBeInTheDocument();
+    // El primitivo Field decora el label del campo requerido con " *"
+    // (span aria-hidden), así que el texto del label es "Nombre *": se
+    // matchea por regex, no por string exacto.
+    expect(screen.getByLabelText(/^Nombre\b/i)).toBeInTheDocument();
     expect(screen.queryByLabelText(/nombre de usuario/i)).not.toBeInTheDocument();
   });
 
