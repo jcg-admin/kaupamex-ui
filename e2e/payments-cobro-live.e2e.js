@@ -19,26 +19,33 @@
  * resultante produce un cobro aprobado contra el backend real. (El llenado
  * visual de los iframes seguros — "Opción 2" — queda como follow-up estricto.)
  *
- * ── EJECUCIÓN (solo donde el navegador tiene egress externo) ────────────────
- * Requiere: stack completo levantado + egress a sdk.mercadopago.com y
- * api.mercadopago.com. El contenedor del agente NO tiene egress de navegador
- * (verificado: example.com → ERR_CONNECTION_RESET), así que este spec SOLO
- * corre en WSL/CI. Gated por E2E_MP_LIVE=1; SKIP en cualquier otro caso.
+ * ── EJECUCIÓN — DOS entornos ────────────────────────────────────────────────
  *
- *   # 1) DB + api dev (:8000) + webpack dev (:3001) con datos sembrados:
- *   #    setup_mp_gateway (claves sandbox), un producto publicado con stock,
- *   #    y el comprador QA (QA_BUYER_EMAIL/QA_BUYER_PASSWORD).
- *   # 2) Variables:
+ * (A) WSL / CI con egress de navegador directo:
  *   export E2E_MP_LIVE=1
  *   export PW_BASE_URL=http://localhost:3001          # SPA
  *   export E2E_API_BASE=http://localhost:8000         # Django
  *   export MP_TEST_PUBLIC_KEY=TEST-....               # public key sandbox
  *   export QA_BUYER_EMAIL=... QA_BUYER_PASSWORD=...
  *   export E2E_PRODUCT_ID=<id de un producto publicado con stock>
- *   # 3) npx playwright test e2e/payments-cobro-live.e2e.js
+ *   npx playwright test e2e/payments-cobro-live.e2e.js
+ *
+ * (B) Contenedor del agente SIN egress de navegador — vía el PUENTE:
+ *   El contenedor no tiene egress HTTPS de navegador (verificado:
+ *   example.com → ERR_CONNECTION_RESET), pero Node SÍ alcanza MP por el proxy
+ *   sancionado (HTTPS_PROXY). El fixture `mpBridge` intercepta las peticiones a
+ *   *.mercadopago.com y las relaya por Node → MP.js real tokeniza en un
+ *   navegador real, sin egress de navegador. Además de lo anterior:
+ *   export E2E_MP_BRIDGE=1                             # activa el puente
+ *   # (HTTPS_PROXY ya viene del entorno; PW_BASE_URL se ignora: el spec navega
+ *   #  al origen local del puente para tener un origen CORS válido.)
+ *   bash e2e/run-cobro-live-bridge.sh                 # runner que siembra + sirve
+ *
+ * Gated por E2E_MP_LIVE=1; SKIP en cualquier otro caso. El comprador se toma de
+ * QA_BUYER_EMAIL/QA_BUYER_PASSWORD — el spec NO fija ninguna cuenta.
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/mp-bridge.js';
 
 const LIVE      = process.env.E2E_MP_LIVE === '1';
 const API_BASE  = process.env.E2E_API_BASE || process.env.API_URL || 'http://localhost:8000';
@@ -46,6 +53,12 @@ const PUBLIC_KEY = process.env.MP_TEST_PUBLIC_KEY || '';
 const BUYER_EMAIL = process.env.QA_BUYER_EMAIL || '';
 const BUYER_PASS  = process.env.QA_BUYER_PASSWORD || '';
 const PRODUCT_ID  = process.env.E2E_PRODUCT_ID || '';
+// Identidad de login desacoplada del email del pagador: el login usa el
+// USERNAME de la cuenta (auto-generado del email en el backend), mientras que
+// el email del pagador MP puede ser una dirección disponible distinta. Ambos
+// caen a QA_BUYER_EMAIL si no se especifican (retrocompat).
+const BUYER_USERNAME = process.env.E2E_BUYER_USERNAME || BUYER_EMAIL;
+const PAYER_EMAIL    = process.env.E2E_PAYER_EMAIL || BUYER_EMAIL;
 
 // Tarjeta de PRUEBA oficial de MP México (pública, libre). El nombre del
 // titular 'APRO' fuerza a MP a aprobar el pago.
@@ -63,18 +76,21 @@ const APRO_CARD = {
 test.describe('Cobro real MP sandbox (navegador)', () => {
   test.skip(!LIVE, 'define E2E_MP_LIVE=1 + stack levantado + MP_TEST_* (solo WSL/CI; el contenedor no tiene egress de navegador)');
 
-  test('UC-PAY-01-V2: MP.js tokeniza y el backend cobra → approved', async ({ browser }) => {
+  test('UC-PAY-01-V2: MP.js tokeniza y el backend cobra → approved', async ({ browser, mpBridge }) => {
     expect(PUBLIC_KEY, 'MP_TEST_PUBLIC_KEY requerido').toBeTruthy();
     expect(BUYER_EMAIL && BUYER_PASS, 'QA_BUYER_EMAIL/PASSWORD requeridos').toBeTruthy();
     expect(PRODUCT_ID, 'E2E_PRODUCT_ID (producto publicado con stock) requerido').toBeTruthy();
 
     const context = await browser.newContext({ baseURL: process.env.PW_BASE_URL || 'http://localhost:3001' });
+    // Puente de egress (no-op salvo E2E_MP_BRIDGE=1): relaya *.mercadopago.com
+    // por Node para que el navegador del contenedor pueda tokenizar sin egress.
+    await mpBridge.install(context);
     const api = context.request;
 
     // 1) Login por API (deja la cookie de sesión en el contexto).
     //    El endpoint espera { username, password } (username = email del QA).
     const login = await api.post(`${API_BASE}/api/v2/auth/login/`, {
-      data: { username: BUYER_EMAIL, password: BUYER_PASS },
+      data: { username: BUYER_USERNAME, password: BUYER_PASS },
     });
     expect(login.ok(), `login falló: ${login.status()}`).toBeTruthy();
 
@@ -100,8 +116,10 @@ test.describe('Cobro real MP sandbox (navegador)', () => {
     expect(orderNumber, 'checkout no devolvió order_number').toBeTruthy();
 
     // 3) Navegador real: cargar MP.js del CDN y tokenizar la tarjeta APRO.
+    //    Con el puente, navegamos a su origen local (origen CORS válido, sin
+    //    depender de la SPA ni del egress del navegador). Sin puente, la SPA.
     const page = await context.newPage();
-    await page.goto('/');
+    await page.goto(mpBridge.origin ?? '/');
     await page.addScriptTag({ url: 'https://sdk.mercadopago.com/js/v2' });
     await expect.poll(
       () => page.evaluate(() => typeof window.MercadoPago === 'function'),
@@ -127,7 +145,7 @@ test.describe('Cobro real MP sandbox (navegador)', () => {
         token: tokenOut.id,
         payment_method_id: tokenOut.methodId || 'master',
         installments: 1,
-        payer_email: BUYER_EMAIL,
+        payer_email: PAYER_EMAIL,
       },
     });
     expect(initiate.ok(), `initiate falló: ${initiate.status()} ${await initiate.text()}`).toBeTruthy();
