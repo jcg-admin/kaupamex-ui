@@ -50,14 +50,17 @@
   font-weight: 400;
 }
 
-// MP.js injects its iframe here; height must be fixed so the iframe is visible
+// MP.js injects its iframe here; height must be fixed so the iframe is visible.
+// The iframe text is rendered by MP in a dark color we cannot restyle
+// (cross-origin), so the container uses a light background for legibility on
+// this dark-themed panel.
 .iframe {
   height: 44px;
   border: 1px solid rgba($bronze, .3);
   border-radius: .25rem;
-  padding: 0;
+  padding: 0 .6rem;
   overflow: hidden;
-  background: $bg-sunken;
+  background: $white;
   // Ensure MP iframe fills the container
   iframe {
     width: 100%;
@@ -71,25 +74,31 @@
   border: 1px solid rgba($bronze, .3);
   border-radius: .25rem;
   padding: 0 .6rem;
-  background: $bg-sunken;
-  color: $text-primary;
+  background: $white;
+  color: $bg-page;
   font-size: .9rem;
   width: 100%;
 }
 
-// MP.js binds cardholderName / cardholderEmail / identificationNumber to a
-// real <input> (they are not iframe-hosted secure fields). Style them like
-// the selects so the form stays visually consistent.
+// MP.js binds cardholderName / cardholderEmail to a real <input> (they are not
+// iframe-hosted secure fields). Light background + dark text so they match the
+// secure fields and stay legible.
 .input {
   height: 44px;
   border: 1px solid rgba($bronze, .3);
   border-radius: .25rem;
   padding: 0 .6rem;
-  background: $bg-sunken;
-  color: $text-primary;
+  background: $white;
+  color: $bg-page;
   font-size: .9rem;
   width: 100%;
   box-sizing: border-box;
+}
+
+// Fields kept in the DOM for MP.js binding but not shown (prefilled from the
+// previous step), e.g. the payer email.
+.hiddenField {
+  display: none;
 }
 
 .actions {

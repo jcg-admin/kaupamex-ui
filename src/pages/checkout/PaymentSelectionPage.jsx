@@ -257,6 +257,13 @@ export default function PaymentSelectionPage() {
   const location    = useLocation();
 
   const userEmail = useSelector((s) => s.auth?.user?.email || '');
+  // Prefill the cardholder name from the buyer's account (previous step). It
+  // stays editable: MP sandbox reads the test-status keyword (APRO/OTHE/…)
+  // from this field, and a real card may carry a different name.
+  const userName = useSelector((s) => {
+    const u = s.auth?.user;
+    return u ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : '';
+  });
   const { isActioning, actionError, lastAction, lastInitiation } =
     useSelector((s) => s.payments);
 
@@ -463,6 +470,7 @@ export default function PaymentSelectionPage() {
             <MpCardForm
               amount={amount}
               payerEmail={userEmail}
+              cardholderName={userName}
               onPayment={onMpPayment}
               onCancel={() => setView('select')}
             />

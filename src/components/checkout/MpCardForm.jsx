@@ -62,7 +62,13 @@ function securityCodeHint(brand) {
   return `${brand.cvvLength || 3} dígitos al reverso de tu tarjeta.`;
 }
 
-export default function MpCardForm({ amount, payerEmail = '', onPayment, onCancel }) {
+export default function MpCardForm({
+  amount,
+  payerEmail = '',
+  cardholderName = '',
+  onPayment,
+  onCancel,
+}) {
   const handlePayment = useCallback((data) => {
     if (onPayment) onPayment(data);
   }, [onPayment]);
@@ -70,6 +76,7 @@ export default function MpCardForm({ amount, payerEmail = '', onPayment, onCance
   const { status, error, submit, brand, valid } = useMpCardForm({
     amount,
     payer_email: payerEmail,
+    cardholder_name: cardholderName,
     onPayment: handlePayment,
   });
 
@@ -127,7 +134,7 @@ export default function MpCardForm({ amount, payerEmail = '', onPayment, onCance
 
         <div className={styles.row}>
           <label className={styles.label} htmlFor="mp-cardholder-name">
-            Titular
+            Titular de la tarjeta
             <input
               id="mp-cardholder-name"
               type="text"
@@ -137,30 +144,17 @@ export default function MpCardForm({ amount, payerEmail = '', onPayment, onCance
           </label>
         </div>
 
-        <div className={styles.row}>
-          <label className={styles.label} htmlFor="mp-cardholder-email">
+        {/* Email del pagador: se obtiene del paso anterior (la cuenta). MP.js
+            requiere el campo en el DOM y lo pre-llena con el valor; lo
+            ocultamos para no pedir que se re-escriba. */}
+        <div className={styles.hiddenField} aria-hidden="true">
+          <label htmlFor="mp-cardholder-email">
             Email del pagador
             <input
               id="mp-cardholder-email"
               type="email"
               autoComplete="email"
-              className={styles.input}
-            />
-          </label>
-        </div>
-
-        <div className={styles.row2}>
-          <label className={styles.label} htmlFor="mp-id-type">
-            Tipo de documento
-            <select id="mp-id-type" className={styles.select} />
-          </label>
-          <label className={styles.label} htmlFor="mp-id-number">
-            Número de documento
-            <input
-              id="mp-id-number"
-              type="text"
-              inputMode="numeric"
-              className={styles.input}
+              tabIndex={-1}
             />
           </label>
         </div>
@@ -169,13 +163,6 @@ export default function MpCardForm({ amount, payerEmail = '', onPayment, onCance
           <label className={styles.label} htmlFor="mp-issuer">
             Banco emisor
             <select id="mp-issuer" className={styles.select} />
-          </label>
-        </div>
-
-        <div className={styles.row}>
-          <label className={styles.label} htmlFor="mp-installments">
-            Cuotas
-            <select id="mp-installments" className={styles.select} />
           </label>
         </div>
 

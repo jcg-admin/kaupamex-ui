@@ -38,9 +38,13 @@ describe('MpCardForm', () => {
     expect(document.getElementById('mp-cardholder-name')).toBeInTheDocument();
     expect(document.getElementById('mp-cardholder-email')).toBeInTheDocument();
     expect(document.getElementById('mp-issuer')).toBeInTheDocument();
-    expect(document.getElementById('mp-installments')).toBeInTheDocument();
-    expect(document.getElementById('mp-id-type')).toBeInTheDocument();
-    expect(document.getElementById('mp-id-number')).toBeInTheDocument();
+  });
+
+  it('no pide documento ni cuotas (MX, pago en una sola exhibición)', () => {
+    render(<MpCardForm amount="100.00" onPayment={jest.fn()} />);
+    expect(document.getElementById('mp-id-type')).not.toBeInTheDocument();
+    expect(document.getElementById('mp-id-number')).not.toBeInTheDocument();
+    expect(document.getElementById('mp-installments')).not.toBeInTheDocument();
   });
 
   it('muestra boton habilitado cuando status=ready', () => {
