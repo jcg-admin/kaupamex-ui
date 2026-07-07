@@ -48,6 +48,15 @@ function loadMpScript() {
 export function useMpCardForm({ amount, payer_email = '', onPayment }) {
   const [status, setStatus] = useState('idle'); // idle | loading | ready | error
   const [error, setError]   = useState(null);
+  // Detected card brand (from the BIN, via MP's onPaymentMethodsReceived).
+  // { id, name, thumbnail, cvvLength, cvvLocation } | null. Drives the brand
+  // icon next to the card number and the brand-aware security-code hint.
+  const [brand, setBrand]   = useState(null);
+  // Real-time form validity (from MP's onValidityChange). Starts true so the
+  // button is enabled once the form is ready; flips to false (grayed) while any
+  // field is invalid, per the submit-button best practice.
+  const [valid, setValid]   = useState(true);
+  const invalidFieldsRef     = useRef(new Set());
   const cardFormRef          = useRef(null);
   const mountedRef           = useRef(false);
 
@@ -90,7 +99,7 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
             id:              'mp-card-form',
             cardNumber:      { id: 'mp-card-number',      placeholder: 'Número de tarjeta' },
             expirationDate:  { id: 'mp-expiration-date',  placeholder: 'MM/YY' },
-            securityCode:    { id: 'mp-security-code',    placeholder: 'CVV' },
+            securityCode:    { id: 'mp-security-code',    placeholder: 'Código de seguridad' },
             cardholderName:  { id: 'mp-cardholder-name',  placeholder: 'Titular de la tarjeta' },
             cardholderEmail: { id: 'mp-cardholder-email', value: payer_email },
             issuer:          { id: 'mp-issuer' },
@@ -119,6 +128,32 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
                 const msg = Array.isArray(errs) ? errs.map(e => e.message).join(', ') : String(errs);
                 setError(msg);
               }
+            },
+            // BIN resolved: MP returns the matching payment methods. Expose the
+            // brand (name + thumbnail) and its security-code rules so the UI can
+            // show the card icon and a brand-aware "código de seguridad" hint.
+            onPaymentMethodsReceived(err, paymentMethods) {
+              if (cancelled || err) return;
+              const pm = Array.isArray(paymentMethods) ? paymentMethods[0] : null;
+              if (!pm) { setBrand(null); return; }
+              const sc = pm.settings?.[0]?.security_code || {};
+              setBrand({
+                id:          pm.id,
+                name:        pm.name,
+                thumbnail:   pm.secure_thumbnail || pm.thumbnail || '',
+                cvvLength:   sc.length || null,
+                cvvLocation: sc.card_location || null, // "back" | "front"
+              });
+            },
+            // Per-field validity → gray the submit button while any field is
+            // invalid. Default is valid=true so an untouched, ready form stays
+            // interactive (avoids a button that never enables).
+            onValidityChange(err, field) {
+              if (cancelled || !field) return;
+              const set = invalidFieldsRef.current;
+              if (err && (Array.isArray(err) ? err.length : true)) set.add(field);
+              else set.delete(field);
+              setValid(set.size === 0);
             },
             // MP calls this after CardForm.submit() succeeds tokenization
             async onSubmit(event) {
@@ -165,5 +200,5 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
     cardFormRef.current?.submit?.();
   }, []);
 
-  return { status, error, submit };
+  return { status, error, submit, brand, valid };
 }

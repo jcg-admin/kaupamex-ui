@@ -52,8 +52,26 @@ describe('MpCardForm', () => {
   it('deshabilita el boton cuando status=loading', () => {
     mockStatus = 'loading';
     render(<MpCardForm amount="100.00" onPayment={jest.fn()} />);
-    const btn = screen.getByRole('button', { name: /Cargando/i });
+    const btn = screen.getByRole('button', { name: /Procesando/i });
     expect(btn).toBeDisabled();
+  });
+
+  it('usa el término universal "Código de seguridad" y no "CVV"', () => {
+    render(<MpCardForm amount="100.00" onPayment={jest.fn()} />);
+    expect(screen.getByText(/Código de seguridad/i)).toBeInTheDocument();
+    expect(screen.queryByText(/^CVV$/)).not.toBeInTheDocument();
+  });
+
+  it('muestra el monto en el botón de pago (confirmación secundaria)', () => {
+    render(<MpCardForm amount="199.00" onPayment={jest.fn()} />);
+    expect(
+      screen.getByRole('button', { name: /Pagar con tarjeta.*199/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('muestra la nota de pago cifrado (refuerzo de seguridad)', () => {
+    render(<MpCardForm amount="100.00" onPayment={jest.fn()} />);
+    expect(screen.getByText(/Pago cifrado con MercadoPago/i)).toBeInTheDocument();
   });
 
   it('muestra error cuando el hook reporta error', () => {
