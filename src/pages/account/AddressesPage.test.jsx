@@ -80,8 +80,9 @@ describe('AddressesPage (UC-AUTH-07)', () => {
 
   it('muestra slots vacios cuando no hay direcciones', async () => {
     renderPage([]);
-    // Empty slots show "slot libre"
-    const emptySlots = await screen.findAllByText(/slot libre/i);
+    // H-15: la casilla vacía se renombró de "slot libre" (anglicismo de
+    // desarrollo) a "Casilla disponible" en español.
+    const emptySlots = await screen.findAllByText(/casilla disponible/i);
     expect(emptySlots.length).toBeGreaterThan(0);
   });
 

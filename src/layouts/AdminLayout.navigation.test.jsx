@@ -72,7 +72,7 @@ describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: /^Logistica$/i, level: 1 }),
+        screen.getByRole('heading', { name: /^Log(í|i)stica$/i, level: 1 }),
       ).toBeInTheDocument();
     });
   });

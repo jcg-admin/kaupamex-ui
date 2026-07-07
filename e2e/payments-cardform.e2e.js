@@ -1,168 +1,142 @@
 /**
- * E2E — MercadoPago Checkout API CardForm
+ * E2E — MercadoPago CardForm (flujo de UI, MOCKEADO)
+ *   UC-PAY-01-V2 — pago con tarjeta en sitio (PaymentSelectionPage + MpCardForm)
  *
- * Verifies the full on-site payment flow without hitting the real MP SDK:
- *   1. Mock window.MercadoPago via page.addInitScript
- *   2. Mock API endpoints via page.route()
- *   3. Navigate to PaymentSelectionPage
- *   4. Click "Pagar con tarjeta"
- *   5. CardForm mounts (iframes injected by mock MP.js)
- *   6. Click "Pagar con tarjeta" submit → mock cardForm.submit()
- *   7. Assert payment result view shows "¡Pago aprobado!"
+ * Este spec verifica el WIRING de la UI del paso de pago SIN tocar MP real ni
+ * el backend real: mockea window.MercadoPago (MP.js) y las rutas de API. Para
+ * el cobro REAL end-to-end contra MP sandbox ver `payments-cobro-live.e2e.js`.
+ *
+ * Actualizado al rediseño de PaymentSelectionPage (T-PP-02 métodos dinámicos +
+ * T-PP-C3): el selector es una lista `mp-method-list` con botones
+ * `method-btn-<id>`; se elige `mp-card` para revelar el CardForm, cuyo botón
+ * de envío es "Pagar con tarjeta". PayPal ya NO se ofrece en el front.
+ *
+ * NOTA de ejecución: la página de pago está detrás de auth (ProtectedRoute) y
+ * necesita la SPA servida (webpack :3001). Su verde se corre en el harness
+ * completo de WSL/CI (auth sembrada + dev server), no en el contenedor del
+ * agente. Aquí el spec queda validado por parseo (`playwright test --list`).
  */
 
 import { test, expect } from '@playwright/test';
 
 const BASE_URL = process.env.PW_BASE_URL || 'http://localhost:3001';
 const API_BASE = process.env.API_URL     || 'http://localhost:8000';
+const ORDER    = 'ORD-E2E-001';
 
+// Mock de MP.js: mismo contrato que consume useMpCardForm (cardForm con
+// callbacks onFormMounted/onSubmit + getCardFormData).
 const MP_MOCK_SCRIPT = `
-  window.MercadoPago = function MercadoPago(publicKey) {
-    this.cardForm = function({ form, callbacks }) {
-      // Immediately signal mounted
+  window.MercadoPago = function MercadoPago(publicKey, opts) {
+    this.cardForm = function({ callbacks }) {
       if (callbacks && callbacks.onFormMounted) {
-        setTimeout(() => callbacks.onFormMounted(null), 50);
+        setTimeout(() => callbacks.onFormMounted(null), 30);
       }
       return {
-        unmount: function() {},
-        submit: function() {
-          if (callbacks && callbacks.onSubmit) {
-            callbacks.onSubmit();
-          }
-        },
-        getCardFormData: function() {
+        unmount() {},
+        submit() { if (callbacks && callbacks.onSubmit) callbacks.onSubmit({ preventDefault() {} }); },
+        getCardFormData() {
           return {
-            token:           'e2e-test-token-xyz',
-            paymentMethodId: 'visa',
-            issuerId:        '310',
-            installments:    '1',
-            payer: {
-              email: 'e2e-buyer@test.com',
-              identification: { type: 'DNI', number: '12345678' },
-            },
+            token: 'e2e-test-token-xyz',
+            paymentMethodId: 'master',
+            issuerId: '310',
+            installments: '1',
+            payer: { email: 'e2e-buyer@test.com', identification: { type: 'RFC', number: 'XAXX010101000' } },
           };
         },
       };
     };
+    this.createCardToken = async () => ({ id: 'e2e-test-token-xyz', payment_method_id: 'master' });
   };
 `;
 
-test.describe('MercadoPago CardForm E2E', () => {
+test.describe('MercadoPago CardForm E2E (mocked)', () => {
   test.beforeEach(async ({ page }) => {
-    // Inject MP.js mock before any scripts run
     await page.addInitScript({ content: MP_MOCK_SCRIPT });
 
-    // Mock auth state so the page doesn't redirect to login
-    await page.addInitScript(`
-      window.__TEST_AUTH_TOKEN = 'test-bearer-token';
-    `);
+    // Métodos dinámicos (T-PP-02): una tarjeta de crédito + OXXO.
+    await page.route(`${API_BASE}/api/v2/payments/methods/`, route =>
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify([
+          { id: 'visa', payment_type_id: 'credit_card', name: 'Visa' },
+          { id: 'oxxo', payment_type_id: 'ticket',      name: 'OXXO' },
+        ]) }));
 
-    // Mock API: public key
+    // Public key (BR-009): safe para el front.
     await page.route(`${API_BASE}/api/v2/payments/public-key/`, route =>
-      route.fulfill({
-        status:      200,
-        contentType: 'application/json',
-        body:        JSON.stringify({ public_key: 'TEST-public-key-e2e' }),
-      })
-    );
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ public_key: 'TEST-public-key-e2e' }) }));
 
-    // Mock API: MP customer
-    await page.route(`${API_BASE}/api/v2/payments/customer/`, route =>
-      route.fulfill({
-        status:      200,
-        contentType: 'application/json',
-        body:        JSON.stringify({ mp_customer_id: 'CUST-e2e', email: 'e2e-buyer@test.com' }),
-      })
-    );
+    // H-PP-04: al entrar por deep-link sin navigation-state, la página
+    // RE-OBTIENE el total autoritativo de la orden (GET /api/v2/orders/<n>/).
+    // Sin esto amount<=0 y el CardForm no se monta.
+    await page.route(`${API_BASE}/api/v2/orders/${ORDER}/`, route =>
+      route.fulfill({ status: 200, contentType: 'application/json',
+        body: JSON.stringify({ order_number: ORDER, status: 'PENDING',
+          value: { total: '199.00', subtotal: '199.00', shipping_cost: '0.00' } }) }));
 
-    // Mock API: Checkout API payment (approved)
+    // Cobro con tarjeta aprobado (endpoint unificado v2).
     await page.route(`${API_BASE}/api/v2/payments/initiate/`, route =>
-      route.fulfill({
-        status:      201,
-        contentType: 'application/json',
-        body:        JSON.stringify({
-          payment_id:         1,
-          gateway_payment_id: 'mp-gw-e2e-001',
-          status:             'approved',
-          status_detail:      'accredited',
-          order_number:       'ORD-E2E-001',
-          amount:             '199.00',
-          installments:       1,
-        }),
-      })
-    );
-
-    // Mock API: PayPal v1 initiate
-    await page.route(`${API_BASE}/api/v1/payments/initiate/`, route =>
-      route.fulfill({
-        status:      201,
-        contentType: 'application/json',
-        body:        JSON.stringify({
-          payment_id:   999,
-          checkout_url: 'https://paypal.example/approve/e2e',
-          order_number: 'ORD-E2E-001',
-          amount:       '199.00',
-        }),
-      })
-    );
+      route.fulfill({ status: 201, contentType: 'application/json',
+        body: JSON.stringify({ payment_id: 1, gateway_payment_id: 'mp-gw-e2e-001',
+          status: 'approved', status_detail: 'accredited', order_number: ORDER,
+          amount: '199.00', installments: 1 }) }));
   });
 
-  test('carga la pagina de pago y muestra los gateways', async ({ page }) => {
-    await page.goto(`${BASE_URL}/checkout/payment/ORD-E2E-001`);
-    await expect(page.locator('h1')).toContainText('Elige tu metodo de pago');
-    await expect(page.getByRole('button', { name: /Pagar con tarjeta/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Pagar con PayPal/i })).toBeVisible();
+  test('muestra el selector de métodos de pago', async ({ page }) => {
+    await page.goto(`${BASE_URL}/checkout/payment/${ORDER}`);
+    await expect(page.locator('h1#payment-title')).toContainText('Método de pago');
+    await expect(page.locator('[data-testid="mp-method-list"]')).toBeVisible();
+    await expect(page.locator('[data-testid="method-btn-mp-card"]')).toBeVisible();
   });
 
-  test('UC-PAY-01-V2: flujo completo CardForm → pago aprobado', async ({ page }) => {
-    await page.goto(`${BASE_URL}/checkout/payment/ORD-E2E-001`);
+  test('UC-PAY-01-V2: CardForm → pago aprobado', async ({ page }) => {
+    await page.goto(`${BASE_URL}/checkout/payment/${ORDER}`);
 
-    // Step 1: click to show CardForm
-    await page.getByRole('button', { name: /Pagar con tarjeta/i }).click();
+    // Elegir "Tarjeta" en el selector → se revela el CardForm.
+    await page.locator('[data-testid="method-btn-mp-card"]').click();
     await expect(page.locator('[data-testid="mp-card-form"]')).toBeVisible();
 
-    // Step 2: click submit (mock CardForm.submit → getCardFormData → onPayment)
-    await page.getByRole('button', { name: /Pagar con tarjeta/i }).last().click();
+    // Enviar (el botón se habilita cuando el CardForm mockeado montó).
+    const payBtn = page.getByRole('button', { name: /Pagar con tarjeta/i });
+    await expect(payBtn).toBeEnabled();
+    await payBtn.click();
 
-    // Step 3: assert payment result
+    // Resultado aprobado.
     await expect(page.locator('[data-testid="payment-result"]')).toBeVisible({ timeout: 5000 });
     await expect(page.locator('[data-testid="payment-result"]')).toContainText('¡Pago aprobado!');
   });
 
-  test('UC-PAY-01-V2: envia token correcto al backend', async ({ page }) => {
+  test('UC-PAY-01-V2: envía el token correcto al backend', async ({ page }) => {
     let capturedBody;
     await page.route(`${API_BASE}/api/v2/payments/initiate/`, async route => {
-      capturedBody = await route.request().postDataJSON();
-      await route.fulfill({
-        status:      201,
-        contentType: 'application/json',
-        body:        JSON.stringify({
-          payment_id: 1, gateway_payment_id: 'mp-gw-tok-check',
-          status: 'approved', status_detail: 'accredited',
-          order_number: 'ORD-E2E-001', amount: '199.00', installments: 1,
-        }),
-      });
+      capturedBody = route.request().postDataJSON();
+      await route.fulfill({ status: 201, contentType: 'application/json',
+        body: JSON.stringify({ payment_id: 1, gateway_payment_id: 'mp-gw-tok-check',
+          status: 'approved', status_detail: 'accredited', order_number: ORDER,
+          amount: '199.00', installments: 1 }) });
     });
 
-    await page.goto(`${BASE_URL}/checkout/payment/ORD-E2E-001`);
-    await page.getByRole('button', { name: /Pagar con tarjeta/i }).click();
-    await page.getByRole('button', { name: /Pagar con tarjeta/i }).last().click();
+    await page.goto(`${BASE_URL}/checkout/payment/${ORDER}`);
+    await page.locator('[data-testid="method-btn-mp-card"]').click();
+    const payBtn = page.getByRole('button', { name: /Pagar con tarjeta/i });
+    await expect(payBtn).toBeEnabled();
+    await payBtn.click();
 
     await expect(page.locator('[data-testid="payment-result"]')).toBeVisible({ timeout: 5000 });
     expect(capturedBody).toMatchObject({
-      order_number:      'ORD-E2E-001',
+      order_number:      ORDER,
       token:             'e2e-test-token-xyz',
-      payment_method_id: 'visa',
+      payment_method_id: 'master',
     });
   });
 
-  test('vuelve a la seleccion al cancelar el CardForm', async ({ page }) => {
-    await page.goto(`${BASE_URL}/checkout/payment/ORD-E2E-001`);
-    await page.getByRole('button', { name: /Pagar con tarjeta/i }).click();
+  test('cancelar el CardForm vuelve al selector', async ({ page }) => {
+    await page.goto(`${BASE_URL}/checkout/payment/${ORDER}`);
+    await page.locator('[data-testid="method-btn-mp-card"]').click();
     await expect(page.locator('[data-testid="mp-card-form"]')).toBeVisible();
 
     await page.getByRole('button', { name: /Cancelar/i }).click();
     await expect(page.locator('[data-testid="mp-card-form"]')).not.toBeVisible();
-    await expect(page.getByRole('button', { name: /Pagar con tarjeta/i })).toBeVisible();
+    await expect(page.locator('[data-testid="mp-method-list"]')).toBeVisible();
   });
 });

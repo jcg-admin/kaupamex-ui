@@ -124,27 +124,27 @@ class MockInterceptor {
        body.username === 'buyer@e-commerce.test') &&
       body.password === 'Test1234!';
     if (isBuyer) {
-      try { window.localStorage.setItem('_mock_auth_type', 'buyer'); } catch (e) {}
+      try { window.localStorage.setItem('_mock_auth_type', 'buyer'); } catch { /* localStorage no disponible en el entorno de test */ }
       return this._ok({ user: this._mockUser(1, false, 'testbuyer@example.com') });
     }
     const isAdmin =
       (body.username === 'admin@practicayoruba.com' || body.username === 'testadmin@example.com') &&
       body.password === 'Admin1234!';
     if (isAdmin) {
-      try { window.localStorage.setItem('_mock_auth_type', 'admin'); } catch (e) {}
+      try { window.localStorage.setItem('_mock_auth_type', 'admin'); } catch { /* localStorage no disponible en el entorno de test */ }
       return this._ok({ user: this._mockUser(2, true, 'testadmin@example.com') });
     }
     return this._error(401, 'Credenciales inválidas.');
   }
 
   _logout() {
-    try { window.localStorage.removeItem('_mock_auth_type'); } catch (e) {}
+    try { window.localStorage.removeItem('_mock_auth_type'); } catch { /* localStorage no disponible en el entorno de test */ }
     return this._ok({ detail: 'Sesión cerrada.' });
   }
 
   _me() {
     let type = null;
-    try { type = window.localStorage.getItem('_mock_auth_type'); } catch (e) {}
+    try { type = window.localStorage.getItem('_mock_auth_type'); } catch { /* localStorage no disponible en el entorno de test */ }
     if (type === 'admin') return this._ok(this._mockUser(2, true, 'testadmin@example.com'));
     if (type === 'buyer') return this._ok(this._mockUser(1, false, 'testbuyer@example.com'));
     return this._error(401, 'No autenticado.');
