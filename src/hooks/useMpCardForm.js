@@ -75,6 +75,12 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
         const publicKey = pkRes.data?.public_key;
         if (!publicKey) throw new Error('MP public key not available');
 
+        // MP.js cardForm is a global singleton: a second mp.cardForm() call
+        // returns the existing instance ("Cardform already instantiated") with
+        // stale callbacks, so onFormMounted never fires and the form dies. If a
+        // form is already live in this mount, don't instantiate a second one.
+        if (cardFormRef.current) return;
+
         const mp = new window.MercadoPago(publicKey, { locale: 'es-MX' });
 
         cardFormRef.current = mp.cardForm({
@@ -94,10 +100,21 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
           },
           callbacks: {
             onFormMounted(err) {
-              if (err) { setError('No se pudo cargar el formulario de pago.'); setStatus('error'); return; }
+              if (err) {
+                // Surface the real MP reason (was swallowed): console + on-screen.
+                console.error('[MP cardForm] onFormMounted error:', err);
+                const detail = err?.message
+                  || (Array.isArray(err) ? err.map(e => e?.message).filter(Boolean).join(', ') : '');
+                setError(detail
+                  ? `No se pudo cargar el formulario de pago: ${detail}`
+                  : 'No se pudo cargar el formulario de pago.');
+                setStatus('error');
+                return;
+              }
               if (!cancelled) { mountedRef.current = true; setStatus('ready'); }
             },
             onError(errs) {
+              console.error('[MP cardForm] onError:', errs);
               if (!cancelled) {
                 const msg = Array.isArray(errs) ? errs.map(e => e.message).join(', ') : String(errs);
                 setError(msg);
@@ -130,15 +147,19 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
           },
         });
       } catch (e) {
+        console.error('[MP cardForm] init failed (SDK load / public key):', e);
         if (!cancelled) { setError(e.message || 'Error al cargar el módulo de pago.'); setStatus('error'); }
       }
     }
 
     init();
     return () => { cancelled = true; cleanup(); };
-  // onPayment is intentionally excluded — callers should memoize it with useCallback
+  // Depend ONLY on amount. payer_email is an initial prefill; including it made
+  // the effect re-run when the auth email hydrated late, re-instantiating the
+  // MP singleton cardForm and killing the form. onPayment/cleanup are stable
+  // (useCallback) and intentionally excluded.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount, payer_email, cleanup]);
+  }, [amount]);
 
   const submit = useCallback(() => {
     cardFormRef.current?.submit?.();
