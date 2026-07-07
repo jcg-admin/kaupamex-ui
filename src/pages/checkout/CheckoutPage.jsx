@@ -181,7 +181,7 @@ export default function CheckoutPage() {
         )}
         <div className={styles.layout}>
           <div className={styles.mainCol}>
-            <Section n="01" title="Identificación">
+            <Section title="Identificación">
               <Field
                 label="Correo de contacto"
                 value={email}
@@ -194,7 +194,7 @@ export default function CheckoutPage() {
               />
             </Section>
 
-            <Section n="02" title="Dirección de envío">
+            <Section title="Dirección de envío">
               <AddressForm
                 address={address}
                 setAddress={setAddress}
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
               />
             </Section>
 
-            <Section n="03" title="Envío">
+            <Section title="Envío">
               <ShippingInfo />
             </Section>
           </div>
@@ -266,11 +266,10 @@ function Step({ n, label, state }) {
   );
 }
 
-function Section({ n, title, children }) {
+function Section({ title, children }) {
   return (
     <section className={styles.section}>
       <header className={styles.sectionHeader}>
-        <span className={styles.sectionNum}>· {n} ·</span>
         <h2 className={styles.sectionTitle}>{title}</h2>
       </header>
       {children}
