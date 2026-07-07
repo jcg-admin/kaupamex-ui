@@ -165,7 +165,7 @@ export default function CheckoutPage() {
           <div className={styles.steps}>
             <Step n="01" label="Bolsa"    state="done" />
             <Step n="02" label="Contacto" state="active" />
-            <Step n="03" label="Envío"    state="active" />
+            <Step n="03" label="Envío"    state="pending" />
             <Step n="04" label="Pago"     state="pending" />
             <Step n="05" label="Revisar"  state="pending" />
           </div>
