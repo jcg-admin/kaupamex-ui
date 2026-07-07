@@ -163,10 +163,11 @@ export default function CheckoutPage() {
             </span>
           </Link>
           <div className={styles.steps}>
-            <Step n="01" label="Carrito"        state="done" />
-            <Step n="02" label="Datos y envío"  state="active" />
-            <Step n="03" label="Pago"           state="pending" />
-            <Step n="04" label="Confirmación"   state="pending" />
+            <Step n="01" label="Bolsa"    state="done" />
+            <Step n="02" label="Contacto" state="active" />
+            <Step n="03" label="Envío"    state="active" />
+            <Step n="04" label="Pago"     state="pending" />
+            <Step n="05" label="Revisar"  state="pending" />
           </div>
           <div className={styles.secureBadge}>PAGO PROTEGIDO · SSL/TLS</div>
         </div>
