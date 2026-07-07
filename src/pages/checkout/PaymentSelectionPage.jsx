@@ -415,13 +415,29 @@ export default function PaymentSelectionPage() {
             </p>
           )}
           <p>Pago: <strong>{lastInitiation.gateway_payment_id || lastInitiation.payment_id}</strong></p>
-          <button
-            type="button"
-            className={styles.primaryBtn}
-            onClick={() => navigate(`/order/${orderId}/confirmation`)}
-          >
-            Ver confirmación
-          </button>
+          {/* H-PP-B10: el CTA depende del estado REAL del pago — no llevar a la
+              confirmación si no fue aprobado. */}
+          {lastInitiation.status === 'approved' ? (
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => navigate(`/order/${orderId}/confirmation`)}
+            >
+              Ver confirmación
+            </button>
+          ) : (lastInitiation.status === 'rejected' || lastInitiation.status === 'cancelled') ? (
+            <button type="button" className={styles.primaryBtn} onClick={onRetry}>
+              Reintentar el pago
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => navigate(`/account/orders/${orderId}`)}
+            >
+              Ver el estado de mi pedido
+            </button>
+          )}
         </div>
       )}
 

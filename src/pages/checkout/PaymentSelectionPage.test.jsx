@@ -152,6 +152,10 @@ describe('PaymentSelectionPage', () => {
       await screen.findByRole('heading', { name: /No pudimos procesar tu pago/i }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: /^Método de pago$/i })).not.toBeInTheDocument();
+    // H-PP-B10: pago rechazado NO ofrece "Ver confirmación" (no lleva a la
+    // página de éxito); ofrece reintentar.
+    expect(screen.queryByRole('button', { name: /Ver confirmación/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Reintentar el pago/i })).toBeInTheDocument();
   });
 
   it('muestra el CardForm al hacer click en tarjeta MP', () => {
