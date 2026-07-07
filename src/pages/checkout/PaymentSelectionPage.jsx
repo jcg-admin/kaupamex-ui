@@ -257,6 +257,13 @@ export default function PaymentSelectionPage() {
   const location    = useLocation();
 
   const userEmail = useSelector((s) => s.auth?.user?.email || '');
+  // Prefill the cardholder name from the buyer's account (previous step). It
+  // stays editable: MP sandbox reads the test-status keyword (APRO/OTHE/…)
+  // from this field, and a real card may carry a different name.
+  const userName = useSelector((s) => {
+    const u = s.auth?.user;
+    return u ? `${u.first_name || ''} ${u.last_name || ''}`.trim() : '';
+  });
   const { isActioning, actionError, lastAction, lastInitiation } =
     useSelector((s) => s.payments);
 
@@ -408,13 +415,29 @@ export default function PaymentSelectionPage() {
             </p>
           )}
           <p>Pago: <strong>{lastInitiation.gateway_payment_id || lastInitiation.payment_id}</strong></p>
-          <button
-            type="button"
-            className={styles.primaryBtn}
-            onClick={() => navigate(`/order/${orderId}/confirmation`)}
-          >
-            Ver confirmación
-          </button>
+          {/* H-PP-B10: el CTA depende del estado REAL del pago — no llevar a la
+              confirmación si no fue aprobado. */}
+          {lastInitiation.status === 'approved' ? (
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => navigate(`/order/${orderId}/confirmation`)}
+            >
+              Ver confirmación
+            </button>
+          ) : (lastInitiation.status === 'rejected' || lastInitiation.status === 'cancelled') ? (
+            <button type="button" className={styles.primaryBtn} onClick={onRetry}>
+              Reintentar el pago
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={styles.primaryBtn}
+              onClick={() => navigate(`/account/orders/${orderId}`)}
+            >
+              Ver el estado de mi pedido
+            </button>
+          )}
         </div>
       )}
 
@@ -463,6 +486,7 @@ export default function PaymentSelectionPage() {
             <MpCardForm
               amount={amount}
               payerEmail={userEmail}
+              cardholderName={userName}
               onPayment={onMpPayment}
               onCancel={() => setView('select')}
             />

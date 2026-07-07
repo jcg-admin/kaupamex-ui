@@ -45,7 +45,7 @@ function loadMpScript() {
  *   signature: onPayment({ token, payment_method_id, issuerId, installments,
  *                           payer: { email, identification: { type, number } } })
  */
-export function useMpCardForm({ amount, payer_email = '', onPayment }) {
+export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', onPayment }) {
   const [status, setStatus] = useState('idle'); // idle | loading | ready | error
   const [error, setError]   = useState(null);
   // Detected card brand (from the BIN, via MP's onPaymentMethodsReceived).
@@ -100,12 +100,11 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
             cardNumber:      { id: 'mp-card-number',      placeholder: 'Número de tarjeta' },
             expirationDate:  { id: 'mp-expiration-date',  placeholder: 'MM/YY' },
             securityCode:    { id: 'mp-security-code',    placeholder: 'Código de seguridad' },
-            cardholderName:  { id: 'mp-cardholder-name',  placeholder: 'Titular de la tarjeta' },
+            cardholderName:  { id: 'mp-cardholder-name',  placeholder: 'Titular de la tarjeta', value: cardholder_name },
             cardholderEmail: { id: 'mp-cardholder-email', value: payer_email },
             issuer:          { id: 'mp-issuer' },
-            installments:    { id: 'mp-installments' },
-            identificationType:   { id: 'mp-id-type' },
-            identificationNumber: { id: 'mp-id-number', placeholder: 'Número de documento' },
+            // MX no requiere identificación del pagador, y no ofrecemos cuotas:
+            // installments/identification se omiten del form (default 1 cuota).
           },
           callbacks: {
             onFormMounted(err) {
@@ -161,18 +160,20 @@ export function useMpCardForm({ amount, payer_email = '', onPayment }) {
               try {
                 const data = cardFormRef.current?.getCardFormData?.();
                 if (data && onPayment) {
+                  const payer = { email: data.payer?.email };
+                  // Identification is optional in MX and no longer collected;
+                  // forward it only if MP still returns it.
+                  const idType = data.payer?.identification?.type;
+                  const idNumber = data.payer?.identification?.number;
+                  if (idType || idNumber) {
+                    payer.identification = { type: idType, number: idNumber };
+                  }
                   onPayment({
                     token:             data.token,
                     payment_method_id: data.paymentMethodId,
                     issuerId:          data.issuerId,
-                    installments:      data.installments,
-                    payer: {
-                      email: data.payer?.email,
-                      identification: {
-                        type:   data.payer?.identification?.type,
-                        number: data.payer?.identification?.number,
-                      },
-                    },
+                    installments:      data.installments || 1,
+                    payer,
                   });
                 }
               } catch (e) {
