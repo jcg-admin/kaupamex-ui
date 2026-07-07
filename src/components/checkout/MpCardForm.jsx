@@ -1,7 +1,9 @@
 /**
  * MpCardForm — MercadoPago Checkout API on-site card form
  *
- * Renders the div placeholders that MP.js fills with secure iframes.
+ * Renders the fields MP.js CardForm binds by DOM id: div placeholders for
+ * the secure iframe fields (card number, expiry, CVV) and real inputs/selects
+ * for the non-secure fields (cardholder name/email, document, issuer, cuotas).
  * Delegates SDK lifecycle to useMpCardForm hook.
  *
  * Props:
@@ -57,14 +59,24 @@ export default function MpCardForm({ amount, payerEmail = '', onPayment, onCance
         <div className={styles.row}>
           <label className={styles.label} htmlFor="mp-cardholder-name">
             Titular
-            <div id="mp-cardholder-name" className={styles.iframe} />
+            <input
+              id="mp-cardholder-name"
+              type="text"
+              autoComplete="cc-name"
+              className={styles.input}
+            />
           </label>
         </div>
 
         <div className={styles.row}>
           <label className={styles.label} htmlFor="mp-cardholder-email">
             Email del pagador
-            <div id="mp-cardholder-email" className={styles.iframe} />
+            <input
+              id="mp-cardholder-email"
+              type="email"
+              autoComplete="email"
+              className={styles.input}
+            />
           </label>
         </div>
 
@@ -75,7 +87,12 @@ export default function MpCardForm({ amount, payerEmail = '', onPayment, onCance
           </label>
           <label className={styles.label} htmlFor="mp-id-number">
             Número de documento
-            <div id="mp-id-number" className={styles.iframe} />
+            <input
+              id="mp-id-number"
+              type="text"
+              inputMode="numeric"
+              className={styles.input}
+            />
           </label>
         </div>
 
