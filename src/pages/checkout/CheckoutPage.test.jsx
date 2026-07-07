@@ -1,14 +1,17 @@
 /**
  * Tests — CheckoutPage (UC-ORD-01)
  *
- * These tests are written to match the actual CheckoutPage component:
+ * Envío (supersede DEC-BC-19/DEC-BC-25): el comprador NO selecciona método de
+ * envío. El backend deriva el envío por zona (api@358ffaa); la política actual
+ * es GRATIS siempre (open-closed). La UI solo muestra el envío derivado.
+ *
+ * These tests match the actual CheckoutPage component:
  *   - No h1 "Finalizar compra" — sections have h2 titles
  *   - AddressForm fields: "Nombre completo del destinatario", "Calle y número",
  *     "Alcaldía / Municipio", "Estado", "C.P.", etc.
- *   - Submit button: "Confirmar y pagar" (not "Confirmar pedido")
- *   - No "Acepto los términos" checkbox — disclaimer is plain text
- *   - No guest-specific notice/email fields — component always shows email field
- *   - Creates order via POST /api/v2/orders/ (checkoutSlice)
+ *   - Submit button: "Continuar al pago" (not "Confirmar pedido")
+ *   - No shipping-method selector; ·03· Envío es informativo (GRATIS)
+ *   - Creates order via POST /api/v2/orders/ (checkoutSlice), sin shipping_method_id
  *   - fetchAddresses dispatch requires addresses slice in store
  */
 import { render, screen, waitFor } from '@testing-library/react';
@@ -76,20 +79,12 @@ const fillAddress = async (user) => {
   await user.type(screen.getByLabelText(/Estado/i),                            'CDMX');
 };
 
-// Mock addresses and shipping methods GET (both dispatched on mount)
+// Mock addresses GET (dispatched on mount).
 beforeEach(() => {
   server.use(
     http.get(`${BASE}/api/v2/addresses/`, () =>
       HttpResponse.json({ results: [], count: 0 }),
     ),
-    http.get(`${BASE}/api/v2/shipping-methods/`, () =>
-      HttpResponse.json([
-        { id: 1, name: 'Estándar resguardado', cost: '0.00', estimated_days: 5, free_threshold: null },
-        { id: 2, name: 'Expedito · 24 horas',  cost: '280.00', estimated_days: 1, free_threshold: null },
-      ]),
-    ),
-    // G-ENV-01: por defecto, sin zonas (cada test que lo necesite lo sobrescribe).
-    http.get(`${BASE}/api/v2/shipping-zones/`, () => HttpResponse.json([])),
   );
 });
 
@@ -101,20 +96,17 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(screen.getByRole('heading', { name: /Dirección de envío/i })).toBeInTheDocument();
   });
 
-  it('crea la orden via POST /api/v2/orders/ con direccion y metodo de envio', async () => {
+  it('crea la orden via POST /api/v2/orders/ sin metodo de envio', async () => {
     server.use(
-      http.post(`${BASE}/api/v2/orders/`, () =>
-        HttpResponse.json({ order_number: 'PY-2026-000123', status: 'PENDING' }),
-      ),
       http.post(`${BASE}/api/v2/payments/initiate/`, () =>
         HttpResponse.json({ checkout_url: null }),
       ),
     );
 
-    let orderCalled = false;
+    let orderBody = null;
     server.use(
-      http.post(`${BASE}/api/v2/orders/`, () => {
-        orderCalled = true;
+      http.post(`${BASE}/api/v2/orders/`, async ({ request }) => {
+        orderBody = await request.json().catch(() => ({}));
         return HttpResponse.json({ order_number: 'PY-2026-000123', status: 'PENDING' });
       }),
     );
@@ -122,11 +114,13 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     render(wrap());
 
     await fillAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     // Diálogo de confirmación: confirmar para crear la orden.
     await user.click(await screen.findByTestId('confirm-pay'));
 
-    await waitFor(() => expect(orderCalled).toBe(true));
+    await waitFor(() => expect(orderBody).not.toBeNull());
+    // El comprador no elige envío: el payload no lleva shipping_method_id.
+    expect(orderBody).not.toHaveProperty('shipping_method_id');
   });
 
   it('muestra error cuando el backend devuelve un fallo', async () => {
@@ -143,7 +137,7 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     render(wrap());
 
     await fillAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     await user.click(await screen.findByTestId('confirm-pay'));
 
     expect(
@@ -151,11 +145,11 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     ).toBeInTheDocument();
   });
 
-  it('el boton "Confirmar y pagar" esta habilitado por defecto', () => {
+  it('el boton "Continuar al pago" esta habilitado por defecto', () => {
     render(wrap());
-    // Component button is "Confirmar y pagar" — no terms checkbox required
+    // Component button is "Continuar al pago" — no terms checkbox required
     expect(
-      screen.getByRole('button', { name: /Confirmar y pagar/i })
+      screen.getByRole('button', { name: /Continuar al pago/i })
     ).not.toBeDisabled();
   });
 
@@ -171,52 +165,22 @@ describe('CheckoutPage (UC-ORD-01)', () => {
     expect(emailInput.value).toBe('a@b.com');
   });
 
-  it('muestra la seccion de metodo de envio con opciones', async () => {
+  it('la seccion de Envio muestra envio GRATIS derivado, sin seleccion', () => {
     render(wrap());
-    expect(screen.getByRole('heading', { name: /Método de envío/i })).toBeInTheDocument();
-    // Shipping options load dynamically from /api/v2/shipping-methods/
-    expect(await screen.findByText(/Estándar resguardado/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^Envío$/i })).toBeInTheDocument();
+    // Envío informativo (no seleccionable): no hay opciones a elegir.
+    const info = screen.getByTestId('shipping-info');
+    expect(info).toBeInTheDocument();
+    expect(info.querySelector('button')).toBeNull();
   });
 
-  it('G-ENV-01: refleja envío GRATIS por zona en el resumen', async () => {
-    server.use(
-      http.get(`${BASE}/api/v2/shipping-zones/`, () =>
-        HttpResponse.json([
-          { id: 1, name: 'CDMX', zip_code_prefix: '06', estimated_days_min: 1,
-            estimated_days_max: 1, cost: '99.00', free_threshold: '800.00' },
-        ]),
-      ),
-    );
-    const store = configureStore({
-      reducer: {
-        checkout: checkoutReducer, orders: ordersReducer, auth: authReducer,
-        addresses: addressesReducer, cart: cartReducer,
-      },
-      preloadedState: {
-        auth: { user: { id: 1, email: 'a@b.com' }, isAuthenticated: true,
-                accessToken: 't', refreshToken: 'r', status: 'idle', error: null },
-        // Subtotal 1000 ≥ umbral de zona 800 → envío gratis.
-        cart: { items: [{ id: 1, product_name: 'X', unit_price: 500, quantity: 2 }],
-                totals: { subtotal: 1000, total: 1000 } },
-      },
-    });
-    const user = userEvent.setup();
-    render(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={['/checkout']}>
-          <Routes>
-            <Route path="/checkout" element={<CheckoutPage />} />
-          </Routes>
-        </MemoryRouter>
-      </Provider>,
-    );
-    // Al escribir un C.P. de la zona metro, el resumen marca envío gratis.
-    await user.type(screen.getByLabelText(/C\.P\./i), '06600');
-    expect(await screen.findByTestId('zone-free-ship')).toBeInTheDocument();
+  it('el resumen refleja envio GRATIS', () => {
+    render(wrap());
+    expect(screen.getByTestId('free-ship')).toBeInTheDocument();
   });
 });
 
-describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () => {
+describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5)', () => {
   const fillValidAddress = async (user, { phone = '5512345678', zip = '06600' } = {}) => {
     await user.type(screen.getByLabelText(/Nombre completo del destinatario/i), 'Juana Perez');
     if (phone) await user.type(screen.getByLabelText(/Teléfono/i), phone);
@@ -238,7 +202,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () 
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user, { phone: '551234567' }); // 9 dígitos
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     expect(await screen.findByText(/10 dígitos/i)).toBeInTheDocument();
     expect(orderCalled).toBe(false);
   });
@@ -254,7 +218,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () 
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user, { zip: '123' }); // 3 dígitos
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     expect(await screen.findByText(/5 dígitos/i)).toBeInTheDocument();
     expect(orderCalled).toBe(false);
   });
@@ -265,47 +229,6 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () 
     const phone = screen.getByLabelText(/Teléfono/i);
     await user.type(phone, '55-1234-5678-99');
     expect(phone.value).toBe('5512345678');
-  });
-
-  it('muestra aviso accionable si /shipping-methods/ falla', async () => {
-    // 404 (endpoint ausente/mal enrutado) — no reintentable, rechaza de
-    // inmediato. Un 5xx dispararía los reintentos con backoff de apiService.
-    server.use(
-      http.get(`${BASE}/api/v2/shipping-methods/`, () =>
-        HttpResponse.json({ detail: 'err' }, { status: 404 }),
-      ),
-    );
-    render(wrap());
-    expect(
-      await screen.findByText(/no se pudieron cargar los métodos de envío/i),
-    ).toBeInTheDocument();
-  });
-
-  it('bloquea el envío si no hay métodos de envío disponibles', async () => {
-    // DEC-BC-25: en producción /shipping-methods/ puede venir vacío; sin un
-    // método seleccionado no se puede continuar ni crear la orden.
-    server.use(
-      http.get(`${BASE}/api/v2/shipping-methods/`, () => HttpResponse.json([])),
-    );
-    let orderCalled = false;
-    server.use(
-      http.post(`${BASE}/api/v2/orders/`, () => {
-        orderCalled = true;
-        return HttpResponse.json({ order_number: 'X1' });
-      }),
-    );
-    const user = userEvent.setup();
-    render(wrap());
-    // El estado vacío avisa que no se puede completar la compra.
-    expect(
-      await screen.findByText(/no es posible completar la compra/i),
-    ).toBeInTheDocument();
-    await fillValidAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
-    expect(
-      await screen.findByText(/Selecciona un método de envío/i),
-    ).toBeInTheDocument();
-    expect(orderCalled).toBe(false);
   });
 
   it('con datos válidos muestra el diálogo y no crea la orden hasta confirmar', async () => {
@@ -319,7 +242,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () 
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     expect(await screen.findByText(/Revisa tus datos de envío/i)).toBeInTheDocument();
     expect(orderCalled).toBe(false);
   });
@@ -335,7 +258,7 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5) y envío', () 
     const user = userEvent.setup();
     render(wrap());
     await fillValidAddress(user);
-    await user.click(screen.getByRole('button', { name: /Confirmar y pagar/i }));
+    await user.click(screen.getByRole('button', { name: /Continuar al pago/i }));
     await screen.findByText(/Revisa tus datos de envío/i);
     await user.click(screen.getByRole('button', { name: /^Revisar$/i }));
     expect(orderCalled).toBe(false);

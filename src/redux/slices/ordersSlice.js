@@ -69,7 +69,12 @@ export const updateOrderAddress = createAsyncThunk(
   },
 );
 
-/** UC-ORD-06: comprador cambia el metodo de envio. */
+/**
+ * UC-ORD-06 (DEPRECADO 2026-07-07): comprador cambia el metodo de envio.
+ * El comprador ya NO elige envio — se deriva por zona, GRATIS (open-closed;
+ * supersede DEC-BC-19/DEC-BC-25). Se conserva el thunk marcado deprecado (no
+ * se elimina); su retiro efectivo queda para una iniciativa dedicada.
+ */
 export const updateOrderShipping = createAsyncThunk(
   'orders/updateShipping',
   async ({ orderNumber, shippingMethodId }, { rejectWithValue }) => {

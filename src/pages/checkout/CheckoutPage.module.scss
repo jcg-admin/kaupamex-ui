@@ -145,6 +145,18 @@
 .optionPriceNote { display: block; font-family: $font-family-mono; font-size: 10px; color: $text-muted; letter-spacing: 0.06em; margin-top: 2px; }
 .optionExternal { font-family: $font-family-mono; font-size: 10px; color: $text-muted; letter-spacing: 0.1em; text-transform: uppercase; }
 
+// Envío derivado (no seleccionable): fila informativa con el mismo look que
+// una tarjeta de opción activa, pero sin ser un botón (el comprador no elige).
+.shippingInfo {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: $spacing-4;
+  padding: $spacing-5;
+  border: 1px solid $bronze;
+  background: rgba($bronze, 0.05);
+  align-items: center;
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Address form
 // ─────────────────────────────────────────────────────────────────────

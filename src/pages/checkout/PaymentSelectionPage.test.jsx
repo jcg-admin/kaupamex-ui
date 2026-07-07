@@ -7,6 +7,7 @@
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { Provider }     from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
@@ -53,16 +54,30 @@ const makeStore = () =>
 // H-PP-04: el monto llega por navigation-state. Por defecto se pasa un monto
 // válido (como en el flujo real desde CheckoutPage). El caso deep-link/reload
 // (sin monto) se prueba aparte pasando state: null.
+const makeQueryClient = () =>
+  new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 const wrap = (ui, store, { path = '/checkout/payment/ORD-001', state = { amount: '500.00' } } = {}) => (
-  <Provider store={store}>
-    <MemoryRouter initialEntries={[{ pathname: path, state }]}>
-      <Routes>
-        <Route path="/checkout/payment/:orderId" element={ui} />
-        <Route path="/order/:orderId/confirmation" element={<div>Confirmación</div>} />
-      </Routes>
-    </MemoryRouter>
-  </Provider>
+  <QueryClientProvider client={makeQueryClient()}>
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[{ pathname: path, state }]}>
+        <Routes>
+          <Route path="/checkout/payment/:orderId" element={ui} />
+          <Route path="/order/:orderId/confirmation" element={<div>Confirmación</div>} />
+        </Routes>
+      </MemoryRouter>
+    </Provider>
+  </QueryClientProvider>
 );
+
+// T-PP-02: por defecto, GET /payments/methods/ devuelve vacío → el selector
+// cae al FALLBACK curado (mismos ids que los tests existentes esperan). Los
+// tests que ejercen el catálogo dinámico sobrescriben este handler.
+beforeEach(() => {
+  server.use(
+    http.get(`${BASE}/api/v2/payments/methods/`, () => HttpResponse.json([])),
+  );
+});
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -77,6 +92,41 @@ describe('PaymentSelectionPage', () => {
     expect(screen.getByRole('heading', { name: /^Método de pago$/i })).toBeInTheDocument();
     expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
+    expect(screen.getByTestId('method-btn-oxxo')).toBeInTheDocument();
+    expect(screen.getByTestId('method-btn-clabe')).toBeInTheDocument();
+  });
+
+  it('T-PP-02: renderiza los métodos del catálogo dinámico de MP', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/payments/methods/`, () =>
+        HttpResponse.json([
+          { id: 'visa',   name: 'Visa',       payment_type_id: 'credit_card' },
+          { id: 'master', name: 'Mastercard', payment_type_id: 'credit_card' },
+          { id: 'oxxo',   name: 'OXXO',       payment_type_id: 'ticket' },
+          { id: 'pix',    name: 'PIX',        payment_type_id: 'bank_transfer' },
+        ]),
+      ),
+    );
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    // Un método no-tarjeta con id desconocido usa el `name` que devuelve MP.
+    expect(await screen.findByTestId('method-btn-pix')).toHaveTextContent(/PIX/);
+    // Las marcas de tarjeta se colapsan en una sola entrada mp-card…
+    expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();
+    expect(screen.getByTestId('method-btn-oxxo')).toBeInTheDocument();
+    // …sin un botón por cada marca.
+    expect(screen.queryByTestId('method-btn-visa')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('method-btn-master')).not.toBeInTheDocument();
+  });
+
+  it('T-PP-02: cae al fallback curado si el endpoint de métodos falla', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/payments/methods/`, () =>
+        HttpResponse.json({ codigo_error: 'GATEWAY_NOT_CONFIGURED' }, { status: 503 }),
+      ),
+    );
+    render(wrap(<PaymentSelectionPage />, makeStore()));
+    // Con el catálogo caído, el selector sigue ofreciendo los métodos curados.
+    expect(await screen.findByTestId('method-btn-mp-card')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-oxxo')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-clabe')).toBeInTheDocument();
   });
