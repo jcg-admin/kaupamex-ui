@@ -142,6 +142,23 @@
   }
 }
 
+// Recovery action shown when the CardForm fails to mount: a page reload gives
+// a clean JS context (empty MP secure-field registry) so the form mounts again.
+.reloadBtn {
+  margin-bottom: 1rem;
+  padding: .65rem 1rem;
+  background: $bg-page;
+  color: $text-secondary;
+  border: 1px solid $border-color;
+  border-radius: .35rem;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: $border-color;
+  }
+}
+
 // Trust cue: lock + "Pago cifrado con MercadoPago" (visibility of security).
 .secureNote {
   display: flex;

@@ -98,6 +98,17 @@ export default function MpCardForm({
         <p role="alert" className={styles.error}>{error}</p>
       )}
 
+      {status === 'error' && (
+        <button
+          type="button"
+          className={styles.reloadBtn}
+          onClick={() => window.location.reload()}
+          data-testid="mp-reload-btn"
+        >
+          Recargar para reintentar el pago
+        </button>
+      )}
+
       <form id="mp-card-form" className={styles.form}>
         <div className={styles.row}>
           {/* Not a <label>: MP renders the secure field as a <div> (iframe
