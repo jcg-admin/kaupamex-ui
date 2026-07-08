@@ -67,11 +67,19 @@ export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', 
   const invalidFieldsRef     = useRef(new Set());
   const cardFormRef          = useRef(null);
   const mountedRef           = useRef(false);
+  // Watchdog: if MP never fires onFormMounted (it can throw its "Context
+  // already exists" asynchronously, out of our try/catch), the form would hang
+  // on "loading" forever. This timer flips to an actionable error instead.
+  const watchdogRef          = useRef(null);
 
   const cleanup = useCallback(() => {
+    if (watchdogRef.current) { clearTimeout(watchdogRef.current); watchdogRef.current = null; }
     if (cardFormRef.current) {
       try { cardFormRef.current.unmount(); } catch (_) { /* ignore */ }
-      if (activeCardForm === cardFormRef.current) activeCardForm = null;
+      // Do NOT null activeCardForm here. unmount() does not reliably clear MP's
+      // GLOBAL secure-field context registry during teardown, so the next mount
+      // must keep the reference to unmount it again at a better time (fresh DOM)
+      // before creating a new CardForm — otherwise it throws "already exists".
       cardFormRef.current = null;
     }
     mountedRef.current = false;
@@ -126,6 +134,7 @@ export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', 
           },
           callbacks: {
             onFormMounted(err) {
+              if (watchdogRef.current) { clearTimeout(watchdogRef.current); watchdogRef.current = null; }
               if (err) {
                 // Surface the real MP reason (was swallowed): console + on-screen.
                 console.error('[MP cardForm] onFormMounted error:', err);
@@ -216,9 +225,31 @@ export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', 
           }
         }
         activeCardForm = cardFormRef.current;
+
+        // Watchdog: MP can throw "Context 'expirationFields' already exists"
+        // ASYNCHRONOUSLY while mounting its iframes (outside this try/catch), in
+        // which case onFormMounted never fires and the form hangs on "loading".
+        // If it hasn't mounted in 8s, surface an actionable error (the UI offers
+        // a reload — a fresh JS context has an empty MP registry and mounts clean).
+        watchdogRef.current = setTimeout(() => {
+          if (!cancelled && !mountedRef.current) {
+            console.error('[MP cardForm] mount timed out (no onFormMounted)');
+            setError('No se pudo cargar el formulario de pago. Recarga la página para reintentar.');
+            setStatus('error');
+          }
+        }, 8000);
       } catch (e) {
         console.error('[MP cardForm] init failed (SDK load / public key):', e);
-        if (!cancelled) { setError(e.message || 'Error al cargar el módulo de pago.'); setStatus('error'); }
+        if (watchdogRef.current) { clearTimeout(watchdogRef.current); watchdogRef.current = null; }
+        if (!cancelled) {
+          // A surviving "already exists" means MP's global context is stuck in
+          // this JS context; a page reload (clean context) is the reliable exit.
+          const msg = /already exists/i.test(e?.message || '')
+            ? 'No se pudo cargar el formulario de pago. Recarga la página para reintentar.'
+            : (e.message || 'Error al cargar el módulo de pago.');
+          setError(msg);
+          setStatus('error');
+        }
       }
     }
 
