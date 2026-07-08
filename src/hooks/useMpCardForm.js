@@ -19,6 +19,14 @@ import { getMpPublicKey } from '@services/apiService';
 
 const MP_SDK_URL = 'https://sdk.mercadopago.com/js/v2';
 
+// Ref a nivel de módulo al CardForm de MP vivo. MP.js registra los "contextos"
+// de sus campos seguros (expirationFields, cardNumber, securityCode…) en un
+// registro GLOBAL que cardForm.unmount() no siempre limpia entre remounts o
+// revisitas SPA, así que un segundo mp.cardForm() lanza "Context 'X' already
+// exists". Rastrear la instancia viva aquí permite desmontarla antes de crear
+// otra (y recuperar si MP aún reporta un contexto viejo).
+let activeCardForm = null;
+
 function loadMpScript() {
   return new Promise((resolve, reject) => {
     if (window.MercadoPago) { resolve(); return; }
@@ -63,6 +71,7 @@ export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', 
   const cleanup = useCallback(() => {
     if (cardFormRef.current) {
       try { cardFormRef.current.unmount(); } catch (_) { /* ignore */ }
+      if (activeCardForm === cardFormRef.current) activeCardForm = null;
       cardFormRef.current = null;
     }
     mountedRef.current = false;
@@ -90,9 +99,18 @@ export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', 
         // form is already live in this mount, don't instantiate a second one.
         if (cardFormRef.current) return;
 
+        // A CardForm from a PREVIOUS mount (other route visit, StrictMode
+        // remount) may still hold MP's global secure-field contexts even after
+        // its own cleanup ran. Unmount it before creating a new one so MP does
+        // not throw "Context 'expirationFields' already exists".
+        if (activeCardForm) {
+          try { activeCardForm.unmount(); } catch (_) { /* ignore */ }
+          activeCardForm = null;
+        }
+
         const mp = new window.MercadoPago(publicKey, { locale: 'es-MX' });
 
-        cardFormRef.current = mp.cardForm({
+        const cardFormConfig = {
           amount: String(amount),
           iframe: true,
           form: {
@@ -181,7 +199,23 @@ export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', 
               }
             },
           },
-        });
+        };
+
+        // Create the CardForm. If MP still reports a leaked context from a
+        // prior mount ("Context 'X' already exists"), tear the tracked
+        // instance down and retry once — then it mounts clean.
+        try {
+          cardFormRef.current = mp.cardForm(cardFormConfig);
+        } catch (mountErr) {
+          if (/already exists/i.test(mountErr?.message || '')) {
+            try { activeCardForm?.unmount(); } catch (_) { /* ignore */ }
+            activeCardForm = null;
+            cardFormRef.current = mp.cardForm(cardFormConfig);
+          } else {
+            throw mountErr;
+          }
+        }
+        activeCardForm = cardFormRef.current;
       } catch (e) {
         console.error('[MP cardForm] init failed (SDK load / public key):', e);
         if (!cancelled) { setError(e.message || 'Error al cargar el módulo de pago.'); setStatus('error'); }
