@@ -129,8 +129,13 @@ export function useMpCardForm({ amount, payer_email = '', cardholder_name = '', 
             cardholderName:  { id: 'mp-cardholder-name',  placeholder: 'Titular de la tarjeta', value: cardholder_name },
             cardholderEmail: { id: 'mp-cardholder-email', value: payer_email },
             issuer:          { id: 'mp-issuer' },
-            // MX no requiere identificación del pagador, y no ofrecemos cuotas:
-            // installments/identification se omiten del form (default 1 cuota).
+            // installments es OBLIGATORIO para que MP.js complete el montaje y
+            // dispare onFormMounted; omitirlo dejaba el formulario colgado sin
+            // mostrarse (H-PP-07). El <select> vive oculto en el DOM: MP lo
+            // rellena y usamos la 1ª opción (1 cuota) — no ofrecemos MSI.
+            installments:    { id: 'mp-installments' },
+            // MX no requiere identificación del pagador para tarjeta:
+            // identificationType/Number se omiten del form.
           },
           callbacks: {
             onFormMounted(err) {

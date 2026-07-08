@@ -40,11 +40,17 @@ describe('MpCardForm', () => {
     expect(document.getElementById('mp-issuer')).toBeInTheDocument();
   });
 
-  it('no pide documento ni cuotas (MX, pago en una sola exhibición)', () => {
+  it('no pide documento (MX); installments existe pero oculto (1 cuota)', () => {
     render(<MpCardForm amount="100.00" onPayment={jest.fn()} />);
+    // MX no requiere identificación del pagador para tarjeta.
     expect(document.getElementById('mp-id-type')).not.toBeInTheDocument();
     expect(document.getElementById('mp-id-number')).not.toBeInTheDocument();
-    expect(document.getElementById('mp-installments')).not.toBeInTheDocument();
+    // installments SÍ está en el DOM: MP.js lo exige para completar el montaje
+    // (sin él onFormMounted nunca dispara — H-PP-07), pero vive oculto porque
+    // no ofrecemos meses sin intereses.
+    const installments = document.getElementById('mp-installments');
+    expect(installments).toBeInTheDocument();
+    expect(installments.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 
   it('muestra boton habilitado cuando status=ready', () => {
