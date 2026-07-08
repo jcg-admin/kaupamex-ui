@@ -113,6 +113,12 @@
   margin-bottom: 1rem;
 }
 
+// Contenedor del bloque de resultado (banner Alert nativo + detalle + CTAs).
+// El color/borde del estado lo aporta el propio Alert (ui-core), no este wrapper.
+.resultBlock {
+  margin-bottom: 1rem;
+}
+
 // T-PP-C5: título de resultado en display (Fraunces), como el mockup.
 .resultStatus {
   font-family: $font-family-display;

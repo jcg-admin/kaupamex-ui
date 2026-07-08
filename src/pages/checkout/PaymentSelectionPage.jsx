@@ -34,6 +34,7 @@ import {
 import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
+import Alert              from '@components/common/Alert/Alert';
 import { paymentStatusDetail } from '@lib/paymentStatusDetail';
 import apiService from '@services/apiService';
 import styles from './PaymentSelectionPage.module.scss';
@@ -188,8 +189,10 @@ function NonCardResultPanel({ result, orderId, onRetry, navigate }) {
   }[status] || { text: status, cls: 'warning' };
 
   return (
-    <div className={styles[statusLabel.cls] || styles.warning} data-testid="non-card-result">
-      <p className={styles.resultStatus}>{statusLabel.text}</p>
+    <div className={styles.resultBlock} data-testid="non-card-result">
+      <Alert variant={statusLabel.cls}>
+        <p className={styles.resultStatus}>{statusLabel.text}</p>
+      </Alert>
 
       {(status === 'pending' || status === 'in_process') && (
         <>
@@ -399,22 +402,30 @@ export default function PaymentSelectionPage() {
       </header>
 
       {actionError && (
-        <p role="alert" className={styles.error}>
+        <Alert
+          variant="danger"
+          dismissible
+          onClosed={() => dispatch(clearPaymentsActionState())}
+        >
           {actionError.detail || actionError.code || actionError.message || 'No se pudo iniciar el pago.'}
-        </p>
+        </Alert>
       )}
 
       {/* Card payment result */}
       {view === 'result' && lastInitiation && (
-        <div className={styles[cardResultLabel.cls] || styles.gateway} data-testid="payment-result">
-          <p className={styles.resultStatus}>{cardResultLabel.text}</p>
-          {/* PG-08: mensaje humano del status_detail (nunca el código crudo). */}
-          {lastInitiation.status_detail && (
-            <p className={styles.resultDetail} data-testid="result-detail">
-              {paymentStatusDetail(lastInitiation.status_detail).d}
-            </p>
-          )}
-          <p>Pago: <strong>{lastInitiation.gateway_payment_id || lastInitiation.payment_id}</strong></p>
+        <div className={styles.resultBlock} data-testid="payment-result">
+          {/* Banner de estado nativo (ui-core Alert): color + icono estándar
+              según el estado real del pago (success/error/warning). */}
+          <Alert variant={cardResultLabel.cls}>
+            <p className={styles.resultStatus}>{cardResultLabel.text}</p>
+            {/* PG-08: mensaje humano del status_detail (nunca el código crudo). */}
+            {lastInitiation.status_detail && (
+              <p className={styles.resultDetail} data-testid="result-detail">
+                {paymentStatusDetail(lastInitiation.status_detail).d}
+              </p>
+            )}
+            <p>Pago: <strong>{lastInitiation.gateway_payment_id || lastInitiation.payment_id}</strong></p>
+          </Alert>
           {/* H-PP-B10: el CTA depende del estado REAL del pago — no llevar a la
               confirmación si no fue aprobado. */}
           {lastInitiation.status === 'approved' ? (
