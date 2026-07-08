@@ -10,16 +10,10 @@
   margin-bottom: 1.5rem;
 }
 
-// PG-03 / T-PP-C3: kicker de paso ("Paso 04 · Pago") del mockup 1.0.1.
-// Mono + bronce + tracking amplio, como el mockup.
-.kicker {
-  display: block;
-  font-family: $font-family-mono;
-  font-size: .7rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: $bronze;
-  margin-bottom: .5rem;
+// Tira de progreso compartida (CheckoutSteps) en el header del paso de pago —
+// reemplaza el kicker de texto "Paso 04 · Pago" (redundante con la tira).
+.steps {
+  margin-bottom: .75rem;
 }
 
 // T-PP-C3: h1 por sub-estado (H-PP-01), tipografía display (Fraunces).
@@ -111,6 +105,31 @@
   border-radius: .5rem;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
+}
+
+// Contenedor del bloque de resultado (banner Alert nativo + detalle + CTAs).
+// El color/borde del estado lo aporta el propio Alert (ui-core), no este wrapper.
+.resultBlock {
+  margin-bottom: 1rem;
+}
+
+// Placeholder de carga (Skeleton nativo) mientras se re-obtiene el total.
+.skeletonBlock {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-top: 1rem;
+}
+
+.loadingText {
+  font-size: .85rem;
+  color: $text-soft;
+  margin: .25rem 0 0;
+}
+
+// Barra indeterminada (ProgressBar nativo) durante el sondeo OXXO/SPEI.
+.polling {
+  margin-top: 1rem;
 }
 
 // T-PP-C5: título de resultado en display (Fraunces), como el mockup.

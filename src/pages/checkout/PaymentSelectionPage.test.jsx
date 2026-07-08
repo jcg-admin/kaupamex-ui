@@ -88,7 +88,9 @@ describe('PaymentSelectionPage', () => {
   it('muestra el paso, el título y todos los métodos disponibles', () => {
     render(wrap(<PaymentSelectionPage />, makeStore()));
     // PG-03 / T-PP-C3: encabezado del mockup 1.0.1 (h1 "Método de pago").
-    expect(screen.getByText(/Paso 04 · Pago/i)).toBeInTheDocument();
+    // La tira de progreso compartida (CheckoutSteps) marca el paso 04 · Pago.
+    expect(screen.getByRole('list', { name: /Paso 4 de 5/i })).toBeInTheDocument();
+    expect(screen.getByText('Pago').closest('li')).toHaveAttribute('aria-current', 'step');
     expect(screen.getByRole('heading', { name: /^Método de pago$/i })).toBeInTheDocument();
     expect(screen.getByTestId('mp-method-list')).toBeInTheDocument();
     expect(screen.getByTestId('method-btn-mp-card')).toBeInTheDocument();

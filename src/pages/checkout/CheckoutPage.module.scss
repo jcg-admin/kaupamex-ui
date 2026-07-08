@@ -33,20 +33,6 @@
 .brandLogo { width: 40px; height: 40px; filter: invert(1); }
 .brandName { display: block; font-family: $font-family-display; font-size: $font-size-lg; color: $text-primary; font-weight: $font-weight-medium; line-height: 1; }
 .brandTag { display: block; font-family: $font-family-mono; font-size: 9px; color: $bronze; letter-spacing: 0.22em; text-transform: uppercase; margin-top: 4px; }
-.steps {
-  display: flex;
-  gap: $spacing-6;
-  align-items: center;
-  @media (max-width: $bp-lg) { gap: $spacing-3; }
-}
-.step { display: flex; align-items: center; gap: $spacing-2; }
-.stepNum { font-family: $font-family-mono; font-size: $font-size-xs; letter-spacing: 0.1em; }
-.stepLabel { font-size: $font-size-sm; }
-.step_done    .stepNum { color: $lime-soft; }
-.step_done    .stepLabel { color: $text-secondary; }
-.step_active  .stepNum { color: $bronze; }
-.step_active  .stepLabel { color: $text-primary; font-weight: $font-weight-medium; }
-.step_pending .stepNum, .step_pending .stepLabel { color: $text-muted; }
 .secureBadge { font-family: $font-family-mono; font-size: $font-size-xs; color: $text-muted; letter-spacing: 0.08em; @media (max-width: $bp-lg) { display: none; } }
 
 // ─────────────────────────────────────────────────────────────────────
