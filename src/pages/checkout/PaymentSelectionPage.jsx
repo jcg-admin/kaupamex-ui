@@ -35,6 +35,7 @@ import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
 import Alert              from '@components/common/Alert/Alert';
+import CheckoutSteps      from '@components/checkout/CheckoutSteps';
 import { paymentStatusDetail } from '@lib/paymentStatusDetail';
 import apiService from '@services/apiService';
 import styles from './PaymentSelectionPage.module.scss';
@@ -392,7 +393,9 @@ export default function PaymentSelectionPage() {
   return (
     <section className={styles.page} aria-labelledby="payment-title">
       <header className={styles.header}>
-        <span className={styles.kicker}>Paso 04 · Pago</span>
+        {/* Tira de progreso compartida (paso 04 · Pago activo) — continuidad
+            visual con CheckoutPage; reemplaza el kicker de texto. */}
+        <CheckoutSteps current={4} className={styles.steps} />
         <h1 id="payment-title" className={styles.title}>
           {heading}
         </h1>

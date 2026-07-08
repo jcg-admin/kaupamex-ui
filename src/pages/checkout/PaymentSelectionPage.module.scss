@@ -10,16 +10,10 @@
   margin-bottom: 1.5rem;
 }
 
-// PG-03 / T-PP-C3: kicker de paso ("Paso 04 · Pago") del mockup 1.0.1.
-// Mono + bronce + tracking amplio, como el mockup.
-.kicker {
-  display: block;
-  font-family: $font-family-mono;
-  font-size: .7rem;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: $bronze;
-  margin-bottom: .5rem;
+// Tira de progreso compartida (CheckoutSteps) en el header del paso de pago —
+// reemplaza el kicker de texto "Paso 04 · Pago" (redundante con la tira).
+.steps {
+  margin-bottom: .75rem;
 }
 
 // T-PP-C3: h1 por sub-estado (H-PP-01), tipografía display (Fraunces).

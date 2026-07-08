@@ -1,0 +1,37 @@
+@use '@styles/abstracts' as *;
+
+// Tira de pasos del checkout. Extraída de CheckoutPage (.steps/.step*) para
+// reuso en CheckoutPage y PaymentSelectionPage — mismos tokens, mismo look.
+.steps {
+  display: flex;
+  align-items: center;
+  gap: $spacing-6;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: wrap;
+  @media (max-width: $bp-lg) { gap: $spacing-3; }
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+}
+
+.stepNum {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  letter-spacing: 0.1em;
+}
+
+.stepLabel {
+  font-size: $font-size-sm;
+}
+
+.step_done    .stepNum   { color: $lime-soft; }
+.step_done    .stepLabel { color: $text-secondary; }
+.step_active  .stepNum   { color: $bronze; }
+.step_active  .stepLabel { color: $text-primary; font-weight: $font-weight-medium; }
+.step_pending .stepNum,
+.step_pending .stepLabel { color: $text-muted; }

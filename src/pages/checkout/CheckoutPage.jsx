@@ -23,6 +23,7 @@ import { fetchAddresses } from '@redux/slices/addressesSlice';
 import { createOrder } from '@redux/slices/checkoutSlice';
 import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
 import Modal from '@components/common/Modal/Modal';
+import CheckoutSteps from '@components/checkout/CheckoutSteps';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './CheckoutPage.module.scss';
 
@@ -162,13 +163,7 @@ export default function CheckoutPage() {
               <span className={styles.brandTag}>Ifá · Òrìṣà · Olódùmarè</span>
             </span>
           </Link>
-          <div className={styles.steps}>
-            <Step n="01" label="Bolsa"    state="done" />
-            <Step n="02" label="Contacto" state="active" />
-            <Step n="03" label="Envío"    state="pending" />
-            <Step n="04" label="Pago"     state="pending" />
-            <Step n="05" label="Revisar"  state="pending" />
-          </div>
+          <CheckoutSteps current={2} />
           <div className={styles.secureBadge}>PAGO PROTEGIDO · SSL/TLS</div>
         </div>
       </header>
@@ -254,15 +249,6 @@ export default function CheckoutPage() {
         </span>
       </footer>
     </main>
-  );
-}
-
-function Step({ n, label, state }) {
-  return (
-    <div className={`${styles.step} ${styles[`step_${state}`]}`}>
-      <span className={styles.stepNum}>{state === 'done' ? '✓' : n}</span>
-      <span className={styles.stepLabel}>{label}</span>
-    </div>
   );
 }
 
