@@ -180,6 +180,16 @@ export default function MpCardForm({
           </label>
         </div>
 
+        {/* Cuotas: MP.js REQUIERE el campo en el DOM para completar el montaje
+            (sin él, onFormMounted nunca dispara — H-PP-07). Lo ocultamos porque
+            no ofrecemos meses sin intereses: MP lo rellena y toma 1 cuota. */}
+        <div className={styles.hiddenField} aria-hidden="true">
+          <label htmlFor="mp-installments">
+            Cuotas
+            <select id="mp-installments" tabIndex={-1} />
+          </label>
+        </div>
+
         <div className={styles.actions}>
           <button
             type="button"
