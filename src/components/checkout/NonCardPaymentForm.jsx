@@ -7,7 +7,8 @@
  * Solo requiere el email del pagador para que MP pueda enviar el
  * voucher/instrucciones por email.
  */
-import React, { useState } from 'react';
+import { useState } from 'react';
+import LoadingButton from '@components/common/LoadingButton/LoadingButton';
 import styles from './NonCardPaymentForm.module.scss';
 
 const METHOD_LABELS = {
@@ -91,14 +92,17 @@ export default function NonCardPaymentForm({
           >
             Cambiar método
           </button>
-          <button
+          <LoadingButton
             type="submit"
+            variant="primary"
             className={styles.submitButton}
+            loading={isSubmitting}
             disabled={isSubmitting}
+            disabledOnLoading
             data-testid="non-card-submit-btn"
           >
             {isSubmitting ? 'Procesando…' : `Pagar con ${label}`}
-          </button>
+          </LoadingButton>
         </div>
       </form>
     </div>
