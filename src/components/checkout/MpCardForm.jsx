@@ -100,7 +100,10 @@ export default function MpCardForm({
 
       <form id="mp-card-form" className={styles.form}>
         <div className={styles.row}>
-          <label className={styles.label} htmlFor="mp-card-number">
+          {/* Not a <label>: MP renders the secure field as a <div> (iframe
+              host), which is not a labelable element, so htmlFor is invalid.
+              The accessible name lives on the field host via aria-label. */}
+          <div className={styles.label}>
             <span className={styles.labelRow}>
               <span>Número de tarjeta</span>
               {brand && (
@@ -116,20 +119,20 @@ export default function MpCardForm({
                 </span>
               )}
             </span>
-            <div id="mp-card-number" className={styles.iframe} />
-          </label>
+            <div id="mp-card-number" className={styles.iframe} aria-label="Número de tarjeta" />
+          </div>
         </div>
 
         <div className={styles.row2}>
-          <label className={styles.label} htmlFor="mp-expiration-date">
+          <div className={styles.label}>
             Vencimiento
-            <div id="mp-expiration-date" className={styles.iframe} />
-          </label>
-          <label className={styles.label} htmlFor="mp-security-code">
+            <div id="mp-expiration-date" className={styles.iframe} aria-label="Vencimiento" />
+          </div>
+          <div className={styles.label}>
             Código de seguridad
-            <div id="mp-security-code" className={styles.iframe} />
+            <div id="mp-security-code" className={styles.iframe} aria-label="Código de seguridad" />
             <span className={styles.hint}>{securityCodeHint(brand)}</span>
-          </label>
+          </div>
         </div>
 
         <div className={styles.row}>
