@@ -36,6 +36,8 @@ import MpCardForm        from '@components/checkout/MpCardForm';
 import NonCardPaymentForm from '@components/checkout/NonCardPaymentForm';
 import Alert              from '@components/common/Alert/Alert';
 import CheckoutSteps      from '@components/checkout/CheckoutSteps';
+import Skeleton           from '@components/common/Skeleton/Skeleton';
+import ProgressBar        from '@components/common/ProgressBar/ProgressBar';
 import { paymentStatusDetail } from '@lib/paymentStatusDetail';
 import apiService from '@services/apiService';
 import styles from './PaymentSelectionPage.module.scss';
@@ -228,6 +230,16 @@ function NonCardResultPanel({ result, orderId, onRetry, navigate }) {
             Te enviaremos confirmación por email cuando recibamos tu pago.
             Si el voucher vence sin pago, podrás intentar de nuevo.
           </p>
+
+          {/* PG-10: mientras sondeamos el estado del pago diferido, una barra
+              indeterminada comunica que la espera está activa (no colgada). */}
+          <div className={styles.polling}>
+            <ProgressBar
+              indeterminate
+              variant="warning"
+              label="Esperando la confirmación de tu pago…"
+            />
+          </div>
         </>
       )}
 
@@ -505,10 +517,11 @@ export default function PaymentSelectionPage() {
               onCancel={() => setView('select')}
             />
           ) : isLoadingOrder ? (
-            <p className={styles.processing} role="status" aria-live="polite">
-              <span className={styles.spinner} aria-hidden="true" />
-              Recuperando el total de tu orden…
-            </p>
+            <div className={styles.skeletonBlock} role="status" aria-live="polite" aria-busy="true">
+              <Skeleton variant="rect" height={44} />
+              <Skeleton count={2} />
+              <p className={styles.loadingText}>Recuperando el total de tu orden…</p>
+            </div>
           ) : (
             <p role="alert" className={styles.error} data-testid="amount-unavailable">
               No pudimos recuperar el total de tu orden. Vuelve al carrito e

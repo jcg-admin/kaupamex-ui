@@ -113,6 +113,25 @@
   margin-bottom: 1rem;
 }
 
+// Placeholder de carga (Skeleton nativo) mientras se re-obtiene el total.
+.skeletonBlock {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-top: 1rem;
+}
+
+.loadingText {
+  font-size: .85rem;
+  color: $text-soft;
+  margin: .25rem 0 0;
+}
+
+// Barra indeterminada (ProgressBar nativo) durante el sondeo OXXO/SPEI.
+.polling {
+  margin-top: 1rem;
+}
+
 // T-PP-C5: título de resultado en display (Fraunces), como el mockup.
 .resultStatus {
   font-family: $font-family-display;

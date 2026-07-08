@@ -1,0 +1,45 @@
+@use '@styles/abstracts' as *;
+
+// Placeholder de carga con barrido "wave" (adaptado de kno-theme skeleton).
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  background: rgba($bg-page, 0.06);
+  border-radius: 4px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba($white, 0.12),
+      transparent
+    );
+    animation: skeleton-wave 1.4s ease-in-out infinite;
+  }
+}
+
+// text: línea de texto; se apilan con separación cuando count > 1.
+.text {
+  height: 0.8em;
+  margin: 0.25em 0;
+  border-radius: 4px;
+  &:last-child { width: 70%; }
+}
+
+.rect { border-radius: 6px; }
+
+.circle { border-radius: 50%; }
+
+@keyframes skeleton-wave {
+  100% { transform: translateX(100%); }
+}
+
+// Respeta la preferencia de menos movimiento.
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}

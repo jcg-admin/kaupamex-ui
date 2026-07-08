@@ -1,0 +1,50 @@
+@use '@styles/abstracts' as *;
+
+// Barra de progreso (adaptada de kno-react-progressbars, reimplementada nativa).
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  width: 100%;
+}
+
+.track {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba($bg-page, 0.12);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width $transition-slow;
+}
+
+.fill_primary { background: $primary-color; }
+.fill_success { background: $lime-soft; }
+.fill_warning { background: $bronze; }
+.fill_error   { background: $danger-deep; }
+
+// Modo indeterminado: un segmento que barre de izquierda a derecha.
+.indeterminate {
+  width: 40%;
+  border-radius: 999px;
+  animation: progress-indeterminate 1.3s ease-in-out infinite;
+}
+
+.label {
+  font-size: $font-size-xs;
+  color: $text-soft;
+  white-space: nowrap;
+}
+
+@keyframes progress-indeterminate {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indeterminate { animation-duration: 3s; }
+}
