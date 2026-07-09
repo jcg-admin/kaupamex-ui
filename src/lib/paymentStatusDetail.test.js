@@ -22,6 +22,19 @@ describe('paymentStatusDetail (PG-02)', () => {
     expect(paymentStatusDetail('cc_rejected_high_risk').t).toMatch(/seguridad/i);
   });
 
+  it('trata el challenge 3DS como verificación, NO como rechazo (T-203)', () => {
+    const r = paymentStatusDetail('pending_challenge');
+    // no debe caer al fallback de rechazo
+    expect(r.t).not.toBe(STATUS_DETAIL_MESSAGES.cc_rejected_other_reason.t);
+    expect(r.t).toMatch(/verificaci[oó]n/i);
+    expect(r.d).toMatch(/3d\s*secure|banco/i);
+    expect(r.d).not.toMatch(/rechaz/i);
+  });
+
+  it('mapea pending_review_manual a revisión (Orders)', () => {
+    expect(paymentStatusDetail('pending_review_manual').t).toMatch(/revisión/i);
+  });
+
   it('cae a un rechazo genérico ante un código desconocido (nunca undefined)', () => {
     const r = paymentStatusDetail('codigo_que_no_existe');
     expect(r).toBeDefined();

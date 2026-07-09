@@ -28,6 +28,16 @@ export const STATUS_DETAIL_MESSAGES = {
     t: 'Pago en revisión',
     d: 'Estamos validando el pago con el banco. Esto puede tardar unos minutos; te avisaremos del resultado.',
   },
+  // 3DS / autenticación reforzada (Orders API, on_fraud_risk — DEC-ORD-02).
+  // NO es un rechazo: el banco pide validar la identidad del titular.
+  pending_challenge: {
+    t: 'Verificación con tu banco',
+    d: 'Tu banco solicita validar el pago con un paso adicional (3D Secure). Sigue las instrucciones de tu banco para completar la verificación; no cierres esta ventana.',
+  },
+  pending_review_manual: {
+    t: 'Pago en revisión',
+    d: 'Estamos revisando el pago manualmente. Te avisaremos del resultado en breve.',
+  },
   // Rechazos de tarjeta
   cc_rejected_insufficient_amount: {
     t: 'Fondos insuficientes',
