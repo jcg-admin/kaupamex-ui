@@ -49,10 +49,13 @@ const ADMIN_NAV = [
     { to: '/admin/reports/top-sellers',  label: 'Reportes: Top sellers' },
     { to: '/admin/reports/customers-rfm', label: 'Reportes: Clientes RFM' },
   ] },
+  { section: 'Sistema', items: [
+    { to: '/admin/logs',            label: 'Logs técnicos' },
+    { to: '/admin/audit-log',       label: 'Auditoría' },
+  ] },
   { section: 'Configuración', items: [
     { to: '/admin/config',          label: 'Configuración' },
     { to: '/admin/system-settings', label: 'Configuración Sistema' },
-    { to: '/admin/audit-log',       label: 'Auditoría' },
     { to: '/admin/backups',         label: 'Backups' },
   ] },
 ];

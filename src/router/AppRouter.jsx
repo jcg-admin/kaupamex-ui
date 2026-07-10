@@ -131,6 +131,7 @@ const AdminPriceSyncPage             = lazy(() => import('@pages/admin/AdminPric
 // UC-ADM-02..05 — Permisos, auditoria, settings, backups
 const AdminPermissionsPage           = lazy(() => import('@pages/admin/AdminPermissionsPage'));
 const AdminAuditLogPage              = lazy(() => import('@pages/admin/AdminAuditLogPage'));
+const AdminLogsPage                  = lazy(() => import('@pages/admin/AdminLogsPage'));
 const AdminSystemSettingsPage        = lazy(() => import('@pages/admin/AdminSystemSettingsPage'));
 const AdminBackupsPage               = lazy(() => import('@pages/admin/AdminBackupsPage'));
 // UC-LOG-08 — Panel operacional de logistica
@@ -302,6 +303,7 @@ export default function AppRouter() {
               <Route path="admin/permissions"        element={<AdminPermissionsPage />} />
               {/* UC-ADM-03 — Auditoria */}
               <Route path="admin/audit-log"          element={<AdminAuditLogPage />} />
+              <Route path="admin/logs"               element={<AdminLogsPage />} />
               {/* UC-ADM-04 — Configuracion del sistema */}
               <Route path="admin/system-settings"    element={<AdminSystemSettingsPage />} />
               {/* UC-ADM-05 — Backups */}

@@ -337,6 +337,12 @@ export const adminHandlers = [
     HttpResponse.json({ count: mockAuditLog.length, results: mockAuditLog }),
   ),
 
+  // Logs técnicos (UC-ADM-06, SOL-011 T-09)
+  http.get(`${BASE}/api/v2/admin/logs/`, ({ request }) => {
+    const source = new URL(request.url).searchParams.get('source') || 'requestlog';
+    return HttpResponse.json({ source, count: 0, page: 1, pages: 1, results: [] });
+  }),
+
   // Settings
   http.get(`${BASE}/api/v2/admin/settings/`, () =>
     HttpResponse.json(mockSettings),
