@@ -10,6 +10,7 @@ import { fetchAdminOrders } from '@redux/slices/adminSlice';
 import { MetaTag, Button, Price } from '@components/common/primitives';
 import { DataTable } from '@components/common';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
+import SegmentedControl from '@components/common/SegmentedControl/SegmentedControl';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
 import { exportToCsv } from '@lib/csvExporter';
 import Icon from '@components/common/Icon/Icon';
@@ -104,13 +105,12 @@ export default function AdminOrdersPage() {
 
       <div className={styles.toolbar}>
         <div className={styles.filters}>
-          {STATUS_FILTERS.map((s) => (
-            <button
-              key={s.id}
-              className={`${styles.filterBtn} ${filter === s.id ? styles.filterBtnActive : ''}`}
-              onClick={() => setFilter(s.id)}
-            >{s.label}</button>
-          ))}
+          <SegmentedControl
+            ariaLabel="Filtrar por estado"
+            data={STATUS_FILTERS.map((s) => ({ value: s.id, label: s.label }))}
+            value={filter}
+            onChange={setFilter}
+          />
         </div>
         <input
           type="search"

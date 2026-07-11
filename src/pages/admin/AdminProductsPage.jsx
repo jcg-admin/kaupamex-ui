@@ -10,6 +10,7 @@ import { fetchAdminProducts, deleteProduct, toggleProductFeatured } from '@redux
 import { MetaTag, Button, Price } from '@components/common/primitives';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import ConfirmDialog from '@components/common/ConfirmDialog/ConfirmDialog';
+import SegmentedControl from '@components/common/SegmentedControl/SegmentedControl';
 import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
 
@@ -156,13 +157,12 @@ export default function AdminProductsPage() {
 
       <div className={styles.toolbar}>
         <div className={styles.filters}>
-          {STATUS.map((s) => (
-            <button
-              key={s.id}
-              className={`${styles.filterBtn} ${filter === s.id ? styles.filterBtnActive : ''}`}
-              onClick={() => setFilter(s.id)}
-            >{s.label}</button>
-          ))}
+          <SegmentedControl
+            ariaLabel="Filtrar por estado"
+            data={STATUS.map((s) => ({ value: s.id, label: s.label }))}
+            value={filter}
+            onChange={setFilter}
+          />
         </div>
         <input
           type="search"
