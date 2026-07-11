@@ -61,6 +61,15 @@ QA_BUYER_EMAIL="${QA_BUYER_EMAIL:-buyer@e-commerce.test}"
 QA_BUYER_PASSWORD="${QA_BUYER_PASSWORD:-Test1234!}"
 export QA_BUYER_EMAIL QA_BUYER_PASSWORD
 export PW_BASE_URL="${PW_BASE_URL:-http://localhost:3001}"
+# NOTA (SOL-011 H-UI-LOG-08, ABIERTO): en este harness las requests
+# autenticadas del navegador NO llegan al runserver :8000 (el api-log solo
+# registra el probe /api/schema/). Causa bajo investigación: el DEFINE de
+# webpack (webpack.config.js:55) fuerza apiService.baseURL a un absoluto en
+# dev, y apiService usa credentials:'same-origin', por lo que la cookie de
+# sesión no viaja cross-origin (:3001 → :8000). NO fijar aquí API_URL a
+# http://localhost:3001: eso también apunta el devServer.proxy (misma var,
+# webpack.config.js:271) a :3001 y crea un self-loop. Fix pendiente de
+# decisión del ejecutor (toca el build dev / apiService, alcance > logs).
 export E2E_EMAIL="$QA_BUYER_EMAIL"
 export E2E_PASSWORD="$QA_BUYER_PASSWORD"
 
@@ -94,6 +103,24 @@ wait_http() {  # wait_http <url> <segundos>
     done
 }
 
+free_port() {  # free_port <puerto> — mata cualquier proceso que lo ocupe
+    # Sin esto, un runserver/webpack stale de una corrida previa hace que el
+    # nuevo falle con "That port is already in use" y la corrida quede sirviendo
+    # DESDE EL SERVIDOR STALE (estado no controlado) — la causa raíz de que la
+    # evidencia E2E capturara un estado de error (SOL-011 H-UI-LOG-07).
+    # Nota: nunca debe retornar != 0 (correría bajo `set -euo pipefail`).
+    local port="$1" pids
+    if command -v fuser >/dev/null 2>&1; then
+        fuser -k "${port}/tcp" 2>/dev/null || true
+    else
+        pids=$(ss -ltnpH "sport = :${port}" 2>/dev/null \
+               | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u) || true
+        [ -n "${pids:-}" ] && kill $pids 2>/dev/null || true
+    fi
+    sleep 1
+    return 0
+}
+
 # ─── Gate Node 22 (L-012): nvm no se auto-carga en shell nuevo ──────────────
 export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
 ( cd "$UI_DIR" && nvm use >/dev/null 2>&1 || true )
@@ -109,6 +136,7 @@ bash "$DB_DIR/scripts/start_db.sh"
 
 # ─── 2) API: runserver :8000 (perfil develop) ───────────────────────────────
 log "2/4 api: runserver :8000 (log: $API_LOG)"
+free_port 8000   # evita servir desde un runserver stale (H-UI-LOG-07)
 ( cd "$API_DIR" && \
   DJANGO_SETTINGS_MODULE=config.settings.development \
   uv run python practicayoruba/manage.py runserver 0.0.0.0:8000 ) >"$API_LOG" 2>&1 &
@@ -117,6 +145,7 @@ wait_http "http://localhost:8000/api/schema/" 60
 
 # ─── 3) UI: webpack serve :3001 ─────────────────────────────────────────────
 log "3/4 ui: webpack serve :3001 (log: $UI_LOG)"
+free_port 3001   # evita servir desde un webpack stale (H-UI-LOG-07)
 ( cd "$UI_DIR" && npm run dev ) >"$UI_LOG" 2>&1 &
 UI_PID=$!
 wait_http "http://localhost:3001" 90

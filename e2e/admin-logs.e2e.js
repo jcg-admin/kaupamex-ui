@@ -34,6 +34,15 @@ test.describe('admin logs (UC-ADM-06)', () => {
     await expect(page.getByRole('tab', { name: /Aplicación/i })).toBeVisible();
     await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 });
 
+    // La evidencia debe probar una pantalla QUE FUNCIONA, no una rota
+    // (SOL-011 H-UI-LOG-06). Sin estas aseveraciones el estado de error del
+    // endpoint pasa como verde y el screenshot "prueba" un fallo.
+    // 1) NO debe haber alerta de error de carga.
+    await expect(page.getByText(/No se pudo cargar el log/i)).toHaveCount(0);
+    // 2) Debe haber datos reales: el middleware registra cada request, así que
+    //    la pila sembrada siempre tiene filas (no debe verse el estado-vacío).
+    await expect(page.getByText(/No hay entradas para los filtros aplicados/i)).toHaveCount(0);
+
     fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
     await page.screenshot({ path: path.join(ARTIFACTS_DIR, 'admin-logs.png'), fullPage: true });
   });
