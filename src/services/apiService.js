@@ -82,7 +82,17 @@ class APIService {
   async _request(method, path, options = {}, attempt = 1) {
     const { body, params, timeout = this.timeout, headers = {} } = options;
 
-    const url = new URL(path.startsWith('http') ? path : `${this.baseURL}${path}`);
+    // Con baseURL absoluto (prod / API_URL fijado) la URL es absoluta. Con
+    // baseURL relativo/vacío (dev por proxy) se resuelve contra el ORIGEN
+    // actual → misma-origin → el devServer.proxy reenvía /api a :8000 y la
+    // cookie de sesión viaja. Sin esto, `new URL('/api/…')` lanzaría (una URL
+    // relativa necesita base). Necesario para el E2E con backend real
+    // (SOL-081): sin mocks, el fetch cross-origin perdería la cookie.
+    const base = this.baseURL
+      || (typeof window !== 'undefined' && window.location
+        ? window.location.origin
+        : 'http://localhost');
+    const url = new URL(path.startsWith('http') ? path : `${base}${path}`);
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v === null || v === undefined) return;

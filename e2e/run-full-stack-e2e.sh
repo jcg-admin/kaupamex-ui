@@ -77,15 +77,14 @@ QA_BUYER_EMAIL="${QA_BUYER_EMAIL:-buyer@e-commerce.test}"
 QA_BUYER_PASSWORD="${QA_BUYER_PASSWORD:-Test1234!}"
 export QA_BUYER_EMAIL QA_BUYER_PASSWORD
 export PW_BASE_URL="${PW_BASE_URL:-http://localhost:3001}"
-# NOTA (SOL-011 H-UI-LOG-08, ABIERTO): en este harness las requests
-# autenticadas del navegador NO llegan al runserver :8000 (el api-log solo
-# registra el probe /api/schema/). Causa bajo investigación: el DEFINE de
-# webpack (webpack.config.js:55) fuerza apiService.baseURL a un absoluto en
-# dev, y apiService usa credentials:'same-origin', por lo que la cookie de
-# sesión no viaja cross-origin (:3001 → :8000). NO fijar aquí API_URL a
-# http://localhost:3001: eso también apunta el devServer.proxy (misma var,
-# webpack.config.js:271) a :3001 y crea un self-loop. Fix pendiente de
-# decisión del ejecutor (toca el build dev / apiService, alcance > logs).
+# SOL-081 (H-UI-LOG-08): el E2E full-stack debe tocar el BACKEND REAL, no los
+# mocks. En dev el mockInterceptor mockea todo /api salvo que PY_API_SOURCE!='mock'
+# → lo desactivamos para probar de verdad. Además el bundle dev usa baseURL
+# relativo (webpack.config.js) para que las requests viajen misma-origin
+# (:3001 → proxy → :8000) y la cookie de sesión viaje; el proxy apunta a :8000
+# vía API_PROXY_TARGET (independiente de API_URL).
+export PY_API_SOURCE="${PY_API_SOURCE:-db}"
+export API_PROXY_TARGET="${API_PROXY_TARGET:-http://localhost:8000}"
 export E2E_EMAIL="$QA_BUYER_EMAIL"
 export E2E_PASSWORD="$QA_BUYER_PASSWORD"
 
