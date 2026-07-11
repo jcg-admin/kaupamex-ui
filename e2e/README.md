@@ -36,17 +36,47 @@ y limpia api/ui al salir:
 
 ```bash
 cd e-commerce-ui
-bash e2e/run-full-stack-e2e.sh                 # toda la suite
-E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh   # solo el smoke
+bash e2e/run-full-stack-e2e.sh                          # toda la suite
+E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh    # solo un spec
 ```
 
-Variables (defaults sensatos): `QA_BUYER_EMAIL`/`QA_BUYER_PASSWORD` (creds
-del comprador de seed, también usadas por Playwright), `PW_BASE_URL`
-(default `http://localhost:3001`, perfil dev cross-origin), `SUPERREPO`/
-`API_DIR`/`DB_DIR`/`UI_DIR` (rutas de los submódulos). El script aplica el
-gate Node 20 (L-012) y arranca MariaDB → `migrate` → `create_seed_users`
-→ `create_seed_catalog` → `runserver :8000` → `npm run dev :3001` →
-`npm run e2e`.
+El script aplica el gate **Node 22** (L-012), **libera `:8000`/`:3001`**
+antes de arrancar (evita servir desde un servidor stale — H-UI-LOG-07) y
+arranca MariaDB → `migrate` → `create_seed_users` → `create_seed_catalog`
+→ `runserver :8000` → `npm run dev :3001` → `npm run e2e`. Resuelve tanto
+el **monorepo** (`$PARENT/{api,db}`) como **clones separados hermanos**
+(`${UI_DIR%-ui}-{api,db}`, p.ej. `/home/user/e-commerce-{api,db,ui}`) —
+H-UI-LOG-05.
+
+**Matriz de variables por tipo de spec:**
+
+| Tipo de spec | Variables a exportar | Notas |
+|---|---|---|
+| Buyer (smoke, catálogo, checkout) | `QA_BUYER_EMAIL`/`QA_BUYER_PASSWORD` (= `E2E_EMAIL`/`E2E_PASSWORD`) | defaults sembrados por `create_seed_users` |
+| **Admin/autenticado** (p.ej. `admin-logs.e2e.js`) | `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASS` **+** `ADMIN_EMAIL`/`ADMIN_USERNAME`/`ADMIN_PASSWORD` (seed) | ver caveat H-UI-LOG-08 abajo |
+| MP egress (createCardToken) | `E2E_MP_BRIDGE=1` + `HTTPS_PROXY` | usa `e2e/fixtures/mp-bridge.js`; no egress directo in-container |
+| Comunes | `PW_BASE_URL` (default `http://localhost:3001`), `SUPERREPO`/`API_DIR`/`DB_DIR`/`UI_DIR` | `PW_BASE_URL` = perfil dev cross-origin |
+
+**En el contenedor del agente** (MariaDB por socket) exportar además:
+
+```bash
+export DB_SSL_MODE=DISABLED DB_SOCKET=/run/mysqld/mysqld.sock   # H-API-LOG-04
+```
+
+En WSL/CI con TCP+SSL real, dejar ambas vacías. El **verde autoritativo se
+sella en WSL** (L-010); el contenedor sirve para verificación rápida de
+specs *localhost-only*.
+
+> ⚠ **Caveat — specs admin/autenticados fallan hoy in-container (H-UI-LOG-08).**
+> El bundle dev usa un `baseURL` absoluto (`:8000`) mientras corre en `:3001`
+> y `apiService` usa `credentials:'same-origin'` → la cookie de sesión no
+> viaja cross-origin → las requests autenticadas dan 403 y la vista muestra su
+> estado de error (p.ej. `admin-logs` → "No se pudo cargar el log."). El
+> endpoint es sano (HTTP 200 vía DRF). Fix propuesto: iniciativa
+> `corregir-harness-auth-e2e-same-origin` (Opción A: same-origin vía proxy).
+> Hasta cerrarlo, los specs **buyer** sí producen evidencia válida
+> in-container; los **admin** solo en un entorno same-origin (WSL con
+> `serve_spa`, o tras el fix).
 
 ### Pasos manuales (la versión expandida del script)
 
@@ -84,6 +114,8 @@ el perfil `deploy` (same-origin via `serve_spa`), exportar
 
 ## Estado
 
-Smoke **andamiado**, pendiente de la primera corrida verde en WSL
-(L-010). Ampliar la matriz de flujos (registro, devoluciones, pagos MSI,
-admin) es trabajo posterior.
+Suite en uso (16+ specs: smoke, auth, catálogo, pagos, logistics, admin…).
+El verde **autoritativo** se sella en WSL (L-010). En el contenedor corren
+los specs **buyer/localhost-only**; los **admin/autenticados** están
+bloqueados por **H-UI-LOG-08** (ver caveat arriba) hasta cerrar la
+iniciativa `corregir-harness-auth-e2e-same-origin`.

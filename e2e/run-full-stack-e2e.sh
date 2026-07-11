@@ -9,27 +9,43 @@
 # Playwright NO tiene webServer (ver playwright.config.js); este script
 # hace la orquestación. Entorno autoritativo (verde oficial): WSL (L-010).
 #
-# En el CONTENEDOR del agente SÍ corre para specs *localhost-only* (login +
-# navegación + screenshot, p.ej. admin-logs.e2e.js): MariaDB por socket
-# (start_db.sh + DB_SOCKET, ver abajo), Node v22 nativo, Chromium en
-# /opt/pw-browsers. Los specs que necesitan EGRESS HTTPS externo (MercadoPago:
-# createCardToken, sdk.mercadopago.com) NO corren directo — el navegador del
-# contenedor no tiene egress; usar el puente e2e/fixtures/mp-bridge.js
-# (E2E_MP_BRIDGE=1) o WSL/CI.
+# En el CONTENEDOR del agente corre para specs BUYER *localhost-only* (login +
+# navegación + screenshot): MariaDB por socket (start_db.sh + DB_SOCKET, ver
+# abajo), Node v22 nativo, Chromium en /opt/pw-browsers. Libera :8000/:3001
+# antes de arrancar (free_port, H-UI-LOG-07) y resuelve monorepo O clones
+# separados (H-UI-LOG-05).
+#
+#   ⚠ Specs ADMIN/AUTENTICADOS (p.ej. admin-logs.e2e.js) NO producen evidencia
+#     válida in-container: baseURL absoluto (:8000) + credentials:'same-origin'
+#     → la cookie de sesión no viaja cross-origin (:3001→:8000) → 403 →
+#     "No se pudo cargar el log." (H-UI-LOG-08, ABIERTO; endpoint sano vía DRF).
+#     Correrlos en WSL same-origin o esperar el fix
+#     (iniciativa corregir-harness-auth-e2e-same-origin).
+#
+#   Specs con EGRESS HTTPS externo (MercadoPago: createCardToken) NO corren
+#   directo — el navegador del contenedor no tiene egress; usar el puente
+#   e2e/fixtures/mp-bridge.js (E2E_MP_BRIDGE=1 + HTTPS_PROXY) o WSL/CI.
 #
 # Uso:
-#   cd ui && bash e2e/run-full-stack-e2e.sh
-#   # solo el smoke:
-#   E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh
+#   cd ui && bash e2e/run-full-stack-e2e.sh              # toda la suite
+#   E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh # solo un spec
+#   # spec admin (requiere same-origin — ver H-UI-LOG-08):
+#   E2E_ADMIN_EMAIL=... E2E_ADMIN_PASS=... ADMIN_EMAIL=... ADMIN_USERNAME=... \
+#     ADMIN_PASSWORD=... E2E_SPEC=admin-logs.e2e.js bash e2e/run-full-stack-e2e.sh
 #
 # Variables (con defaults):
-#   SUPERREPO        raíz del monorepo (default: dos niveles arriba de e2e/)
-#   API_DIR/DB_DIR/UI_DIR   rutas de los submódulos
+#   SUPERREPO/API_DIR/DB_DIR/UI_DIR   rutas (monorepo o clones separados)
 #   QA_BUYER_EMAIL/QA_BUYER_PASSWORD  creds del comprador de seed (= E2E_*)
+#   E2E_ADMIN_EMAIL/E2E_ADMIN_PASS    creds admin (specs autenticados)
+#   ADMIN_EMAIL/ADMIN_USERNAME/ADMIN_PASSWORD  seed del admin (is_staff)
 #   PW_BASE_URL      default http://localhost:3001 (perfil dev cross-origin)
+#   DB_SSL_MODE      DISABLED in-container (socket, H-API-LOG-04); vacío en WSL/TCP
+#   DB_SOCKET        /run/mysqld/mysqld.sock in-container; vacío en WSL/TCP
 #   E2E_SPEC         spec único a correr (default: todos los *.e2e.js)
+#   E2E_MP_BRIDGE    =1 para specs de egress MP (con HTTPS_PROXY)
 #
-# Limpia api+ui (background) al salir vía trap.
+# Gate Node 22 (L-012). Verde autoritativo: WSL (L-010). Limpia api+ui
+# (background) al salir vía trap.
 # =============================================================================
 set -euo pipefail
 
