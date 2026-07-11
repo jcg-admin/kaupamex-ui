@@ -12,13 +12,14 @@
  */
 import { useState } from 'react';
 import { useAdminLogs } from '@hooks/domain/useAdminLogs';
-import { DataTable } from '@components/common';
+import { DataTable, Alert, Tabs, Tab, TabList } from '@components/common';
 import { Button } from '@components/common/primitives';
+import { formatDateTime } from '@lib/intl';
 import styles from './AdminLogsPage.module.scss';
 
 const REQUESTLOG_COLUMNS = [
   { key: 'created_at', header: 'Fecha', sortable: true,
-    render: (r) => new Date(r.created_at).toLocaleString('es-MX') },
+    render: (r) => formatDateTime(r.created_at) },
   { key: 'method', header: 'Método' },
   { key: 'path', header: 'Ruta' },
   { key: 'status_code', header: 'Status', sortable: true },
@@ -30,7 +31,7 @@ const REQUESTLOG_COLUMNS = [
 
 const APPLOG_COLUMNS = [
   { key: 'created_at', header: 'Fecha', sortable: true,
-    render: (r) => new Date(r.created_at).toLocaleString('es-MX') },
+    render: (r) => formatDateTime(r.created_at) },
   { key: 'level', header: 'Nivel', sortable: true },
   { key: 'logger_name', header: 'Logger' },
   { key: 'msg', header: 'Mensaje',
@@ -77,28 +78,16 @@ export default function AdminLogsPage() {
         </p>
       </header>
 
-      <div className={styles.sourceTabs} role="tablist" aria-label="Fuente de logs">
-        <Button
-          type="button"
-          variant={source === 'requestlog' ? 'primary' : 'ghost'}
-          size="sm"
-          role="tab"
-          aria-selected={source === 'requestlog'}
-          onClick={() => switchSource('requestlog')}
-        >
-          Requests
-        </Button>
-        <Button
-          type="button"
-          variant={source === 'applog' ? 'primary' : 'ghost'}
-          size="sm"
-          role="tab"
-          aria-selected={source === 'applog'}
-          onClick={() => switchSource('applog')}
-        >
-          Aplicación
-        </Button>
-      </div>
+      <Tabs
+        className={styles.sourceTabs}
+        activeTab={source}
+        onTabChange={switchSource}
+      >
+        <TabList label="Fuente de logs">
+          <Tab id="requestlog">Requests</Tab>
+          <Tab id="applog">Aplicación</Tab>
+        </TabList>
+      </Tabs>
 
       <form className={styles.filters} onSubmit={submit} role="search">
         <label>
@@ -137,7 +126,7 @@ export default function AdminLogsPage() {
         <Button type="submit" variant="primary">Filtrar</Button>
       </form>
 
-      {isError && <p role="alert">No se pudo cargar el log.</p>}
+      {isError && <Alert variant="danger">No se pudo cargar el log.</Alert>}
 
       <DataTable
         columns={source === 'requestlog' ? REQUESTLOG_COLUMNS : APPLOG_COLUMNS}
