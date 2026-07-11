@@ -19,6 +19,9 @@ export { default as Toast }      from './Toast/ToastContainer';
 
 // ── Navegación ─────────────────────────────────────────────────────────────────
 export { Tabs, Tab, TabList, TabPanel } from './Tabs/Tabs';
+export { default as SegmentedControl } from './SegmentedControl/SegmentedControl';
+export { default as SplitButton }       from './SplitButton/SplitButton';
+export { default as Toolbar }           from './Toolbar/Toolbar';
 export { default as Dropdown }   from './Dropdown/Dropdown';
 export { DropdownItem, DropdownDivider, DropdownHeader } from './Dropdown/Dropdown';
 export { default as Stepper }    from './Stepper/Stepper';
@@ -48,6 +51,7 @@ export { default as Switch }           from './Switch/Switch';
 export { default as Checkbox }         from './Checkbox/Checkbox';
 export { default as RadioGroup }       from './RadioGroup/RadioGroup';
 export { default as NumericTextBox }   from './NumericTextBox/NumericTextBox';
+export { default as MaskedTextBox }    from './MaskedTextBox/MaskedTextBox';
 export { default as RatingInput }      from './RatingInput/RatingInput';
 
 // ── Datos ──────────────────────────────────────────────────────────────────────

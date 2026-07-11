@@ -1,0 +1,67 @@
+// SplitButton — nativo. Adaptado de @progress/kno-react-buttons — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.main,
+.toggle {
+  border: 1px solid $lime;
+  background: $lime;
+  color: $text-inverse;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+
+  &:hover:not(:disabled) { background: $lime-deep; border-color: $lime-deep; }
+  &:focus-visible { outline: 2px solid var(--ec-focus-ring, #{$lime}); outline-offset: 2px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.main {
+  border-radius: 0.4rem 0 0 0.4rem;
+  border-right-color: rgba(14, 20, 0, 0.25);
+}
+
+.toggle {
+  border-radius: 0 0.4rem 0.4rem 0;
+  padding: 0.5rem 0.6rem;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: 20;
+  min-width: 12rem;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: $bg-elevated;
+  border: 1px solid $border-medium;
+  border-radius: 0.5rem;
+  box-shadow: $shadow-sm;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  border: none;
+  background: none;
+  color: $text-primary;
+  font-family: inherit;
+  font-size: 0.88rem;
+  text-decoration: none;
+  border-radius: 0.35rem;
+  cursor: pointer;
+
+  &:hover { background: $primary-100; }
+  &:focus-visible { outline: 2px solid var(--ec-focus-ring, #{$lime}); outline-offset: -2px; }
+}

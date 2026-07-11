@@ -1,0 +1,47 @@
+// SegmentedControl — nativo. Adaptado de @progress/kno-react-buttons — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.group {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid $border-medium;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.2rem;
+  gap: 0.2rem;
+}
+
+.item {
+  border: none;
+  background: none;
+  color: $text-secondary;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 0.35rem;
+  white-space: nowrap;
+  transition: background 0.12s ease, color 0.12s ease;
+
+  &:hover:not(:disabled) {
+    color: $text-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ec-focus-ring, #{$lime});
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.active {
+  background: $lime;
+  color: $text-inverse;
+  font-weight: 600;
+}
+
+.sm .item { padding: 0.25rem 0.6rem; font-size: 0.8rem; }
+.md .item { padding: 0.4rem 0.85rem; font-size: 0.88rem; }
+.lg .item { padding: 0.55rem 1.1rem; font-size: 0.95rem; }
