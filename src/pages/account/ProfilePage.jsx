@@ -13,6 +13,7 @@ import { fetchProfile, updateProfile, uploadAvatar } from '@redux/slices/authSli
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Button, Field } from '@components/common/primitives';
 import { FileUpload } from '@components/common';
+import Avatar from '@components/common/Avatar/Avatar';
 import styles from './ProfilePage.module.scss';
 
 export default function ProfilePage() {
@@ -84,9 +85,7 @@ export default function ProfilePage() {
             </header>
 
             <div className={styles.avatarRow}>
-              <div className={styles.avatar}>
-                {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
-              </div>
+              <Avatar className={styles.avatar} src={user.avatar_url} initials={initials} />
               <div>
                 <div className={styles.avatarTitle}>Foto de perfil</div>
                 <div className={styles.avatarDesc}>JPG o PNG, máximo 5 MB. La redimensionamos a 800×800.</div>

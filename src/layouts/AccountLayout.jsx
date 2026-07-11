@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { selectUser } from '@redux/selectors';
 import Header from '@components/layout/Header';
 import Footer from '@components/layout/Footer';
+import Avatar from '@components/common/Avatar/Avatar';
 import ToastContainer from '@components/common/Toast/ToastContainer';
 import styles from './AccountLayout.module.scss';
 
@@ -36,9 +37,7 @@ export default function AccountLayout() {
       <div className={styles.body}>
         <aside className={styles.sidebar}>
           <div className={styles.userCard}>
-            <div className={styles.avatar}>
-              {user?.first_name?.[0] ?? '?'}
-            </div>
+            <Avatar className={styles.avatar} initials={user?.first_name?.[0] ?? '?'} />
             <div>
               <p className={styles.userName}>
                 {user?.first_name} {user?.last_name}

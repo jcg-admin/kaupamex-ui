@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { fetchAdminUsers, setPage } from '@redux/slices/adminSlice';
 import { MetaTag, Button } from '@components/common/primitives';
 import { DataTable } from '@components/common';
+import Avatar from '@components/common/Avatar/Avatar';
 import SegmentedControl from '@components/common/SegmentedControl/SegmentedControl';
 import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
@@ -127,12 +128,11 @@ export default function AdminUsersPage() {
           columns={[
             { key: 'avatar',       header: '',
               render: (u) => (
-                <div className={styles.avatarSm}>
-                  {u.avatar_url
-                    ? <img src={u.avatar_url} alt="" />
-                    : <span>{(u.first_name?.[0] || '')+(u.last_name?.[0] || '')}</span>
-                  }
-                </div>
+                <Avatar
+                  className={styles.avatarSm}
+                  src={u.avatar_url}
+                  initials={(u.first_name?.[0] || '') + (u.last_name?.[0] || '')}
+                />
               ) },
             { key: 'name',         header: 'Usuario',
               render: (u) => (

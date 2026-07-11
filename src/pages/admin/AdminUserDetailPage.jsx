@@ -10,6 +10,7 @@ import {
   fetchAdminUser, toggleUserActive, resetUserPassword, makeUserAdmin,
 } from '@redux/slices/adminSlice';
 import { MetaTag, Price, Button } from '@components/common/primitives';
+import Avatar from '@components/common/Avatar/Avatar';
 import AdminUserPermissions from '@components/admin/AdminUserPermissions';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminUserDetailPage.module.scss';
@@ -78,9 +79,7 @@ export default function AdminUserDetailPage() {
       </nav>
 
       <header className={styles.hero}>
-        <div className={styles.avatar}>
-          {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
-        </div>
+        <Avatar className={styles.avatar} src={user.avatar_url} initials={initials} />
         <div className={styles.heroInfo}>
           <MetaTag tone="bronze">@{user.username} · ID #{user.id}</MetaTag>
           <h1 className={styles.heroTitle}>{user.first_name} {user.last_name}</h1>

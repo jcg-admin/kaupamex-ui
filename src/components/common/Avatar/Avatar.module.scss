@@ -1,0 +1,32 @@
+// Avatar — nativo. Adaptado de @progress/kno-react-layout — referencia no runtime.
+// Base para usos NUEVOS (sin className del consumidor). Los sitios existentes
+// pasan su propia clase y no dependen de esto.
+@use '@styles/abstracts' as *;
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: $primary;
+  color: $text-inverse;
+  font-weight: $font-weight-bold;
+  user-select: none;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.xs { width: 24px; height: 24px; font-size: 0.7rem; }
+.sm { width: 32px; height: 32px; font-size: 0.8rem; }
+.md { width: 40px; height: 40px; font-size: 0.95rem; }
+.lg { width: 56px; height: 56px; font-size: 1.2rem; }
+.xl { width: 80px; height: 80px; font-size: 1.6rem; }
+
+.rFull { border-radius: $border-radius-full; }
+.rMd   { border-radius: 0.5rem; }
+.rNone { border-radius: 0; }
