@@ -15,12 +15,14 @@
 # antes de arrancar (free_port, H-UI-LOG-07) y resuelve monorepo O clones
 # separados (H-UI-LOG-05).
 #
-#   ⚠ Specs ADMIN/AUTENTICADOS (p.ej. admin-logs.e2e.js) NO producen evidencia
-#     válida in-container: baseURL absoluto (:8000) + credentials:'same-origin'
-#     → la cookie de sesión no viaja cross-origin (:3001→:8000) → 403 →
-#     "No se pudo cargar el log." (H-UI-LOG-08, ABIERTO; endpoint sano vía DRF).
-#     Correrlos en WSL same-origin o esperar el fix
-#     (iniciativa corregir-harness-auth-e2e-same-origin).
+#   Specs ADMIN/AUTENTICADOS (p.ej. admin-logs.e2e.js) SÍ producen evidencia
+#   válida in-container: same-origin resuelto (ui@ad64776, iniciativa
+#   corregir-harness-auth-e2e-same-origin) — el bundle dev usa baseURL relativo
+#   y el proxy /api → :8000, así la cookie de sesión viaja misma-origin
+#   (:3001→proxy→:8000). El seed y el login del admin comparten defaults (bloque
+#   Admin abajo), así que el spec corre BARE, sin exportar credenciales a mano
+#   (H-UI-LOG-10: antes el seed usaba ADMIN_EMAIL del .env y el spec caía a
+#   testadmin@example.com → 401).
 #
 #   Specs con EGRESS HTTPS externo (MercadoPago: createCardToken) NO corren
 #   directo — el navegador del contenedor no tiene egress; usar el puente
@@ -29,9 +31,9 @@
 # Uso:
 #   cd ui && bash e2e/run-full-stack-e2e.sh              # toda la suite
 #   E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh # solo un spec
-#   # spec admin (requiere same-origin — ver H-UI-LOG-08):
-#   E2E_ADMIN_EMAIL=... E2E_ADMIN_PASS=... ADMIN_EMAIL=... ADMIN_USERNAME=... \
-#     ADMIN_PASSWORD=... E2E_SPEC=admin-logs.e2e.js bash e2e/run-full-stack-e2e.sh
+#   # spec admin autenticado — corre BARE (seed y login alineados por default):
+#   E2E_SPEC=admin-logs.e2e.js bash e2e/run-full-stack-e2e.sh
+#   # (override opcional: ADMIN_EMAIL=... ADMIN_PASSWORD=... — E2E_ADMIN_* se derivan)
 #
 # Variables (con defaults):
 #   SUPERREPO/API_DIR/DB_DIR/UI_DIR   rutas (monorepo o clones separados)
@@ -87,6 +89,22 @@ export PY_API_SOURCE="${PY_API_SOURCE:-db}"
 export API_PROXY_TARGET="${API_PROXY_TARGET:-http://localhost:8000}"
 export E2E_EMAIL="$QA_BUYER_EMAIL"
 export E2E_PASSWORD="$QA_BUYER_PASSWORD"
+
+# Admin (specs autenticados, p.ej. admin-logs.e2e.js): seed y login comparten
+# una sola fuente, igual que el buyer arriba. create_seed_users siembra el
+# admin con ADMIN_EMAIL/ADMIN_PASSWORD (username=email); el spec loguea con
+# E2E_ADMIN_EMAIL/E2E_ADMIN_PASS. Antes NO se alineaban: el seed leía
+# ADMIN_EMAIL del .env (admin@practicayoruba.com) mientras el spec caía a su
+# default testadmin@example.com/Admin1234! → "POST /auth/login 401" y evidencia
+# en estado de error (H-UI-LOG-10). Exportamos ADMIN_* (así create_seed_users
+# los toma de os.environ ANTES del fallback a decouple/.env) y derivamos
+# E2E_ADMIN_* de ellos: seed y login coinciden en cualquier layout.
+ADMIN_EMAIL="${ADMIN_EMAIL:-testadmin@example.com}"
+ADMIN_USERNAME="${ADMIN_USERNAME:-testadmin@example.com}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-Admin1234!}"
+export ADMIN_EMAIL ADMIN_USERNAME ADMIN_PASSWORD
+export E2E_ADMIN_EMAIL="${E2E_ADMIN_EMAIL:-$ADMIN_EMAIL}"
+export E2E_ADMIN_PASS="${E2E_ADMIN_PASS:-$ADMIN_PASSWORD}"
 
 # DB por socket local + TLS apagado para el perfil dev (H-API-LOG-04): el
 # MariaDB local/CI tiene cert self-signed; con la verificación por certifi
