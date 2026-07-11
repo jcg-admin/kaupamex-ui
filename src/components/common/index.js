@@ -21,6 +21,7 @@ export { default as Toast }      from './Toast/ToastContainer';
 export { Tabs, Tab, TabList, TabPanel } from './Tabs/Tabs';
 export { default as SegmentedControl } from './SegmentedControl/SegmentedControl';
 export { default as SplitButton }       from './SplitButton/SplitButton';
+export { default as DropDownButton }    from './DropDownButton/DropDownButton';
 export { default as Toolbar }           from './Toolbar/Toolbar';
 
 // ── Indicadores ──────────────────────────────────────────────────────────────

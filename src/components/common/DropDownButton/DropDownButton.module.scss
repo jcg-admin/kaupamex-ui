@@ -1,0 +1,66 @@
+// DropDownButton — nativo. Adaptado de @progress/kno-react-buttons — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid $border-medium;
+  background: transparent;
+  color: $text-secondary;
+  font-family: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0.4rem 0.55rem;
+  border-radius: 0.4rem;
+
+  &:hover:not(:disabled) { color: $text-primary; border-color: $lime; }
+  &:focus-visible { outline: 2px solid var(--ec-focus-ring, #{$lime}); outline-offset: 2px; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.text { line-height: 1; }
+
+.menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  z-index: 20;
+  min-width: 11rem;
+  margin: 0;
+  padding: 0.3rem;
+  list-style: none;
+  background: $bg-elevated;
+  border: 1px solid $border-medium;
+  border-radius: 0.5rem;
+  box-shadow: $shadow-sm;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.65rem;
+  border: none;
+  background: none;
+  color: $text-primary;
+  font-family: inherit;
+  font-size: 0.88rem;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 0.35rem;
+
+  &:hover { background: $primary-100; }
+  &:focus-visible { outline: 2px solid var(--ec-focus-ring, #{$lime}); outline-offset: -2px; }
+}
+
+.danger {
+  color: $error-color;
+
+  &:hover { background: rgba($vino, 0.12); }
+}
