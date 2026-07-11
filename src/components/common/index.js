@@ -42,6 +42,8 @@ export { default as FileUpload }       from './FileUpload/FileUpload';
 export { default as ExternalDropZone } from './FileUpload/ExternalDropZone';
 export { default as OtpInput }         from './OtpInput/OtpInput';
 export { default as PasswordInput }    from './PasswordInput/PasswordInput';
+export { default as FormField }        from './FormField/FormField';
+export { Label, Hint, FieldError }     from './FormField/FormField';
 export { default as RatingInput }      from './RatingInput/RatingInput';
 
 // ── Datos ──────────────────────────────────────────────────────────────────────
