@@ -3,8 +3,9 @@
  * Estado global del consentimiento de cookies (LFPDPPP).
  *
  * Molde: mismo patron provider + hook que ToastContext. Expone el estado y las
- * acciones, y monta las dos capas de UI (banner no-modal + modal de
- * preferencias). Ver analisis-ui-banner-consentimiento-cookies.
+ * acciones; la UI (banner no-modal + modal de preferencias) se monta en
+ * CookieConsentSurface, dentro del Router, para ocultarla en /admin.
+ * Ver analisis-ui-banner-consentimiento-cookies.
  */
 
 import { createContext, useContext, useState, useCallback, useMemo } from 'react';
@@ -15,9 +16,6 @@ import {
   allChoices,
   necessaryOnlyChoices,
 } from '@lib/cookieConsent';
-import CookieConsentBanner from '@components/cookies/CookieConsentBanner';
-import CookiePreferencesModal from '@components/cookies/CookiePreferencesModal';
-
 const CookieConsentContext = createContext(null);
 
 export function CookieConsentProvider({ children }) {
@@ -58,11 +56,12 @@ export function CookieConsentProvider({ children }) {
     acceptAll, rejectAll, savePreferences, openPreferences, closePreferences,
   ]);
 
+  // La UI (banner + modal) se monta en CookieConsentSurface, dentro del Router,
+  // para poder ocultarla en /admin (useLocation no está disponible aquí, fuera
+  // del BrowserRouter). Este provider sólo expone el estado.
   return (
     <CookieConsentContext.Provider value={value}>
       {children}
-      <CookieConsentBanner />
-      <CookiePreferencesModal />
     </CookieConsentContext.Provider>
   );
 }

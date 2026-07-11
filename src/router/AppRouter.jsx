@@ -9,6 +9,7 @@ import UnauthorizedListener from '@app/UnauthorizedListener';
 import SessionBootstrap from '@app/SessionBootstrap';
 import GlobalErrorNotifier from '@app/GlobalErrorNotifier';
 import ScrollToTop from '@components/shared/ScrollToTop/ScrollToTop';
+import CookieConsentSurface from '@components/cookies/CookieConsentSurface';
 import StorefrontLayout from '@layouts/StorefrontLayout';
 import AccountLayout    from '@layouts/AccountLayout';
 import AdminLayout      from '@layouts/AdminLayout';
@@ -156,6 +157,8 @@ export default function AppRouter() {
       <GlobalErrorNotifier />
       {/* Lleva el scroll al tope en cada cambio de ruta (RRv6 no lo hace). */}
       <ScrollToTop />
+      {/* Aviso de cookies (LFPDPPP) — oculto en /admin (backoffice). */}
+      <CookieConsentSurface />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* --- Tienda publica --- */}

@@ -93,8 +93,7 @@ export default function AdminLogsPage() {
       <header className={styles.header}>
         <h1 id="logs-title" className={styles.title}>Logs técnicos</h1>
         <p className={styles.subtitle}>
-          Bitácora técnica de requests y errores (UC-ADM-06). Une una request por
-          su correlation ID.
+          Bitácora técnica de requests y errores del sistema.
         </p>
       </header>
 
