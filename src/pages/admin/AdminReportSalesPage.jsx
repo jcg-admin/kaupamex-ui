@@ -11,6 +11,7 @@ import {
 import RevenueTrendChart from '@components/charts/RevenueTrendChart';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import { DateRangePicker } from '@components/common/DatePicker/DateRangePicker';
+import SplitButton from '@components/common/SplitButton/SplitButton';
 import { toISODateString, fromISODateString } from '@utils/dateRange';
 import { exportToCsv } from '@lib/csvExporter';
 import styles from './AdminReportPage.module.scss';
@@ -85,8 +86,12 @@ export default function AdminReportSalesPage() {
           >
             Exportar tabla
           </button>
-          <a href={csvHref} className={styles.exportLink}>Exportar CSV</a>
-          <a href={pdfHref} className={styles.exportLink}>Exportar PDF</a>
+          <SplitButton
+            text="Exportar CSV"
+            href={csvHref}
+            ariaLabel="Más formatos de exportación"
+            items={[{ text: 'Exportar PDF', href: pdfHref }]}
+          />
         </div>
       </header>
 

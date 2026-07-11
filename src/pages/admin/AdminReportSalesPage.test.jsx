@@ -131,8 +131,11 @@ describe('AdminReportSalesPage (UC-REP-01)', () => {
       http.get(`${BASE}/api/v2/admin/reports/sales/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportSalesPage />));
+    // CSV es la acción primaria del SplitButton (enlace de descarga directo).
     expect(await screen.findByRole('link', { name: /Exportar CSV/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Exportar PDF/i })).toBeInTheDocument();
+    // PDF es el formato alterno tras el caret.
+    fireEvent.click(screen.getByRole('button', { name: /Más formatos de exportación/i }));
+    expect(screen.getByRole('menuitem', { name: /Exportar PDF/i })).toBeInTheDocument();
   });
 
   it('el enlace de exportar lleva el periodo seleccionado', async () => {

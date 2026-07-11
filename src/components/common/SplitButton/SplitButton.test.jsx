@@ -48,6 +48,23 @@ describe('SplitButton', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
+  it('la acción primaria es un enlace de descarga cuando se pasa href', () => {
+    render(
+      <SplitButton
+        text="Exportar CSV"
+        href="/reporte.csv"
+        download
+        items={[{ text: 'Exportar PDF', href: '/reporte.pdf' }]}
+      />,
+    );
+    const primary = screen.getByRole('link', { name: 'Exportar CSV' });
+    expect(primary).toHaveAttribute('href', '/reporte.csv');
+    // El formato alterno permanece oculto hasta abrir el caret.
+    expect(screen.queryByRole('menuitem', { name: 'Exportar PDF' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Más acciones' }));
+    expect(screen.getByRole('menuitem', { name: 'Exportar PDF' })).toHaveAttribute('href', '/reporte.pdf');
+  });
+
   it('disabled bloquea la acción y el toggle', () => {
     const onClick = jest.fn();
     render(<SplitButton text="Exportar" onClick={onClick} items={items} disabled />);

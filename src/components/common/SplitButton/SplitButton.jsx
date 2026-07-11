@@ -2,13 +2,18 @@
 // Reimplementacion nativa: accion primaria + menu de acciones secundarias.
 // Items via `items=[{text, onClick|href}]` (soporta accion o descarga). Widget
 // compuesto: la accion primaria reenvia su onClick nativo; cada item invoca su
-// propio onClick o navega por href.
+// propio onClick o navega por href. La accion primaria puede ser un enlace de
+// descarga: pasar `href` (+ opcional `download`) la renderiza como `<a>` en vez
+// de `<button>` — preserva la semantica navegable/descargable del formato por
+// defecto (p. ej. "Exportar CSV") sin perder el contrato del widget.
 import { useEffect, useId, useRef, useState } from 'react';
 import styles from './SplitButton.module.scss';
 
 export default function SplitButton({
   text,
   onClick,
+  href,
+  download,
   items = [],
   disabled = false,
   ariaLabel,
@@ -35,9 +40,21 @@ export default function SplitButton({
 
   return (
     <div ref={ref} className={[styles.wrap, className].filter(Boolean).join(' ')} {...rest}>
-      <button type="button" className={styles.main} onClick={onClick} disabled={disabled}>
-        {text}
-      </button>
+      {href ? (
+        <a
+          className={styles.main}
+          href={disabled ? undefined : href}
+          download={download}
+          aria-disabled={disabled || undefined}
+          onClick={onClick}
+        >
+          {text}
+        </a>
+      ) : (
+        <button type="button" className={styles.main} onClick={onClick} disabled={disabled}>
+          {text}
+        </button>
+      )}
       <button
         type="button"
         className={styles.toggle}
