@@ -25,8 +25,9 @@ export { default as DropDownButton }    from './DropDownButton/DropDownButton';
 export { default as Toolbar }           from './Toolbar/Toolbar';
 
 // ── Indicadores ──────────────────────────────────────────────────────────────
-export { default as Badge }      from './Badge/Badge';
-export { default as Loader }     from './Loader/Loader';
+export { default as Badge }          from './Badge/Badge';
+export { default as BadgeContainer } from './BadgeContainer/BadgeContainer';
+export { default as Loader }         from './Loader/Loader';
 
 // ── Layout ───────────────────────────────────────────────────────────────────
 export { default as Avatar }     from './Avatar/Avatar';

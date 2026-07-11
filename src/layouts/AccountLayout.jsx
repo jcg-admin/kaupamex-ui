@@ -10,7 +10,10 @@ import { selectUser } from '@redux/selectors';
 import Header from '@components/layout/Header';
 import Footer from '@components/layout/Footer';
 import Avatar from '@components/common/Avatar/Avatar';
+import BadgeContainer from '@components/common/BadgeContainer/BadgeContainer';
+import Badge from '@components/common/Badge/Badge';
 import ToastContainer from '@components/common/Toast/ToastContainer';
+import { useUnreadNotificationsCount } from '@hooks/domain/useNotifications';
 import styles from './AccountLayout.module.scss';
 
 const NAV_ITEMS = [
@@ -19,7 +22,7 @@ const NAV_ITEMS = [
   { to: '/account/wishlist',                     label: 'Mis favoritos' },
   { to: '/account/returns',                      label: 'Mis devoluciones' },
   { to: '/support/tickets',                      label: 'Soporte' },
-  { to: '/account/notifications/preferences',    label: 'Notificaciones' },
+  { to: '/account/notifications',                label: 'Notificaciones', badge: true },
   { to: '/account/profile',                      label: 'Mi perfil' },
   { to: '/account/change-password',              label: 'Cambiar contrasena' },
   // UC-AUTH-16: deliberadamente al final del menu para no confundirlo
@@ -30,6 +33,7 @@ const NAV_ITEMS = [
 
 export default function AccountLayout() {
   const user = useSelector(selectUser);
+  const { data: unreadCount = 0 } = useUnreadNotificationsCount({ enabled: !!user });
 
   return (
     <div className={styles.root}>
@@ -46,7 +50,7 @@ export default function AccountLayout() {
             </div>
           </div>
           <nav className={styles.nav} aria-label="Menu de cuenta">
-            {NAV_ITEMS.map(({ to, label, end }) => (
+            {NAV_ITEMS.map(({ to, label, end, badge }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -55,7 +59,19 @@ export default function AccountLayout() {
                   `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
                 }
               >
-                {label}
+                {badge && unreadCount > 0 ? (
+                  <BadgeContainer>
+                    {label}
+                    <Badge
+                      align={{ vertical: 'top', horizontal: 'end' }}
+                      size="small"
+                      themeColor="secondary"
+                      aria-label={`${unreadCount} sin leer`}
+                    >
+                      {unreadCount}
+                    </Badge>
+                  </BadgeContainer>
+                ) : label}
               </NavLink>
             ))}
           </nav>
