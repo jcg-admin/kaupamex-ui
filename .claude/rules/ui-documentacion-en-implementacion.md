@@ -11,6 +11,10 @@ estados) **y** (2) un **E2E Playwright con screenshot** (`e2e/<slug>.e2e.js`;
 Chromium ya instalado, `npm run e2e`; el `.png` va git-ignored en `e2e/artifacts/`,
 el spec sí se versiona). Ambos son parte del DoD de UI — sin ellos la tarea no se
 cierra (gate `proc-gestion-backlog` Paso 6: capa 5 = doc de interfaz, capa 7 =
-E2E+screenshot). Adoptar los primitivos nativos existentes (`Tabs`, `Alert`,
-`DataTable`, `lib/intl`, …), no reimplementar a mano. Nunca diferir a una
-iniciativa futura de "mejora". Precedente: `interfaz-adminlogspage.rst`.
+E2E+screenshot). El screenshot curado en docs se nombra `<vista>-<verbo>-<ISO>.png`
+(verbo = operación evidenciada get/post/update; ISO por `date -u`, `:`→`-`); las
+capturas de error se **preservan** con su fecha (no se sobrescriben) y un
+screenshot en estado de error **NO satisface** la capa 7. Adoptar los primitivos
+nativos existentes (`Tabs`, `Alert`, `DataTable`, `lib/intl`, …), no reimplementar
+a mano. Nunca diferir a una iniciativa futura de "mejora". Precedente:
+`interfaz-adminlogspage.rst`.
