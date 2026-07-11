@@ -38,6 +38,14 @@ const TOOLS = [
   { cmd: 'formatBlock', value: '<blockquote>', label: 'Cita', text: 'Cita' },
   { cmd: 'insertUnorderedList', label: 'Lista con viñetas', text: 'Viñetas' },
   { cmd: 'insertOrderedList', label: 'Lista numerada', text: 'Números' },
+  { cmd: 'justifyLeft', styleCss: true, label: 'Alinear a la izquierda', text: 'Izq' },
+  { cmd: 'justifyCenter', styleCss: true, label: 'Centrar', text: 'Centro' },
+  { cmd: 'justifyRight', styleCss: true, label: 'Alinear a la derecha', text: 'Der' },
+  { cmd: 'justifyFull', styleCss: true, label: 'Justificar', text: 'Just' },
+  { cmd: 'indent', styleCss: true, label: 'Aumentar sangría', text: 'Sangría +' },
+  { cmd: 'outdent', styleCss: true, label: 'Reducir sangría', text: 'Sangría −' },
+  { cmd: 'fontName', styleCss: true, prompt: 'Fuente (p. ej. Arial, Georgia):', label: 'Fuente', text: 'Fuente' },
+  { cmd: 'fontSize', styleCss: true, prompt: 'Tamaño (1 a 7):', label: 'Tamaño de fuente', text: 'Tamaño' },
   { cmd: 'createLink', prompt: 'URL del enlace (https://…)', label: 'Insertar enlace', text: 'Enlace' },
   { cmd: 'unlink', label: 'Quitar enlace', text: 'Sin enlace' },
   { cmd: 'insertImage', prompt: 'URL de la imagen (https://…)', label: 'Insertar imagen', text: 'Imagen' },
@@ -97,7 +105,13 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     // deprecado pero soportado en todos los navegadores. jsdom no lo
     // implementa: guardamos para no romper en tests.
     if (typeof document.execCommand === 'function') {
+      // Alineación/sangría/fuente deben emitir `style` (no atributos/tags
+      // deprecados) para que el allowlist acotado los conserve. Se activa
+      // styleWithCSS sólo alrededor de esos comandos y se restaura después,
+      // para no convertir negrita/cursiva en `style` (que se descartaría).
+      if (tool.styleCss) document.execCommand('styleWithCSS', false, true);
       document.execCommand(tool.cmd, false, arg);
+      if (tool.styleCss) document.execCommand('styleWithCSS', false, false);
     }
     emit();
   }, [emit]);

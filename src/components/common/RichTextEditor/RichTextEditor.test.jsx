@@ -27,6 +27,11 @@ describe('RichTextEditor', () => {
     expect(screen.getByRole('button', { name: /Insertar enlace/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Quitar enlace/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Insertar imagen/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Centrar/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Justificar/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Aumentar sangría/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Fuente$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Tamaño de fuente/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Lista con viñetas/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Lista numerada/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Quitar formato/i })).toBeInTheDocument();

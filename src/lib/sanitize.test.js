@@ -47,6 +47,22 @@ describe('sanitizeHtml', () => {
     expect(out).toContain('<blockquote>cita</blockquote>');
   });
 
+  it('acota el style inline a propiedades tipográficas seguras', () => {
+    const out = sanitizeHtml(
+      '<p style="text-align:center; color:red; position:fixed; font-size:large">x</p>',
+    );
+    expect(out).toMatch(/text-align:\s*center/i);
+    expect(out).toMatch(/font-size:\s*large/i);
+    expect(out).not.toMatch(/color:/i);     // propiedad no permitida, descartada
+    expect(out).not.toMatch(/position:/i);  // idem
+  });
+
+  it('descarta style con url()/expression() aunque la propiedad sea segura', () => {
+    const out = sanitizeHtml('<p style="font-family:url(javascript:x)">x</p>');
+    expect(out).not.toMatch(/url\(/i);
+    expect(out).not.toMatch(/javascript:/i);
+  });
+
   it('descarta handlers de evento inline', () => {
     const out = sanitizeHtml('<span onclick="steal()">click</span>');
     expect(out).not.toMatch(/onclick/i);
