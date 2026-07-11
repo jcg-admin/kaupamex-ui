@@ -45,5 +45,16 @@ test.describe('admin logs (UC-ADM-06)', () => {
 
     fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
     await page.screenshot({ path: path.join(ARTIFACTS_DIR, 'admin-logs.png'), fullPage: true });
+
+    // Tab AppLog (Aplicación): cambia de fuente y captura su evidencia. AppLog
+    // se llena con logs de nivel error/warning (DatabaseLogHandler), no por cada
+    // request como RequestLog, así que PUEDE estar vacío legítimamente — no se
+    // asevera "hay datos". Sí se asevera que la carga no falla (sin la alerta de
+    // error): el estado-vacío es válido, un 4xx/5xx del endpoint no.
+    await page.getByRole('tab', { name: /Aplicación/i }).click();
+    await expect(page.getByRole('tab', { name: /Aplicación/i })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByText(/No se pudo cargar el log/i)).toHaveCount(0);
+    await page.waitForTimeout(500); // deja asentar el fetch de applog
+    await page.screenshot({ path: path.join(ARTIFACTS_DIR, 'admin-logs-applog.png'), fullPage: true });
   });
 });
