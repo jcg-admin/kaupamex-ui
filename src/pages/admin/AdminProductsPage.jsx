@@ -5,12 +5,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchAdminProducts, deleteProduct, toggleProductFeatured } from '@redux/slices/adminSlice';
 import { MetaTag, Button, Price } from '@components/common/primitives';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import ConfirmDialog from '@components/common/ConfirmDialog/ConfirmDialog';
 import SegmentedControl from '@components/common/SegmentedControl/SegmentedControl';
+import DropDownButton from '@components/common/DropDownButton/DropDownButton';
 import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
 
@@ -23,6 +24,7 @@ const STATUS = [
 
 export default function AdminProductsPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   // H-04: producto pendiente de confirmación de borrado (diálogo de marca en
@@ -122,25 +124,29 @@ export default function AdminProductsPage() {
       header: '',
       render: (p) => (
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.actionBtn}
-            onClick={() => dispatch(toggleProductFeatured(p.id))}
-            title={p.is_featured ? 'Quitar destacado' : 'Destacar'}
-            aria-label={p.is_featured ? 'Quitar destacado' : 'Destacar'}
-          ><Icon name="star" size={16} /></button>
-          <Link to={`/admin/products/${p.id}/edit`} className={styles.actionBtn} title="Editar" aria-label="Editar"><Icon name="pencil" size={16} /></Link>
-          <button
-            type="button"
-            className={`${styles.actionBtn} ${styles.actionDelete}`}
-            onClick={() => setPendingDelete(p)}
-            title="Eliminar"
-            aria-label="Eliminar"
-          ><Icon name="x" size={16} /></button>
+          <DropDownButton
+            icon={<Icon name="more-vertical" size={18} />}
+            ariaLabel={`Acciones de ${p.name}`}
+            items={[
+              {
+                text: p.is_featured ? 'Quitar destacado' : 'Destacar',
+                onClick: () => dispatch(toggleProductFeatured(p.id)),
+              },
+              {
+                text: 'Editar',
+                onClick: () => navigate(`/admin/products/${p.id}/edit`),
+              },
+              {
+                text: 'Eliminar',
+                danger: true,
+                onClick: () => setPendingDelete(p),
+              },
+            ]}
+          />
         </div>
       ),
     },
-  ], [dispatch]);
+  ], [dispatch, navigate]);
 
   return (
     <div className={styles.page}>
