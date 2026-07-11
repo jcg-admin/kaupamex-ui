@@ -6,6 +6,11 @@ carga en sesiones con `docs` en scope. Canon RST:
 Aquí solo el invariante operativo:
 
 Toda implementación de UI con superficie visible registra su interfaz en el MISMO
-pase (mockup ASCII + spec del contrato UI↔API + estados) en `interfaz-<slug>.rst`;
-es parte del DoD de UI — sin él la tarea no se cierra. Nunca diferir a una
+pase: (1) `interfaz-<slug>.rst` (mockup ASCII + spec del contrato UI↔API +
+estados) **y** (2) un **E2E Playwright con screenshot** (`e2e/<slug>.e2e.js`;
+Chromium ya instalado, `npm run e2e`; el `.png` va git-ignored en `e2e/artifacts/`,
+el spec sí se versiona). Ambos son parte del DoD de UI — sin ellos la tarea no se
+cierra (gate `proc-gestion-backlog` Paso 6: capa 5 = doc de interfaz, capa 7 =
+E2E+screenshot). Adoptar los primitivos nativos existentes (`Tabs`, `Alert`,
+`DataTable`, `lib/intl`, …), no reimplementar a mano. Nunca diferir a una
 iniciativa futura de "mejora". Precedente: `interfaz-adminlogspage.rst`.
