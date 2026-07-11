@@ -9,6 +9,8 @@ import {
   clearNewsletterActionState,
 } from '@redux/slices/newsletterSlice';
 import { Modal } from '@components/common';
+import RichTextEditor from '@components/common/RichTextEditor/RichTextEditor';
+import { sanitizeHtml } from '@lib/sanitize';
 import styles from './AdminNewsletterComposePage.module.scss';
 
 const SEGMENTS = [
@@ -43,6 +45,13 @@ export default function AdminNewsletterComposePage() {
   const setField = (name) => (event) => {
     setForm((prev) => ({ ...prev, [name]: event.target.value }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  // El contenido HTML se edita con el RichTextEditor (emite HTML sanitizado),
+  // no con un <textarea>. Setter por valor, no por evento.
+  const setHtmlBody = (html) => {
+    setForm((prev) => ({ ...prev, htmlBody: html }));
+    if (errors.htmlBody) setErrors((prev) => ({ ...prev, htmlBody: '' }));
   };
 
   const [confirmPending, setConfirmPending] = useState(false);
@@ -113,14 +122,24 @@ export default function AdminNewsletterComposePage() {
 
         <div className={styles.field}>
           <label htmlFor="campaign-html">Contenido HTML</label>
-          <textarea
+          <RichTextEditor
             id="campaign-html"
-            rows={6}
             value={form.htmlBody}
-            onChange={setField('htmlBody')}
-            aria-invalid={Boolean(errors.htmlBody)}
+            onChange={setHtmlBody}
+            ariaProps={{ 'aria-label': 'Contenido HTML', 'aria-invalid': Boolean(errors.htmlBody) }}
           />
           {errors.htmlBody && <span className={styles.fieldError}>{errors.htmlBody}</span>}
+        </div>
+
+        <div className={styles.field}>
+          <span className={styles.previewLabel}>Vista previa</span>
+          <div
+            className={styles.htmlPreview}
+            aria-label="Vista previa del contenido"
+            // El HTML se sanitiza con la política central antes de renderizar.
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(form.htmlBody) }}
+          />
         </div>
 
         <div className={styles.field}>

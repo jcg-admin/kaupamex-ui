@@ -27,6 +27,14 @@ const wrap = (ui, store) => (
   </Provider>
 );
 
+// El contenido HTML se edita con el RichTextEditor (contentEditable), no un
+// <textarea>: se fija innerHTML y se dispara `input` (como al teclear).
+function setHtmlContent(html) {
+  const editor = screen.getByLabelText(/Contenido HTML/i);
+  editor.innerHTML = html;
+  fireEvent.input(editor);
+}
+
 describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
   it('muestra el titulo del compositor', () => {
     render(wrap(<AdminNewsletterComposePage />, makeStore()));
@@ -61,8 +69,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
 
     fireEvent.change(screen.getByLabelText(/Asunto/i),
       { target: { value: 'Boletin de mayo' } });
-    fireEvent.change(screen.getByLabelText(/Contenido HTML/i),
-      { target: { value: '<p>Hola</p>' } });
+    setHtmlContent('<p>Hola</p>');
     fireEvent.change(screen.getByLabelText(/Contenido en texto plano/i),
       { target: { value: 'Hola' } });
     fireEvent.click(screen.getByRole('button', { name: /Enviar campa[nñ]a/i }));
@@ -94,8 +101,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
 
     fireEvent.change(screen.getByLabelText(/Asunto/i),
       { target: { value: 'Boletin' } });
-    fireEvent.change(screen.getByLabelText(/Contenido HTML/i),
-      { target: { value: '<p>x</p>' } });
+    setHtmlContent('<p>x</p>');
     fireEvent.change(screen.getByLabelText(/Contenido en texto plano/i),
       { target: { value: 'x' } });
     fireEvent.click(screen.getByRole('button', { name: /Enviar campa[nñ]a/i }));
@@ -124,8 +130,7 @@ describe('AdminNewsletterComposePage (UC-NEW-04)', () => {
 
     fireEvent.change(screen.getByLabelText(/Asunto/i),
       { target: { value: 'Programada' } });
-    fireEvent.change(screen.getByLabelText(/Contenido HTML/i),
-      { target: { value: '<p>x</p>' } });
+    setHtmlContent('<p>x</p>');
     fireEvent.change(screen.getByLabelText(/Contenido en texto plano/i),
       { target: { value: 'x' } });
     fireEvent.change(screen.getByLabelText(/Programar para/i),
