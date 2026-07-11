@@ -20,6 +20,7 @@ import {
   useState, useEffect, useCallback,
   useImperativeHandle, forwardRef, useRef,
 } from 'react';
+import Loader from '@components/common/Loader/Loader';
 import styles from './LoadingButton.module.scss';
 
 const LoadingButton = forwardRef(function LoadingButton({
@@ -87,9 +88,10 @@ const LoadingButton = forwardRef(function LoadingButton({
       {...rest}
     >
       {isLoading && spinner && (
-        <span
-          className={`${styles.spinner} ${styles[`spinner_${spinnerType}`]}`}
-          role="status"
+        <Loader
+          className={styles.spinner}
+          size="small"
+          type={spinnerType === 'grow' ? 'pulsing' : 'infinite-spinner'}
           aria-hidden="true"
         />
       )}

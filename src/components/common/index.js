@@ -25,6 +25,7 @@ export { default as Toolbar }           from './Toolbar/Toolbar';
 
 // ── Indicadores ──────────────────────────────────────────────────────────────
 export { default as Badge }      from './Badge/Badge';
+export { default as Loader }     from './Loader/Loader';
 export { default as Dropdown }   from './Dropdown/Dropdown';
 export { DropdownItem, DropdownDivider, DropdownHeader } from './Dropdown/Dropdown';
 export { default as Stepper }    from './Stepper/Stepper';
