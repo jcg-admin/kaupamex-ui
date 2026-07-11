@@ -12,6 +12,7 @@ import {
   clearPaymentsActionState,
 } from '@redux/slices/paymentsSlice';
 import { redirectToGateway } from '@pages/checkout/paymentRedirect';
+import RadioGroup from '@components/common/RadioGroup/RadioGroup';
 import styles from './PaymentRetryPage.module.scss';
 
 const GATEWAYS = [
@@ -60,18 +61,12 @@ export default function PaymentRetryPage() {
       <form onSubmit={onSubmit} className={styles.form} aria-label="Reintentar pago">
         <fieldset className={styles.fieldset}>
           <legend>Selecciona el método de pago</legend>
-          {GATEWAYS.map((g) => (
-            <label key={g.value} className={styles.option}>
-              <input
-                type="radio"
-                name="gateway"
-                value={g.value}
-                checked={gateway === g.value}
-                onChange={(e) => setGateway(e.target.value)}
-              />
-              {g.label}
-            </label>
-          ))}
+          <RadioGroup
+            name="gateway"
+            data={GATEWAYS}
+            value={gateway}
+            onChange={(e) => setGateway(e.target.value)}
+          />
         </fieldset>
         <button
           type="submit"

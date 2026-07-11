@@ -18,6 +18,7 @@ import {
   updateRolePermissions, clearPermissionsActionState,
 } from '@redux/slices/permissionsSlice';
 import { Button } from '@components/common/primitives';
+import Checkbox from '@components/common/Checkbox/Checkbox';
 import styles from './AdminPermissionsPage.module.scss';
 
 export default function AdminPermissionsPage() {
@@ -108,11 +109,10 @@ export default function AdminPermissionsPage() {
                 const checked = matrix[r.role]?.has(perm) ?? false;
                 return (
                   <td key={r.role}>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={checked}
                       onChange={() => togglePermission(r.role, perm)}
-                      aria-label={`${perm} para ${r.role}`}
+                      ariaLabel={`${perm} para ${r.role}`}
                     />
                   </td>
                 );

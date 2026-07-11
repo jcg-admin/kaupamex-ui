@@ -1,0 +1,48 @@
+// RadioGroup — nativo. Adaptado de @progress/kno-react-inputs — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.horizontal {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+}
+
+.input {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+  accent-color: $lime;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--ec-focus-ring, #{$lime});
+    outline-offset: 2px;
+  }
+}
+
+.text {
+  font-size: 0.9rem;
+  color: $text-primary;
+}
+
+.disabled {
+  opacity: 0.5;
+
+  .input,
+  .text {
+    cursor: not-allowed;
+  }
+}

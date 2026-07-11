@@ -1,0 +1,41 @@
+// Checkbox — nativo. Adaptado de @progress/kno-react-inputs — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.input {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+  accent-color: $lime;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--ec-focus-ring, #{$lime});
+    outline-offset: 2px;
+  }
+}
+
+.invalid {
+  outline: 1px solid $danger-strong;
+  outline-offset: 1px;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: $text-primary;
+  cursor: pointer;
+}
+
+.disabled {
+  opacity: 0.5;
+
+  .input,
+  .label {
+    cursor: not-allowed;
+  }
+}

@@ -45,6 +45,9 @@ export { default as PasswordInput }    from './PasswordInput/PasswordInput';
 export { default as FormField }        from './FormField/FormField';
 export { Label, Hint, FieldError }     from './FormField/FormField';
 export { default as Switch }           from './Switch/Switch';
+export { default as Checkbox }         from './Checkbox/Checkbox';
+export { default as RadioGroup }       from './RadioGroup/RadioGroup';
+export { default as NumericTextBox }   from './NumericTextBox/NumericTextBox';
 export { default as RatingInput }      from './RatingInput/RatingInput';
 
 // ── Datos ──────────────────────────────────────────────────────────────────────
