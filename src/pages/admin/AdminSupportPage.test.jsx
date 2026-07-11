@@ -84,7 +84,7 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
     expect(screen.getByText(/Cerrados/i)).toBeInTheDocument();
   });
 
-  it('filtra el listado por estado al cambiar el selector', async () => {
+  it('filtra el listado por estado al elegir un segmento', async () => {
     server.use(
       http.get(`${BASE}/api/v2/admin/support/tickets/`, () => HttpResponse.json(RESPONSE)),
     );
@@ -99,7 +99,9 @@ describe('AdminSupportPage (UC-SUPP-05)', () => {
       }),
     );
 
-    fireEvent.change(screen.getByLabelText(/Estado/i), { target: { value: 'OPEN' } });
+    // El filtro de estado es un SegmentedControl: el badge de conteo va
+    // aria-hidden, así que el nombre accesible del segmento es solo la etiqueta.
+    fireEvent.click(screen.getByRole('button', { name: 'Abierto' }));
 
     await waitFor(() => {
       expect(lastUrl).toContain('/admin/support/tickets/');
