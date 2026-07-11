@@ -1,4 +1,5 @@
-// Switch — toggle nativo. Adaptado de @progress/kno-react-inputs — referencia no runtime.
+// Switch — toggle nativo (input[type=checkbox][role=switch] + track/thumb
+// estilizados). Adaptado de @progress/kno-react-inputs — referencia no runtime.
 @use '@styles/abstracts' as *;
 
 .wrapper {
@@ -10,29 +11,34 @@
 .text {
   font-size: 0.9rem;
   color: $text-primary;
+  cursor: pointer;
+}
+
+.control {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+// El input real se superpone al track (invisible) para capturar clic + teclado.
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
 }
 
 .track {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  flex: none;
-  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
-  cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease;
-
-  &:focus-visible {
-    outline: 2px solid var(--ec-focus-ring, #{$lime});
-    outline-offset: 2px;
-  }
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
 }
 
 .thumb {
@@ -42,7 +48,8 @@
   transition: transform 0.15s ease;
 }
 
-.on {
+// Estados via el input hermano (:checked / :focus-visible / :disabled).
+.input:checked ~ .track {
   background: $lime;
   border-color: $lime;
 
@@ -51,26 +58,36 @@
   }
 }
 
-// Sizes: track w/h + thumb size + on-translate
+.input:focus-visible ~ .track {
+  outline: 2px solid var(--ec-focus-ring, #{$lime});
+  outline-offset: 2px;
+}
+
+.disabled {
+  opacity: 0.45;
+
+  .input {
+    cursor: not-allowed;
+  }
+}
+
+// Tamaños: track w/h + thumb size + traslado del thumb en on.
 .sm {
-  width: 2rem;
-  height: 1.1rem;
+  .track { width: 2rem; height: 1.1rem; }
   .thumb { width: 0.8rem; height: 0.8rem; margin: 0 0.15rem; }
-  &.on .thumb { transform: translateX(0.9rem); }
+  .input:checked ~ .track .thumb { transform: translateX(0.9rem); }
 }
 
 .md {
-  width: 2.6rem;
-  height: 1.4rem;
+  .track { width: 2.6rem; height: 1.4rem; }
   .thumb { width: 1.05rem; height: 1.05rem; margin: 0 0.175rem; }
-  &.on .thumb { transform: translateX(1.2rem); }
+  .input:checked ~ .track .thumb { transform: translateX(1.2rem); }
 }
 
 .lg {
-  width: 3.2rem;
-  height: 1.7rem;
+  .track { width: 3.2rem; height: 1.7rem; }
   .thumb { width: 1.3rem; height: 1.3rem; margin: 0 0.2rem; }
-  &.on .thumb { transform: translateX(1.5rem); }
+  .input:checked ~ .track .thumb { transform: translateX(1.5rem); }
 }
 
 .stateLabel {

@@ -1,17 +1,18 @@
 // Adaptado de @progress/kno-react-inputs (Switch) — referencia no runtime.
-// Reimplementacion nativa del contrato publico: toggle booleano accesible
-// (WAI-ARIA switch pattern via <button role="switch" aria-checked>).
-// Preserva la superficie de props relevante (checked/defaultChecked/disabled/
-// size/onLabel/offLabel/onChange) adaptando onChange a un booleano ergonomico
-// en vez del SwitchChangeEvent del paquete original.
-import { useId, useState } from 'react';
+// Reimplementacion nativa: <input type="checkbox" role="switch"> real (drop-in
+// del checkbox que reemplaza) estilizado como toggle. onChange reenvia el
+// evento de cambio del <input>, asi el consumidor usa e.target.checked sin
+// cambiar su handler (regla adaptacion-componentes-nativa: preservar el
+// contrato publico). Preserva la superficie de props relevante
+// (checked/defaultChecked/disabled/size/onLabel/offLabel).
+import { useId } from 'react';
 import styles from './Switch.module.scss';
 
 const SIZES = { small: styles.sm, medium: styles.md, large: styles.lg };
 
 export default function Switch({
   checked,
-  defaultChecked = false,
+  defaultChecked,
   disabled = false,
   id,
   name,
@@ -27,40 +28,35 @@ export default function Switch({
 }) {
   const autoId = useId();
   const switchId = id ?? autoId;
-  const isControlled = checked !== undefined;
-  const [internal, setInternal] = useState(defaultChecked);
-  const value = isControlled ? checked : internal;
-
-  const toggle = () => {
-    if (disabled) return;
-    const next = !value;
-    if (!isControlled) setInternal(next);
-    onChange?.(next);
-  };
-
   const sizeClass = SIZES[size] ?? styles.md;
-  const stateLabel = value ? onLabel : offLabel;
 
   return (
     <span className={[styles.wrapper, className].filter(Boolean).join(' ')}>
-      {label && <span id={`${switchId}-label`} className={styles.text}>{label}</span>}
-      <button
-        type="button"
-        role="switch"
-        id={switchId}
-        name={name}
-        aria-checked={value}
-        aria-label={ariaLabel}
-        aria-labelledby={label ? `${switchId}-label` : undefined}
-        aria-describedby={ariaDescribedBy}
-        disabled={disabled}
-        onClick={toggle}
-        className={[styles.track, sizeClass, value && styles.on].filter(Boolean).join(' ')}
-        {...rest}
-      >
-        <span className={styles.thumb} aria-hidden="true" />
-      </button>
-      {stateLabel != null && <span className={styles.stateLabel} aria-hidden="true">{stateLabel}</span>}
+      {label && <label htmlFor={switchId} className={styles.text}>{label}</label>}
+      <span className={[styles.control, sizeClass, disabled && styles.disabled].filter(Boolean).join(' ')}>
+        <input
+          type="checkbox"
+          role="switch"
+          id={switchId}
+          name={name}
+          checked={checked}
+          defaultChecked={defaultChecked}
+          disabled={disabled}
+          onChange={onChange}
+          aria-label={ariaLabel}
+          aria-describedby={ariaDescribedBy}
+          className={styles.input}
+          {...rest}
+        />
+        <span className={styles.track} aria-hidden="true">
+          <span className={styles.thumb} />
+        </span>
+      </span>
+      {(onLabel != null || offLabel != null) && (
+        <span className={styles.stateLabel} aria-hidden="true">
+          {checked ? onLabel : offLabel}
+        </span>
+      )}
     </span>
   );
 }
