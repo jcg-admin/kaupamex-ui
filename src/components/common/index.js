@@ -22,6 +22,9 @@ export { Tabs, Tab, TabList, TabPanel } from './Tabs/Tabs';
 export { default as SegmentedControl } from './SegmentedControl/SegmentedControl';
 export { default as SplitButton }       from './SplitButton/SplitButton';
 export { default as Toolbar }           from './Toolbar/Toolbar';
+
+// ── Indicadores ──────────────────────────────────────────────────────────────
+export { default as Badge }      from './Badge/Badge';
 export { default as Dropdown }   from './Dropdown/Dropdown';
 export { DropdownItem, DropdownDivider, DropdownHeader } from './Dropdown/Dropdown';
 export { default as Stepper }    from './Stepper/Stepper';
