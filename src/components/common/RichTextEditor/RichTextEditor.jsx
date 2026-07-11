@@ -28,6 +28,10 @@ import styles from './RichTextEditor.module.scss';
 const TOOLS = [
   { cmd: 'bold', label: 'Negrita', text: 'B', cls: 'ttBold' },
   { cmd: 'italic', label: 'Cursiva', text: 'I', cls: 'ttItalic' },
+  { cmd: 'underline', label: 'Subrayado', text: 'U', cls: 'ttUnderline' },
+  { cmd: 'strikeThrough', label: 'Tachado', text: 'S', cls: 'ttStrike' },
+  { cmd: 'subscript', label: 'Subíndice', text: 'X₂' },
+  { cmd: 'superscript', label: 'Superíndice', text: 'X²' },
   { cmd: 'insertUnorderedList', label: 'Lista con viñetas', text: 'Viñetas' },
   { cmd: 'insertOrderedList', label: 'Lista numerada', text: 'Números' },
   { cmd: 'removeFormat', label: 'Quitar formato', text: 'Limpiar' },

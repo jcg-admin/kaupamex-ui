@@ -21,7 +21,7 @@ import DOMPurify from 'dompurify';
  */
 export const SANITIZE_CONFIG = {
   ALLOWED_TAGS: [
-    'b', 'strong', 'i', 'em', 'u', 's',
+    'b', 'strong', 'i', 'em', 'u', 's', 'strike',
     'mark', 'small', 'sub', 'sup',
     'br', 'p', 'span',
     'ul', 'ol', 'li',

@@ -16,6 +16,10 @@ describe('RichTextEditor', () => {
     render(<RichTextEditor value="" onChange={() => {}} />);
     expect(screen.getByRole('button', { name: /Negrita/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cursiva/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Subrayado/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Tachado/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Subíndice/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Superíndice/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Lista con viñetas/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Lista numerada/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Quitar formato/i })).toBeInTheDocument();
