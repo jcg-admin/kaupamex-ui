@@ -7,8 +7,15 @@
 #   -> ui (webpack serve :3001) -> playwright (npm run e2e)
 #
 # Playwright NO tiene webServer (ver playwright.config.js); este script
-# hace la orquestación. Entorno autoritativo: WSL (L-010). NO correr en
-# el contenedor del agente — necesita MariaDB, Node 20 y browsers.
+# hace la orquestación. Entorno autoritativo (verde oficial): WSL (L-010).
+#
+# En el CONTENEDOR del agente SÍ corre para specs *localhost-only* (login +
+# navegación + screenshot, p.ej. admin-logs.e2e.js): MariaDB por socket
+# (start_db.sh + DB_SOCKET, ver abajo), Node v22 nativo, Chromium en
+# /opt/pw-browsers. Los specs que necesitan EGRESS HTTPS externo (MercadoPago:
+# createCardToken, sdk.mercadopago.com) NO corren directo — el navegador del
+# contenedor no tiene egress; usar el puente e2e/fixtures/mp-bridge.js
+# (E2E_MP_BRIDGE=1) o WSL/CI.
 #
 # Uso:
 #   cd ui && bash e2e/run-full-stack-e2e.sh
@@ -27,10 +34,28 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SUPERREPO="${SUPERREPO:-$(cd "$HERE/../.." && pwd)}"
-API_DIR="${API_DIR:-$SUPERREPO/api}"
-DB_DIR="${DB_DIR:-$SUPERREPO/db}"
-UI_DIR="${UI_DIR:-$SUPERREPO/ui}"
+UI_DIR="${UI_DIR:-$(cd "$HERE/.." && pwd)}"        # este repo ui (contiene e2e/)
+PARENT="$(cd "$UI_DIR/.." && pwd)"
+SUPERREPO="${SUPERREPO:-$PARENT}"
+
+# Resuelve api/db en DOS layouts (H-UI-LOG-05): monorepo ($PARENT/api,
+# $PARENT/db) o clones separados hermanos ($PARENT/e-commerce-api, o el sufijo
+# -ui->-api del propio UI_DIR: /home/user/e-commerce-ui -> .../e-commerce-api).
+_resolve_dir() {  # _resolve_dir <role: api|db>
+    local role="$1" cand
+    for cand in "$PARENT/$role" "$PARENT/e-commerce-$role" "$PARENT/e-comerce-$role" "${UI_DIR%-ui}-$role"; do
+        [ -d "$cand" ] && { printf '%s\n' "$cand"; return 0; }
+    done
+    return 1
+}
+API_DIR="${API_DIR:-$(_resolve_dir api || true)}"
+DB_DIR="${DB_DIR:-$(_resolve_dir db || true)}"
+[ -d "${API_DIR:-}" ] && [ -d "${DB_DIR:-}" ] || {
+    echo "ERROR: no resolví API_DIR/DB_DIR (ni monorepo ni clones separados)."
+    echo "  UI_DIR=$UI_DIR PARENT=$PARENT"
+    echo "  Exporta API_DIR/DB_DIR manualmente si tu layout es distinto."
+    exit 1
+}
 
 QA_BUYER_EMAIL="${QA_BUYER_EMAIL:-buyer@e-commerce.test}"
 QA_BUYER_PASSWORD="${QA_BUYER_PASSWORD:-Test1234!}"
@@ -38,6 +63,15 @@ export QA_BUYER_EMAIL QA_BUYER_PASSWORD
 export PW_BASE_URL="${PW_BASE_URL:-http://localhost:3001}"
 export E2E_EMAIL="$QA_BUYER_EMAIL"
 export E2E_PASSWORD="$QA_BUYER_PASSWORD"
+
+# DB por socket local + TLS apagado para el perfil dev (H-API-LOG-04): el
+# MariaDB local/CI tiene cert self-signed; con la verificación por certifi
+# (default) la conexión rompe con "certificate verify failed". DB_SSL_MODE=
+# DISABLED apaga TLS (paridad con testing.py) y DB_SOCKET usa el socket que
+# start_db.sh levanta. En WSL/CI con TCP+SSL real, exporta DB_SSL_MODE="" y
+# DB_SOCKET="" para conservar el camino TCP+SSL.
+export DB_SSL_MODE="${DB_SSL_MODE:-DISABLED}"
+export DB_SOCKET="${DB_SOCKET:-/run/mysqld/mysqld.sock}"
 
 API_LOG=/tmp/e2e-api.log
 UI_LOG=/tmp/e2e-ui.log
