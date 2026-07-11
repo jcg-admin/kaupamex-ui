@@ -1,0 +1,79 @@
+// Switch — toggle nativo. Adaptado de @progress/kno-react-inputs — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.text {
+  font-size: 0.9rem;
+  color: $text-primary;
+}
+
+.track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid var(--ec-focus-ring, #{$lime});
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.thumb {
+  display: block;
+  border-radius: 50%;
+  background: $text-primary;
+  transition: transform 0.15s ease;
+}
+
+.on {
+  background: $lime;
+  border-color: $lime;
+
+  .thumb {
+    background: $text-inverse;
+  }
+}
+
+// Sizes: track w/h + thumb size + on-translate
+.sm {
+  width: 2rem;
+  height: 1.1rem;
+  .thumb { width: 0.8rem; height: 0.8rem; margin: 0 0.15rem; }
+  &.on .thumb { transform: translateX(0.9rem); }
+}
+
+.md {
+  width: 2.6rem;
+  height: 1.4rem;
+  .thumb { width: 1.05rem; height: 1.05rem; margin: 0 0.175rem; }
+  &.on .thumb { transform: translateX(1.2rem); }
+}
+
+.lg {
+  width: 3.2rem;
+  height: 1.7rem;
+  .thumb { width: 1.3rem; height: 1.3rem; margin: 0 0.2rem; }
+  &.on .thumb { transform: translateX(1.5rem); }
+}
+
+.stateLabel {
+  font-size: 0.82rem;
+  color: $text-muted;
+}

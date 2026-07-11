@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from 'react';
 import Modal from '@components/common/Modal/Modal';
+import Switch from '@components/common/Switch/Switch';
 import { useCookieConsent } from '@context/CookieConsentContext';
 import { OPTIONAL_CATEGORIES } from '@lib/cookieConsent';
 import styles from './CookiePreferencesModal.module.scss';
@@ -83,15 +84,11 @@ export default function CookiePreferencesModal() {
                 <span className={styles.name}>{LABELS[cat].name}</span>
                 <span className={styles.desc}>{LABELS[cat].desc}</span>
               </div>
-              <label className={styles.switch}>
-                <input
-                  type="checkbox"
-                  checked={Boolean(local[cat])}
-                  onChange={() => toggle(cat)}
-                  aria-label={LABELS[cat].name}
-                />
-                <span className={styles.slider} aria-hidden="true" />
-              </label>
+              <Switch
+                checked={Boolean(local[cat])}
+                onChange={() => toggle(cat)}
+                ariaLabel={LABELS[cat].name}
+              />
             </li>
           ))}
         </ul>

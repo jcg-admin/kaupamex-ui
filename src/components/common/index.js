@@ -44,6 +44,7 @@ export { default as OtpInput }         from './OtpInput/OtpInput';
 export { default as PasswordInput }    from './PasswordInput/PasswordInput';
 export { default as FormField }        from './FormField/FormField';
 export { Label, Hint, FieldError }     from './FormField/FormField';
+export { default as Switch }           from './Switch/Switch';
 export { default as RatingInput }      from './RatingInput/RatingInput';
 
 // ── Datos ──────────────────────────────────────────────────────────────────────
