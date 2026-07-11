@@ -40,4 +40,27 @@ describe('SegmentedControl', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Inactivos' }));
     expect(onChange).not.toHaveBeenCalled();
   });
+
+  it('renderItem pinta contenido por segmento (badge de conteo)', () => {
+    const withCounts = [
+      { value: 'active', label: 'Activos', count: 16 },
+      { value: 'all', label: 'Todos', count: 48 },
+    ];
+    render(
+      <SegmentedControl
+        ariaLabel="Estado"
+        data={withCounts}
+        value="active"
+        onChange={() => {}}
+        renderItem={(opt) => (
+          <>
+            {opt.label} <span data-testid={`count-${opt.value}`}>({opt.count})</span>
+          </>
+        )}
+      />,
+    );
+    // El segmento incluye label + badge; el nombre accesible los concatena.
+    expect(screen.getByRole('button', { name: /Activos \(16\)/ })).toBeInTheDocument();
+    expect(screen.getByTestId('count-all')).toHaveTextContent('(48)');
+  });
 });
