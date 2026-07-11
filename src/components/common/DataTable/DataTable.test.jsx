@@ -149,3 +149,56 @@ describe('DataTable — sort controlado', () => {
     expect(bodyRowNames()).toEqual(['Carla', 'Bruno', 'Ana']);
   });
 });
+
+describe('DataTable — modo servidor (controlado)', () => {
+  const serverRows = [
+    { id: 1, name: 'Ana', age: 20, city: 'A' },
+    { id: 2, name: 'Bruno', age: 25, city: 'B' },
+  ];
+
+  it('no corta las filas: renderiza rows tal cual (son la página actual)', () => {
+    render(
+      <DataTable columns={COLUMNS} rows={serverRows} total={60} page={1} pageCount={3} pageSize={25} />,
+    );
+    expect(bodyRowNames()).toEqual(['Ana', 'Bruno']);
+  });
+
+  it('muestra info total/página desde total y pageCount', () => {
+    render(
+      <DataTable columns={COLUMNS} rows={serverRows} total={60} page={2} pageCount={3} pageSize={25} />,
+    );
+    expect(screen.getByText(/60 entradas · Página 2 de 3/)).toBeInTheDocument();
+  });
+
+  it('invoca onPageChange al pulsar Siguiente / un número; Anterior deshabilitado en pág 1', () => {
+    const onPageChange = jest.fn();
+    render(
+      <DataTable columns={COLUMNS} rows={serverRows} total={60} page={1} pageCount={3}
+        pageSize={25} onPageChange={onPageChange} />,
+    );
+    expect(screen.getByRole('button', { name: /Página anterior/i })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: /Página siguiente/i }));
+    expect(onPageChange).toHaveBeenCalledWith(2);
+    fireEvent.click(screen.getByRole('button', { name: /^Página 3$/i }));
+    expect(onPageChange).toHaveBeenCalledWith(3);
+  });
+
+  it('renderiza el selector de tamaño e invoca onPageSizeChange', () => {
+    const onPageSizeChange = jest.fn();
+    render(
+      <DataTable columns={COLUMNS} rows={serverRows} total={60} page={1} pageCount={3}
+        pageSize={25} pageSizeOptions={[25, 50, 100]} onPageSizeChange={onPageSizeChange} />,
+    );
+    fireEvent.change(screen.getByLabelText('Filas por página'), { target: { value: '100' } });
+    expect(onPageSizeChange).toHaveBeenCalledWith(100);
+  });
+
+  it('captionHidden mantiene el <caption> accesible pero oculto', () => {
+    render(
+      <DataTable columns={COLUMNS} rows={serverRows} total={2} page={1} pageCount={1}
+        pageSize={25} caption="Tabla de prueba" captionHidden />,
+    );
+    const cap = screen.getByText('Tabla de prueba');
+    expect(cap.tagName).toBe('CAPTION');
+  });
+});

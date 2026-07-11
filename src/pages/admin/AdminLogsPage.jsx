@@ -40,23 +40,38 @@ const APPLOG_COLUMNS = [
     render: (r) => <span className={styles.correlationCell}>{r.correlation_id}</span> },
 ];
 
+const PAGE_SIZE_OPTIONS = [25, 50, 100];
+
 export default function AdminLogsPage() {
   const [source, setSource]   = useState('requestlog');
   const [page, setPage]       = useState(1);
+  const [pageSize, setPageSize] = useState(25);
   const [correlation, setCorrelation] = useState('');
   const [statusMin, setStatusMin]     = useState('');
+  const [status, setStatus]           = useState('');
+  const [path, setPath]               = useState('');
   const [level, setLevel]             = useState('');
+  const [from, setFrom]               = useState('');
+  const [to, setTo]                   = useState('');
 
-  const params = { source, page };
+  // El endpoint espera `from`/`to` como datetime ISO 8601 (parse_datetime
+  // rechaza 'YYYY-MM-DD' a secas); un <input type=date> da la fecha → se
+  // expande al día completo [00:00:00, 23:59:59].
+  const params = { source, page, page_size: pageSize };
   if (correlation) params.correlation_id = correlation;
-  if (source === 'requestlog' && statusMin) params.status_min = statusMin;
-  if (source === 'applog' && level)         params.level = level;
+  if (from) params.from = `${from}T00:00:00`;
+  if (to)   params.to   = `${to}T23:59:59`;
+  if (source === 'requestlog') {
+    if (statusMin) params.status_min = statusMin;
+    if (status)    params.status     = status;
+    if (path)      params.path       = path;
+  }
+  if (source === 'applog' && level) params.level = level;
 
   const { data, isLoading, isError } = useAdminLogs(params);
-  const rows    = data?.results ?? [];
-  const count   = data?.count ?? 0;
-  const pages   = data?.pages ?? 1;
-  const hasNext = page < pages;
+  const rows  = data?.results ?? [];
+  const count = data?.count ?? 0;
+  const pages = data?.pages ?? 1;
 
   const switchSource = (next) => {
     setSource(next);
@@ -65,6 +80,11 @@ export default function AdminLogsPage() {
 
   const submit = (e) => {
     e.preventDefault();
+    setPage(1);
+  };
+
+  const changePageSize = (n) => {
+    setPageSize(n);
     setPage(1);
   };
 
@@ -99,16 +119,44 @@ export default function AdminLogsPage() {
             placeholder="ej. deadbeef…"
           />
         </label>
+        <label>
+          Desde
+          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
+        </label>
+        <label>
+          Hasta
+          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
+        </label>
         {source === 'requestlog' && (
-          <label>
-            Status ≥
-            <input
-              type="number"
-              value={statusMin}
-              onChange={(e) => setStatusMin(e.target.value)}
-              placeholder="400"
-            />
-          </label>
+          <>
+            <label>
+              Status ≥
+              <input
+                type="number"
+                value={statusMin}
+                onChange={(e) => setStatusMin(e.target.value)}
+                placeholder="400"
+              />
+            </label>
+            <label>
+              Status ==
+              <input
+                type="number"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                placeholder="404"
+              />
+            </label>
+            <label>
+              Ruta contiene
+              <input
+                type="text"
+                value={path}
+                onChange={(e) => setPath(e.target.value)}
+                placeholder="/api/v2/…"
+              />
+            </label>
+          </>
         )}
         {source === 'applog' && (
           <label>
@@ -135,32 +183,15 @@ export default function AdminLogsPage() {
         loading={isLoading}
         emptyText="No hay entradas para los filtros aplicados."
         caption="Logs técnicos"
-        pageSize={0}
+        captionHidden
+        total={count}
+        page={page}
+        pageCount={pages}
+        onPageChange={setPage}
+        pageSize={pageSize}
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        onPageSizeChange={changePageSize}
       />
-
-      {rows.length > 0 && (
-        <div className={styles.pagination}>
-          <span>{count} entradas · Página {page} de {pages}</span>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            Anterior
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={!hasNext}
-          >
-            Siguiente
-          </Button>
-        </div>
-      )}
     </section>
   );
 }

@@ -92,10 +92,91 @@ describe('AdminLogsPage (UC-ADM-06)', () => {
     );
     render(wrap());
     await screen.findByText('/b');
-    fireEvent.change(screen.getByLabelText(/Status/i), { target: { value: '400' } });
+    fireEvent.change(screen.getByLabelText('Status ≥'), { target: { value: '400' } });
     fireEvent.click(screen.getByRole('button', { name: /Filtrar/i }));
     await waitFor(() => {
       expect(lastUrl?.searchParams.get('status_min')).toBe('400');
     });
+  });
+
+  const withCapture = () => {
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/logs/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        return HttpResponse.json({ source: 'requestlog', count: 60, page: 1, pages: 3, results: REQUESTLOGS });
+      }),
+    );
+    return () => lastUrl;
+  };
+
+  it('envia page_size=25 por defecto', async () => {
+    const getUrl = withCapture();
+    render(wrap());
+    await waitFor(() => expect(getUrl()?.searchParams.get('page_size')).toBe('25'));
+  });
+
+  it('aplica status exacto, ruta y rango de fechas', async () => {
+    const getUrl = withCapture();
+    render(wrap());
+    await screen.findByText('/b');
+    fireEvent.change(screen.getByLabelText('Status =='), { target: { value: '404' } });
+    fireEvent.change(screen.getByLabelText('Ruta contiene'), { target: { value: '/api/v2' } });
+    fireEvent.change(screen.getByLabelText('Desde'), { target: { value: '2026-07-01' } });
+    fireEvent.change(screen.getByLabelText('Hasta'), { target: { value: '2026-07-10' } });
+    fireEvent.click(screen.getByRole('button', { name: /Filtrar/i }));
+    await waitFor(() => {
+      const u = getUrl();
+      expect(u?.searchParams.get('status')).toBe('404');
+      expect(u?.searchParams.get('path')).toBe('/api/v2');
+      expect(u?.searchParams.get('from')).toBe('2026-07-01T00:00:00');
+      expect(u?.searchParams.get('to')).toBe('2026-07-10T23:59:59');
+    });
+  });
+
+  it('aplica el filtro correlation_id', async () => {
+    const getUrl = withCapture();
+    render(wrap());
+    await screen.findByText('/b');
+    fireEvent.change(screen.getByLabelText('Correlation ID'), { target: { value: 'abc123' } });
+    fireEvent.click(screen.getByRole('button', { name: /Filtrar/i }));
+    await waitFor(() => expect(getUrl()?.searchParams.get('correlation_id')).toBe('abc123'));
+  });
+
+  it('el paginador de la DataTable avanza de página (server-side)', async () => {
+    const getUrl = withCapture();
+    render(wrap());
+    await screen.findByText('/b');
+    fireEvent.click(screen.getByRole('button', { name: /Página siguiente/i }));
+    await waitFor(() => expect(getUrl()?.searchParams.get('page')).toBe('2'));
+  });
+
+  it('cambiar el tamaño de página envia page_size y resetea a page=1', async () => {
+    const getUrl = withCapture();
+    render(wrap());
+    await screen.findByText('/b');
+    fireEvent.change(screen.getByLabelText('Filas por página'), { target: { value: '100' } });
+    await waitFor(() => {
+      const u = getUrl();
+      expect(u?.searchParams.get('page_size')).toBe('100');
+      expect(u?.searchParams.get('page')).toBe('1');
+    });
+  });
+
+  it('aplica el filtro level en la pestaña Aplicación', async () => {
+    let lastUrl;
+    server.use(
+      http.get(`${BASE}/api/v2/admin/logs/`, ({ request }) => {
+        lastUrl = new URL(request.url);
+        const source = new URL(request.url).searchParams.get('source');
+        return HttpResponse.json({ source, count: 0, page: 1, pages: 1, results: [] });
+      }),
+    );
+    render(wrap());
+    fireEvent.click(await screen.findByRole('tab', { name: /Aplicación/i }));
+    await screen.findByLabelText('Nivel');
+    fireEvent.change(screen.getByLabelText('Nivel'), { target: { value: 'ERROR' } });
+    fireEvent.click(screen.getByRole('button', { name: /Filtrar/i }));
+    await waitFor(() => expect(lastUrl?.searchParams.get('level')).toBe('ERROR'));
   });
 });
