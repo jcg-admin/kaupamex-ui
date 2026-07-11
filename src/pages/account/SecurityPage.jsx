@@ -10,7 +10,7 @@
 
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import { changePassword, logoutAllSessions } from '@redux/slices/authSlice';
 import { useActiveSessions, useRevokeSession } from '@hooks/domain/useActiveSessions';
 import AccountSidebar from '@components/account/AccountSidebar';
@@ -45,11 +45,14 @@ export default function SecurityPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
-          <span>/</span>
-          <span className={styles.bcCurrent}>Seguridad</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          currentClassName={styles.bcCurrent}
+          items={[
+            { label: 'Mi cuenta', to: '/account' },
+            { label: 'Seguridad' },
+          ]}
+        />
 
         <div className={styles.layout}>
           <AccountSidebar />

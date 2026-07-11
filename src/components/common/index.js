@@ -30,6 +30,7 @@ export { default as Loader }     from './Loader/Loader';
 
 // ── Layout ───────────────────────────────────────────────────────────────────
 export { default as Avatar }     from './Avatar/Avatar';
+export { default as Breadcrumb } from './Breadcrumb/Breadcrumb';
 export { default as Dropdown }   from './Dropdown/Dropdown';
 export { DropdownItem, DropdownDivider, DropdownHeader } from './Dropdown/Dropdown';
 export { default as Stepper }    from './Stepper/Stepper';

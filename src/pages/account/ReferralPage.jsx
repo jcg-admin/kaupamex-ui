@@ -13,7 +13,7 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import {
   fetchReferral,
   redeemReferral,
@@ -89,11 +89,14 @@ export default function ReferralPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
-          <span>/</span>
-          <span className={styles.bcCurrent}>Programa de referidos</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          currentClassName={styles.bcCurrent}
+          items={[
+            { label: 'Mi cuenta', to: '/account' },
+            { label: 'Programa de referidos' },
+          ]}
+        />
 
         <header className={styles.header}>
           <MetaTag tone="lime">Invita y gana</MetaTag>

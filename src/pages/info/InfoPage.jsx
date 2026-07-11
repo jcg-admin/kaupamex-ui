@@ -5,6 +5,7 @@
  */
 
 import { useParams, Link } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import { getInfoContent } from './content';
 import styles from './InfoPage.module.scss';
 
@@ -25,11 +26,14 @@ export default function InfoPage() {
   return (
     <article className={styles.page}>
       <div className={styles.inner}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/">Inicio</Link>
-          <span> / </span>
-          <span>{page.title}</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          separator=" / "
+          items={[
+            { label: 'Inicio', to: '/' },
+            { label: page.title },
+          ]}
+        />
 
         <h1 className={styles.title}>{page.title}</h1>
 

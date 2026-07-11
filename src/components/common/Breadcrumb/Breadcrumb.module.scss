@@ -1,0 +1,22 @@
+// Breadcrumb — nativo. Adaptado de @progress/kno-react-layout — referencia no runtime.
+// Base para usos NUEVOS (sin className del consumidor). Los 11 sitios existentes
+// pasan su propia clase de nav y su clase de item actual, y no dependen de esto.
+@use '@styles/abstracts' as *;
+
+.breadcrumb {
+  font-family: $font-family-mono;
+  font-size: $font-size-xs;
+  color: $text-muted;
+  letter-spacing: 0.1em;
+  margin-bottom: $spacing-6;
+  display: flex;
+  gap: $spacing-3;
+
+  a {
+    color: $text-muted;
+
+    &:hover {
+      color: $text-secondary;
+    }
+  }
+}

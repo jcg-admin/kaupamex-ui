@@ -11,6 +11,7 @@ import {
 } from '@redux/slices/adminSlice';
 import { MetaTag, Price, Button } from '@components/common/primitives';
 import Avatar from '@components/common/Avatar/Avatar';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import AdminUserPermissions from '@components/admin/AdminUserPermissions';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminUserDetailPage.module.scss';
@@ -72,11 +73,15 @@ export default function AdminUserDetailPage() {
 
   return (
     <div className={styles.page}>
-      <nav className={styles.breadcrumb}>
-        <Link to="/admin">Admin</Link><span>/</span>
-        <Link to="/admin/users">Usuarios</Link><span>/</span>
-        <span className={styles.bcCurrent}>{user.first_name} {user.last_name}</span>
-      </nav>
+      <Breadcrumb
+        className={styles.breadcrumb}
+        currentClassName={styles.bcCurrent}
+        items={[
+          { label: 'Admin', to: '/admin' },
+          { label: 'Usuarios', to: '/admin/users' },
+          { label: `${user.first_name} ${user.last_name}` },
+        ]}
+      />
 
       <header className={styles.hero}>
         <Avatar className={styles.avatar} src={user.avatar_url} initials={initials} />

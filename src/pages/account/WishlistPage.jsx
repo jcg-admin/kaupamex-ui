@@ -11,6 +11,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import { fetchWishlist, removeFromWishlist, moveWishlistItemToCart } from '@redux/slices/wishlistSlice';
 import { fetchCart } from '@redux/slices/cartSlice';
 import { addToast } from '@redux/slices/uiSlice';
@@ -97,11 +98,14 @@ export default function WishlistPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
-          <span>/</span>
-          <span className={styles.bcCurrent}>Mis deseos</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          currentClassName={styles.bcCurrent}
+          items={[
+            { label: 'Mi cuenta', to: '/account' },
+            { label: 'Mis deseos' },
+          ]}
+        />
 
         <div className={styles.layout}>
           <AccountSidebar />

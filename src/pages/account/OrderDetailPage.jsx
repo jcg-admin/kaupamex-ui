@@ -11,6 +11,7 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import { fetchOrderDetail } from '@redux/slices/ordersSlice';
 import { MetaTag, Price, Button, SumRow } from '@components/common/primitives';
 import ShipmentTracking from '@components/account/ShipmentTracking';
@@ -63,11 +64,15 @@ export default function OrderDetailPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link><span>/</span>
-          <Link to="/account/orders">Mis pedidos</Link><span>/</span>
-          <span className={styles.bcCurrent}>{order.order_number}</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          currentClassName={styles.bcCurrent}
+          items={[
+            { label: 'Mi cuenta', to: '/account' },
+            { label: 'Mis pedidos', to: '/account/orders' },
+            { label: order.order_number },
+          ]}
+        />
 
         {/* Hero */}
         <header className={styles.hero}>

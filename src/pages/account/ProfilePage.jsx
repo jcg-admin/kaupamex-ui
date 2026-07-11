@@ -8,12 +8,12 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { fetchProfile, updateProfile, uploadAvatar } from '@redux/slices/authSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Button, Field } from '@components/common/primitives';
 import { FileUpload } from '@components/common';
 import Avatar from '@components/common/Avatar/Avatar';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import styles from './ProfilePage.module.scss';
 
 export default function ProfilePage() {
@@ -65,11 +65,14 @@ export default function ProfilePage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
-          <span>/</span>
-          <span className={styles.bcCurrent}>Datos personales</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          currentClassName={styles.bcCurrent}
+          items={[
+            { label: 'Mi cuenta', to: '/account' },
+            { label: 'Datos personales' },
+          ]}
+        />
 
         <div className={styles.layout}>
           <AccountSidebar />
