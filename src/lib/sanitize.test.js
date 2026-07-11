@@ -21,11 +21,30 @@ describe('sanitizeHtml', () => {
     expect(out).toContain('<em>cursiva</em>');
   });
 
-  it('descarta etiquetas fuera de la allowlist (img, iframe)', () => {
-    const out = sanitizeHtml('<img src=x onerror=alert(1)><iframe src="evil"></iframe>texto');
-    expect(out).not.toMatch(/<img/i);
+  it('descarta iframe pero conserva img (sin handlers)', () => {
+    const out = sanitizeHtml('<img src="/x.jpg" onerror=alert(1)><iframe src="evil"></iframe>texto');
     expect(out).not.toMatch(/<iframe/i);
+    expect(out).not.toMatch(/onerror/i);   // handler descartado
+    expect(out).toMatch(/<img[^>]*src="\/x\.jpg"/i);  // img permitida, src seguro
     expect(out).toContain('texto');
+  });
+
+  it('permite enlaces http(s) pero bloquea javascript:', () => {
+    const ok = sanitizeHtml('<a href="https://ejemplo.mx">ir</a>');
+    expect(ok).toMatch(/<a[^>]*href="https:\/\/ejemplo\.mx"/i);
+    const evil = sanitizeHtml('<a href="javascript:steal()">x</a>');
+    expect(evil).not.toMatch(/javascript:/i);
+  });
+
+  it('fuerza rel=noopener en enlaces target=_blank (anti-tabnabbing)', () => {
+    const out = sanitizeHtml('<a href="https://ejemplo.mx" target="_blank">ir</a>');
+    expect(out).toMatch(/rel="noopener noreferrer"/i);
+  });
+
+  it('conserva encabezados y cita permitidos', () => {
+    const out = sanitizeHtml('<h2>Título</h2><blockquote>cita</blockquote>');
+    expect(out).toContain('<h2>Título</h2>');
+    expect(out).toContain('<blockquote>cita</blockquote>');
   });
 
   it('descarta handlers de evento inline', () => {

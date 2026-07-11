@@ -20,6 +20,13 @@ describe('RichTextEditor', () => {
     expect(screen.getByRole('button', { name: /Tachado/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Subíndice/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Superíndice/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Título 1/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Título 2/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Título 3/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Cita$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Insertar enlace/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Quitar enlace/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Insertar imagen/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Lista con viñetas/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Lista numerada/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Quitar formato/i })).toBeInTheDocument();

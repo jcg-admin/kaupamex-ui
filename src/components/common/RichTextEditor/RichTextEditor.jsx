@@ -32,8 +32,15 @@ const TOOLS = [
   { cmd: 'strikeThrough', label: 'Tachado', text: 'S', cls: 'ttStrike' },
   { cmd: 'subscript', label: 'Subíndice', text: 'X₂' },
   { cmd: 'superscript', label: 'Superíndice', text: 'X²' },
+  { cmd: 'formatBlock', value: '<h1>', label: 'Título 1', text: 'H1' },
+  { cmd: 'formatBlock', value: '<h2>', label: 'Título 2', text: 'H2' },
+  { cmd: 'formatBlock', value: '<h3>', label: 'Título 3', text: 'H3' },
+  { cmd: 'formatBlock', value: '<blockquote>', label: 'Cita', text: 'Cita' },
   { cmd: 'insertUnorderedList', label: 'Lista con viñetas', text: 'Viñetas' },
   { cmd: 'insertOrderedList', label: 'Lista numerada', text: 'Números' },
+  { cmd: 'createLink', prompt: 'URL del enlace (https://…)', label: 'Insertar enlace', text: 'Enlace' },
+  { cmd: 'unlink', label: 'Quitar enlace', text: 'Sin enlace' },
+  { cmd: 'insertImage', prompt: 'URL de la imagen (https://…)', label: 'Insertar imagen', text: 'Imagen' },
   { cmd: 'removeFormat', label: 'Quitar formato', text: 'Limpiar' },
 ];
 
@@ -73,13 +80,24 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     onChange?.(html);
   }, [onChange]);
 
-  const runCommand = useCallback((cmd) => {
+  const runCommand = useCallback((tool) => {
     editorRef.current?.focus();
-    // execCommand es la vía nativa universal para formato básico en
-    // contentEditable; deprecado pero soportado en todos los navegadores.
-    // jsdom no lo implementa: guardamos para no romper en tests.
+    let arg = tool.value ?? null;
+    // Herramientas que requieren una URL (enlace/imagen): se pide al usuario.
+    // El HTML resultante pasa por sanitizeHtml en `emit` → normalize, que
+    // bloquea `javascript:` y fuerza rel=noopener (ver src/lib/sanitize.js).
+    if (tool.prompt) {
+      const url = typeof window !== 'undefined' && typeof window.prompt === 'function'
+        ? window.prompt(tool.prompt)
+        : null;
+      if (!url) { emit(); return; }
+      arg = url;
+    }
+    // execCommand es la vía nativa universal para formato en contentEditable;
+    // deprecado pero soportado en todos los navegadores. jsdom no lo
+    // implementa: guardamos para no romper en tests.
     if (typeof document.execCommand === 'function') {
-      document.execCommand(cmd, false, null);
+      document.execCommand(tool.cmd, false, arg);
     }
     emit();
   }, [emit]);
@@ -89,7 +107,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
       <Toolbar className={styles.toolbar} ariaLabel="Formato de texto">
         {TOOLS.map((t) => (
           <Button
-            key={t.cmd}
+            key={t.label}
             type="button"
             variant="ghost"
             size="sm"
@@ -97,7 +115,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
             title={t.label}
             className={t.cls ? styles[t.cls] : undefined}
             // preventDefault en mousedown conserva la selección del editor.
-            onMouseDown={(e) => { e.preventDefault(); runCommand(t.cmd); }}
+            onMouseDown={(e) => { e.preventDefault(); runCommand(t); }}
           >
             {t.text}
           </Button>

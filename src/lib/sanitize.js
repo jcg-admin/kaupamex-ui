@@ -14,19 +14,33 @@
  */
 import DOMPurify from 'dompurify';
 
+// Endurecimiento de enlaces: todo `<a target="_blank">` recibe
+// `rel="noopener noreferrer"` para evitar tabnabbing. DOMPurify ya bloquea
+// esquemas peligrosos (`javascript:` en href/src) por defecto; este hook solo
+// cierra el vector de la nueva pestaña. Se registra una vez al importar.
+DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+  if (node.tagName === 'A' && node.getAttribute('target') === '_blank') {
+    node.setAttribute('rel', 'noopener noreferrer');
+  }
+});
+
 /**
  * Configuración central de la allowlist. Coherente para todos los
- * call-sites: etiquetas de formato inline + listas + saltos de línea.
- * Sin atributos peligrosos (on*, style, etc.) y sin URIs de datos.
+ * call-sites: formato inline + listas + encabezados + cita + enlaces +
+ * imágenes. Sin `style`, sin handlers (on*), sin data-attrs. Los enlaces e
+ * imágenes se sanitizan por DOMPurify (bloquea `javascript:`); los `<a
+ * target="_blank">` reciben `rel="noopener noreferrer"` (hook de arriba).
  */
 export const SANITIZE_CONFIG = {
   ALLOWED_TAGS: [
     'b', 'strong', 'i', 'em', 'u', 's', 'strike',
     'mark', 'small', 'sub', 'sup',
     'br', 'p', 'span',
+    'h1', 'h2', 'h3', 'blockquote',
     'ul', 'ol', 'li',
+    'a', 'img',
   ],
-  ALLOWED_ATTR: ['class'],
+  ALLOWED_ATTR: ['class', 'href', 'target', 'rel', 'src', 'alt', 'title'],
   // Nunca permitir handlers inline ni esquemas de datos.
   ALLOW_DATA_ATTR: false,
 };
