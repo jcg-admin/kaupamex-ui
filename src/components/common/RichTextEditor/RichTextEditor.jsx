@@ -19,6 +19,7 @@
 import { useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { sanitizeHtml } from '@lib/sanitize';
 import { Button } from '@components/common/primitives';
+import Toolbar from '@components/common/Toolbar/Toolbar';
 import styles from './RichTextEditor.module.scss';
 
 // Toolbar tipográfica (convención universal B/I + etiquetas cortas). Se evita
@@ -81,7 +82,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
 
   return (
     <div className={`${styles.wrap} ${className}`}>
-      <div className={styles.toolbar} role="toolbar" aria-label="Formato de texto">
+      <Toolbar className={styles.toolbar} ariaLabel="Formato de texto">
         {TOOLS.map((t) => (
           <Button
             key={t.cmd}
@@ -97,7 +98,7 @@ const RichTextEditor = forwardRef(function RichTextEditor(
             {t.text}
           </Button>
         ))}
-      </div>
+      </Toolbar>
       <div
         ref={editorRef}
         id={id}

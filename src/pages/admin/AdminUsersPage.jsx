@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { fetchAdminUsers, setPage } from '@redux/slices/adminSlice';
 import { MetaTag, Button } from '@components/common/primitives';
 import { DataTable } from '@components/common';
+import SegmentedControl from '@components/common/SegmentedControl/SegmentedControl';
 import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
 
@@ -95,23 +96,21 @@ export default function AdminUsersPage() {
       <div className={styles.toolbar} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         <div className={styles.filters}>
           <span style={{ fontFamily: 'var(--f-mono)', fontSize: 10, color: 'var(--c-ink-mute)', letterSpacing: '0.12em', paddingTop: 8, marginRight: 8 }}>ROL:</span>
-          {ROLE_FILTERS.map((r) => (
-            <button
-              key={r.id}
-              className={`${styles.filterBtn} ${role === r.id ? styles.filterBtnActive : ''}`}
-              onClick={() => setRole(r.id)}
-            >{r.label}</button>
-          ))}
+          <SegmentedControl
+            ariaLabel="Filtrar por rol"
+            data={ROLE_FILTERS.map((r) => ({ value: r.id, label: r.label }))}
+            value={role}
+            onChange={setRole}
+          />
         </div>
         <div className={styles.filters}>
           <span style={{ fontFamily: 'var(--f-mono)', fontSize: 10, color: 'var(--c-ink-mute)', letterSpacing: '0.12em', paddingTop: 8, marginRight: 8 }}>ESTADO:</span>
-          {STATUS_FILTERS.map((s) => (
-            <button
-              key={s.id}
-              className={`${styles.filterBtn} ${status === s.id ? styles.filterBtnActive : ''}`}
-              onClick={() => setStatus(s.id)}
-            >{s.label}</button>
-          ))}
+          <SegmentedControl
+            ariaLabel="Filtrar por estado"
+            data={STATUS_FILTERS.map((s) => ({ value: s.id, label: s.label }))}
+            value={status}
+            onChange={setStatus}
+          />
           <input
             type="search"
             placeholder="Buscar por nombre o correo…"
