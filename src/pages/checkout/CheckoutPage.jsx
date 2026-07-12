@@ -20,7 +20,8 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
-import { createOrder } from '@redux/slices/checkoutSlice';
+import { createOrder, fetchShippingZones } from '@redux/slices/checkoutSlice';
+import { matchZoneByCp, formatDeliveryLabel } from '@lib/deliveryEstimate';
 import { MetaTag, Price, Button, Field, Select, SumRow } from '@components/common/primitives';
 import { useCpAutocomplete } from '@hooks/domain/useCpAutocomplete';
 import Modal from '@components/common/Modal/Modal';
@@ -57,6 +58,10 @@ export default function CheckoutPage() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
+  // G-ENV-02: cargar zonas para estimar la fecha "Recíbelo" del C.P. del comprador.
+  useEffect(() => { dispatch(fetchShippingZones()); }, [dispatch]);
+  const shippingZones = useSelector((s) => s.checkout?.shippingZones ?? []);
+  const deliveryEstimate = matchZoneByCp(shippingZones, address.zip_code)?.delivery_estimate ?? null;
 
   // Pre-rellenar con la dirección por defecto cuando llegan las direcciones guardadas
   useEffect(() => {
@@ -200,7 +205,7 @@ export default function CheckoutPage() {
             </Section>
 
             <Section title="Envío">
-              <ShippingInfo />
+              <ShippingInfo estimate={deliveryEstimate} />
             </Section>
           </div>
 
@@ -389,7 +394,8 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
 // Envío derivado (supersede DEC-BC-19/DEC-BC-25): el comprador no selecciona
 // nada. El administrador configura el envío; el backend lo deriva por zona.
 // Política actual: GRATIS siempre (open-closed; costo bajo umbral pendiente).
-function ShippingInfo() {
+function ShippingInfo({ estimate }) {
+  const deliveryLabel = formatDeliveryLabel(estimate);
   return (
     <div className={styles.shippingInfo} data-testid="shipping-info">
       <span className={`${styles.radio} ${styles.radioActive}`} />
@@ -398,6 +404,9 @@ function ShippingInfo() {
         <div className={styles.optionSub}>
           El costo de envío lo calculamos automáticamente según tu zona.
         </div>
+        {deliveryLabel && (
+          <div className={styles.deliveryEta} data-testid="delivery-eta">{deliveryLabel}</div>
+        )}
       </div>
       <div className={styles.optionPrice}>
         <span className={styles.optionPriceLime}>GRATIS</span>

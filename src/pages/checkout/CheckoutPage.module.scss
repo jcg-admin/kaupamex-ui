@@ -126,6 +126,12 @@
   color: $text-muted;
   margin-top: 3px;
 }
+.deliveryEta {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+  margin-top: 4px;
+}
 .optionPrice { text-align: right; }
 .optionPriceLime { color: $lime-soft; font-family: $font-family-mono; }
 .optionPriceNote { display: block; font-family: $font-family-mono; font-size: 10px; color: $text-muted; letter-spacing: 0.06em; margin-top: 2px; }
