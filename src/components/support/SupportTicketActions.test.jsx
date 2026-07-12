@@ -59,9 +59,11 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
 
   it('llama al endpoint de cerrar al confirmar', async () => {
     let called = false;
+    let lastBody;
     server.use(
-      http.post(`${BASE}/api/v2/support/tickets/7/close/`, () => {
+      http.patch(`${BASE}/api/v2/support/tickets/7/status/`, async ({ request }) => {
         called = true;
+        lastBody = await request.json();
         return HttpResponse.json({ id: 7, status: 'CLOSED' });
       }),
     );
@@ -74,6 +76,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Cerrar ticket/i }));
 
     await waitFor(() => expect(called).toBe(true));
+    expect(lastBody).toMatchObject({ action: 'close' });
 
     confirmSpy.mockRestore();
   });
@@ -81,7 +84,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
   it('no cierra si el usuario cancela la confirmacion', () => {
     let called = false;
     server.use(
-      http.post(`${BASE}/api/v2/support/tickets/7/close/`, () => {
+      http.patch(`${BASE}/api/v2/support/tickets/7/status/`, () => {
         called = true;
         return HttpResponse.json({});
       }),
@@ -101,7 +104,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
   it('llama al endpoint de reabrir al confirmar', async () => {
     let lastBody;
     server.use(
-      http.post(`${BASE}/api/v2/support/tickets/7/reopen/`, async ({ request }) => {
+      http.patch(`${BASE}/api/v2/support/tickets/7/status/`, async ({ request }) => {
         lastBody = await request.json();
         return HttpResponse.json({ id: 7, status: 'OPEN' });
       }),
@@ -115,7 +118,7 @@ describe('SupportTicketActions (UC-SUPP-04)', () => {
     fireEvent.click(screen.getByRole('button', { name: /Reabrir ticket/i }));
 
     await waitFor(() => {
-      expect(lastBody).toMatchObject({});
+      expect(lastBody).toMatchObject({ action: 'reopen' });
     });
 
     confirmSpy.mockRestore();

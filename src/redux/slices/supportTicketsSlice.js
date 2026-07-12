@@ -85,7 +85,7 @@ export const closeSupportTicket = createAsyncThunk(
   'supportTickets/close',
   async ({ id, reason = '' }, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${TICKETS_URL}${id}/close/`, { reason });
+      const res = await apiService.patch(`${TICKETS_URL}${id}/status/`, { action: 'close', reason });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -98,7 +98,7 @@ export const reopenSupportTicket = createAsyncThunk(
   'supportTickets/reopen',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await apiService.post(`${TICKETS_URL}${id}/reopen/`, {});
+      const res = await apiService.patch(`${TICKETS_URL}${id}/status/`, { action: 'reopen' });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
