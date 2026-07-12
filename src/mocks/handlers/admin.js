@@ -353,8 +353,16 @@ export const adminHandlers = [
   }),
 
   // Permissions / Roles
+  // Forma real de la API (AdminPermissionCatalogView): { roles:[{role,
+  // permissions}], permissions:[codes] }. Se deriva de mockPermissions
+  // (objeto rol→codes) para no duplicar el fixture.
   http.get(`${BASE}/api/v2/admin/permissions/`, () =>
-    HttpResponse.json(mockPermissions),
+    HttpResponse.json({
+      roles: Object.entries(mockPermissions).map(([role, permissions]) => ({
+        role, permissions,
+      })),
+      permissions: [...new Set(Object.values(mockPermissions).flat())].sort(),
+    }),
   ),
   http.get(`${BASE}/api/v2/admin/roles/:role/permissions/`, ({ params }) =>
     HttpResponse.json({ role: params.role, permissions: mockPermissions[params.role] || [] }),

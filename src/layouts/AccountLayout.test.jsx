@@ -89,4 +89,24 @@ describe('AccountLayout — sidebar del comprador', () => {
     expect(link).toBeInTheDocument();
     expect(within(nav).queryByLabelText(/sin leer/i)).not.toBeInTheDocument();
   });
+
+  it('usa el menú dinámico registro-dirigido cuando el backend lo provee', async () => {
+    // El backend devuelve la sección 'Mi cuenta' con un ítem que NO existe en
+    // el fallback estático: si aparece, es que el menú lo dirige el registro
+    // (seed_menu), no la lista fija del UI (DEC-AUTHZ-BUYER).
+    server.use(
+      http.get(`${BASE}/api/v2/authz/me/menu/`, () =>
+        HttpResponse.json([
+          { label: 'Mi cuenta', route: '', children: [
+            { label: 'Mis pedidos', route: '/account/orders', children: [] },
+            { label: 'Suscripciones', route: '/account/subscriptions', children: [] },
+          ] },
+        ]),
+      ),
+    );
+    renderLayout();
+    const nav = screen.getByRole('navigation', { name: /menu de cuenta/i });
+    const link = await within(nav).findByRole('link', { name: /^Suscripciones$/i });
+    expect(link).toHaveAttribute('href', '/account/subscriptions');
+  });
 });

@@ -283,6 +283,15 @@ export function getAdminMenu() {
   return apiService.get('/api/v2/authz/me/menu/').then((r) => r.data);
 }
 
+// DEC-AUTHZ-BUYER: menú de cuenta del comprador, mismo endpoint podado por
+// capacidades pero audience='account' (registro-dirigido; agregar un ítem es
+// sembrar una fila, sin tocar el UI).
+export function getAccountMenu() {
+  return apiService
+    .get('/api/v2/authz/me/menu/', { params: { audience: 'account' } })
+    .then((r) => r.data);
+}
+
 export function getMyCapabilities() {
   return apiService.get('/api/v2/authz/me/capabilities/').then((r) => r.data);
 }
