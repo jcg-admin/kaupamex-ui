@@ -14,8 +14,14 @@ import BadgeContainer from '@components/common/BadgeContainer/BadgeContainer';
 import Badge from '@components/common/Badge/Badge';
 import ToastContainer from '@components/common/Toast/ToastContainer';
 import { useUnreadNotificationsCount } from '@hooks/domain/useNotifications';
+import useAccountMenu from '@hooks/domain/useAccountMenu';
 import styles from './AccountLayout.module.scss';
 
+// Fallback estático (degradación): el menú real es registro-dirigido y viene de
+// GET /me/menu/?audience=account (DEC-AUTHZ-BUYER). Esta lista solo se usa
+// mientras carga, si el endpoint falla, o si el usuario aún no tiene el rol
+// 'comprador'. Agregar un ítem NUEVO se hace sembrando una fila en el backend
+// (seed_menu), no editando esta lista.
 const NAV_ITEMS = [
   { to: '/account',                              label: 'Resumen',          end: true },
   { to: '/account/orders',                       label: 'Mis pedidos'  },
@@ -34,6 +40,7 @@ const NAV_ITEMS = [
 export default function AccountLayout() {
   const user = useSelector(selectUser);
   const { data: unreadCount = 0 } = useUnreadNotificationsCount({ enabled: !!user });
+  const { items: navItems } = useAccountMenu(NAV_ITEMS, { enabled: !!user });
 
   return (
     <div className={styles.root}>
@@ -50,7 +57,7 @@ export default function AccountLayout() {
             </div>
           </div>
           <nav className={styles.nav} aria-label="Menu de cuenta">
-            {NAV_ITEMS.map(({ to, label, end, badge }) => (
+            {navItems.map(({ to, label, end, badge }) => (
               <NavLink
                 key={to}
                 to={to}
