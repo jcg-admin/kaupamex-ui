@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 import { useAdminBanners, ADMIN_BANNERS_QUERY_KEY } from '@hooks/domain/useBanners';
-import { MetaTag, Button, Card } from '@components/common/primitives';
+import { MetaTag, Button, Card, Select } from '@components/common/primitives';
 import FileUpload from '@components/common/FileUpload/FileUpload';
 import Loader from '@components/common/Loader/Loader';
 import ConfirmDialog from '@components/common/ConfirmDialog/ConfirmDialog';
@@ -197,10 +197,13 @@ export default function AdminBannersPage() {
         </div>
         <div className={styles.grid}>
           <div className={styles.fieldBlock}>
-            <label htmlFor="banner-placement" className={styles.label}>Ubicación</label>
-            <select {...field('placement', 'banner-placement')}>
-              {PLACEMENTS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
-            </select>
+            <Select
+              label="Ubicación"
+              name="placement"
+              value={form.placement}
+              onChange={(e) => setForm((p) => ({ ...p, placement: e.target.value }))}
+              options={PLACEMENTS}
+            />
           </div>
           <div className={styles.fieldBlock}>
             <label htmlFor="banner-alt" className={styles.label}>Texto alternativo <span className={styles.required} aria-hidden="true">*</span></label>

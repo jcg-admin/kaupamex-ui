@@ -107,6 +107,15 @@ export default function AdminShippingZonesPage() {
     { key: 'eta', header: 'Entrega', render: etaLabel },
     { key: 'cost', header: 'Costo', render: (z) => (z.cost != null ? `$${z.cost}` : 'del método') },
     {
+      key: 'coverage', header: 'Cobertura SEPOMEX',
+      render: (z) => {
+        const cov = z.coverage;
+        if (!cov || !cov.settlement_count) return '—';
+        const states = (cov.states || []).join(', ');
+        return `${states} (${cov.settlement_count} CP)`;
+      },
+    },
+    {
       key: 'active', header: 'Estado',
       render: (z) => (z.is_active ? 'Activa' : 'Inactiva'),
     },
