@@ -107,8 +107,7 @@ export default function ProfilePage() {
               <div className={styles.formGrid}>
                 <Field label="Nombre"        value={form.first_name} onChange={set('first_name')} required />
                 <Field label="Apellido"       value={form.last_name}  onChange={set('last_name')} />
-                {/* username y email son de solo lectura — no editables via este endpoint */}
-                <Field label="Nombre de usuario" value={user.username} readOnly hint="El usuario no se puede cambiar desde aquí" />
+                {/* Party (T-201): el username ya no existe; el identificador es el email. */}
                 <Field label="Correo electrónico" type="email" value={user.email} readOnly hint="Cambiar el correo requiere re-verificación" />
                 <Field
                   label="Teléfono"

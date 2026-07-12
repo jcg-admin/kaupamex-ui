@@ -17,9 +17,12 @@ const BASE = process.env.API_URL || 'http://localhost:8000';
 const makeStore = () =>
   configureStore({ reducer: { admin: adminReducer } });
 
+// Party/authz (T-201): el usuario admin expone email/is_admin/roles — ya no
+// username/is_staff/is_superuser/groups.
 const USER = {
-  id: 42, username: 'buyer42', email: 'buyer42@test.mx',
-  is_active: true, is_staff: false, date_joined: '2026-01-01T00:00:00Z',
+  id: 42, email: 'buyer42@test.mx',
+  is_active: true, is_admin: false, date_joined: '2026-01-01T00:00:00Z',
+  roles: [],
 };
 
 // =============================================================================
@@ -79,7 +82,7 @@ describe('adminSlice — fetchAdminUsers (UC-AUTH-11)', () => {
     const s = store.getState().admin;
     expect(s.isLoading).toBe(false);
     expect(s.users).toHaveLength(1);
-    expect(s.users[0].username).toBe('buyer42');
+    expect(s.users[0].email).toBe('buyer42@test.mx');
     expect(s.pagination.count).toBe(1);
     expect(s.pagination.totalPages).toBe(1);
   });
@@ -248,10 +251,10 @@ describe('adminSlice — reactivateUser (UC-AUTH-14)', () => {
 });
 
 // =============================================================================
-describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
+describe('adminSlice — createAdminUser (UC-AUTH-15, party/authz T-201)', () => {
   it('fulfilled — lastAction=created, nuevo usuario prepend en lista', async () => {
-    const newAdmin = { id: 99, username: 'newadmin', email: 'new@test.mx',
-                       is_active: true, is_staff: true };
+    const newAdmin = { id: 99, email: 'new@test.mx',
+                       is_active: true, is_admin: true, roles: [] };
     server.use(
       http.post(`${BASE}/api/v2/admin/users/`, () =>
         HttpResponse.json(newAdmin),
@@ -259,26 +262,26 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
     );
     const store = makeStore();
     await store.dispatch(createAdminUser({
-      username: 'newadmin', email: 'new@test.mx', password: 'Admin123!',
+      email: 'new@test.mx', password: 'Admin123!',
     }));
     const s = store.getState().admin;
     expect(s.lastAction).toBe('created');
-    expect(s.users[0].username).toBe('newadmin');
+    expect(s.users[0].email).toBe('new@test.mx');
     expect(s.pagination.count).toBe(1);
   });
 
   it('rejected — actionError guardado', async () => {
     server.use(
       http.post(`${BASE}/api/v2/admin/users/`, () =>
-        HttpResponse.json({ detail: '400 username en uso' }, { status: 400 }),
+        HttpResponse.json({ detail: '400 email en uso' }, { status: 400 }),
       ),
     );
     const store = makeStore();
-    await store.dispatch(createAdminUser({ username: 'dup', email: 'dup@test.mx', password: 'x' }));
+    await store.dispatch(createAdminUser({ email: 'dup@test.mx', password: 'x' }));
     expect(store.getState().admin.actionError).toBeDefined();
   });
 
-  it('llama a la URL correcta con los datos del usuario', async () => {
+  it('llama a la URL correcta con { email, password } (sin username)', async () => {
     let lastBody;
     server.use(
       http.post(`${BASE}/api/v2/admin/users/`, async ({ request }) => {
@@ -287,9 +290,10 @@ describe('adminSlice — createAdminUser (UC-AUTH-15)', () => {
       }),
     );
     const store = makeStore();
-    const payload = { username: 'adm', email: 'adm@test.mx', password: 'Adm123!' };
+    const payload = { email: 'adm@test.mx', password: 'Adm123!' };
     await store.dispatch(createAdminUser(payload));
     await waitFor(() => expect(lastBody).toBeDefined());
-    expect(lastBody).toMatchObject(payload);
+    expect(lastBody).toEqual(payload);
+    expect(lastBody).not.toHaveProperty('username');
   });
 });

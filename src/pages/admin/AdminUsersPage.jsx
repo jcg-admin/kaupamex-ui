@@ -44,11 +44,11 @@ function buildApiParams({ role, status, search }) {
   const params = {};
   if (search) params.search = search;
 
-  // Rol → is_staff
+  // Rol → is_admin (party/authz: admin = titular del rol superadmin).
   if (role === 'customer') {
-    params.is_staff = 'false';
+    params.is_admin = 'false';
   } else if (role === 'admin' || role === 'staff') {
-    params.is_staff = 'true';
+    params.is_admin = 'true';
   }
 
   // Estado → is_active + deactivated_reason
@@ -140,14 +140,14 @@ export default function AdminUsersPage() {
                   <Link to={`/admin/users/${u.id}`} className={styles.itemName}>
                     {u.first_name} {u.last_name}
                   </Link>
-                  <div className={styles.muted}>@{u.username}</div>
+                  <div className={styles.muted}>{u.email}</div>
                 </>
               ) },
             { key: 'email',        header: 'Correo',    sortable: true },
             { key: 'rol',          header: 'Rol',
               render: (u) => (
-                <span className={`${styles.statusPill} ${styles[`pill_${u.is_admin ? 'bronze' : u.is_staff ? 'coral' : 'muted'}`]}`}>
-                  {u.is_admin ? 'Admin' : u.is_staff ? 'Staff' : 'Comprador'}
+                <span className={`${styles.statusPill} ${styles[`pill_${u.is_admin ? 'bronze' : 'muted'}`]}`}>
+                  {u.is_admin ? 'Admin' : 'Comprador'}
                 </span>
               ) },
             { key: 'estado',       header: 'Estado',

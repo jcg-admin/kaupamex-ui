@@ -80,9 +80,10 @@ export const checkAuth = createAsyncThunk(
  */
 export const loginUser = createAsyncThunk(
   'auth/login',
-  async ({ username, password }, { rejectWithValue }) => {
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await apiService.post(AUTH_URLS.login, { username, password });
+      // Party (T-201): el credential de login es el email (USERNAME_FIELD).
+      const response = await apiService.post(AUTH_URLS.login, { email, password });
       return response.data;
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
