@@ -105,6 +105,8 @@ describe('PaymentStatusPage (UC-PAY-05)', () => {
     );
     render(wrap(<PaymentStatusPage />));
     const retry = await screen.findByRole('link', { name: /Reintentar pago/i });
-    expect(retry).toHaveAttribute('href', '/account/orders/ORD-1/payment/retry');
+    // ADR-018: reintentar es on-site → enlaza directo a PaymentSelectionPage
+    // (/checkout/payment/:orderId), no a la ruta redirect legacy.
+    expect(retry).toHaveAttribute('href', '/checkout/payment/ORD-1');
   });
 });
