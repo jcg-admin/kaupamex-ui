@@ -15,7 +15,6 @@ import { server } from '@mocks/server';
 import paymentsReducer, {
   initiateCheckoutApiPayment,
   initiateNonCardPayment,
-  retryPayment,
   requestAdminRefund,
   clearPaymentsActionState,
 } from './paymentsSlice';
@@ -131,7 +130,9 @@ describe('paymentsSlice — contratos (PG-01)', () => {
       ),
     );
     const store = makeStore();
-    await store.dispatch(retryPayment({ order_number: 'PY-24815', gateway: 'MERCADOPAGO' }));
+    await store.dispatch(
+      initiateCheckoutApiPayment({ order_number: 'PY-24815', token: 't', payment_method_id: 'visa' }),
+    );
     const s = store.getState().payments;
     expect(s.actionError).toBeTruthy();
     expect(s.actionError.statusCode).toBe(400);
@@ -164,10 +165,17 @@ describe('paymentsSlice — dead-code removido (SOL-062, F-PAY-01)', () => {
     expect(paymentsModule.initiateMercadoPagoPayment).toBeUndefined();
   });
 
+  it('no exporta retryPayment (H-UI-RETRY-01): retry es on-site, no redirect', () => {
+    // ADR-018: reintentar = re-ejecutar initiate on-site sobre la orden
+    // PENDING (PaymentSelectionPage). El thunk retryPayment POSTeaba
+    // { order_number, gateway } al v2 initiate, que exige payment_method_id
+    // y no acepta `gateway` → nunca devolvía checkout_url. Eliminado.
+    expect(paymentsModule.retryPayment).toBeUndefined();
+  });
+
   it('conserva los thunks vivos de la pasarela', () => {
     expect(typeof paymentsModule.initiateCheckoutApiPayment).toBe('function');
     expect(typeof paymentsModule.initiateNonCardPayment).toBe('function');
-    expect(typeof paymentsModule.retryPayment).toBe('function');
     expect(typeof paymentsModule.adminCancelPayment).toBe('function');
     expect(typeof paymentsModule.requestAdminRefund).toBe('function');
   });

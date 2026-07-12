@@ -58,7 +58,6 @@ export const selectCheckoutAddress = (state) => state.checkout.address;
 export const selectShippingMethod  = (state) => state.checkout.shippingMethod;
 export const selectPaymentMethod   = (state) => state.checkout.paymentMethod;
 export const selectOrderId         = (state) => state.checkout.orderId;
-export const selectPaymentData     = (state) => state.checkout.paymentData;
 export const selectCheckoutLoading = (state) => state.checkout.isLoading;
 export const selectCheckoutError   = (state) => state.checkout.error;
 

@@ -15,14 +15,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-// Endpoint unificado de inicio de pago on-site (ADR-018). Un solo endpoint v2
-// sirve los tres flujos según el payload:
-//   - Checkout API on-site (CardForm, ADR-018): { order_number, token, ... }
-//   - Sin tarjeta (OXXO/SPEI, UC-PAY-13):        { order_number, payment_method_id }
-//   - Redirect (Checkout Pro):                   { order_number, gateway }
-// NOTA: /api/v1/payments/initiate/ NO fue removido — sigue vivo (M-10,
-// DEC-V2-02) sirviendo el InitiatePaymentView del flujo redirect legacy
-// (webhook_urls.py). Es un endpoint distinto de este v2 on-site.
+// Endpoint on-site de inicio de pago (ADR-018, Checkout API vía Orders). El
+// endpoint v2 exige `payment_method_id` y NO acepta `gateway`; sirve dos
+// flujos según el payload:
+//   - Tarjeta on-site (CardForm, ADR-018): { order_number, token, payment_method_id, ... }
+//   - Sin tarjeta (OXXO/SPEI, UC-PAY-13):  { order_number, payment_method_id }
+// El reintento (UC-PAY-08) NO es un flujo aparte: es volver a ejecutar este
+// mismo initiate on-site sobre la orden PENDING (ver PaymentSelectionPage).
 const INITIATE_URL     = '/api/v2/payments/initiate/';
 const ADMIN_REFUND_URL    = '/api/v2/payments/admin';
 const ADMIN_CANCEL_URL    = (paymentId) => `/api/v2/admin/payments/${paymentId}/cancel/`;
@@ -71,22 +70,6 @@ export const initiateNonCardPayment = createAsyncThunk(
   async (payload, { rejectWithValue }) => {
     try {
       const res = await apiService.post(INITIATE_URL, payload);
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(serializeApiError(err));
-    }
-  }
-);
-
-/**
- * UC-PAY-08: reintenta el pago de una orden, permitiendo cambiar el
- * gateway. Usa v2 /payments/initiate/ (DEC-BC-09: contrato unificado).
- */
-export const retryPayment = createAsyncThunk(
-  'payments/retry',
-  async ({ order_number, gateway }, { rejectWithValue }) => {
-    try {
-      const res = await apiService.post(INITIATE_URL, { order_number, gateway });
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -184,22 +167,6 @@ const paymentsSlice = createSlice({
         state.lastInitiation = { gateway: 'mercadopago', ...action.payload };
       })
       .addCase(initiateNonCardPayment.rejected, (state, action) => {
-        state.isActioning = false;
-        state.actionError = action.payload;
-      })
-
-      // retryPayment (UC-PAY-08)
-      .addCase(retryPayment.pending, (state) => {
-        state.isActioning    = true;
-        state.actionError    = null;
-        state.lastInitiation = null;
-      })
-      .addCase(retryPayment.fulfilled, (state, action) => {
-        state.isActioning    = false;
-        state.lastAction     = 'retried';
-        state.lastInitiation = action.payload;
-      })
-      .addCase(retryPayment.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       })

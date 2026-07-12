@@ -100,7 +100,7 @@ export default function PaymentStatusPage() {
 
           {RETRY_STATES.has(payment.status) && (
             <Link
-              to={`/account/orders/${orderId}/payment/retry`}
+              to={`/checkout/payment/${orderId}`}
               className={styles.primaryBtn}
             >
               Reintentar pago

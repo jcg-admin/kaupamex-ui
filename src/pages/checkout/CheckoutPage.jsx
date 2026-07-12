@@ -47,9 +47,9 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState({ country: 'MX' });
   const [submitting, setSubmitting] = useState(false);
   // H-CICLO46-04: el catch anterior solo llamaba console.error — el usuario
-  // nunca veía retroalimentación si createOrder o initMercadoPago/initPayPal
-  // fallaban (red, validación del API, gateway caído).  Se agrega estado de
-  // error y un banner visible en el formulario.
+  // nunca veía retroalimentación si createOrder fallaba (red, validación del
+  // API). El pago se inicia luego on-site en PaymentSelectionPage. Se agrega
+  // estado de error y un banner visible en el formulario.
   const [submitError, setSubmitError] = useState(null);
   // Validación MX front: errores por campo (Teléfono 10, C.P. 5).
   const [fieldErrors, setFieldErrors] = useState({});

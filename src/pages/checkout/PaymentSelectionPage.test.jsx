@@ -12,11 +12,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
 
-jest.mock('./paymentRedirect', () => ({
-  __esModule: true,
-  redirectToGateway: jest.fn(),
-}));
-
 // Mock useMpCardForm — prefixed with `mock` so Jest factory closure is allowed.
 // mockCardFormSubmit is set by each useMpCardForm call and allows tests to
 // imperatively trigger the payment callback.

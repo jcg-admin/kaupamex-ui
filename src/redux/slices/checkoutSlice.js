@@ -8,8 +8,6 @@ import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
 const CREATE_ORDER_URL       = '/api/v2/orders/';
-// CheckoutPage uses Checkout Pro (redirect). V2 endpoint requires MP CardForm token.
-const PAYMENTS_URL           = '/api/v1/payments/initiate/';
 const SHIPPING_METHODS_URL   = '/api/v2/shipping-methods/';
 const SHIPPING_ZONES_URL     = '/api/v2/shipping-zones/';
 const ELIGIBILITY_URL        = '/api/v2/checkout/eligibility/';
@@ -25,41 +23,6 @@ export const createOrder = createAsyncThunk(
         headers: { 'Idempotency-Key': idempotencyKey },
       });
       return res.data;
-    } catch (error) {
-      return rejectWithValue(serializeApiError(error));
-    }
-  }
-);
-
-/**
- * UC-PAY-01: inicia pago con Mercado Pago.
- * DEC-BC-09: POST /api/v2/payments/initiate/ con gateway: MERCADOPAGO.
- * Acepta { order_number, installments? }.
- */
-export const initMercadoPago = createAsyncThunk(
-  'checkout/initMercadoPago',
-  async ({ order_number, installments }, { rejectWithValue }) => {
-    try {
-      const payload = { order_number, gateway: 'MERCADOPAGO' };
-      if (installments) payload.installments = Number(installments);
-      const res = await apiService.post(PAYMENTS_URL, payload);
-      return res.data; // { payment_id, checkout_url, order_number, amount, installments }
-    } catch (error) {
-      return rejectWithValue(serializeApiError(error));
-    }
-  }
-);
-
-/**
- * UC-PAY-02: inicia pago con PayPal.
- * DEC-BC-09: mismo endpoint, gateway: PAYPAL.
- */
-export const initPayPal = createAsyncThunk(
-  'checkout/initPayPal',
-  async ({ order_number }, { rejectWithValue }) => {
-    try {
-      const res = await apiService.post(PAYMENTS_URL, { order_number, gateway: 'PAYPAL' });
-      return res.data; // { payment_id, checkout_url, order_number, amount, installments }
     } catch (error) {
       return rejectWithValue(serializeApiError(error));
     }
@@ -167,7 +130,6 @@ const checkoutSlice = createSlice({
     shippingZones:     [],
     paymentMethod:     null, // 'mercadopago' | 'paypal'
     orderId:           null,
-    paymentData:       null, // { payment_id, checkout_url, ... } per DEC-BC-09
     // H-CICLO114-03: express checkout state (UC-ORD-01-EXT).
     expressEligibility: null,  // API shape: { express_available, default_address, ... }
     expressOrder:       null,  // order returned by POST /checkout/express/
@@ -195,7 +157,6 @@ const checkoutSlice = createSlice({
       state.shippingMethod = null;
       state.paymentMethod  = null;
       state.orderId        = null;
-      state.paymentData    = null;
       state.error          = null;
     },
   },
@@ -207,30 +168,6 @@ const checkoutSlice = createSlice({
         state.orderId   = action.payload.id;
       })
       .addCase(createOrder.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error     = action.payload;
-      });
-
-    builder
-      .addCase(initMercadoPago.pending,  (state) => { state.isLoading = true; state.error = null; })
-      .addCase(initMercadoPago.fulfilled,(state, action) => {
-        state.isLoading  = false;
-        state.paymentData = action.payload;
-        state.step        = CHECKOUT_STEPS.CONFIRM;
-      })
-      .addCase(initMercadoPago.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error     = action.payload;
-      });
-
-    builder
-      .addCase(initPayPal.pending,  (state) => { state.isLoading = true; state.error = null; })
-      .addCase(initPayPal.fulfilled,(state, action) => {
-        state.isLoading  = false;
-        state.paymentData = action.payload;
-        state.step        = CHECKOUT_STEPS.CONFIRM;
-      })
-      .addCase(initPayPal.rejected, (state, action) => {
         state.isLoading = false;
         state.error     = action.payload;
       });

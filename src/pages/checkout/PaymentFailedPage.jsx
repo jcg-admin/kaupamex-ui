@@ -9,9 +9,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { retryPayment } from '@redux/slices/paymentsSlice';
 import apiService from '@services/apiService';
 import { MetaTag, Button } from '@components/common/primitives';
 import Icon from '@components/common/Icon/Icon';
@@ -21,7 +19,6 @@ import styles from './PaymentFailedPage.module.scss';
 
 export default function PaymentFailedPage() {
   const { id } = useParams();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [history, setHistory] = useState([]);
@@ -67,7 +64,7 @@ export default function PaymentFailedPage() {
             variant="primary"
             size="lg"
             block
-            onClick={() => dispatch(retryPayment({ order_number: order.order_number, gateway: 'MERCADOPAGO' }))}
+            onClick={() => navigate(`/checkout/payment/${id}`)}
           >
             Reintentar con otra tarjeta
           </Button>
