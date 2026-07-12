@@ -1,0 +1,9 @@
+// BadgeContainer — nativo. Adaptado de @progress/kno-react-indicators — referencia no runtime.
+// Offset parent para posicionar un Badge (align → esquina) sobre su contenido.
+@use '@styles/abstracts' as *;
+
+.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}

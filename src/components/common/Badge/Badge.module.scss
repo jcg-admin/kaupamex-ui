@@ -1,0 +1,67 @@
+// Badge — nativo. Adaptado de @progress/kno-react-indicators — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 1.25em;
+  font-family: $font-family-mono;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+// ── Tamaño ─────────────────────────────────────────────────────────────
+.sm { padding: 1px 6px; font-size: 10px; }
+.md { padding: 1px 7px; font-size: 11px; }
+.lg { padding: 2px 9px; font-size: 13px; }
+
+// ── Borde/radio ────────────────────────────────────────────────────────
+.rNone { border-radius: 0; }
+.rSm   { border-radius: 0.2rem; }
+.rMd   { border-radius: 0.35rem; }
+.rLg   { border-radius: 0.5rem; }
+.rFull { border-radius: $border-radius-full; }
+
+// ── themeColor (solid) ─────────────────────────────────────────────────
+.solid.base      { background: $bg-elevated; color: $text-primary; border: 1px solid $border-medium; }
+.solid.primary   { background: $lime;   color: $text-inverse; }
+.solid.secondary { background: $bronze; color: $text-inverse; }
+.solid.info      { background: $coral;  color: $text-inverse; }
+.solid.success   { background: $lime;   color: $text-inverse; }
+.solid.warning   { background: $bronze; color: $text-inverse; }
+.solid.error     { background: $vino-soft; color: $text-inverse; }
+
+// ── themeColor (outline) ───────────────────────────────────────────────
+.outline {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+.outline.base      { color: $text-secondary; }
+.outline.primary   { color: $lime; }
+.outline.secondary { color: $bronze; }
+.outline.info      { color: $coral; }
+.outline.success   { color: $lime; }
+.outline.warning   { color: $bronze; }
+.outline.error     { color: $vino-soft; }
+
+// ── Posicionamiento ────────────────────────────────────────────────────
+.inline { position: static; }
+
+.positioned {
+  position: absolute;
+  z-index: 2;
+  transform: translate(50%, -50%);
+}
+
+.corner_top_end     { top: 0; right: 0; }
+.corner_top_start   { top: 0; left: 0; transform: translate(-50%, -50%); }
+.corner_bottom_end  { bottom: 0; right: 0; transform: translate(50%, 50%); }
+.corner_bottom_start{ bottom: 0; left: 0; transform: translate(-50%, 50%); }
+
+// Recorte del borde contra el contenedor (overlay sobre icono/avatar).
+.cutout {
+  box-shadow: 0 0 0 2px $bg-page;
+}

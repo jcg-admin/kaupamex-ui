@@ -132,6 +132,59 @@ export function Field({
   );
 }
 
+/**
+ * Select primitive — mismo label/error/hint/a11y que Field (DRY: comparte
+ * las clases fieldInput/fieldError/fieldHint de primitives.module.scss en
+ * vez de duplicarlas). T-214: usado para el desplegable de colonia del
+ * autocompletado de C.P. en los formularios de direccion.
+ */
+export function Select({
+  label, name, value, onChange,
+  options = [], placeholder = null,
+  required = false, error = null, hint = null,
+  disabled = false, ...rest
+}) {
+  const selectClass = cx(styles.fieldInput, error && styles.fieldInputError);
+
+  const uid = useId();
+  const errorId = `${uid}-error`;
+  const a11y = {
+    'aria-required': required || undefined,
+    'aria-invalid': error ? true : undefined,
+    'aria-describedby': error ? errorId : undefined,
+  };
+
+  return (
+    <label className={styles.field}>
+      <span className={styles.fieldLabel}>
+        {label}
+        {required && <span className={styles.fieldRequired} aria-hidden="true"> *</span>}
+      </span>
+      <select
+        name={name}
+        value={value ?? ''}
+        onChange={onChange}
+        required={required}
+        disabled={disabled}
+        className={selectClass}
+        {...a11y}
+        {...rest}
+      >
+        {placeholder !== null && <option value="">{placeholder}</option>}
+        {options.map((opt) => {
+          const optValue = typeof opt === 'string' ? opt : opt.value;
+          const optLabel = typeof opt === 'string' ? opt : opt.label;
+          return (
+            <option key={optValue} value={optValue}>{optLabel}</option>
+          );
+        })}
+      </select>
+      {error && <span id={errorId} className={styles.fieldError}>{error}</span>}
+      {!error && hint && <span className={styles.fieldHint}>{hint}</span>}
+    </label>
+  );
+}
+
 export function Button({
   children, variant = 'primary', size = 'md', block = false,
   type = 'button', onClick, disabled = false, ...rest

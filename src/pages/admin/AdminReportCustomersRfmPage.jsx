@@ -9,6 +9,7 @@ import {
   buildReportExportUrl,
 } from '@hooks/domain/useReports';
 import { DataTable } from '@components/common/DataTable/DataTable';
+import SplitButton from '@components/common/SplitButton/SplitButton';
 import styles from './AdminReportPage.module.scss';
 
 const PERIOD_OPTIONS = [
@@ -75,8 +76,12 @@ export default function AdminReportCustomersRfmPage() {
           Clientes (RFM)
         </h1>
         <div className={styles.exportGroup}>
-          <a href={csvHref} className={styles.exportLink}>Exportar CSV</a>
-          <a href={pdfHref} className={styles.exportLink}>Exportar PDF</a>
+          <SplitButton
+            text="Exportar CSV"
+            href={csvHref}
+            ariaLabel="Más formatos de exportación"
+            items={[{ text: 'Exportar PDF', href: pdfHref }]}
+          />
         </div>
       </header>
 

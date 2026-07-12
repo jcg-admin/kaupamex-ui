@@ -27,13 +27,13 @@ const wrap = (ui, store) => (
 );
 
 const USERS = [
-  { id: 1, username: 'buyer1', email: 'buyer1@test.mx',
+  { id: 1, email: 'buyer1@test.mx',
     first_name: 'Juan', last_name: 'Perez',
-    is_active: true, is_staff: false, email_verified: true,
+    is_active: true, is_admin: false, email_verified: true,
     date_joined: '2026-01-01T00:00:00Z' },
-  { id: 2, username: 'buyer2', email: 'buyer2@test.mx',
+  { id: 2, email: 'buyer2@test.mx',
     first_name: 'Ana', last_name: 'Lopez',
-    is_active: false, is_staff: false, email_verified: false,
+    is_active: false, is_admin: true, email_verified: false,
     date_joined: '2026-01-02T00:00:00Z' },
 ];
 
@@ -63,13 +63,14 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
     expect(await screen.findByRole('searchbox')).toBeInTheDocument();
   });
 
-  it('renderiza la tabla con los usuarios (username visible como @username)', async () => {
+  it('renderiza la tabla con los usuarios (email visible en la fila)', async () => {
     server.use(
       http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
-    expect(await screen.findByText('@buyer1')).toBeInTheDocument();
-    expect(await screen.findByText('@buyer2')).toBeInTheDocument();
+    // El email aparece dos veces por fila (columna Usuario + columna Correo).
+    expect((await screen.findAllByText('buyer1@test.mx')).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('buyer2@test.mx').length).toBeGreaterThan(0);
   });
 
   it('muestra email de cada usuario', async () => {
@@ -77,7 +78,17 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
       http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
-    expect(await screen.findByText('buyer1@test.mx')).toBeInTheDocument();
+    expect((await screen.findAllByText('buyer1@test.mx')).length).toBeGreaterThan(0);
+  });
+
+  it('muestra el rol Admin/Comprador según is_admin (party/authz T-201)', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
+    );
+    render(wrap(<AdminUsersPage />, makeStore()));
+    await screen.findAllByText('buyer1@test.mx');
+    expect(screen.getByText('Comprador')).toBeInTheDocument();
+    expect(screen.getByText('Admin')).toBeInTheDocument();
   });
 
   it('indica el estado activo del usuario verificado', async () => {
@@ -117,7 +128,7 @@ describe('AdminUsersPage — listado (UC-AUTH-11)', () => {
       http.get(`${BASE}/api/v2/admin/users/`, () => HttpResponse.json(pageOf(USERS))),
     );
     render(wrap(<AdminUsersPage />, makeStore()));
-    await screen.findByText('@buyer1');
+    await screen.findAllByText('buyer1@test.mx');
     const links = screen.getAllByRole('link');
     expect(links.length).toBeGreaterThan(0);
     expect(links[0]).toHaveAttribute('href', expect.stringContaining('/admin/users/'));

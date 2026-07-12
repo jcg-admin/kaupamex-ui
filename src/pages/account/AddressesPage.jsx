@@ -9,12 +9,13 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import {
   fetchAddresses, createAddress, deleteAddress, setDefaultAddress,
 } from '@redux/slices/authSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
-import { MetaTag, Button, Field } from '@components/common/primitives';
+import { MetaTag, Button, Field, Select } from '@components/common/primitives';
+import { useCpAutocomplete } from '@hooks/domain/useCpAutocomplete';
 import styles from './AddressesPage.module.scss';
 
 const MAX_ADDRESSES = 5;
@@ -33,11 +34,14 @@ export default function AddressesPage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
-          <span>/</span>
-          <span className={styles.bcCurrent}>Direcciones</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          currentClassName={styles.bcCurrent}
+          items={[
+            { label: 'Mi cuenta', to: '/account' },
+            { label: 'Direcciones' },
+          ]}
+        />
 
         <div className={styles.layout}>
           <AccountSidebar />
@@ -165,6 +169,21 @@ function AddressFormCard({ onSave, onCancel }) {
   });
   const set = (k) => (e) => setData({ ...data, [k]: e.target.value });
 
+  // T-214 (party migration): autocompletado de C.P. — progressive
+  // enhancement, nunca bloquea la captura manual. Ver useCpAutocomplete.
+  const cpLookup = useCpAutocomplete(data.zip_code);
+  const settlements = cpLookup.data?.settlements ?? [];
+
+  useEffect(() => {
+    if (!cpLookup.data) return;
+    setData((prev) => ({
+      ...prev,
+      city:  cpLookup.data.city || cpLookup.data.municipality || prev.city,
+      state: cpLookup.data.state || prev.state,
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cpLookup.data]);
+
   return (
     <form
       className={styles.formCard}
@@ -176,8 +195,31 @@ function AddressFormCard({ onSave, onCancel }) {
         <Field label="Nombre del destinatario" value={data.recipient_name} onChange={set('recipient_name')} required autoComplete="name" />
         <Field label="Teléfono" value={data.phone} onChange={set('phone')} required autoComplete="tel" />
         <Field label="Calle y número" value={data.street} onChange={set('street')} required autoComplete="address-line1" />
-        <Field label="Colonia" value={data.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
-        <Field label="C.P." value={data.zip_code} onChange={set('zip_code')} required autoComplete="postal-code" />
+        <Field
+          label="C.P."
+          value={data.zip_code}
+          onChange={set('zip_code')}
+          required
+          autoComplete="postal-code"
+          maxLength={5}
+          inputMode="numeric"
+          hint={cpLookup.loading ? 'Buscando colonia, ciudad y estado…' : undefined}
+        />
+        {settlements.length > 0 ? (
+          <Select
+            label="Colonia"
+            value={data.neighborhood}
+            onChange={set('neighborhood')}
+            required
+            placeholder="Selecciona una colonia…"
+            options={settlements.map((s) => ({
+              value: s.settlement_name,
+              label: `${s.settlement_name} (${s.settlement_type})`,
+            }))}
+          />
+        ) : (
+          <Field label="Colonia" value={data.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        )}
         <Field label="Ciudad" value={data.city} onChange={set('city')} required autoComplete="address-level2" />
         <Field label="Estado" value={data.state} onChange={set('state')} required autoComplete="address-level1" />
       </div>

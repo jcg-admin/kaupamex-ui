@@ -47,7 +47,7 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await dispatch(loginUser({ username: creds.email, password: creds.password })).unwrap();
+      await dispatch(loginUser({ email: creds.email, password: creds.password })).unwrap();
       // T-04: destino explicito (?next= o state.from) si existe; si no,
       // regresar a la pagina anterior (historial); fallback a la home cuando
       // no hay historial de app (pestana nueva / primera carga).

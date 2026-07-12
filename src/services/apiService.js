@@ -82,7 +82,17 @@ class APIService {
   async _request(method, path, options = {}, attempt = 1) {
     const { body, params, timeout = this.timeout, headers = {} } = options;
 
-    const url = new URL(path.startsWith('http') ? path : `${this.baseURL}${path}`);
+    // Con baseURL absoluto (prod / API_URL fijado) la URL es absoluta. Con
+    // baseURL relativo/vacío (dev por proxy) se resuelve contra el ORIGEN
+    // actual → misma-origin → el devServer.proxy reenvía /api a :8000 y la
+    // cookie de sesión viaja. Sin esto, `new URL('/api/…')` lanzaría (una URL
+    // relativa necesita base). Necesario para el E2E con backend real
+    // (SOL-081): sin mocks, el fetch cross-origin perdería la cookie.
+    const base = this.baseURL
+      || (typeof window !== 'undefined' && window.location
+        ? window.location.origin
+        : 'http://localhost');
+    const url = new URL(path.startsWith('http') ? path : `${base}${path}`);
     if (params) {
       Object.entries(params).forEach(([k, v]) => {
         if (v === null || v === undefined) return;
@@ -253,4 +263,26 @@ export function updateCustomerCard(cardId, data) {
 
 export function deleteCustomerCard(cardId) {
   return apiService.delete(`/api/v2/payments/cards/${cardId}/`);
+}
+
+// T-214 (party migration, UI): lookup SEPOMEX publico por C.P. (AllowAny,
+// api@8921e37). 200 -> {postal_code,country,state,municipality,city,
+// settlements:[{settlement_name,settlement_type}]}; 404 -> {codigo_error:
+// 'CP_NO_ENCONTRADO'}. apiService._request lanza en !response.ok, asi que
+// un 404 se propaga como excepcion (createErrorFromResponse) — el hook
+// consumidor (useCpAutocomplete) lo captura y degrada a modo manual.
+export function getPostalCode(cp, country = 'MX') {
+  return apiService.get(`/api/v2/geo/postal-codes/${cp}/`, { params: { country } });
+}
+
+// DEC-08/09 (party/authz, api@c359164): menú admin dinámico podado por las
+// capacidades del usuario. Árbol [{key,label,route,icon,order,capability,
+// children:[...]}]. El candado real sigue siendo el backend; el menú es
+// proyección UX. me/capabilities devuelve {is_superadmin, capabilities:[...]}.
+export function getAdminMenu() {
+  return apiService.get('/api/v2/authz/me/menu/').then((r) => r.data);
+}
+
+export function getMyCapabilities() {
+  return apiService.get('/api/v2/authz/me/capabilities/').then((r) => r.data);
 }

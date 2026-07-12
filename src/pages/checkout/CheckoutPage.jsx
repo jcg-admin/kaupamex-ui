@@ -20,8 +20,10 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
-import { createOrder } from '@redux/slices/checkoutSlice';
-import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
+import { createOrder, fetchShippingZones } from '@redux/slices/checkoutSlice';
+import { matchZoneByCp, formatDeliveryLabel } from '@lib/deliveryEstimate';
+import { MetaTag, Price, Button, Field, Select, SumRow } from '@components/common/primitives';
+import { useCpAutocomplete } from '@hooks/domain/useCpAutocomplete';
 import Modal from '@components/common/Modal/Modal';
 import CheckoutSteps from '@components/checkout/CheckoutSteps';
 import logoUrl from '@assets/practica-yoruba-logo.png';
@@ -56,6 +58,10 @@ export default function CheckoutPage() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => { dispatch(fetchAddresses()); }, [dispatch]);
+  // G-ENV-02: cargar zonas para estimar la fecha "Recíbelo" del C.P. del comprador.
+  useEffect(() => { dispatch(fetchShippingZones()); }, [dispatch]);
+  const shippingZones = useSelector((s) => s.checkout?.shippingZones ?? []);
+  const deliveryEstimate = matchZoneByCp(shippingZones, address.zip_code)?.delivery_estimate ?? null;
 
   // Pre-rellenar con la dirección por defecto cuando llegan las direcciones guardadas
   useEffect(() => {
@@ -199,7 +205,7 @@ export default function CheckoutPage() {
             </Section>
 
             <Section title="Envío">
-              <ShippingInfo />
+              <ShippingInfo estimate={deliveryEstimate} />
             </Section>
           </div>
 
@@ -271,6 +277,21 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
   const setDigits = (k, max) => (e) =>
     setAddress({ ...address, [k]: e.target.value.replace(/\D/g, '').slice(0, max) });
 
+  // T-214 (party migration): autocompletado de C.P. — progressive
+  // enhancement, nunca bloquea la captura manual. Ver useCpAutocomplete.
+  const cpLookup = useCpAutocomplete(address.zip_code);
+  const settlements = cpLookup.data?.settlements ?? [];
+
+  useEffect(() => {
+    if (!cpLookup.data) return;
+    setAddress((prev) => ({
+      ...prev,
+      city:  cpLookup.data.city || cpLookup.data.municipality || prev.city,
+      state: cpLookup.data.state || prev.state,
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cpLookup.data]);
+
   const handleSelectSaved = (e) => {
     const idx = Number(e.target.value);
     if (idx === -1) { setAddress({}); return; }
@@ -325,7 +346,21 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
       </div>
       <Field label="Calle y número" value={address.street} onChange={set('street')} required autoComplete="address-line1" />
       <div className={styles.formRow3}>
-        <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        {settlements.length > 0 ? (
+          <Select
+            label="Colonia"
+            value={address.neighborhood}
+            onChange={set('neighborhood')}
+            required
+            placeholder="Selecciona una colonia…"
+            options={settlements.map((s) => ({
+              value: s.settlement_name,
+              label: `${s.settlement_name} (${s.settlement_type})`,
+            }))}
+          />
+        ) : (
+          <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        )}
         <Field
           label="C.P."
           value={address.zip_code}
@@ -336,6 +371,7 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
           maxLength={5}
           placeholder="5 dígitos"
           error={errors.zip_code}
+          hint={cpLookup.loading ? 'Buscando colonia y municipio…' : undefined}
         />
         <Field label="Alcaldía / Municipio" value={address.city} onChange={set('city')} required autoComplete="address-level2" />
       </div>
@@ -358,7 +394,8 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
 // Envío derivado (supersede DEC-BC-19/DEC-BC-25): el comprador no selecciona
 // nada. El administrador configura el envío; el backend lo deriva por zona.
 // Política actual: GRATIS siempre (open-closed; costo bajo umbral pendiente).
-function ShippingInfo() {
+function ShippingInfo({ estimate }) {
+  const deliveryLabel = formatDeliveryLabel(estimate);
   return (
     <div className={styles.shippingInfo} data-testid="shipping-info">
       <span className={`${styles.radio} ${styles.radioActive}`} />
@@ -367,6 +404,9 @@ function ShippingInfo() {
         <div className={styles.optionSub}>
           El costo de envío lo calculamos automáticamente según tu zona.
         </div>
+        {deliveryLabel && (
+          <div className={styles.deliveryEta} data-testid="delivery-eta">{deliveryLabel}</div>
+        )}
       </div>
       <div className={styles.optionPrice}>
         <span className={styles.optionPriceLime}>GRATIS</span>

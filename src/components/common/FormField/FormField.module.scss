@@ -1,0 +1,29 @@
+// FormField — estilos nativos sin deps externas.
+// Adaptado de @progress/kno-react-labels + kno-react-form — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.required {
+  color: $danger-strong;
+}
+
+.error {
+  font-size: 0.82rem;
+  color: $danger-strong;
+}
+
+.hint {
+  font-size: 0.82rem;
+  color: $text-muted;
+}

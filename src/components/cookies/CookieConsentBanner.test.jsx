@@ -7,6 +7,7 @@
  */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { CookieConsentProvider } from '@context/CookieConsentContext';
+import CookieConsentBanner from '@components/cookies/CookieConsentBanner';
 import { readConsent, defaultChoices, currentChoices } from '@lib/cookieConsent';
 
 function clearCookies() {
@@ -22,9 +23,12 @@ function clearCookies() {
 beforeEach(clearCookies);
 
 function renderBanner() {
+  // El banner ya no se auto-monta en el provider (se mueve a
+  // CookieConsentSurface, dentro del Router, para ocultarlo en /admin). El
+  // banner en sí no usa hooks de router, así que se renderiza directo.
   return render(
     <CookieConsentProvider>
-      <div>contenido</div>
+      <CookieConsentBanner />
     </CookieConsentProvider>,
   );
 }

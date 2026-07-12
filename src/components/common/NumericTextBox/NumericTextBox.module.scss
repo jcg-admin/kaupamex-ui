@@ -1,0 +1,74 @@
+// NumericTextBox — nativo. Adaptado de @progress/kno-react-inputs — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.input {
+  flex: 1;
+  padding: 0.55rem 2rem 0.55rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background: transparent;
+  color: $text-primary;
+  width: 100%;
+
+  &:focus {
+    outline: 2px solid var(--ec-focus-ring, #{$lime});
+    outline-offset: 1px;
+  }
+
+  // Ocultamos los spinners nativos del navegador (usamos los propios).
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  appearance: textfield;
+}
+
+.invalid .input {
+  border-color: $danger-strong;
+}
+
+.spinners {
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.spin {
+  border: none;
+  background: none;
+  color: $text-muted;
+  font-size: 0.55rem;
+  line-height: 1;
+  padding: 0.1rem 0.2rem;
+  cursor: pointer;
+  border-radius: 0.2rem;
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.disabled .input {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

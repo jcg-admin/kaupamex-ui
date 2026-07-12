@@ -49,12 +49,19 @@ const buildDefinedEnv = (mode, resolvedEnv) => {
   return {
     ...pyVars,
     'process.env.NODE_ENV':   JSON.stringify(mode || 'production'),
-    // Prioridad: variable de shell > .env.{mode} > fallback desarrollo.
-    // Sin este orden, API_URL en .env.production era ignorado porque
-    // process.env.API_URL (vacío en el CI/servidor) caía directo al fallback.
+    // En DEV el baseURL del bundle es RELATIVO ('') para que las requests
+    // viajen misma-origin (:3001) y el devServer.proxy las reenvíe a :8000
+    // (la cookie de sesión viaja — SOL-081). Un shell API_URL explícito lo
+    // sobreescribe. En PROD se usa el dominio absoluto (mismo origen).
     'process.env.API_URL':    JSON.stringify(
-      process.env.API_URL || resolvedEnv.API_URL || 'http://localhost:8000'
+      mode === 'development'
+        ? (process.env.API_URL ?? '')
+        : (process.env.API_URL || resolvedEnv.API_URL || 'http://localhost:8000')
     ),
+    // Master switch del mock interceptor (SOL-081): 'mock' (default) mockea
+    // /api en dev; cualquier otro valor ('db'/'real') lo desactiva → backend
+    // real. El E2E full-stack exporta PY_API_SOURCE=db para probar de verdad.
+    'process.env.PY_API_SOURCE': JSON.stringify(process.env.PY_API_SOURCE || 'mock'),
     'process.env.APP_VERSION': JSON.stringify(require('./package.json').version),
   };
 };
@@ -268,7 +275,9 @@ module.exports = (env, argv) => {
       proxy: [
         {
           context: ['/api'],
-          target: process.env.API_URL || 'http://localhost:8000',
+          // Target del proxy en su PROPIA variable (independiente de API_URL,
+          // que en dev es relativo). Default :8000. SOL-081.
+          target: process.env.API_PROXY_TARGET || 'http://localhost:8000',
           changeOrigin: true,
           secure: false,
         },

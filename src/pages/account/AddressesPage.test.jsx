@@ -179,3 +179,73 @@ describe('AddressesPage (UC-AUTH-07)', () => {
     await waitFor(() => expect(lastUrl).toContain('/api/v2/auth/addresses/2/set-default/'));
   });
 });
+
+// T-214 (party migration): autocompletado de C.P. en el formulario de nueva
+// dirección (useCpAutocomplete). Progressive enhancement: la captura manual
+// nunca se bloquea, ni con 404 ni con error.
+describe('AddressesPage — autocompletado de C.P. (T-214)', () => {
+  const LOOKUP_BODY = {
+    postal_code: '01000', country: 'MX', state: 'Ciudad de México',
+    municipality: 'Álvaro Obregón', city: 'Ciudad de México',
+    settlements: [
+      { settlement_name: 'Los Alpes', settlement_type: 'Colonia' },
+      { settlement_name: 'San José Insurgentes', settlement_type: 'Colonia' },
+    ],
+  };
+
+  it('rellena ciudad/estado y ofrece colonias tras un C.P. valido', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () =>
+        HttpResponse.json(LOOKUP_BODY),
+      ),
+    );
+    renderPage([]);
+    fireEvent.click(screen.getByRole('button', { name: /añadir dirección/i }));
+    fireEvent.change(screen.getByLabelText(/c\.p\./i), { target: { value: '01000' } });
+
+    await waitFor(
+      () => expect(screen.getByLabelText(/ciudad/i).value).toBe('Ciudad de México'),
+      { timeout: 3000 },
+    );
+    expect(screen.getByLabelText(/estado/i).value).toBe('Ciudad de México');
+
+    const coloniaSelect = screen.getByLabelText(/colonia/i);
+    expect(coloniaSelect.tagName).toBe('SELECT');
+    fireEvent.change(coloniaSelect, { target: { value: 'Los Alpes' } });
+    expect(coloniaSelect.value).toBe('Los Alpes');
+  });
+
+  it('un C.P. no encontrado (404) deja los campos en captura manual', async () => {
+    let handled = false;
+    server.use(
+      http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () => {
+        handled = true;
+        return HttpResponse.json({ codigo_error: 'CP_NO_ENCONTRADO' }, { status: 404 }); // canon-idioma: codigo_error real del api (contrato externo)
+      }),
+    );
+    renderPage([]);
+    fireEvent.click(screen.getByRole('button', { name: /añadir dirección/i }));
+    fireEvent.change(screen.getByLabelText(/c\.p\./i), { target: { value: '99999' } });
+
+    await waitFor(() => expect(handled).toBe(true), { timeout: 3000 });
+    await waitFor(() => expect(screen.getByLabelText(/colonia/i).tagName).toBe('INPUT'));
+    expect(screen.getByLabelText(/ciudad/i).value).toBe('');
+  });
+
+  it('con menos de 5 digitos no dispara el lookup', async () => {
+    let requestMade = false;
+    server.use(
+      http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () => {
+        requestMade = true;
+        return HttpResponse.json(LOOKUP_BODY);
+      }),
+    );
+    renderPage([]);
+    fireEvent.click(screen.getByRole('button', { name: /añadir dirección/i }));
+    fireEvent.change(screen.getByLabelText(/c\.p\./i), { target: { value: '0100' } });
+
+    await new Promise((r) => { setTimeout(r, 500); });
+    expect(requestMade).toBe(false);
+    expect(screen.getByLabelText(/colonia/i).tagName).toBe('INPUT');
+  });
+});

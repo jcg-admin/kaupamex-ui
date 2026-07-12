@@ -91,8 +91,11 @@ describe('AdminReportTopSellersPage (UC-REP-02)', () => {
       http.get(`${BASE}/api/v2/admin/reports/top-sellers/`, () => HttpResponse.json(RESPONSE)),
     );
     render(wrap(<AdminReportTopSellersPage />));
+    // CSV es la acción primaria del SplitButton (enlace de descarga directo).
     expect(await screen.findByRole('link', { name: /Exportar CSV/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Exportar PDF/i })).toBeInTheDocument();
+    // PDF es el formato alterno tras el caret.
+    fireEvent.click(screen.getByRole('button', { name: /Más formatos de exportación/i }));
+    expect(screen.getByRole('menuitem', { name: /Exportar PDF/i })).toBeInTheDocument();
   });
 
   it('estado vacio cuando no hay ventas', async () => {

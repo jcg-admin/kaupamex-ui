@@ -97,4 +97,45 @@ describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
     fireEvent.click(screen.getByRole('button', { name: /Catálogo/i }));
     expect(screen.queryByRole('link', { name: /^Productos$/i })).not.toBeInTheDocument();
   });
+
+  it('surfacea la hoja «Banners de portada» del menú dinámico (G-CFG-01)', async () => {
+    // El backend poda el árbol por capacidad: para un usuario con banners.manage
+    // /me/menu incluye la hoja Banners bajo Marketing. La UI debe renderizarla
+    // apuntando a /admin/banners (la capa de permiso real es el backend).
+    server.use(
+      http.get(`${BASE}/api/v2/authz/me/menu/`, () =>
+        HttpResponse.json([
+          {
+            key: 'sec-marketing', label: 'Marketing', route: '', children: [
+              { key: 'banners', label: 'Banners de portada', route: '/admin/banners', children: [] },
+            ],
+          },
+        ]),
+      ),
+    );
+    renderApp('/admin');
+
+    const link = await screen.findByRole('link', { name: /Banners de portada/i });
+    expect(link).toHaveAttribute('href', '/admin/banners');
+  });
+
+  it('surfacea la hoja «Contenido estático» del menú dinámico (UC-CFG-04)', async () => {
+    // Para un usuario con settings.manage /me/menu incluye la hoja Contenido
+    // estático bajo Configuración, apuntando a /admin/content.
+    server.use(
+      http.get(`${BASE}/api/v2/authz/me/menu/`, () =>
+        HttpResponse.json([
+          {
+            key: 'sec-configuracion', label: 'Configuración', route: '', children: [
+              { key: 'contenido-estatico', label: 'Contenido estático', route: '/admin/content', children: [] },
+            ],
+          },
+        ]),
+      ),
+    );
+    renderApp('/admin');
+
+    const link = await screen.findByRole('link', { name: /Contenido estático/i });
+    expect(link).toHaveAttribute('href', '/admin/content');
+  });
 });

@@ -18,6 +18,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { configureStore } from '@reduxjs/toolkit';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
@@ -56,14 +57,20 @@ const wrap = ({ isAuthenticated = true } = {}) => {
       },
     },
   });
+  // T-214: CheckoutPage ahora usa useCpAutocomplete (react-query) para el
+  // autocompletado de C.P. Sin QueryClientProvider, useQuery lanza "No
+  // QueryClient set" en cualquier render de AddressForm.
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return (
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/checkout']}>
-        <Routes>
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/order/:id/confirmation" element={<div>Confirmacion</div>} />
-        </Routes>
-      </MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/checkout']}>
+          <Routes>
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/order/:id/confirmation" element={<div>Confirmacion</div>} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
     </Provider>
   );
 };
@@ -262,5 +269,75 @@ describe('CheckoutPage — validación MX (Teléfono 10 / C.P. 5)', () => {
     await screen.findByText(/Revisa tus datos de envío/i);
     await user.click(screen.getByRole('button', { name: /^Revisar$/i }));
     expect(orderCalled).toBe(false);
+  });
+});
+
+// T-214 (party migration): autocompletado de C.P. en la Dirección de envío
+// (useCpAutocomplete). Progressive enhancement: la captura manual del
+// checkout nunca se bloquea, ni con 404 ni con error de red.
+describe('CheckoutPage — autocompletado de C.P. (T-214)', () => {
+  const LOOKUP_BODY = {
+    postal_code: '06600', country: 'MX', state: 'Ciudad de México',
+    municipality: 'Cuauhtémoc', city: 'Ciudad de México',
+    settlements: [
+      { settlement_name: 'Roma Norte', settlement_type: 'Colonia' },
+      { settlement_name: 'Juárez', settlement_type: 'Colonia' },
+    ],
+  };
+
+  it('rellena Alcaldía/Municipio y Estado y ofrece colonias tras un C.P. valido', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () =>
+        HttpResponse.json(LOOKUP_BODY),
+      ),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    await user.type(screen.getByLabelText(/C\.P\./i), '06600');
+
+    await waitFor(
+      () => expect(screen.getByLabelText(/Alcaldía \/ Municipio/i).value).toBe('Ciudad de México'),
+      { timeout: 3000 },
+    );
+    expect(screen.getByLabelText(/Estado/i).value).toBe('Ciudad de México');
+
+    const coloniaSelect = screen.getByLabelText(/Colonia/i);
+    expect(coloniaSelect.tagName).toBe('SELECT');
+    await user.selectOptions(coloniaSelect, 'Roma Norte');
+    expect(coloniaSelect.value).toBe('Roma Norte');
+  });
+
+  it('un C.P. no encontrado (404) deja Colonia/Municipio en captura manual', async () => {
+    let handled = false;
+    server.use(
+      http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () => {
+        handled = true;
+        return HttpResponse.json({ codigo_error: 'CP_NO_ENCONTRADO' }, { status: 404 }); // canon-idioma: codigo_error real del api (contrato externo)
+      }),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    await user.type(screen.getByLabelText(/C\.P\./i), '99999');
+
+    await waitFor(() => expect(handled).toBe(true), { timeout: 3000 });
+    await waitFor(() => expect(screen.getByLabelText(/Colonia/i).tagName).toBe('INPUT'));
+    expect(screen.getByLabelText(/Alcaldía \/ Municipio/i).value).toBe('');
+  });
+
+  it('con menos de 5 digitos no dispara el lookup (debounce + longitud)', async () => {
+    let requestMade = false;
+    server.use(
+      http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () => {
+        requestMade = true;
+        return HttpResponse.json(LOOKUP_BODY);
+      }),
+    );
+    const user = userEvent.setup();
+    render(wrap());
+    await user.type(screen.getByLabelText(/C\.P\./i), '0660');
+
+    await new Promise((r) => { setTimeout(r, 500); });
+    expect(requestMade).toBe(false);
+    expect(screen.getByLabelText(/Colonia/i).tagName).toBe('INPUT');
   });
 });

@@ -34,10 +34,10 @@ function buildStore() {
   });
 }
 
-function renderLayout() {
+function renderLayout({ unread = 0 } = {}) {
   server.use(
     http.get(`${BASE}/api/v2/notifications/unread-count/`, () =>
-      HttpResponse.json({ count: 0 }),
+      HttpResponse.json({ count: unread }),
     ),
   );
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -61,7 +61,7 @@ describe('AccountLayout — sidebar del comprador', () => {
     ['Mis favoritos',       '/account/wishlist'],
     ['Mis devoluciones',    '/account/returns'],
     ['Soporte',             '/support/tickets'],
-    ['Notificaciones',      '/account/notifications/preferences'],
+    ['Notificaciones',      '/account/notifications'],
     ['Mi perfil',           '/account/profile'],
     ['Cambiar contrasena',  '/account/change-password'],
     ['Dar de baja',         '/account/deactivate'],
@@ -70,5 +70,23 @@ describe('AccountLayout — sidebar del comprador', () => {
     const nav  = screen.getByRole('navigation', { name: /menu de cuenta/i });
     const link = within(nav).getByRole('link', { name: new RegExp(`^${label}$`, 'i') });
     expect(link).toHaveAttribute('href', href);
+  });
+
+  it('muestra el badge de no leídas en el ítem Notificaciones cuando hay >0', async () => {
+    renderLayout({ unread: 5 });
+    expect(await screen.findByText('5')).toBeInTheDocument();
+    expect(screen.getByText('5')).toHaveAttribute('data-position', 'corner');
+    // El badge lleva aria-label descriptivo para lectores de pantalla.
+    expect(screen.getByLabelText(/5 sin leer/i)).toBeInTheDocument();
+  });
+
+  it('no muestra badge cuando no hay no leídas (count 0)', () => {
+    renderLayout({ unread: 0 });
+    const nav = screen.getByRole('navigation', { name: /menu de cuenta/i });
+    // Sin badge, el nombre accesible del link es la etiqueta pura (el badge
+    // llevaría aria-label "N sin leer" que ensuciaría el nombre del link).
+    const link = within(nav).getByRole('link', { name: /^Notificaciones$/i });
+    expect(link).toBeInTheDocument();
+    expect(within(nav).queryByLabelText(/sin leer/i)).not.toBeInTheDocument();
   });
 });

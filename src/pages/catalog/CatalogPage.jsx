@@ -12,6 +12,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import {
   fetchProducts, fetchCategories, searchProducts, clearSearch, setPage, setFilter, clearFilters,
 } from '@redux/slices/catalogSlice';
@@ -95,10 +96,14 @@ export default function CatalogPage() {
     <main className={styles.page}>
       <header className={styles.hero}>
         <div className={styles.heroInner}>
-          <nav className={styles.breadcrumb}>
-            <a href="/">Inicio</a><span>/</span>
-            <span className={styles.bcCurrent}>{mode === 'search' ? 'Búsqueda' : 'Catálogo'}</span>
-          </nav>
+          <Breadcrumb
+            className={styles.breadcrumb}
+            currentClassName={styles.bcCurrent}
+            items={[
+              { label: 'Inicio', href: '/' },
+              { label: mode === 'search' ? 'Búsqueda' : 'Catálogo' },
+            ]}
+          />
           <div className={styles.heroGrid}>
             <div>
               <MetaTag tone="bronze">

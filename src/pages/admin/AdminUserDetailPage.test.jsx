@@ -32,11 +32,13 @@ const wrap = (pk, store) => (
   </Provider>
 );
 
+// Party/authz (T-201): email/is_admin/roles — ya no username/is_staff.
 const USER_ACTIVE = {
-  id: 42, username: 'buyer42', email: 'buyer42@test.mx',
+  id: 42, email: 'buyer42@test.mx',
   first_name: 'Juan', last_name: 'García', phone: '',
-  is_active: true, is_staff: false, email_verified: true,
+  is_active: true, is_admin: false, email_verified: true,
   date_joined: '2026-01-15T10:00:00Z',
+  roles: [],
 };
 
 const USER_INACTIVE = { ...USER_ACTIVE, is_active: false };

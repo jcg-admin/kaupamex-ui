@@ -163,3 +163,48 @@ describe('apiService serializacion de params (T-11 multi-categoria)', () => {
     expect(calledUrl).toContain('page=2');
   });
 });
+
+describe('apiService resolucion de baseURL (SOL-081, same-origin)', () => {
+  let originalFetch;
+
+  const okFetch = () => jest.fn(async () => ({
+    ok: true, status: 200,
+    headers: { get: () => null },
+    json: async () => ({}),
+  }));
+
+  beforeEach(() => {
+    originalFetch = global.fetch;
+    mockInterceptor.intercept.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.clearAllMocks();
+  });
+
+  it('baseURL vacio -> ruta relativa se resuelve contra el origen actual (same-origin)', async () => {
+    // Perfil dev: el bundle usa baseURL relativo y el proxy reenvia /api a
+    // :8000. La request debe salir MISMA-origin para que viaje la cookie.
+    const api = new APIService();
+    api.baseURL = '';   // fuerza relativo, sin depender de process.env.API_URL
+    const fetchMock = okFetch();
+    global.fetch = fetchMock;
+
+    await api.get('/api/v2/admin/logs/');
+
+    const calledUrl = String(fetchMock.mock.calls[0][0]);
+    expect(calledUrl).toBe(`${window.location.origin}/api/v2/admin/logs/`);
+  });
+
+  it('baseURL absoluto se respeta (prod / API_URL fijado)', async () => {
+    const api = new APIService('http://localhost:8000');
+    const fetchMock = okFetch();
+    global.fetch = fetchMock;
+
+    await api.get('/api/v2/admin/logs/');
+
+    const calledUrl = String(fetchMock.mock.calls[0][0]);
+    expect(calledUrl).toBe('http://localhost:8000/api/v2/admin/logs/');
+  });
+});

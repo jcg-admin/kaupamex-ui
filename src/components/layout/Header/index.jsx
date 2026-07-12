@@ -19,6 +19,7 @@ import { logoutUser } from '@redux/slices/authSlice';
 import { fetchCategories } from '@redux/slices/catalogSlice';
 import SearchModal from '@components/common/SearchModal/SearchModal';
 import Dropdown, { DropdownItem, DropdownDivider } from '@components/common/Dropdown/Dropdown';
+import Badge from '@components/common/Badge/Badge';
 import Icon from '@components/common/Icon/Icon';
 import logoUrl from '@assets/practica-yoruba-logo.png';
 import styles from './Header.module.scss';
@@ -158,9 +159,11 @@ export default function Header() {
               aria-label={`Carrito (${cartCount} ${cartCount === 1 ? 'pieza' : 'piezas'})`}
             >
               Bolsa
-              <span className={styles.cartCount}>
+              {/* El conteo se anuncia via aria-label del enlace; el badge es
+                  presentacional (aria-hidden evita doble lectura). */}
+              <Badge themeColor="secondary" size="small" aria-hidden="true">
                 {cartCount > 99 ? '99+' : cartCount}
-              </span>
+              </Badge>
             </Link>
           </div>
         </div>

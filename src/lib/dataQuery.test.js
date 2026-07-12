@@ -8,6 +8,7 @@ import {
   applyPage,
   compareValues,
   rawValue,
+  filterBy,
 } from '@lib/dataQuery';
 
 const columns = [
@@ -119,5 +120,67 @@ describe('process', () => {
     const result = process(rows);
     expect(result.data).toBe(rows);
     expect(result.total).toBe(4);
+  });
+});
+
+describe('filterBy (contrato kno FilterDescriptor)', () => {
+  const paises = [
+    { id: 'mx', name: 'México' },
+    { id: 'us', name: 'Estados Unidos' },
+    { id: 'ar', name: 'Argentina' },
+    { id: 'br', name: 'Brasil' },
+  ];
+
+  it('sin descriptor devuelve los datos intactos', () => {
+    expect(filterBy(paises, null)).toBe(paises);
+    expect(filterBy(paises, undefined)).toBe(paises);
+  });
+
+  it('composite vacío devuelve los datos intactos', () => {
+    expect(filterBy(paises, { logic: 'and', filters: [] })).toBe(paises);
+  });
+
+  it('contains con ignoreCase por defecto', () => {
+    const r = filterBy(paises, { field: 'name', operator: 'contains', value: 'bra' });
+    expect(r.map((p) => p.id)).toEqual(['br']);
+  });
+
+  it('startswith filtra por prefijo', () => {
+    const r = filterBy(paises, { field: 'name', operator: 'startswith', value: 'A' });
+    expect(r.map((p) => p.id)).toEqual(['ar']);
+  });
+
+  it('endswith filtra por sufijo', () => {
+    const r = filterBy(paises, { field: 'name', operator: 'endswith', value: 'dos' });
+    expect(r.map((p) => p.id)).toEqual(['us']);
+  });
+
+  it('eq con ignoreCase:false distingue mayúsculas', () => {
+    const r = filterBy(paises, {
+      field: 'name', operator: 'eq', value: 'méxico', ignoreCase: false,
+    });
+    expect(r).toEqual([]);
+  });
+
+  it('opera sobre arrays de strings cuando no hay field', () => {
+    const r = filterBy(['Rojo', 'Verde', 'Azul'], { operator: 'contains', value: 'erd' });
+    expect(r).toEqual(['Verde']);
+  });
+
+  it('composite OR combina descriptores', () => {
+    const r = filterBy(paises, {
+      logic: 'or',
+      filters: [
+        { field: 'name', operator: 'contains', value: 'méxico' },
+        { field: 'name', operator: 'contains', value: 'brasil' },
+      ],
+    });
+    expect(r.map((p) => p.id).sort()).toEqual(['br', 'mx']);
+  });
+
+  it('accede a campos anidados por path', () => {
+    const data = [{ geo: { estado: 'Jalisco' } }, { geo: { estado: 'Nuevo León' } }];
+    const r = filterBy(data, { field: 'geo.estado', operator: 'startswith', value: 'jal' });
+    expect(r).toHaveLength(1);
   });
 });

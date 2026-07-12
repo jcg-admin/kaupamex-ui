@@ -8,11 +8,12 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { fetchProfile, updateProfile, uploadAvatar } from '@redux/slices/authSlice';
 import AccountSidebar from '@components/account/AccountSidebar';
 import { MetaTag, Button, Field } from '@components/common/primitives';
 import { FileUpload } from '@components/common';
+import Avatar from '@components/common/Avatar/Avatar';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import styles from './ProfilePage.module.scss';
 
 export default function ProfilePage() {
@@ -64,11 +65,14 @@ export default function ProfilePage() {
   return (
     <main className={styles.page}>
       <div className={styles.container}>
-        <nav className={styles.breadcrumb}>
-          <Link to="/account">Mi cuenta</Link>
-          <span>/</span>
-          <span className={styles.bcCurrent}>Datos personales</span>
-        </nav>
+        <Breadcrumb
+          className={styles.breadcrumb}
+          currentClassName={styles.bcCurrent}
+          items={[
+            { label: 'Mi cuenta', to: '/account' },
+            { label: 'Datos personales' },
+          ]}
+        />
 
         <div className={styles.layout}>
           <AccountSidebar />
@@ -84,9 +88,7 @@ export default function ProfilePage() {
             </header>
 
             <div className={styles.avatarRow}>
-              <div className={styles.avatar}>
-                {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
-              </div>
+              <Avatar className={styles.avatar} src={user.avatar_url} initials={initials} />
               <div>
                 <div className={styles.avatarTitle}>Foto de perfil</div>
                 <div className={styles.avatarDesc}>JPG o PNG, máximo 5 MB. La redimensionamos a 800×800.</div>
@@ -105,8 +107,7 @@ export default function ProfilePage() {
               <div className={styles.formGrid}>
                 <Field label="Nombre"        value={form.first_name} onChange={set('first_name')} required />
                 <Field label="Apellido"       value={form.last_name}  onChange={set('last_name')} />
-                {/* username y email son de solo lectura — no editables via este endpoint */}
-                <Field label="Nombre de usuario" value={user.username} readOnly hint="El usuario no se puede cambiar desde aquí" />
+                {/* Party (T-201): el username ya no existe; el identificador es el email. */}
                 <Field label="Correo electrónico" type="email" value={user.email} readOnly hint="Cambiar el correo requiere re-verificación" />
                 <Field
                   label="Teléfono"

@@ -10,6 +10,8 @@ import {
   fetchAdminUser, toggleUserActive, resetUserPassword, makeUserAdmin,
 } from '@redux/slices/adminSlice';
 import { MetaTag, Price, Button } from '@components/common/primitives';
+import Avatar from '@components/common/Avatar/Avatar';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import AdminUserPermissions from '@components/admin/AdminUserPermissions';
 import { DataTable } from '@components/common/DataTable/DataTable';
 import styles from './AdminUserDetailPage.module.scss';
@@ -71,25 +73,28 @@ export default function AdminUserDetailPage() {
 
   return (
     <div className={styles.page}>
-      <nav className={styles.breadcrumb}>
-        <Link to="/admin">Admin</Link><span>/</span>
-        <Link to="/admin/users">Usuarios</Link><span>/</span>
-        <span className={styles.bcCurrent}>{user.first_name} {user.last_name}</span>
-      </nav>
+      <Breadcrumb
+        className={styles.breadcrumb}
+        currentClassName={styles.bcCurrent}
+        items={[
+          { label: 'Admin', to: '/admin' },
+          { label: 'Usuarios', to: '/admin/users' },
+          { label: `${user.first_name} ${user.last_name}` },
+        ]}
+      />
 
       <header className={styles.hero}>
-        <div className={styles.avatar}>
-          {user.avatar_url ? <img src={user.avatar_url} alt="" /> : initials}
-        </div>
+        <Avatar className={styles.avatar} src={user.avatar_url} initials={initials} />
         <div className={styles.heroInfo}>
-          <MetaTag tone="bronze">@{user.username} · ID #{user.id}</MetaTag>
+          <MetaTag tone="bronze">{user.email} · ID #{user.id}</MetaTag>
           <h1 className={styles.heroTitle}>{user.first_name} {user.last_name}</h1>
           <div className={styles.heroMeta}>
             {user.email} · Cliente desde {new Date(user.date_joined).toLocaleDateString('es-MX', { month: 'long', year: 'numeric' })}
           </div>
           <div className={styles.statusRow}>
-            <span className={`${styles.statusPill} ${styles[`pill_${user.is_admin ? 'bronze' : user.is_staff ? 'coral' : 'muted'}`]}`}>
-              {user.is_admin ? 'Admin' : user.is_staff ? 'Staff' : 'Comprador'}
+            {/* Party/authz (T-201): is_admin = titular del rol superadmin. */}
+            <span className={`${styles.statusPill} ${styles[`pill_${user.is_admin ? 'bronze' : 'muted'}`]}`}>
+              {user.is_admin ? 'Admin' : 'Comprador'}
             </span>
             <span className={`${styles.statusPill} ${styles[`pill_${user.is_active ? (user.email_verified ? 'lime' : 'bronze') : 'vino'}`]}`}>
               {!user.is_active ? 'Inactivo' : !user.email_verified ? 'Sin verificar' : 'Activo'}
@@ -125,7 +130,6 @@ export default function AdminUserDetailPage() {
           </header>
           <dl className={styles.dataList}>
             <DataRow k="Nombre"            v={`${user.first_name} ${user.last_name}`} />
-            <DataRow k="Usuario"           v={`@${user.username}`} />
             <DataRow k="Correo"            v={user.email} />
             <DataRow k="Teléfono"          v={user.phone || '—'} />
             <DataRow k="Fecha de nacimiento" v={user.date_of_birth || '—'} />

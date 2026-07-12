@@ -39,13 +39,31 @@ describe('loginUser establece sesion sin guardar tokens (ADR-018)', () => {
     );
     const store = makeStore();
 
-    await store.dispatch(loginUser({ username: 'u@test.mx', password: 'p' }));
+    // Party (T-201): el credential de login es el email (USERNAME_FIELD),
+    // no username.
+    await store.dispatch(loginUser({ email: 'u@test.mx', password: 'p' }));
 
     expect(store.getState().auth.isAuthenticated).toBe(true);
     expect(store.getState().auth.user).toMatchObject({ email: 'u@test.mx' });
     // La API de tokens JWT ya no existe (migracion completa).
     expect(apiService.setAuthToken).toBeUndefined();
     expect(apiService.setRefreshToken).toBeUndefined();
+  });
+
+  it('envía el body { email, password } al endpoint de login (T-201)', async () => {
+    let body = null;
+    server.use(
+      http.post(`${BASE}/api/v2/auth/login/`, async ({ request }) => {
+        body = await request.json();
+        return HttpResponse.json({ user: { id: 1, email: 'u@test.mx' } });
+      }),
+    );
+    const store = makeStore();
+
+    await store.dispatch(loginUser({ email: 'u@test.mx', password: 'p' }));
+
+    expect(body).toEqual({ email: 'u@test.mx', password: 'p' });
+    expect(body).not.toHaveProperty('username');
   });
 });
 

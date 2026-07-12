@@ -12,6 +12,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
 
@@ -61,13 +62,18 @@ function renderHome(featured = []) {
     http.get(`${BASE}/api/v2/products/`, () =>
       HttpResponse.json({ results: featured, count: featured.length, next: null, previous: null }),
     ),
+    // Banners de portada (UC-CFG-06): sin banners → se preserva el placeholder.
+    http.get(`${BASE}/api/v2/config/banners/`, () => HttpResponse.json([])),
   );
+  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
-    <Provider store={makeStore(featured)}>
-      <MemoryRouter>
-        <HomePage />
-      </MemoryRouter>
-    </Provider>,
+    <QueryClientProvider client={qc}>
+      <Provider store={makeStore(featured)}>
+        <MemoryRouter>
+          <HomePage />
+        </MemoryRouter>
+      </Provider>
+    </QueryClientProvider>,
   );
 }
 

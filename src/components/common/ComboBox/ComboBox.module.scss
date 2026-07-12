@@ -1,0 +1,85 @@
+@use '@styles/abstracts' as *;
+
+.wrap  { position: relative; display: block; width: 100%; }
+.label { display: block; font-size: $font-size-sm; margin-bottom: $spacing-1; color: $text-secondary; }
+.required { color: $error-color; }
+
+.control {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  transition: border-color $transition-base;
+
+  &.open     { border-color: $primary-color; }
+  &.disabled { opacity: 0.5; }
+
+  &:focus-within { border-color: $primary-color; }
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: $spacing-2 $spacing-3;
+  border: none;
+  background: transparent;
+  color: $text-primary;
+  font-size: $font-size-sm;
+
+  &:focus { outline: none; }
+  &::placeholder { color: $text-muted; }
+  &:read-only { cursor: pointer; }
+}
+
+.loading { display: flex; align-items: center; padding-right: $spacing-1; }
+
+.clear,
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: $text-muted;
+  cursor: pointer;
+  padding: 0 $spacing-2;
+
+  &:hover:not(:disabled) { color: $text-primary; }
+  &:disabled { cursor: not-allowed; }
+}
+
+.list {
+  position: absolute;
+  top: calc(100% + #{$spacing-1});
+  left: 0;
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: $spacing-1 0;
+  max-height: 240px;
+  overflow-y: auto;
+  background: $bg-elevated;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-md;
+  z-index: $z-modal;
+}
+
+.option {
+  padding: $spacing-2 $spacing-3;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  color: $text-primary;
+
+  &.active   { background: $bg-surface; }
+  &.selected { font-weight: $font-weight-medium; color: $primary-color; }
+}
+
+.empty {
+  padding: $spacing-2 $spacing-3;
+  font-size: $font-size-sm;
+  color: $text-muted;
+  cursor: default;
+}

@@ -17,8 +17,10 @@
   background: $bg-page;
 }
 
-.ttBold   { font-weight: $font-weight-bold; }
-.ttItalic { font-style: italic; }
+.ttBold      { font-weight: $font-weight-bold; }
+.ttItalic    { font-style: italic; }
+.ttUnderline { text-decoration: underline; }
+.ttStrike    { text-decoration: line-through; }
 
 .editor {
   min-height: 8rem;

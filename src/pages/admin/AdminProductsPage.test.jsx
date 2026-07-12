@@ -179,4 +179,32 @@ describe('AdminProductsPage — DataTable (US-2.1)', () => {
       screen.getByRole('button', { name: /^Producto$/ }).closest('th'),
     ).toHaveAttribute('aria-sort', 'ascending');
   });
+
+  it('agrupa las acciones de fila en un menu kebab (DropDownButton)', async () => {
+    server.use(
+      http.get(`${BASE}/api/v2/admin/products/`, () => HttpResponse.json(RESPONSE_PAGE_1)),
+    );
+    render(wrap(<AdminProductsPage />));
+    await screen.findByText('Collar Oshun dorado');
+
+    // El disparador kebab existe por fila y el menu esta cerrado al inicio.
+    const trigger = screen.getByRole('button', { name: 'Acciones de Collar Oshun dorado' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+
+    // Al abrir, aparecen las tres acciones consolidadas.
+    fireEvent.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    const menu = screen.getByRole('menu');
+    expect(within(menu).getByRole('menuitem', { name: 'Destacar' })).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Editar' })).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Eliminar' })).toBeInTheDocument();
+
+    // Escape cierra el menu (patron popup del DropDownButton).
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() =>
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument(),
+    );
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
 });

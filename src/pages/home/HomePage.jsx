@@ -17,7 +17,17 @@ import {
 } from '@redux/slices/newsletterSlice';
 import ProductCard from '@components/catalog/ProductCard';
 import { MetaTag, Button } from '@components/common/primitives';
+import { usePublicBanners } from '@hooks/domain/useBanners';
 import styles from './HomePage.module.scss';
+
+// Ranuras del hero: 3 posiciones con su etiqueta de fallback (placeholder) y
+// si son la caja alta. Si hay banner activo (HERO) en la posición i se muestra
+// la imagen; si no, se preserva el placeholder actual (UC-CFG-06 AC-05).
+const HERO_SLOTS = [
+  { label: 'Eleke ceremonial', tall: true },
+  { label: 'Otán', tall: false },
+  { label: 'Detalle', tall: false },
+];
 
 const ORISHAS = [
   { slug: 'yemaya',  name: 'Yemayá',  color: 'Azul y cristal' },
@@ -35,6 +45,8 @@ export default function HomePage() {
     useSelector((s) => s.newsletter || {});
   const [nlEmail, setNlEmail] = useState('');
   const [nlError, setNlError] = useState('');
+  // Banners de portada gestionables (UC-CFG-06); fallback a placeholder si vacío.
+  const { data: heroBanners = [] } = usePublicBanners('HERO');
 
   useEffect(() => {
     dispatch(fetchFeaturedProducts());
@@ -78,15 +90,23 @@ export default function HomePage() {
             </div>
           </div>
           <div className={styles.heroImages}>
-            <div className={`${styles.heroImg} ${styles.heroImgTall}`}>
-              <div className={styles.imagePlaceholder}>Eleke ceremonial</div>
-            </div>
-            <div className={styles.heroImg}>
-              <div className={styles.imagePlaceholder}>Otán</div>
-            </div>
-            <div className={styles.heroImg}>
-              <div className={styles.imagePlaceholder}>Detalle</div>
-            </div>
+            {HERO_SLOTS.map((slot, i) => {
+              const banner = heroBanners[i];
+              const cls = `${styles.heroImg}${slot.tall ? ` ${styles.heroImgTall}` : ''}`;
+              if (banner?.image_url) {
+                const img = <img src={banner.image_url} alt={banner.alt_text} className={styles.heroImgTag} />;
+                return (
+                  <div key={banner.id} className={cls}>
+                    {banner.link_url ? <a href={banner.link_url}>{img}</a> : img}
+                  </div>
+                );
+              }
+              return (
+                <div key={slot.label} className={cls}>
+                  <div className={styles.imagePlaceholder}>{slot.label}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

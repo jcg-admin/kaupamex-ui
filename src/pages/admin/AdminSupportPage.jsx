@@ -7,6 +7,8 @@ import { Link } from 'react-router-dom';
 import { useAdminSupportTickets } from '@hooks/domain/useSupportTickets';
 import { DataTable } from '@components/common';
 import { Button } from '@components/common/primitives';
+import SegmentedControl from '@components/common/SegmentedControl/SegmentedControl';
+import Badge from '@components/common/Badge/Badge';
 import styles from './AdminSupportPage.module.scss';
 
 const PAGE_SIZE = 20;
@@ -33,6 +35,16 @@ const STATUS_OPTIONS = [
   { value: 'RESOLVED',       label: 'Resuelto' },
   { value: 'CLOSED',         label: 'Cerrado' },
 ];
+
+// Mapea cada estado a su clave de conteo en `data.metrics` para los badges
+// del filtro segmentado.
+const STATUS_COUNT_KEY = {
+  OPEN:          'open',
+  IN_PROGRESS:   'in_progress',
+  AWAITING_USER: 'awaiting_user',
+  RESOLVED:      'resolved',
+  CLOSED:        'closed',
+};
 
 function formatDate(iso) {
   if (!iso) return '—';
@@ -61,8 +73,16 @@ export default function AdminSupportPage() {
     avg:         metrics?.avg_first_response_hours ?? null,
   }), [metrics]);
 
-  const handleStatusChange = (event) => {
-    setFilters((prev) => ({ ...prev, status: event.target.value }));
+  // Segmentos del filtro de estado con badge de conteo por estado
+  // (equivalente a itemTemplate de SegmentedControl: etiqueta + conteo).
+  const statusSegments = useMemo(() => STATUS_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: opt.value === '' ? 'Todos' : opt.label,
+    count: opt.value === '' ? totalCount : (metrics?.[STATUS_COUNT_KEY[opt.value]] ?? 0),
+  })), [metrics, totalCount]);
+
+  const handleStatusValue = (value) => {
+    setFilters((prev) => ({ ...prev, status: value }));
     setLocalPage(1);
   };
 
@@ -105,14 +125,23 @@ export default function AdminSupportPage() {
       </div>
 
       <div className={styles.filters}>
-        <label className={styles.filter}>
+        <div className={styles.filter}>
           <span>Estado</span>
-          <select value={filters.status} onChange={handleStatusChange}>
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </label>
+          <SegmentedControl
+            ariaLabel="Filtrar por estado"
+            value={filters.status}
+            onChange={handleStatusValue}
+            data={statusSegments}
+            renderItem={(opt) => (
+              <>
+                {opt.label}{' '}
+                <Badge size="small" themeColor="secondary" aria-hidden="true">
+                  {opt.count}
+                </Badge>
+              </>
+            )}
+          />
+        </div>
         <label className={styles.filter}>
           <span>Comprador (email o nombre)</span>
           <input

@@ -103,6 +103,12 @@
 }
 .heroImgTall { grid-row: 1 / span 2; }
 
+.heroImgTag {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .imagePlaceholder {
   width: 100%; height: 100%;
   display: grid; place-items: center;

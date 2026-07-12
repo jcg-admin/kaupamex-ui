@@ -9,6 +9,7 @@ import UnauthorizedListener from '@app/UnauthorizedListener';
 import SessionBootstrap from '@app/SessionBootstrap';
 import GlobalErrorNotifier from '@app/GlobalErrorNotifier';
 import ScrollToTop from '@components/shared/ScrollToTop/ScrollToTop';
+import CookieConsentSurface from '@components/cookies/CookieConsentSurface';
 import StorefrontLayout from '@layouts/StorefrontLayout';
 import AccountLayout    from '@layouts/AccountLayout';
 import AdminLayout      from '@layouts/AdminLayout';
@@ -95,6 +96,8 @@ const AdminShippingZonesPage = lazy(() => import('@pages/admin/AdminShippingZone
 const AdminCouriersPage   = lazy(() => import('@pages/admin/AdminCouriersPage'));
 const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 const AdminWishlistMarketingPage = lazy(() => import('@pages/admin/AdminWishlistMarketingPage'));
+const AdminBannersPage = lazy(() => import('@pages/admin/AdminBannersPage'));
+const AdminStaticPagesPage = lazy(() => import('@pages/admin/AdminStaticPagesPage'));
 const AdminReturnsPage    = lazy(() => import('@pages/admin/AdminReturnsPage'));
 const AdminReturnDetailPage = lazy(() => import('@pages/admin/AdminReturnDetailPage'));
 const AdminInventoryPage             = lazy(() => import('@pages/admin/AdminInventoryPage'));
@@ -131,6 +134,7 @@ const AdminPriceSyncPage             = lazy(() => import('@pages/admin/AdminPric
 // UC-ADM-02..05 — Permisos, auditoria, settings, backups
 const AdminPermissionsPage           = lazy(() => import('@pages/admin/AdminPermissionsPage'));
 const AdminAuditLogPage              = lazy(() => import('@pages/admin/AdminAuditLogPage'));
+const AdminLogsPage                  = lazy(() => import('@pages/admin/AdminLogsPage'));
 const AdminSystemSettingsPage        = lazy(() => import('@pages/admin/AdminSystemSettingsPage'));
 const AdminBackupsPage               = lazy(() => import('@pages/admin/AdminBackupsPage'));
 // UC-LOG-08 — Panel operacional de logistica
@@ -155,6 +159,8 @@ export default function AppRouter() {
       <GlobalErrorNotifier />
       {/* Lleva el scroll al tope en cada cambio de ruta (RRv6 no lo hace). */}
       <ScrollToTop />
+      {/* Aviso de cookies (LFPDPPP) — oculto en /admin (backoffice). */}
+      <CookieConsentSurface />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* --- Tienda publica --- */}
@@ -302,6 +308,7 @@ export default function AppRouter() {
               <Route path="admin/permissions"        element={<AdminPermissionsPage />} />
               {/* UC-ADM-03 — Auditoria */}
               <Route path="admin/audit-log"          element={<AdminAuditLogPage />} />
+              <Route path="admin/logs"               element={<AdminLogsPage />} />
               {/* UC-ADM-04 — Configuracion del sistema */}
               <Route path="admin/system-settings"    element={<AdminSystemSettingsPage />} />
               {/* UC-ADM-05 — Backups */}
@@ -316,6 +323,7 @@ export default function AppRouter() {
               <Route path="admin/vouchers"    element={<AdminVouchersPage />} />
               <Route path="admin/support"     element={<AdminSupportPage />} />
               <Route path="admin/marketing/wishlist" element={<AdminWishlistMarketingPage />} />
+              <Route path="admin/banners"    element={<AdminBannersPage />} />
               <Route path="admin/returns"     element={<AdminReturnsPage />} />
               <Route path="admin/returns/:id" element={<AdminReturnDetailPage />} />
               <Route path="admin/inventory"                                    element={<AdminInventoryPage />} />
@@ -363,6 +371,8 @@ export default function AppRouter() {
               <Route path="admin/logistics"                       element={<AdminLogisticsPage />} />
               {/* UC-CFG-01..05 — Hub de configuracion */}
               <Route path="admin/config"                          element={<AdminConfigPage />} />
+              {/* UC-CFG-04 — Gestión de contenido estático */}
+              <Route path="admin/content"                         element={<AdminStaticPagesPage />} />
               {/* H-12 — Catálogo de zonas de envío + tiempos de entrega */}
               <Route path="admin/shipping-zones"                  element={<AdminShippingZonesPage />} />
               {/* UC-LOG-01 soporte — Catálogo de paqueterías (couriers) */}

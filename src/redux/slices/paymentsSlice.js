@@ -3,8 +3,8 @@
  *
  * Pagos: thunks para mutaciones del dominio payments.
  *
- *   UC-PAY-01 — Iniciar pago Mercado Pago
- *   UC-PAY-02 — Iniciar pago PayPal
+ *   UC-PAY-01 — Iniciar pago Mercado Pago (Checkout API on-site, ADR-018)
+ *   UC-PAY-13 — Iniciar pago sin tarjeta (OXXO, SPEI, Paycash)
  *   UC-PAY-08 — Reintentar pago fallido
  *   UC-PAY-09 — Procesar reembolso manual (admin)
  *
@@ -15,11 +15,14 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import apiService from '@services/apiService';
 import { serializeApiError } from '@utils/serializeApiError';
 
-// Endpoint unificado de inicio de pago (v1/initiate se removió en F7). Un solo
-// endpoint v2 sirve los tres flujos según el payload:
+// Endpoint unificado de inicio de pago on-site (ADR-018). Un solo endpoint v2
+// sirve los tres flujos según el payload:
 //   - Checkout API on-site (CardForm, ADR-018): { order_number, token, ... }
 //   - Sin tarjeta (OXXO/SPEI, UC-PAY-13):        { order_number, payment_method_id }
-//   - Redirect (Checkout Pro/PayPal):            { order_number, gateway }
+//   - Redirect (Checkout Pro):                   { order_number, gateway }
+// NOTA: /api/v1/payments/initiate/ NO fue removido — sigue vivo (M-10,
+// DEC-V2-02) sirviendo el InitiatePaymentView del flujo redirect legacy
+// (webhook_urls.py). Es un endpoint distinto de este v2 on-site.
 const INITIATE_URL     = '/api/v2/payments/initiate/';
 const ADMIN_REFUND_URL    = '/api/v2/payments/admin';
 const ADMIN_CANCEL_URL    = (paymentId) => `/api/v2/admin/payments/${paymentId}/cancel/`;
@@ -76,27 +79,6 @@ export const initiateNonCardPayment = createAsyncThunk(
 );
 
 /**
- * UC-PAY-02: inicia el pago con PayPal (Checkout Pro — redirect).
- *
- * PayPal no tiene CardForm: se paga por redirect con `{ order_number,
- * gateway: 'PAYPAL' }`. Respuesta: `{ checkout_url, ... }`.
- */
-export const initiatePayPalPayment = createAsyncThunk(
-  'payments/initiatePayPal',
-  async ({ order_number }, { rejectWithValue }) => {
-    try {
-      const res = await apiService.post(
-        INITIATE_URL,
-        { order_number, gateway: 'PAYPAL' }
-      );
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(serializeApiError(err));
-    }
-  }
-);
-
-/**
  * UC-PAY-08: reintenta el pago de una orden, permitiendo cambiar el
  * gateway. Usa v2 /payments/initiate/ (DEC-BC-09: contrato unificado).
  */
@@ -105,24 +87,6 @@ export const retryPayment = createAsyncThunk(
   async ({ order_number, gateway }, { rejectWithValue }) => {
     try {
       const res = await apiService.post(INITIATE_URL, { order_number, gateway });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(serializeApiError(err));
-    }
-  }
-);
-
-/**
- * UC-PAY-01 (legacy Checkout Pro): inicia pago MP con redirect.
- * Kept for backward compatibility with pages that use Checkout Pro flow.
- */
-export const initiateMercadoPagoPayment = createAsyncThunk(
-  'payments/initiateMercadoPago',
-  async ({ order_number, installments }, { rejectWithValue }) => {
-    try {
-      const payload = { order_number, gateway: 'MERCADOPAGO' };
-      if (installments) payload.installments = Number(installments);
-      const res = await apiService.post(INITIATE_URL, payload);
       return res.data;
     } catch (err) {
       return rejectWithValue(serializeApiError(err));
@@ -170,7 +134,7 @@ export const requestAdminRefund = createAsyncThunk(
 const initialState = {
   isActioning:      false,
   actionError:      null,
-  lastAction:       null, // 'mp_checkout_api' | 'paypal_initiated' | 'retried' | 'refunded' | 'cancelled'
+  lastAction:       null, // 'mp_checkout_api' | 'mp_non_card' | 'retried' | 'refunded' | 'cancelled'
   lastInitiation:   null, // response shape varies by gateway
   lastRefund:       null,
   lastCancellation: null,
@@ -220,38 +184,6 @@ const paymentsSlice = createSlice({
         state.lastInitiation = { gateway: 'mercadopago', ...action.payload };
       })
       .addCase(initiateNonCardPayment.rejected, (state, action) => {
-        state.isActioning = false;
-        state.actionError = action.payload;
-      })
-
-      // initiateMercadoPagoPayment (legacy Checkout Pro)
-      .addCase(initiateMercadoPagoPayment.pending, (state) => {
-        state.isActioning    = true;
-        state.actionError    = null;
-        state.lastInitiation = null;
-      })
-      .addCase(initiateMercadoPagoPayment.fulfilled, (state, action) => {
-        state.isActioning    = false;
-        state.lastAction     = 'mp_initiated';
-        state.lastInitiation = { gateway: 'mercadopago', ...action.payload };
-      })
-      .addCase(initiateMercadoPagoPayment.rejected, (state, action) => {
-        state.isActioning = false;
-        state.actionError = action.payload;
-      })
-
-      // initiatePayPalPayment (UC-PAY-02)
-      .addCase(initiatePayPalPayment.pending, (state) => {
-        state.isActioning    = true;
-        state.actionError    = null;
-        state.lastInitiation = null;
-      })
-      .addCase(initiatePayPalPayment.fulfilled, (state, action) => {
-        state.isActioning    = false;
-        state.lastAction     = 'paypal_initiated';
-        state.lastInitiation = { gateway: 'paypal', ...action.payload };
-      })
-      .addCase(initiatePayPalPayment.rejected, (state, action) => {
         state.isActioning = false;
         state.actionError = action.payload;
       })

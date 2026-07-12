@@ -12,6 +12,8 @@ import { Link } from 'react-router-dom';
 import { fetchAdminUsers, setPage } from '@redux/slices/adminSlice';
 import { MetaTag, Button } from '@components/common/primitives';
 import { DataTable } from '@components/common';
+import Avatar from '@components/common/Avatar/Avatar';
+import SegmentedControl from '@components/common/SegmentedControl/SegmentedControl';
 import Icon from '@components/common/Icon/Icon';
 import styles from './AdminTablePage.module.scss';
 
@@ -42,11 +44,11 @@ function buildApiParams({ role, status, search }) {
   const params = {};
   if (search) params.search = search;
 
-  // Rol → is_staff
+  // Rol → is_admin (party/authz: admin = titular del rol superadmin).
   if (role === 'customer') {
-    params.is_staff = 'false';
+    params.is_admin = 'false';
   } else if (role === 'admin' || role === 'staff') {
-    params.is_staff = 'true';
+    params.is_admin = 'true';
   }
 
   // Estado → is_active + deactivated_reason
@@ -95,23 +97,21 @@ export default function AdminUsersPage() {
       <div className={styles.toolbar} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
         <div className={styles.filters}>
           <span style={{ fontFamily: 'var(--f-mono)', fontSize: 10, color: 'var(--c-ink-mute)', letterSpacing: '0.12em', paddingTop: 8, marginRight: 8 }}>ROL:</span>
-          {ROLE_FILTERS.map((r) => (
-            <button
-              key={r.id}
-              className={`${styles.filterBtn} ${role === r.id ? styles.filterBtnActive : ''}`}
-              onClick={() => setRole(r.id)}
-            >{r.label}</button>
-          ))}
+          <SegmentedControl
+            ariaLabel="Filtrar por rol"
+            data={ROLE_FILTERS.map((r) => ({ value: r.id, label: r.label }))}
+            value={role}
+            onChange={setRole}
+          />
         </div>
         <div className={styles.filters}>
           <span style={{ fontFamily: 'var(--f-mono)', fontSize: 10, color: 'var(--c-ink-mute)', letterSpacing: '0.12em', paddingTop: 8, marginRight: 8 }}>ESTADO:</span>
-          {STATUS_FILTERS.map((s) => (
-            <button
-              key={s.id}
-              className={`${styles.filterBtn} ${status === s.id ? styles.filterBtnActive : ''}`}
-              onClick={() => setStatus(s.id)}
-            >{s.label}</button>
-          ))}
+          <SegmentedControl
+            ariaLabel="Filtrar por estado"
+            data={STATUS_FILTERS.map((s) => ({ value: s.id, label: s.label }))}
+            value={status}
+            onChange={setStatus}
+          />
           <input
             type="search"
             placeholder="Buscar por nombre o correo…"
@@ -128,12 +128,11 @@ export default function AdminUsersPage() {
           columns={[
             { key: 'avatar',       header: '',
               render: (u) => (
-                <div className={styles.avatarSm}>
-                  {u.avatar_url
-                    ? <img src={u.avatar_url} alt="" />
-                    : <span>{(u.first_name?.[0] || '')+(u.last_name?.[0] || '')}</span>
-                  }
-                </div>
+                <Avatar
+                  className={styles.avatarSm}
+                  src={u.avatar_url}
+                  initials={(u.first_name?.[0] || '') + (u.last_name?.[0] || '')}
+                />
               ) },
             { key: 'name',         header: 'Usuario',
               render: (u) => (
@@ -141,14 +140,14 @@ export default function AdminUsersPage() {
                   <Link to={`/admin/users/${u.id}`} className={styles.itemName}>
                     {u.first_name} {u.last_name}
                   </Link>
-                  <div className={styles.muted}>@{u.username}</div>
+                  <div className={styles.muted}>{u.email}</div>
                 </>
               ) },
             { key: 'email',        header: 'Correo',    sortable: true },
             { key: 'rol',          header: 'Rol',
               render: (u) => (
-                <span className={`${styles.statusPill} ${styles[`pill_${u.is_admin ? 'bronze' : u.is_staff ? 'coral' : 'muted'}`]}`}>
-                  {u.is_admin ? 'Admin' : u.is_staff ? 'Staff' : 'Comprador'}
+                <span className={`${styles.statusPill} ${styles[`pill_${u.is_admin ? 'bronze' : 'muted'}`]}`}>
+                  {u.is_admin ? 'Admin' : 'Comprador'}
                 </span>
               ) },
             { key: 'estado',       header: 'Estado',

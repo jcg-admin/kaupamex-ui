@@ -1,0 +1,78 @@
+// Loader — nativo. Adaptado de @progress/kno-react-indicators — referencia no runtime.
+@use '@styles/abstracts' as *;
+
+.loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+// ── themeColor (color de tinta del spinner) ──────────────────────────────
+.base      { color: $text-secondary; }
+.primary   { color: $lime; }
+.secondary { color: $bronze; }
+.tertiary  { color: $coral; }
+
+// ── Tamaño (diámetro del anillo / de los puntos) ─────────────────────────
+.sm { --loader-size: 16px; --loader-dot: 5px; --loader-bw: 2px; }
+.md { --loader-size: 24px; --loader-dot: 7px; --loader-bw: 3px; }
+.lg { --loader-size: 40px; --loader-dot: 10px; --loader-bw: 4px; }
+
+// ── infinite-spinner / converging-spinner: anillo giratorio ──────────────
+.ring {
+  box-sizing: border-box;
+  display: block;
+  width: var(--loader-size);
+  height: var(--loader-size);
+  border: var(--loader-bw) solid currentColor;
+  border-right-color: transparent;
+  border-radius: $border-radius-full;
+  animation: loader-spin 0.7s linear infinite;
+}
+
+// ── pulsing / converging: 3 puntos ───────────────────────────────────────
+.pulsing,
+.converging {
+  display: inline-flex;
+  gap: calc(var(--loader-dot) * 0.6);
+}
+
+.dot {
+  width: var(--loader-dot);
+  height: var(--loader-dot);
+  border-radius: $border-radius-full;
+  background: currentColor;
+}
+
+.pulsing .dot {
+  animation: loader-pulse 1s ease-in-out infinite;
+}
+.pulsing .dot:nth-child(2) { animation-delay: 0.15s; }
+.pulsing .dot:nth-child(3) { animation-delay: 0.3s; }
+
+.converging .dot {
+  animation: loader-converge 1.1s ease-in-out infinite;
+}
+.converging .dot:nth-child(2) { animation-delay: 0.18s; }
+.converging .dot:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loader-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1); }
+}
+
+@keyframes loader-converge {
+  0%, 100% { transform: translateX(0); opacity: 0.4; }
+  50%      { transform: translateX(-25%); opacity: 1; }
+}
+
+// Respeta reduced-motion: sin animación, indicador estático visible.
+@media (prefers-reduced-motion: reduce) {
+  .ring { animation: none; border-right-color: currentColor; opacity: 0.6; }
+  .dot  { animation: none; }
+}

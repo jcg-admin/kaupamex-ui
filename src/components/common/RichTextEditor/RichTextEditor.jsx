@@ -19,6 +19,7 @@
 import { useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { sanitizeHtml } from '@lib/sanitize';
 import { Button } from '@components/common/primitives';
+import Toolbar from '@components/common/Toolbar/Toolbar';
 import styles from './RichTextEditor.module.scss';
 
 // Toolbar tipográfica (convención universal B/I + etiquetas cortas). Se evita
@@ -27,8 +28,27 @@ import styles from './RichTextEditor.module.scss';
 const TOOLS = [
   { cmd: 'bold', label: 'Negrita', text: 'B', cls: 'ttBold' },
   { cmd: 'italic', label: 'Cursiva', text: 'I', cls: 'ttItalic' },
+  { cmd: 'underline', label: 'Subrayado', text: 'U', cls: 'ttUnderline' },
+  { cmd: 'strikeThrough', label: 'Tachado', text: 'S', cls: 'ttStrike' },
+  { cmd: 'subscript', label: 'Subíndice', text: 'X₂' },
+  { cmd: 'superscript', label: 'Superíndice', text: 'X²' },
+  { cmd: 'formatBlock', value: '<h1>', label: 'Título 1', text: 'H1' },
+  { cmd: 'formatBlock', value: '<h2>', label: 'Título 2', text: 'H2' },
+  { cmd: 'formatBlock', value: '<h3>', label: 'Título 3', text: 'H3' },
+  { cmd: 'formatBlock', value: '<blockquote>', label: 'Cita', text: 'Cita' },
   { cmd: 'insertUnorderedList', label: 'Lista con viñetas', text: 'Viñetas' },
   { cmd: 'insertOrderedList', label: 'Lista numerada', text: 'Números' },
+  { cmd: 'justifyLeft', styleCss: true, label: 'Alinear a la izquierda', text: 'Izq' },
+  { cmd: 'justifyCenter', styleCss: true, label: 'Centrar', text: 'Centro' },
+  { cmd: 'justifyRight', styleCss: true, label: 'Alinear a la derecha', text: 'Der' },
+  { cmd: 'justifyFull', styleCss: true, label: 'Justificar', text: 'Just' },
+  { cmd: 'indent', styleCss: true, label: 'Aumentar sangría', text: 'Sangría +' },
+  { cmd: 'outdent', styleCss: true, label: 'Reducir sangría', text: 'Sangría −' },
+  { cmd: 'fontName', styleCss: true, prompt: 'Fuente (p. ej. Arial, Georgia):', label: 'Fuente', text: 'Fuente' },
+  { cmd: 'fontSize', styleCss: true, prompt: 'Tamaño (1 a 7):', label: 'Tamaño de fuente', text: 'Tamaño' },
+  { cmd: 'createLink', prompt: 'URL del enlace (https://…)', label: 'Insertar enlace', text: 'Enlace' },
+  { cmd: 'unlink', label: 'Quitar enlace', text: 'Sin enlace' },
+  { cmd: 'insertImage', prompt: 'URL de la imagen (https://…)', label: 'Insertar imagen', text: 'Imagen' },
   { cmd: 'removeFormat', label: 'Quitar formato', text: 'Limpiar' },
 ];
 
@@ -68,23 +88,40 @@ const RichTextEditor = forwardRef(function RichTextEditor(
     onChange?.(html);
   }, [onChange]);
 
-  const runCommand = useCallback((cmd) => {
+  const runCommand = useCallback((tool) => {
     editorRef.current?.focus();
-    // execCommand es la vía nativa universal para formato básico en
-    // contentEditable; deprecado pero soportado en todos los navegadores.
-    // jsdom no lo implementa: guardamos para no romper en tests.
+    let arg = tool.value ?? null;
+    // Herramientas que requieren una URL (enlace/imagen): se pide al usuario.
+    // El HTML resultante pasa por sanitizeHtml en `emit` → normalize, que
+    // bloquea `javascript:` y fuerza rel=noopener (ver src/lib/sanitize.js).
+    if (tool.prompt) {
+      const url = typeof window !== 'undefined' && typeof window.prompt === 'function'
+        ? window.prompt(tool.prompt)
+        : null;
+      if (!url) { emit(); return; }
+      arg = url;
+    }
+    // execCommand es la vía nativa universal para formato en contentEditable;
+    // deprecado pero soportado en todos los navegadores. jsdom no lo
+    // implementa: guardamos para no romper en tests.
     if (typeof document.execCommand === 'function') {
-      document.execCommand(cmd, false, null);
+      // Alineación/sangría/fuente deben emitir `style` (no atributos/tags
+      // deprecados) para que el allowlist acotado los conserve. Se activa
+      // styleWithCSS sólo alrededor de esos comandos y se restaura después,
+      // para no convertir negrita/cursiva en `style` (que se descartaría).
+      if (tool.styleCss) document.execCommand('styleWithCSS', false, true);
+      document.execCommand(tool.cmd, false, arg);
+      if (tool.styleCss) document.execCommand('styleWithCSS', false, false);
     }
     emit();
   }, [emit]);
 
   return (
     <div className={`${styles.wrap} ${className}`}>
-      <div className={styles.toolbar} role="toolbar" aria-label="Formato de texto">
+      <Toolbar className={styles.toolbar} ariaLabel="Formato de texto">
         {TOOLS.map((t) => (
           <Button
-            key={t.cmd}
+            key={t.label}
             type="button"
             variant="ghost"
             size="sm"
@@ -92,12 +129,12 @@ const RichTextEditor = forwardRef(function RichTextEditor(
             title={t.label}
             className={t.cls ? styles[t.cls] : undefined}
             // preventDefault en mousedown conserva la selección del editor.
-            onMouseDown={(e) => { e.preventDefault(); runCommand(t.cmd); }}
+            onMouseDown={(e) => { e.preventDefault(); runCommand(t); }}
           >
             {t.text}
           </Button>
         ))}
-      </div>
+      </Toolbar>
       <div
         ref={editorRef}
         id={id}

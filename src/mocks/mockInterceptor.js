@@ -37,6 +37,13 @@ class MockInterceptor {
 
     if (process.env.NODE_ENV !== 'development') return null;
 
+    // SOL-081 (H-UI-LOG-08): master switch PY_API_SOURCE. 'mock' (default)
+    // mantiene el mock en dev; cualquier otro valor ('db'/'real') lo desactiva
+    // → return null → fetch real al backend. Arregla la deriva: intercept()
+    // mockeaba TODO /api en dev ignorando los flags PY_*_SOURCE que su propia
+    // cabecera documenta, por lo que el E2E full-stack nunca tocaba el api real.
+    if ((process.env.PY_API_SOURCE || 'mock') !== 'mock') return null;
+
     const body = options.body && typeof options.body === 'string'
       ? JSON.parse(options.body)
       : null;

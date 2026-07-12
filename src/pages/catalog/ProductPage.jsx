@@ -12,6 +12,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import Breadcrumb from '@components/common/Breadcrumb/Breadcrumb';
 import { sanitizeHtml } from '@lib/sanitize';
 import { fetchProduct } from '@redux/slices/catalogSlice';
 import { addToCart } from '@redux/slices/cartSlice';
@@ -73,13 +74,21 @@ export default function ProductPage() {
     <main className={styles.page}>
       <section className={styles.main}>
         <div className={styles.container}>
-          <nav className={styles.breadcrumb}>
-            <Link to="/">Inicio</Link><span>/</span>
-            <Link to="/catalog">Catálogo</Link><span>/</span>
-            {product.category_name && (<><Link to={`/catalog?cat=${product.category_slug}`}>{product.category_name}</Link><span>/</span></>)}
-            {product.orisha_name && (<><Link to={`/catalog?orisha=${product.orisha_slug}`}>{product.orisha_name}</Link><span>/</span></>)}
-            <span className={styles.bcCurrent}>{product.name}</span>
-          </nav>
+          <Breadcrumb
+            className={styles.breadcrumb}
+            currentClassName={styles.bcCurrent}
+            items={[
+              { label: 'Inicio', to: '/' },
+              { label: 'Catálogo', to: '/catalog' },
+              ...(product.category_name
+                ? [{ label: product.category_name, to: `/catalog?cat=${product.category_slug}` }]
+                : []),
+              ...(product.orisha_name
+                ? [{ label: product.orisha_name, to: `/catalog?orisha=${product.orisha_slug}` }]
+                : []),
+              { label: product.name },
+            ]}
+          />
 
           <div className={styles.layout}>
             {/* Gallery */}
