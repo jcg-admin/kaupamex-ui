@@ -1,3 +1,83 @@
+// Adaptado de @progress/kno-data-query (filterBy / filter-expression.factory)
+// — referencia no runtime. Reimplementa el contrato FilterDescriptor
+// (`{field, operator, value, ignoreCase}`) + CompositeFilterDescriptor
+// (`{logic, filters}`) usado por ComboBox. No se instala el paquete.
+export interface FilterDescriptor {
+  field?: string;
+  operator: string;
+  value?: unknown;
+  ignoreCase?: boolean;
+}
+
+export interface CompositeFilterDescriptor {
+  logic: 'and' | 'or';
+  filters: Array<FilterDescriptor | CompositeFilterDescriptor>;
+}
+
+function accessorValue(item: unknown, field?: string): unknown {
+  if (!field) return item;
+  return field.split('.').reduce(
+    (acc: unknown, key) => (acc == null ? undefined : (acc as Record<string, unknown>)[key]),
+    item,
+  );
+}
+
+function matchOne(item: unknown, d: FilterDescriptor): boolean {
+  const raw = accessorValue(item, d.field);
+  const ignoreCase = d.ignoreCase !== false; // default true, como kno para strings
+  const asStr = (v: unknown) => {
+    const s = v == null ? '' : String(v);
+    return ignoreCase ? s.toLowerCase() : s;
+  };
+  const a = asStr(raw);
+  const b = asStr(d.value);
+  switch (d.operator) {
+    case 'contains':        return a.includes(b);
+    case 'doesnotcontain':  return !a.includes(b);
+    case 'startswith':      return a.startsWith(b);
+    case 'endswith':        return a.endsWith(b);
+    case 'eq':              return ignoreCase ? a === b : raw === d.value;
+    case 'neq':             return ignoreCase ? a !== b : raw !== d.value;
+    case 'isempty':         return raw == null || String(raw) === '';
+    case 'isnotempty':      return raw != null && String(raw) !== '';
+    case 'gt':              return Number(raw) > Number(d.value);
+    case 'gte':             return Number(raw) >= Number(d.value);
+    case 'lt':              return Number(raw) < Number(d.value);
+    case 'lte':             return Number(raw) <= Number(d.value);
+    default:                return true;
+  }
+}
+
+function isComposite(
+  d: FilterDescriptor | CompositeFilterDescriptor,
+): d is CompositeFilterDescriptor {
+  return Boolean(d) && Array.isArray((d as CompositeFilterDescriptor).filters);
+}
+
+function matches(item: unknown, d: FilterDescriptor | CompositeFilterDescriptor): boolean {
+  if (isComposite(d)) {
+    if (!d.filters.length) return true;
+    return d.logic === 'or'
+      ? d.filters.some((f) => matches(item, f))
+      : d.filters.every((f) => matches(item, f));
+  }
+  return matchOne(item, d);
+}
+
+/**
+ * filterBy(data, descriptor) — filtra `data` por un FilterDescriptor o
+ * CompositeFilterDescriptor. Devuelve `data` intacto si no hay descriptor o
+ * el composite está vacío (misma semántica que kno-data-query).
+ */
+export function filterBy<T>(
+  data: T[],
+  descriptor?: FilterDescriptor | CompositeFilterDescriptor | null,
+): T[] {
+  if (!descriptor) return data;
+  if (isComposite(descriptor) && descriptor.filters.length === 0) return data;
+  return data.filter((item) => matches(item, descriptor));
+}
+
 export interface SortState {
   key: string;
   dir: 'asc' | 'desc';
@@ -97,4 +177,4 @@ export function process<T extends Record<string, unknown>>(
   };
 }
 
-export default { process, applyFilter, applySort, applyPage, compareValues, rawValue };
+export default { process, applyFilter, applySort, applyPage, compareValues, rawValue, filterBy };
