@@ -59,6 +59,12 @@ export default function AdminPermissionsPage() {
     if (updateRolePermissions.fulfilled.match(result)) {
       dispatch(clearPermissionsActionState());
       queryClient.invalidateQueries({ queryKey: PERMISSIONS_KEY });
+      // El backend re-poda /me/menu/ con las capacidades ya invalidadas
+      // (AdminRolePermissionsView purga la cache de los asignados). Invalidar
+      // el menú aquí hace que el admin que edita —si él mismo tiene el rol
+      // tocado— vea su navegación actualizada sin recargar. Otro usuario
+      // logueado sigue necesitando recargar (sin push del servidor).
+      queryClient.invalidateQueries({ queryKey: ['admin', 'menu'] });
     }
   };
 
