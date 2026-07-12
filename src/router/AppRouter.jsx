@@ -96,6 +96,7 @@ const AdminShippingZonesPage = lazy(() => import('@pages/admin/AdminShippingZone
 const AdminCouriersPage   = lazy(() => import('@pages/admin/AdminCouriersPage'));
 const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 const AdminWishlistMarketingPage = lazy(() => import('@pages/admin/AdminWishlistMarketingPage'));
+const AdminBannersPage = lazy(() => import('@pages/admin/AdminBannersPage'));
 const AdminReturnsPage    = lazy(() => import('@pages/admin/AdminReturnsPage'));
 const AdminReturnDetailPage = lazy(() => import('@pages/admin/AdminReturnDetailPage'));
 const AdminInventoryPage             = lazy(() => import('@pages/admin/AdminInventoryPage'));
@@ -321,6 +322,7 @@ export default function AppRouter() {
               <Route path="admin/vouchers"    element={<AdminVouchersPage />} />
               <Route path="admin/support"     element={<AdminSupportPage />} />
               <Route path="admin/marketing/wishlist" element={<AdminWishlistMarketingPage />} />
+              <Route path="admin/banners"    element={<AdminBannersPage />} />
               <Route path="admin/returns"     element={<AdminReturnsPage />} />
               <Route path="admin/returns/:id" element={<AdminReturnDetailPage />} />
               <Route path="admin/inventory"                                    element={<AdminInventoryPage />} />
