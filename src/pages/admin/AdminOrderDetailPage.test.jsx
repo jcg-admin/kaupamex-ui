@@ -97,14 +97,14 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
 });
 
 describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
-  it('cancela un pedido con motivo (>= 10 caracteres) via POST /admin/.../cancel/', async () => {
+  it('cancela un pedido con motivo (>= 10 caracteres) via POST /admin/.../cancellations/', async () => {
     server.use(
       http.get(`${BASE}/api/v2/admin/orders/PY-2026-000101/`, () => HttpResponse.json(ORDER)),
     );
     let lastPostUrl;
     let lastPostBody;
     server.use(
-      http.post(`${BASE}/api/v2/admin/orders/PY-2026-000101/cancel/`, async ({ request }) => {
+      http.post(`${BASE}/api/v2/admin/orders/PY-2026-000101/cancellations/`, async ({ request }) => {
         lastPostUrl = request.url;
         lastPostBody = await request.json();
         return HttpResponse.json({ ...ORDER, status: 'CANCELLED' });
@@ -123,7 +123,7 @@ describe('AdminOrderDetailPage (UC-ORD-08 cancelacion admin)', () => {
     await user.click(screen.getByRole('button', { name: /Confirmar cancelacion/i }));
 
     await waitFor(() => {
-      expect(lastPostUrl).toContain('/admin/orders/PY-2026-000101/cancel/');
+      expect(lastPostUrl).toContain('/admin/orders/PY-2026-000101/cancellations/');
     });
     await waitFor(() => {
       expect(lastPostBody).toMatchObject({

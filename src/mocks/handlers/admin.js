@@ -241,7 +241,7 @@ export const adminHandlers = [
     const o = mockOrders.find(x => String(x.id) === params.id || o?.number === params.id);
     return HttpResponse.json({ id: params.id, status: body.status });
   }),
-  http.post(`${BASE}/api/v2/admin/orders/:id/cancel/`, ({ params }) =>
+  http.post(`${BASE}/api/v2/admin/orders/:id/cancellations/`, ({ params }) =>
     HttpResponse.json({ id: params.id, status: 'CANCELLED' }),
   ),
 

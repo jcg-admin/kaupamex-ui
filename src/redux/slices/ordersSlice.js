@@ -22,7 +22,7 @@ const CANCEL_URL                = (orderNumber) => `/api/v2/orders/${orderNumber
 const ADDRESS_URL               = (orderNumber) => `/api/v2/orders/${orderNumber}/shipping-address/`;
 const SHIPPING_URL              = (orderNumber) => `/api/v2/orders/${orderNumber}/shipping-method/`;
 const ADMIN_STATUS_URL          = (orderNumber) => `/api/v2/admin/orders/${orderNumber}/status/`;
-const ADMIN_CANCEL_URL          = (orderNumber) => `/api/v2/admin/orders/${orderNumber}/cancel/`;
+const ADMIN_CANCEL_URL          = (orderNumber) => `/api/v2/admin/orders/${orderNumber}/cancellations/`;
 const ORDERS_URL                = '/api/v2/orders/';
 const ORDER_DETAIL_URL          = (orderNumber) => `/api/v2/orders/${orderNumber}/`;
 
