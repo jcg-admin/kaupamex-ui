@@ -19,6 +19,7 @@ import paymentsReducer, {
   requestAdminRefund,
   clearPaymentsActionState,
 } from './paymentsSlice';
+import * as paymentsModule from './paymentsSlice';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
 const INITIATE = `${BASE}/api/v2/payments/initiate/`;
@@ -152,5 +153,22 @@ describe('paymentsSlice — contratos (PG-01)', () => {
     expect(s.lastInitiation).toBeNull();
     expect(s.lastAction).toBeNull();
     expect(s.actionError).toBeNull();
+  });
+});
+
+describe('paymentsSlice — dead-code removido (SOL-062, F-PAY-01)', () => {
+  it('no exporta los thunks muertos del flujo redirect (0 consumidores)', () => {
+    // Ambos thunks tenían 0 imports en src/pages + src/components (PROVEN
+    // 2026-07-09). El flujo redirect real usa checkoutSlice, no estos.
+    expect(paymentsModule.initiatePayPalPayment).toBeUndefined();
+    expect(paymentsModule.initiateMercadoPagoPayment).toBeUndefined();
+  });
+
+  it('conserva los thunks vivos de la pasarela', () => {
+    expect(typeof paymentsModule.initiateCheckoutApiPayment).toBe('function');
+    expect(typeof paymentsModule.initiateNonCardPayment).toBe('function');
+    expect(typeof paymentsModule.retryPayment).toBe('function');
+    expect(typeof paymentsModule.adminCancelPayment).toBe('function');
+    expect(typeof paymentsModule.requestAdminRefund).toBe('function');
   });
 });
