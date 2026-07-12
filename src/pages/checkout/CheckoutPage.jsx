@@ -21,7 +21,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { fetchAddresses } from '@redux/slices/addressesSlice';
 import { createOrder } from '@redux/slices/checkoutSlice';
-import { MetaTag, Price, Button, Field, SumRow } from '@components/common/primitives';
+import { MetaTag, Price, Button, Field, Select, SumRow } from '@components/common/primitives';
+import { useCpAutocomplete } from '@hooks/domain/useCpAutocomplete';
 import Modal from '@components/common/Modal/Modal';
 import CheckoutSteps from '@components/checkout/CheckoutSteps';
 import logoUrl from '@assets/practica-yoruba-logo.png';
@@ -271,6 +272,21 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
   const setDigits = (k, max) => (e) =>
     setAddress({ ...address, [k]: e.target.value.replace(/\D/g, '').slice(0, max) });
 
+  // T-214 (party migration): autocompletado de C.P. — progressive
+  // enhancement, nunca bloquea la captura manual. Ver useCpAutocomplete.
+  const cpLookup = useCpAutocomplete(address.zip_code);
+  const settlements = cpLookup.data?.settlements ?? [];
+
+  useEffect(() => {
+    if (!cpLookup.data) return;
+    setAddress((prev) => ({
+      ...prev,
+      city:  cpLookup.data.city || cpLookup.data.municipality || prev.city,
+      state: cpLookup.data.state || prev.state,
+    }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cpLookup.data]);
+
   const handleSelectSaved = (e) => {
     const idx = Number(e.target.value);
     if (idx === -1) { setAddress({}); return; }
@@ -325,7 +341,21 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
       </div>
       <Field label="Calle y número" value={address.street} onChange={set('street')} required autoComplete="address-line1" />
       <div className={styles.formRow3}>
-        <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        {settlements.length > 0 ? (
+          <Select
+            label="Colonia"
+            value={address.neighborhood}
+            onChange={set('neighborhood')}
+            required
+            placeholder="Selecciona una colonia…"
+            options={settlements.map((s) => ({
+              value: s.settlement_name,
+              label: `${s.settlement_name} (${s.settlement_type})`,
+            }))}
+          />
+        ) : (
+          <Field label="Colonia" value={address.neighborhood} onChange={set('neighborhood')} required autoComplete="address-line2" />
+        )}
         <Field
           label="C.P."
           value={address.zip_code}
@@ -336,6 +366,7 @@ function AddressForm({ address, setAddress, savedAddresses = [], errors = {} }) 
           maxLength={5}
           placeholder="5 dígitos"
           error={errors.zip_code}
+          hint={cpLookup.loading ? 'Buscando colonia y municipio…' : undefined}
         />
         <Field label="Alcaldía / Municipio" value={address.city} onChange={set('city')} required autoComplete="address-level2" />
       </div>

@@ -5,6 +5,7 @@ import { ordersHandlers }    from './orders';
 import { adminHandlers }     from './admin';
 import { paymentsHandlers }  from './payments';
 import { accountHandlers }   from './account';
+import { geoHandlers }       from './geo';
 
 export {
   authHandlers,
@@ -14,6 +15,7 @@ export {
   adminHandlers,
   paymentsHandlers,
   accountHandlers,
+  geoHandlers,
 };
 
 export const allHandlers = [
@@ -24,4 +26,5 @@ export const allHandlers = [
   ...adminHandlers,
   ...paymentsHandlers,
   ...accountHandlers,
+  ...geoHandlers,
 ];

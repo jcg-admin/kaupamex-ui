@@ -264,3 +264,13 @@ export function updateCustomerCard(cardId, data) {
 export function deleteCustomerCard(cardId) {
   return apiService.delete(`/api/v2/payments/cards/${cardId}/`);
 }
+
+// T-214 (party migration, UI): lookup SEPOMEX publico por C.P. (AllowAny,
+// api@8921e37). 200 -> {postal_code,country,state,municipality,city,
+// settlements:[{settlement_name,settlement_type}]}; 404 -> {codigo_error:
+// 'CP_NO_ENCONTRADO'}. apiService._request lanza en !response.ok, asi que
+// un 404 se propaga como excepcion (createErrorFromResponse) — el hook
+// consumidor (useCpAutocomplete) lo captura y degrada a modo manual.
+export function getPostalCode(cp, country = 'MX') {
+  return apiService.get(`/api/v2/geo/postal-codes/${cp}/`, { params: { country } });
+}
