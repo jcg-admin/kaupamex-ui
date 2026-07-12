@@ -1,0 +1,46 @@
+@use '@styles/abstracts' as *;
+
+.page   { display: flex; flex-direction: column; gap: $spacing-4; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; gap: $spacing-4; flex-wrap: wrap; }
+.title  { font-size: $font-size-xl; margin: $spacing-1 0 0; color: $text-primary; }
+.subtitle { margin: $spacing-1 0 0; font-size: $font-size-sm; color: $text-secondary; max-width: 60ch; }
+
+.loading { display: flex; justify-content: center; padding: $spacing-4; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) 1fr;
+  gap: $spacing-4;
+  align-items: start;
+
+  @media (max-width: 720px) { grid-template-columns: 1fr; }
+}
+
+.list { display: flex; flex-direction: column; gap: $spacing-1; }
+
+.listItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  padding: $spacing-2 $spacing-3;
+  background: $bg-surface;
+  border: 1px solid $border-color;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: border-color $transition-base;
+
+  &:hover { border-color: $primary-color; }
+  &.listItemActive { border-color: $primary-color; background: $bg-elevated; }
+}
+
+.listTitle { font-size: $font-size-sm; font-weight: $font-weight-medium; color: $text-primary; }
+.listMeta  { font-size: $font-size-xs; color: $text-muted; }
+
+.editorPane { min-width: 0; }
+.hint       { font-size: $font-size-sm; color: $text-muted; padding: $spacing-4; }
+.versionMeta { font-size: $font-size-xs; color: $text-secondary; margin: 0 0 $spacing-2; }
+
+.apiError  { color: $error-color; font-size: $font-size-sm; margin-top: $spacing-2; }
+.savedNote { color: $primary-color; font-size: $font-size-sm; margin-top: $spacing-2; }
+.empty     { font-size: $font-size-sm; color: $text-muted; }

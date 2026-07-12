@@ -118,4 +118,24 @@ describe('AdminLayout sidebar — P-09 + P-10 cierre', () => {
     const link = await screen.findByRole('link', { name: /Banners de portada/i });
     expect(link).toHaveAttribute('href', '/admin/banners');
   });
+
+  it('surfacea la hoja «Contenido estático» del menú dinámico (UC-CFG-04)', async () => {
+    // Para un usuario con settings.manage /me/menu incluye la hoja Contenido
+    // estático bajo Configuración, apuntando a /admin/content.
+    server.use(
+      http.get(`${BASE}/api/v2/authz/me/menu/`, () =>
+        HttpResponse.json([
+          {
+            key: 'sec-configuracion', label: 'Configuración', route: '', children: [
+              { key: 'contenido-estatico', label: 'Contenido estático', route: '/admin/content', children: [] },
+            ],
+          },
+        ]),
+      ),
+    );
+    renderApp('/admin');
+
+    const link = await screen.findByRole('link', { name: /Contenido estático/i });
+    expect(link).toHaveAttribute('href', '/admin/content');
+  });
 });

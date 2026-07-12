@@ -53,8 +53,7 @@ const ITEMS = [
     uc:    'UC-CFG-04',
     title: 'Gestionar contenido estático',
     desc:  'Edicion de paginas estaticas: Sobre Nosotros, Terminos, FAQ.',
-    to:    null,
-    pending: true,
+    to:    '/admin/content',
   },
 ];
 

@@ -97,6 +97,7 @@ const AdminCouriersPage   = lazy(() => import('@pages/admin/AdminCouriersPage'))
 const AdminSupportPage    = lazy(() => import('@pages/admin/AdminSupportPage'));
 const AdminWishlistMarketingPage = lazy(() => import('@pages/admin/AdminWishlistMarketingPage'));
 const AdminBannersPage = lazy(() => import('@pages/admin/AdminBannersPage'));
+const AdminStaticPagesPage = lazy(() => import('@pages/admin/AdminStaticPagesPage'));
 const AdminReturnsPage    = lazy(() => import('@pages/admin/AdminReturnsPage'));
 const AdminReturnDetailPage = lazy(() => import('@pages/admin/AdminReturnDetailPage'));
 const AdminInventoryPage             = lazy(() => import('@pages/admin/AdminInventoryPage'));
@@ -370,6 +371,8 @@ export default function AppRouter() {
               <Route path="admin/logistics"                       element={<AdminLogisticsPage />} />
               {/* UC-CFG-01..05 — Hub de configuracion */}
               <Route path="admin/config"                          element={<AdminConfigPage />} />
+              {/* UC-CFG-04 — Gestión de contenido estático */}
+              <Route path="admin/content"                         element={<AdminStaticPagesPage />} />
               {/* H-12 — Catálogo de zonas de envío + tiempos de entrega */}
               <Route path="admin/shipping-zones"                  element={<AdminShippingZonesPage />} />
               {/* UC-LOG-01 soporte — Catálogo de paqueterías (couriers) */}

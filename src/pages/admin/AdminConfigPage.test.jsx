@@ -39,23 +39,23 @@ describe('AdminConfigPage (hub de configuracion)', () => {
     expect(
       screen.getByRole('link', { name: /Gateways y pagos/i }),
     ).toHaveAttribute('href', '/admin/payments');
-    // UC-CFG-04 — contenido estatico (pendiente API; el hub solo lo enuncia)
+    // UC-CFG-04 — contenido estatico (ya implementado: enlaza a /admin/content)
     expect(
-      screen.getByText(/Gestionar contenido estático/i),
-    ).toBeInTheDocument();
+      screen.getByRole('link', { name: /Gestionar contenido estático/i }),
+    ).toHaveAttribute('href', '/admin/content');
     // UC-CFG-02 — metodos y costos de envio (relacionado al panel logistico)
     expect(
       screen.getByRole('link', { name: /Métodos y costos de envío/i }),
     ).toHaveAttribute('href', '/admin/logistics');
   });
 
-  it('marca los items pendientes con badge "Proximamente"', () => {
+  it('ya no tiene dominios pendientes: todas las tarjetas enlazan', () => {
     render(
       <MemoryRouter>
         <AdminConfigPage />
       </MemoryRouter>,
     );
-    const pendingBadges = screen.getAllByText(/Proximamente/i);
-    expect(pendingBadges.length).toBeGreaterThanOrEqual(1);
+    // Tras cablear UC-CFG-04 a /admin/content, el hub no deja «Proximamente».
+    expect(screen.queryByText(/Proximamente/i)).not.toBeInTheDocument();
   });
 });
