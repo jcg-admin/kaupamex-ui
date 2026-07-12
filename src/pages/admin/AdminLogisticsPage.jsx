@@ -23,6 +23,7 @@ import {
   confirmDelivery, clearLogisticsActionState,
 } from '@redux/slices/logisticsSlice';
 import { DataTable } from '@components/common/DataTable/DataTable';
+import ShipmentQuoter from '@components/admin/ShipmentQuoter';
 import styles from './AdminLogisticsPage.module.scss';
 
 function formatDate(iso) {
@@ -164,6 +165,8 @@ export default function AdminLogisticsPage() {
           </section>
         </>
       )}
+
+      <ShipmentQuoter />
     </section>
   );
 }

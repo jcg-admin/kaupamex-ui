@@ -26,6 +26,25 @@ export const confirmDelivery = createAsyncThunk(
   },
 );
 
+/**
+ * UC-LOG-09: cotizador de paqueterías (admin). POST /api/v2/shipping-offers
+ * con { packages: [{ length, width, height, weight, value, hazardous }] }.
+ * Devuelve { offers: [...rankeadas], ineligible: [{ carrier, reasons }] }.
+ * La elección de paquetería es decisión del administrador (D-5), no del
+ * comprador — este endpoint expone la lista rankeada para operación.
+ */
+export const fetchShipmentOffers = createAsyncThunk(
+  'logistics/fetchShipmentOffers',
+  async ({ packages }, { rejectWithValue }) => {
+    try {
+      const res = await apiService.post('/api/v2/shipping-offers/', { packages });
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(serializeApiError(err));
+    }
+  },
+);
+
 /** UC-LOG-01: lista de couriers activos para el selector de creación de guía. */
 export const fetchCouriers = createAsyncThunk(
   'logistics/fetchCouriers',
@@ -154,6 +173,8 @@ export const createShipmentGuide = createAsyncThunk(
 
 const initialState = {
   isActioning: false, actionError: null, lastAction: null, couriers: [],
+  // UC-LOG-09 cotizador: resultado de la última cotización de paqueterías.
+  offers: [], ineligible: [], quoting: false, quoteError: null,
 };
 
 const logisticsSlice = createSlice({
@@ -164,9 +185,24 @@ const logisticsSlice = createSlice({
       state.actionError = null;
       state.lastAction  = null;
     },
+    clearShipmentOffers(state) {
+      state.offers = []; state.ineligible = []; state.quoteError = null;
+    },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchShipmentOffers.pending, (state) => {
+        state.quoting = true; state.quoteError = null;
+      })
+      .addCase(fetchShipmentOffers.fulfilled, (state, action) => {
+        state.quoting    = false;
+        state.offers     = action.payload?.offers ?? [];
+        state.ineligible = action.payload?.ineligible ?? [];
+      })
+      .addCase(fetchShipmentOffers.rejected, (state, action) => {
+        state.quoting = false; state.quoteError = action.payload;
+        state.offers = []; state.ineligible = [];
+      })
       .addCase(confirmDelivery.pending, (state) => {
         state.isActioning = true; state.actionError = null;
       })
