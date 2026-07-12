@@ -274,3 +274,15 @@ export function deleteCustomerCard(cardId) {
 export function getPostalCode(cp, country = 'MX') {
   return apiService.get(`/api/v2/geo/postal-codes/${cp}/`, { params: { country } });
 }
+
+// DEC-08/09 (party/authz, api@c359164): menú admin dinámico podado por las
+// capacidades del usuario. Árbol [{key,label,route,icon,order,capability,
+// children:[...]}]. El candado real sigue siendo el backend; el menú es
+// proyección UX. me/capabilities devuelve {is_superadmin, capabilities:[...]}.
+export function getAdminMenu() {
+  return apiService.get('/api/v2/authz/me/menu/').then((r) => r.data);
+}
+
+export function getMyCapabilities() {
+  return apiService.get('/api/v2/authz/me/capabilities/').then((r) => r.data);
+}

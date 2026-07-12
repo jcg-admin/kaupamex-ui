@@ -13,6 +13,7 @@ import { closeSidebar, openSidebar, selectIsSidebarOpen } from '@redux/slices/ui
 import ToastContainer from '@components/common/Toast/ToastContainer';
 import ErrorBoundary from '@components/shared/ErrorBoundary';
 import Icon from '@components/common/Icon/Icon';
+import useAdminMenu from '@hooks/domain/useAdminMenu';
 import styles from './AdminLayout.module.scss';
 
 // H-10 (Fase 4): navegación agrupada en secciones colapsables. Cada grupo
@@ -67,6 +68,8 @@ export default function AdminLayout() {
   const isSidebarOpen = useSelector(selectIsSidebarOpen);
   // H-10: secciones colapsadas. Vacío = todas abiertas (destinos visibles).
   const [collapsed, setCollapsed] = useState({});
+  // DEC-08/09: menú dinámico podado por capacidades; ADMIN_NAV = fallback.
+  const { nav } = useAdminMenu(ADMIN_NAV);
 
   const toggleSection = (name) =>
     setCollapsed((c) => ({ ...c, [name]: !c[name] }));
@@ -94,39 +97,20 @@ export default function AdminLayout() {
         </div>
 
         <nav className={styles.nav}>
-          {ADMIN_NAV.map((group) => {
-            const isCollapsed = Boolean(collapsed[group.section]);
-            return (
-              <div key={group.section} className={styles.navGroup}>
-                <button
-                  type="button"
-                  className={styles.navSection}
-                  onClick={() => toggleSection(group.section)}
-                  aria-expanded={!isCollapsed}
-                >
-                  {group.section}
-                  <Icon
-                    name={isCollapsed ? 'chevron-right' : 'chevron-down'}
-                    size={14}
-                    className={styles.navCaret}
-                  />
-                </button>
-                {!isCollapsed && group.items.map((item) => (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    className={({ isActive }) =>
-                      `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
-                    }
-                    onClick={() => dispatch(closeSidebar())}
-                  >
-                    {item.label}
-                  </NavLink>
-                ))}
-              </div>
-            );
-          })}
+          {/* DEC-08/09: menú dinámico por capacidades (api /me/menu/). El árbol
+              se renderiza recursivamente — soporta cualquier profundidad. El
+              ADMIN_NAV estático es el fallback mientras carga o si falla. */}
+          {nav.map((node) => (
+            <NavNode
+              key={node.key || node.label}
+              node={node}
+              depth={0}
+              siblings={nav}
+              collapsed={collapsed}
+              onToggle={toggleSection}
+              onNavigate={() => dispatch(closeSidebar())}
+            />
+          ))}
         </nav>
 
         <div className={styles.sidebarFooter}>
@@ -168,6 +152,69 @@ export default function AdminLayout() {
       </div>
 
       <ToastContainer />
+    </div>
+  );
+}
+
+/**
+ * NavNode — renderiza un nodo del menú recursivamente (DEC-08/09).
+ * - Con `route` y sin hijos → destino (NavLink).
+ * - Sin `route` (o con hijos) → agrupador colapsable (sección nivel 0 o
+ *   subgrupo nivel 1+). La recursión no asume profundidad: soporta 0/1/2/3/N.
+ */
+function NavNode({ node, depth, siblings, collapsed, onToggle, onNavigate }) {
+  const children = node.children || [];
+  const isGroup = children.length > 0 || !node.route;
+
+  if (!isGroup) {
+    // Un destino es `end` (match exacto) si un hermano extiende su ruta.
+    const end = siblings.some(
+      (o) => o.route && o.route !== node.route && o.route.startsWith(`${node.route}/`),
+    );
+    return (
+      <NavLink
+        to={node.route}
+        end={end}
+        className={({ isActive }) =>
+          `${styles.navItem} ${isActive ? styles.navItemActive : ''}`
+        }
+        style={depth > 1 ? { paddingLeft: `${(depth - 1) * 14 + 16}px` } : undefined}
+        onClick={onNavigate}
+      >
+        {node.label}
+      </NavLink>
+    );
+  }
+
+  const key = node.key || node.label;
+  const isCollapsed = Boolean(collapsed[key]);
+  return (
+    <div className={styles.navGroup}>
+      <button
+        type="button"
+        className={depth === 0 ? styles.navSection : styles.navItem}
+        style={depth > 0 ? { paddingLeft: `${depth * 14 + 16}px`, opacity: 0.85 } : undefined}
+        onClick={() => onToggle(key)}
+        aria-expanded={!isCollapsed}
+      >
+        {node.label}
+        <Icon
+          name={isCollapsed ? 'chevron-right' : 'chevron-down'}
+          size={14}
+          className={styles.navCaret}
+        />
+      </button>
+      {!isCollapsed && children.map((child) => (
+        <NavNode
+          key={child.key || child.label}
+          node={child}
+          depth={depth + 1}
+          siblings={children}
+          collapsed={collapsed}
+          onToggle={onToggle}
+          onNavigate={onNavigate}
+        />
+      ))}
     </div>
   );
 }
