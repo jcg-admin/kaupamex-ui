@@ -143,6 +143,7 @@ const AdminLogisticsPage             = lazy(() => import('@pages/admin/AdminLogi
 const AdminConfigPage                = lazy(() => import('@pages/admin/AdminConfigPage'));
 const AdminPlatformProvisionPage     = lazy(() => import('@pages/admin/AdminPlatformProvisionPage'));
 const AdminPlatformTenantsPage       = lazy(() => import('@pages/admin/AdminPlatformTenantsPage'));
+const AdminPlatformPricingPage       = lazy(() => import('@pages/admin/AdminPlatformPricingPage'));
 
 // Lazy pages — Generales
 const NotFoundPage    = lazy(() => import('@pages/NotFoundPage'));

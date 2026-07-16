@@ -18,6 +18,7 @@ import apiService from '@services/apiService';
 export const PLATFORM_COMPANIES_QUERY_KEY = ['platform-companies'];
 export const PLATFORM_MODULES_QUERY_KEY = ['platform-modules'];
 export const PLATFORM_SUBSCRIPTIONS_QUERY_KEY = ['platform-subscriptions'];
+export const PLATFORM_PRICES_QUERY_KEY = ['platform-module-prices'];
 
 function toList(data) {
   if (data && typeof data === 'object' && 'results' in data) return data.results;
@@ -42,6 +43,16 @@ export function usePlatformModules() {
     staleTime: 5 * 60 * 1000,
     queryFn: async ({ signal }) => {
       const { data } = await apiService.get('/api/v2/platform/modules/', { signal });
+      return toList(data);
+    },
+  });
+}
+
+export function useModulePrices() {
+  return useQuery({
+    queryKey: PLATFORM_PRICES_QUERY_KEY,
+    queryFn: async ({ signal }) => {
+      const { data } = await apiService.get('/api/v2/platform/module-prices/', { signal });
       return toList(data);
     },
   });
