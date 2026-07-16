@@ -23,6 +23,36 @@
   }
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $space-md;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 100%;
+}
+
+.createForm {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.formActions {
+  display: flex;
+  gap: $space-sm;
+}
+
+.rowActions {
+  display: inline-flex;
+  gap: $space-sm;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .filters {
   display: flex;
   gap: $space-md;

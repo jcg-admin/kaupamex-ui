@@ -66,4 +66,39 @@ describe('AdminPlatformTenantsPage', () => {
       expect(screen.getByText(/Aún no hay tenants/)).toBeInTheDocument(),
     );
   });
+
+  it('da de alta un tenant con POST a companies/', async () => {
+    let posted = null;
+    server.use(
+      http.post(`${BASE}/api/v2/platform/companies/`, async ({ request }) => {
+        posted = await request.json();
+        return HttpResponse.json({ id: 9, ...posted, status: 'trial' }, { status: 201 });
+      }),
+    );
+    wrap();
+    await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
+    await userEvent.click(screen.getByRole('button', { name: /Nuevo tenant/ }));
+    await userEvent.type(screen.getByLabelText(/Código/), 'zapateria-dos');
+    await userEvent.type(screen.getByLabelText(/Nombre/), 'Zapatería DOS');
+    await userEvent.click(screen.getByRole('button', { name: /Crear tenant/ }));
+    await waitFor(() => expect(posted).not.toBeNull());
+    expect(posted).toMatchObject({ code: 'zapateria-dos', name: 'Zapatería DOS' });
+  });
+
+  it('suspende un tenant activo con POST a suspend/', async () => {
+    let suspended = false;
+    server.use(
+      http.post(`${BASE}/api/v2/platform/companies/1/suspend/`, () => {
+        suspended = true;
+        return HttpResponse.json({ id: 1, status: 'suspended' });
+      }),
+    );
+    wrap();
+    await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
+    // La fila activa ofrece "Suspender"; la suspendida ofrece "Reactivar".
+    const suspendBtns = screen.getAllByRole('button', { name: 'Suspender' });
+    await userEvent.click(suspendBtns[0]);
+    await waitFor(() => expect(suspended).toBe(true));
+    expect(screen.getByRole('button', { name: 'Reactivar' })).toBeInTheDocument();
+  });
 });
