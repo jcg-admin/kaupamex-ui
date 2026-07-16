@@ -1,9 +1,9 @@
 /**
- * AdminPlatformTenantsPage — Consola L0 del operador Kaupamex: directorio de
- * tenants (UC-PLT-12, mockup-consola-tenants-kaupamex).
+ * AdminPlatformCompaniesPage — Consola L0 del operador Kaupamex: directorio de
+ * empresas (UC-PLT-12, mockup-consola-empresas-kaupamex).
  *
  * Pantalla padre de la consola de operación: lista las empresas (L1) con su
- * estado, número de módulos activos y usuarios; permite dar de alta un tenant
+ * estado, número de módulos activos y usuarios; permite dar de alta una empresa
  * y suspender/reactivar, y enlaza a "Provisionar" (asignación de módulos,
  * UC-PLT-05).
  *
@@ -25,7 +25,7 @@ import { DataTable } from '@components/common';
 import { MetaTag, Field, Select, Button, Card } from '@components/common/primitives';
 import Badge from '@components/common/Badge/Badge';
 import Alert from '@components/common/Alert/Alert';
-import styles from './AdminPlatformTenantsPage.module.scss';
+import styles from './AdminPlatformCompaniesPage.module.scss';
 
 const COMPANIES_URL = '/api/v2/platform/companies/';
 
@@ -46,7 +46,7 @@ const STATUS_FILTER = [
 
 const EMPTY_FORM = { code: '', name: '', billing_email: '' };
 
-export default function AdminPlatformTenantsPage() {
+export default function AdminPlatformCompaniesPage() {
   const qc = useQueryClient();
   const companies = usePlatformCompanies();
   const [status, setStatus] = useState('');
@@ -82,10 +82,10 @@ export default function AdminPlatformTenantsPage() {
       await invalidate();
       setForm(EMPTY_FORM);
       setCreating(false);
-      setFeedback({ variant: 'success', text: `Tenant «${form.name}» creado (trial).` });
+      setFeedback({ variant: 'success', text: `Empresa «${form.name}» creada (trial).` });
     } catch (err) {
       const detail = err?.data?.code?.[0] || err?.data?.detail || err?.message
-        || 'No se pudo crear el tenant.';
+        || 'No se pudo crear la empresa.';
       setFeedback({ variant: 'danger', text: String(detail) });
     } finally {
       setBusy(false);
@@ -101,8 +101,8 @@ export default function AdminPlatformTenantsPage() {
       setFeedback({
         variant: 'success',
         text: verb === 'suspend'
-          ? `Tenant «${company.name}» suspendido.`
-          : `Tenant «${company.name}» reactivado.`,
+          ? `Empresa «${company.name}» suspendida.`
+          : `Empresa «${company.name}» reactivada.`,
       });
     } catch (err) {
       const detail = err?.data?.detail || err?.message || 'No se pudo cambiar el estado.';
@@ -167,7 +167,7 @@ export default function AdminPlatformTenantsPage() {
           </p>
         </div>
         <Button variant="primary" onClick={() => { setCreating((v) => !v); setFeedback(null); }}>
-          + Nuevo tenant
+          + Nueva empresa
         </Button>
       </div>
 
@@ -178,7 +178,7 @@ export default function AdminPlatformTenantsPage() {
       )}
 
       {creating && (
-        <Card title="Nuevo tenant" subtitle="Estado inicial: trial (fijo)" className={styles.card}>
+        <Card title="Nueva empresa" subtitle="Estado inicial: trial (fijo)" className={styles.card}>
           <form onSubmit={onCreate} className={styles.createForm}>
             <Field label="Código (slug)" name="code" required
               value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })}
@@ -193,7 +193,7 @@ export default function AdminPlatformTenantsPage() {
             <div className={styles.formActions}>
               <Button type="submit" variant="primary"
                 disabled={busy || !form.code.trim() || !form.name.trim()}>
-                {busy ? 'Creando…' : 'Crear tenant'}
+                {busy ? 'Creando…' : 'Crear empresa'}
               </Button>
               <Button type="button" variant="secondary" disabled={busy}
                 onClick={() => { setCreating(false); setForm(EMPTY_FORM); }}>
@@ -218,15 +218,15 @@ export default function AdminPlatformTenantsPage() {
       </div>
 
       <DataTable
-        caption="Directorio de tenants de la plataforma"
+        caption="Directorio de empresas de la plataforma"
         columns={columns}
         rows={rows}
         rowKey={(c) => c.id}
         loading={companies.isLoading}
         emptyText={
           (companies.data || []).length === 0
-            ? 'Aún no hay tenants dados de alta en la plataforma.'
-            : 'Ningún tenant coincide con el filtro.'
+            ? 'Aún no hay empresas dados de alta en la plataforma.'
+            : 'Ninguna empresa coincide con el filtro.'
         }
       />
     </div>

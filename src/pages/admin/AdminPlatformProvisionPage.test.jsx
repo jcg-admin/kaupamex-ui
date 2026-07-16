@@ -2,8 +2,8 @@
  * Tests AdminPlatformProvisionPage — consola L0 del operador Kaupamex (UC-PLT-05).
  *
  * Verifica que la página:
- *   - lista los tenants (companies) en el selector,
- *   - al elegir un tenant, pinta los módulos contratables (is_application)
+ *   - lista las empresas (companies) en el selector,
+ *   - al elegir una empresa, pinta los módulos contratables (is_application)
  *     agrupados por category, con Switch on/off reflejando las suscripciones,
  *   - al encender un módulo y Guardar, hace POST a /module-subscriptions/ con
  *     company + module + status active.
@@ -49,9 +49,9 @@ function wrap() {
 }
 
 describe('AdminPlatformProvisionPage', () => {
-  it('lista los tenants y, al elegir uno, pinta los módulos por familia', async () => {
+  it('lista las empresas y, al elegir una, pinta los módulos por familia', async () => {
     wrap();
-    // El selector de empresa se pobló con el tenant.
+    // El selector de empresa se pobló con la empresa.
     await waitFor(() =>
       expect(screen.getByRole('option', { name: /Zapatería UNO/ })).toBeInTheDocument(),
     );

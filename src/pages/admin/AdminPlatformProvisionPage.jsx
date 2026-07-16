@@ -1,20 +1,20 @@
 /**
  * AdminPlatformProvisionPage — Consola L0 del operador Kaupamex (UC-PLT-05).
  *
- * "Asignar módulos al tenant": el operador de plataforma (capacidad
- * platform.provision) elige un tenant (Company L1) y enciende/apaga los
+ * "Asignar módulos al empresa": el operador de plataforma (capacidad
+ * platform.provision) elige una empresa (Company L1) y enciende/apaga los
  * módulos contratables. Deriva del mockup `mockup-asignar-modulos-kaupamex`.
  *
  * Contrato real (api ya construido, /api/v2/platform/):
- *   - GET  /companies/                          directorio de tenants (L0 cross-company)
+ *   - GET  /companies/                          directorio de empresas (L0 cross-company)
  *   - GET  /modules/                            catálogo L0 (ERP families, is_application)
- *   - GET  /module-subscriptions/?company=<id>  suscripciones del tenant
+ *   - GET  /module-subscriptions/?company=<id>  suscripciones de la empresa
  *   - POST /module-subscriptions/               contratar (status active)
  *   - PATCH /module-subscriptions/<id>/         dar de baja (suspended) / re-activar
  *
  * Alcance de esta rebanada: módulo on/off + ciclo de facturación + vigencia.
  * Los add-ons cuantificados del mockup (subsidiarias/sucursales) NO tienen
- * modelo en api todavía (TenantEntitlementQuota inexistente) — quedan fuera y
+ * modelo en api todavía (CompanyEntitlementQuota inexistente) — quedan fuera y
  * se documentan en el interfaz-*.rst como pendientes.
  */
 import { useMemo, useState } from 'react';
@@ -50,9 +50,9 @@ function subsByCode(subs) {
 export default function AdminPlatformProvisionPage() {
   const qc = useQueryClient();
   const [searchParams] = useSearchParams();
-  // Preselección desde el directorio de tenants (?company=<id>).
+  // Preselección desde el directorio de empresas (?company=<id>).
   const [companyId, setCompanyId] = useState(() => searchParams.get('company') || '');
-  const [draft, setDraft] = useState(null); // { code: bool } | null (sin tenant)
+  const [draft, setDraft] = useState(null); // { code: bool } | null (sin empresa)
   const [cycle, setCycle] = useState('monthly');
   const [validUntil, setValidUntil] = useState('');
   const [saving, setSaving] = useState(false);
@@ -79,7 +79,7 @@ export default function AdminPlatformProvisionPage() {
 
   const subMap = useMemo(() => subsByCode(subscriptions.data || []), [subscriptions.data]);
 
-  // Al cambiar de tenant, sembrar el draft desde las suscripciones actuales.
+  // Al cambiar de empresa, sembrar el draft desde las suscripciones actuales.
   function onSelectCompany(e) {
     const id = e.target.value;
     setCompanyId(id);
@@ -153,19 +153,19 @@ export default function AdminPlatformProvisionPage() {
   return (
     <div className={styles.page}>
       <MetaTag tone="bronze">Kaupamex · Operador L0</MetaTag>
-      <h1 className={styles.title}>Provisión de tenant</h1>
+      <h1 className={styles.title}>Provisión de empresa</h1>
       <p className={styles.lead}>
         Enciende o apaga los módulos contratados por cada empresa (L1). Requiere
         la capacidad <code>platform.provision</code>.
       </p>
 
-      <Card title="Tenant" className={styles.card}>
+      <Card title="Empresa" className={styles.card}>
         <Select
           label="Empresa"
           name="company"
           value={companyId}
           onChange={onSelectCompany}
-          placeholder={companies.isLoading ? 'Cargando…' : 'Selecciona un tenant'}
+          placeholder={companies.isLoading ? 'Cargando…' : 'Selecciona una empresa'}
           options={companyOptions}
         />
       </Card>

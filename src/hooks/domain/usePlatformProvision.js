@@ -1,9 +1,9 @@
 /**
  * usePlatformProvision — hooks de React Query para la consola L0 del operador
- * Kaupamex (UC-PLT-05, "asignar módulos al tenant").
+ * Kaupamex (UC-PLT-05, "asignar módulos al empresa").
  *
  * Consume la superficie ya construida en api bajo /api/v2/platform/:
- *   - usePlatformCompanies():          GET  /companies/            (directorio de tenants)
+ *   - usePlatformCompanies():          GET  /companies/            (directorio de empresas)
  *   - usePlatformModules():            GET  /modules/              (catálogo L0, ERP families)
  *   - useCompanySubscriptions(id):     GET  /module-subscriptions/?company=<id>
  *
@@ -39,7 +39,7 @@ export function usePlatformModules() {
   return useQuery({
     queryKey: PLATFORM_MODULES_QUERY_KEY,
     // El catálogo L0 cambia poco: cache 5 min para no refetchear al cambiar de
-    // tenant en la misma sesión de provisión.
+    // empresa en la misma sesión de provisión.
     staleTime: 5 * 60 * 1000,
     queryFn: async ({ signal }) => {
       const { data } = await apiService.get('/api/v2/platform/modules/', { signal });

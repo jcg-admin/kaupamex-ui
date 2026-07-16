@@ -142,7 +142,7 @@ const AdminLogisticsPage             = lazy(() => import('@pages/admin/AdminLogi
 // UC-CFG-01..05 — Hub de configuracion
 const AdminConfigPage                = lazy(() => import('@pages/admin/AdminConfigPage'));
 const AdminPlatformProvisionPage     = lazy(() => import('@pages/admin/AdminPlatformProvisionPage'));
-const AdminPlatformTenantsPage       = lazy(() => import('@pages/admin/AdminPlatformTenantsPage'));
+const AdminPlatformCompaniesPage       = lazy(() => import('@pages/admin/AdminPlatformCompaniesPage'));
 const AdminPlatformPricingPage       = lazy(() => import('@pages/admin/AdminPlatformPricingPage'));
 
 // Lazy pages — Generales
@@ -374,7 +374,7 @@ export default function AppRouter() {
               <Route path="admin/logistics"                       element={<AdminLogisticsPage />} />
               {/* UC-CFG-01..05 — Hub de configuracion */}
               <Route path="admin/config"                          element={<AdminConfigPage />} />
-              <Route path="admin/platform/tenants"                element={<AdminPlatformTenantsPage />} />
+              <Route path="admin/platform/companies"                element={<AdminPlatformCompaniesPage />} />
               <Route path="admin/platform/provision"              element={<AdminPlatformProvisionPage />} />
               {/* UC-CFG-04 — Gestión de contenido estático */}
               <Route path="admin/content"                         element={<AdminStaticPagesPage />} />

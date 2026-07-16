@@ -1,5 +1,5 @@
 /**
- * Tests AdminPlatformTenantsPage — directorio de tenants L0 (UC-PLT-12).
+ * Tests AdminPlatformCompaniesPage — directorio de empresas L0 (UC-PLT-12).
  *
  * Verifica que la página:
  *   - lista las companies con estado (Badge), conteo de módulos y usuarios,
@@ -13,7 +13,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
 
-import AdminPlatformTenantsPage from './AdminPlatformTenantsPage';
+import AdminPlatformCompaniesPage from './AdminPlatformCompaniesPage';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
@@ -31,14 +31,14 @@ function wrap(companies = COMPANIES) {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter>
-        <AdminPlatformTenantsPage />
+        <AdminPlatformCompaniesPage />
       </MemoryRouter>
     </QueryClientProvider>,
   );
 }
 
-describe('AdminPlatformTenantsPage', () => {
-  it('lista los tenants con estado y enlaza a Provisionar con ?company', async () => {
+describe('AdminPlatformCompaniesPage', () => {
+  it('lista las empresas con estado y enlaza a Provisionar con ?company', async () => {
     wrap();
     await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
     // Badge de estado por texto (no solo color) — dentro de la tabla, para no
@@ -47,7 +47,7 @@ describe('AdminPlatformTenantsPage', () => {
     expect(table.getByText('Activo')).toBeInTheDocument();
     expect(table.getByText('Trial')).toBeInTheDocument();
     expect(table.getByText('Suspendido')).toBeInTheDocument();
-    // El enlace Provisionar de la primera fila apunta al tenant por id.
+    // El enlace Provisionar de la primera fila apunta al empresa por id.
     const links = screen.getAllByRole('link', { name: 'Provisionar' });
     expect(links[0]).toHaveAttribute('href', '/admin/platform/provision?company=1');
   });
@@ -60,14 +60,14 @@ describe('AdminPlatformTenantsPage', () => {
     expect(screen.getByText('Zapatería UNO')).toBeInTheDocument();
   });
 
-  it('muestra el estado vacío cuando no hay tenants', async () => {
+  it('muestra el estado vacío cuando no hay empresas', async () => {
     wrap([]);
     await waitFor(() =>
-      expect(screen.getByText(/Aún no hay tenants/)).toBeInTheDocument(),
+      expect(screen.getByText(/Aún no hay empresas/)).toBeInTheDocument(),
     );
   });
 
-  it('da de alta un tenant con POST a companies/', async () => {
+  it('da de alta una empresa con POST a companies/', async () => {
     let posted = null;
     server.use(
       http.post(`${BASE}/api/v2/platform/companies/`, async ({ request }) => {
@@ -77,15 +77,15 @@ describe('AdminPlatformTenantsPage', () => {
     );
     wrap();
     await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
-    await userEvent.click(screen.getByRole('button', { name: /Nuevo tenant/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Nueva empresa/ }));
     await userEvent.type(screen.getByLabelText(/Código/), 'zapateria-dos');
     await userEvent.type(screen.getByLabelText(/Nombre/), 'Zapatería DOS');
-    await userEvent.click(screen.getByRole('button', { name: /Crear tenant/ }));
+    await userEvent.click(screen.getByRole('button', { name: /Crear empresa/ }));
     await waitFor(() => expect(posted).not.toBeNull());
     expect(posted).toMatchObject({ code: 'zapateria-dos', name: 'Zapatería DOS' });
   });
 
-  it('suspende un tenant activo con POST a suspend/', async () => {
+  it('suspende una empresa activa con POST a suspend/', async () => {
     let suspended = false;
     server.use(
       http.post(`${BASE}/api/v2/platform/companies/1/suspend/`, () => {
