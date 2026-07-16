@@ -18,6 +18,7 @@
  * se documentan en el interfaz-*.rst como pendientes.
  */
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/apiService';
 import {
@@ -48,7 +49,9 @@ function subsByCode(subs) {
 
 export default function AdminPlatformProvisionPage() {
   const qc = useQueryClient();
-  const [companyId, setCompanyId] = useState('');
+  const [searchParams] = useSearchParams();
+  // Preselección desde el directorio de tenants (?company=<id>).
+  const [companyId, setCompanyId] = useState(() => searchParams.get('company') || '');
   const [draft, setDraft] = useState(null); // { code: bool } | null (sin tenant)
   const [cycle, setCycle] = useState('monthly');
   const [validUntil, setValidUntil] = useState('');

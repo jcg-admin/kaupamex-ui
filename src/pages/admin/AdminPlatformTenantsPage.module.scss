@@ -1,0 +1,41 @@
+@use '@styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.title {
+  font-size: $font-size-xl;
+  color: $color-text;
+  margin: 0;
+}
+
+.lead {
+  color: $text-muted;
+  margin: 0;
+
+  code {
+    background: $bg-muted;
+    border-radius: $border-radius-sm;
+    padding: 0 $space-xs;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: $space-md;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.provisionLink {
+  color: $accent-color;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
