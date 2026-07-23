@@ -1,7 +1,7 @@
 // Portado del prototipo funcional template-ecommerce-ui (codigo propio del ejecutor).
 // Origen: template-ecommerce-ui/src/components/common/Dropdown/Dropdown.jsx
 //
-// ADAPTACION e-commerce-ui: el prototipo usa `@floating-ui/react` (no instalado
+// ADAPTACION kaupamex-ui: el prototipo usa `@floating-ui/react` (no instalado
 // aqui). Se hace rewire al hook nativo `@hooks/ui/useFloating`, que expone el
 // mismo contrato (`refs.setReference`, `refs.setFloating`, `floatingStyles`).
 // El offset [skid, distance] del prototipo se mapea a `offsetPx = distance`;

@@ -6,7 +6,7 @@
  * bottom-start con offset de 4px, y recalcula la posicion en scroll/resize.
  *
  * ADAPTACION NATIVA: el template-ecommerce-ui usa `@floating-ui/react` como
- * dependencia. En e-commerce-ui esa libreria NO esta instalada, por lo que
+ * dependencia. En kaupamex-ui esa libreria NO esta instalada, por lo que
  * este hook implementa el posicionamiento con `getBoundingClientRect` puro,
  * sin agregar una dependencia nueva. Expone la misma forma de retorno
  * (`refs`, `floatingStyles`, `placement`) para preservar la ergonomia del

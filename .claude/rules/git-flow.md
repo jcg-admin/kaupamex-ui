@@ -4,7 +4,7 @@ category: Git Flow & Branching
 version: 1.0.0
 created_at: 2026-05-05 15:15:00
 updated_at: 2026-05-05 15:15:00
-applies_to: e-comerce v1.0.0+
+applies_to: kaupamex v1.0.0+
 ```
 
 # Git Flow — Política de Branching
@@ -39,7 +39,7 @@ primero por `feature/solve-problem-docs`.
 
 `feature/solve-problem-docs` es la rama de feature
 **padre** del trabajo en curso del subdominio `docs` de
-e-comerce (refactor de gestion, importacion de patrones
+kaupamex (refactor de gestion, importacion de patrones
 de IACT-docs, normalizacion de RNF y casos de uso).
 Multiples sub-features la componen, por ejemplo:
 
