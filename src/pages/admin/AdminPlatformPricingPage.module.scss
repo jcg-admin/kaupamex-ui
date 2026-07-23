@@ -1,0 +1,67 @@
+@use '@styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $space-md;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: $font-size-xl;
+  color: $color-text;
+  margin: 0;
+}
+
+.lead {
+  color: $text-muted;
+  margin: 0;
+
+  code {
+    background: $bg-muted;
+    border-radius: $border-radius-sm;
+    padding: 0 $space-xs;
+  }
+}
+
+.card {
+  width: 100%;
+}
+
+.createForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-md;
+  align-items: flex-end;
+}
+
+.dateField {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.dateLabel {
+  font-size: $font-size-sm;
+  color: $color-text;
+}
+
+.dateInput {
+  padding: $space-xs $space-sm;
+  border: 1px solid $input-border-color;
+  border-radius: $border-radius-md;
+  background: $input-bg;
+  color: $color-text;
+}
+
+.formActions {
+  display: flex;
+  gap: $space-sm;
+}

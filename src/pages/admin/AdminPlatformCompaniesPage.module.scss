@@ -1,0 +1,71 @@
+@use '@styles/abstracts' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.title {
+  font-size: $font-size-xl;
+  color: $color-text;
+  margin: 0;
+}
+
+.lead {
+  color: $text-muted;
+  margin: 0;
+
+  code {
+    background: $bg-muted;
+    border-radius: $border-radius-sm;
+    padding: 0 $space-xs;
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $space-md;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 100%;
+}
+
+.createForm {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.formActions {
+  display: flex;
+  gap: $space-sm;
+}
+
+.rowActions {
+  display: inline-flex;
+  gap: $space-sm;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.filters {
+  display: flex;
+  gap: $space-md;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.provisionLink {
+  color: $accent-color;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
