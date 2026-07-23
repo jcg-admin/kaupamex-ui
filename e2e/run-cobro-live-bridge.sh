@@ -27,9 +27,9 @@
 # se exporta al proceso de Playwright.
 set -uo pipefail
 
-UI_DIR="/home/user/e-commerce-ui"
-API_DIR="/home/user/e-commerce-api"
-DB_START="/home/user/e-commerce-db/scripts/start_db.sh"
+UI_DIR="/home/user/kaupamex-ui"
+API_DIR="/home/user/kaupamex-api"
+DB_START="/home/user/kaupamex-db/scripts/start_db.sh"
 ENV_FILE="$API_DIR/practicayoruba/.env"
 API_HOST="127.0.0.1"; API_PORT="8000"
 LOG_DIR="/tmp"; DJANGO_LOG="$LOG_DIR/mp-bridge-django.log"

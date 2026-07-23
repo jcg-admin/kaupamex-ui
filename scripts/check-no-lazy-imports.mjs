@@ -210,7 +210,7 @@ async function main() {
       stderr.write(`  ${f.filePath}:${f.line}: ${f.stmt}\n`);
     }
     stderr.write(`\n  Total: ${findings.length} lazy import(s).\n\n`);
-    stderr.write('Lazy imports estan PROHIBIDOS en e-commerce-ui/src/**.\n');
+    stderr.write('Lazy imports estan PROHIBIDOS en kaupamex-ui/src/**.\n');
     stderr.write('Excepcion: React.lazy(() => import("./Component")) a top-level.\n');
     stderr.write('Ver iniciativa\n');
     stderr.write('  docs/source/gestion/pm/ui/iniciativas/eliminar-lazy-imports-ui/\n');

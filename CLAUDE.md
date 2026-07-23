@@ -1,6 +1,6 @@
-# CLAUDE.md — e-commerce-ui
+# CLAUDE.md — kaupamex-ui
 
-Submódulo `ui` del monorepo PracticaYoruba (repo GitHub `jcg-admin/e-commerce-ui`).
+Submódulo `ui` del monorepo PracticaYoruba (repo GitHub `jcg-admin/kaupamex-ui`).
 Frontend "PracticaYoruba UI": e-commerce de productos Yoruba en React 19 + Webpack 5.
 
 ## Gobernanza
@@ -8,8 +8,8 @@ Frontend "PracticaYoruba UI": e-commerce de productos Yoruba en React 19 + Webpa
 Esta es una cheat-sheet local — NO redefine la gobernanza. La gobernanza vive en el
 superproyecto y aplica también aquí:
 
-- `../e-commerce/.claude/CLAUDE.md` — contexto/flujo del proyecto (Level 2).
-- `../e-commerce/.claude/rules/` — reglas no negociables, entre ellas:
+- `../kaupamex/.claude/CLAUDE.md` — contexto/flujo del proyecto (Level 2).
+- `../kaupamex/.claude/rules/` — reglas no negociables, entre ellas:
   - `commit-conventions.md` — commits estilo Tim Pope (subject imperativo ≤50 ch, sin punto).
   - `timestamps-iso8601-obligatorios.md` — `date -u +"%Y-%m-%dT%H:%M:%S"`, nunca a mano.
   - `react-verification-gate.md` — toda afirmación de estado deriva de una Observation real.

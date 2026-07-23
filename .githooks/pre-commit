@@ -5,7 +5,7 @@
 # Cargado via 'git config core.hooksPath .githooks' dentro del repo ui/.
 #
 # Activacion:
-#   cd /home/user/e-commerce/ui
+#   cd /home/user/kaupamex/ui
 #   bash scripts/install-hooks.sh
 #
 # Gates activos:

@@ -1,7 +1,7 @@
 // Portado del prototipo funcional template-ecommerce-ui (codigo propio del ejecutor).
 // Origen: template-ecommerce-ui/src/components/common/Popover/Popover.jsx
 //
-// ADAPTACION e-commerce-ui: el prototipo usa `@floating-ui/react` (no instalado
+// ADAPTACION kaupamex-ui: el prototipo usa `@floating-ui/react` (no instalado
 // aqui). Se hace rewire al hook nativo `@hooks/ui/useFloating` (mismo contrato
 // `refs`/`floatingStyles`). El offset por defecto del prototipo (distancia 8)
 // se mapea a `offsetPx: 8`; `flip`/`shift` no tienen equivalente nativo

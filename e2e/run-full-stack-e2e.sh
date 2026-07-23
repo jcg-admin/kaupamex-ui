@@ -57,11 +57,11 @@ PARENT="$(cd "$UI_DIR/.." && pwd)"
 SUPERREPO="${SUPERREPO:-$PARENT}"
 
 # Resuelve api/db en DOS layouts (H-UI-LOG-05): monorepo ($PARENT/api,
-# $PARENT/db) o clones separados hermanos ($PARENT/e-commerce-api, o el sufijo
-# -ui->-api del propio UI_DIR: /home/user/e-commerce-ui -> .../e-commerce-api).
+# $PARENT/db) o clones separados hermanos ($PARENT/kaupamex-api, o el sufijo
+# -ui->-api del propio UI_DIR: /home/user/kaupamex-ui -> .../kaupamex-api).
 _resolve_dir() {  # _resolve_dir <role: api|db>
     local role="$1" cand
-    for cand in "$PARENT/$role" "$PARENT/e-commerce-$role" "$PARENT/e-comerce-$role" "${UI_DIR%-ui}-$role"; do
+    for cand in "$PARENT/$role" "$PARENT/e-commerce-$role" "$PARENT/kaupamex-$role" "${UI_DIR%-ui}-$role"; do
         [ -d "$cand" ] && { printf '%s\n' "$cand"; return 0; }
     done
     return 1
