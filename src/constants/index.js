@@ -11,21 +11,28 @@ export const API_BASE = process.env.API_URL || '';
 // Paginación por defecto
 export const DEFAULT_PAGE_SIZE = 20;
 
-// Estados de orden (deben coincidir con el backend)
+// Estados de orden — vocabulario canónico del contrato ?status= (O2C
+// rebanada 6). Deriva de los ejes O2C (sale.state + pago + guía). Los 3
+// valores muertos del enum legacy (PROCESSING, IN_PREPARATION, REFUNDED)
+// quedaron fuera: la proyección canónica nunca los emite. DRAFT es un estado
+// de la SaleOrder (carrito), no de una orden materializada — el API lo acepta
+// por completitud pero no aplica a esta lista.
 export const ORDER_STATUS = {
-  PENDING:         'PENDING',
-  IN_PREPARATION:  'IN_PREPARATION',
-  SHIPPED:         'SHIPPED',
-  DELIVERED:       'DELIVERED',
-  CANCELLED:       'CANCELLED',
+  DRAFT:     'DRAFT',
+  PENDING:   'PENDING',
+  PAID:      'PAID',
+  SHIPPED:   'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
 };
 
 export const ORDER_STATUS_LABELS = {
-  PENDING:        'Pendiente',
-  IN_PREPARATION: 'En preparación',
-  SHIPPED:        'Enviado',
-  DELIVERED:      'Entregado',
-  CANCELLED:      'Cancelado',
+  DRAFT:     'Borrador',
+  PENDING:   'Pendiente',
+  PAID:      'Pagado',
+  SHIPPED:   'Enviado',
+  DELIVERED: 'Entregado',
+  CANCELLED: 'Cancelado',
 };
 
 // Estados de pago

@@ -114,11 +114,13 @@ describe('AdminOrdersPage (UC-ORD-09)', () => {
 
     await screen.findByText('PY-2026-000101');
 
-    // Click the "Procesando" status filter button
-    await user.click(screen.getByRole('button', { name: /Procesando/i }));
+    // O2C R6: el vocabulario canónico reemplaza los valores muertos del enum
+    // legacy. Se filtra por "Pagado" (PAID) — antes "Procesando" (PROCESSING),
+    // un valor muerto que el API ahora rechaza con 400.
+    await user.click(screen.getByRole('button', { name: /Pagado/i }));
 
     await waitFor(() =>
-      expect(lastUrl?.searchParams.get('status')).toBe('PROCESSING'),
+      expect(lastUrl?.searchParams.get('status')).toBe('PAID'),
     );
   });
 
