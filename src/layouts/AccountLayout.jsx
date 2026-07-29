@@ -13,7 +13,7 @@ import Avatar from '@components/common/Avatar/Avatar';
 import BadgeContainer from '@components/common/BadgeContainer/BadgeContainer';
 import Badge from '@components/common/Badge/Badge';
 import ToastContainer from '@components/common/Toast/ToastContainer';
-import { useUnreadNotificationsCount } from '@hooks/domain/useNotifications';
+import { useUnreadNotificationsCount, useNotificationsBusSync } from '@hooks/domain/useNotifications';
 import useAccountMenu from '@hooks/domain/useAccountMenu';
 import styles from './AccountLayout.module.scss';
 
@@ -40,6 +40,8 @@ const NAV_ITEMS = [
 export default function AccountLayout() {
   const user = useSelector(selectUser);
   const { data: unreadCount = 0 } = useUnreadNotificationsCount({ enabled: !!user });
+  // El bus mantiene fresco el badge (T-078); el sondeo del hook queda como red.
+  useNotificationsBusSync({ enabled: !!user });
   const { items: navItems } = useAccountMenu(NAV_ITEMS, { enabled: !!user });
 
   return (

@@ -25,27 +25,24 @@ import AdminGuideCreate from '@components/admin/AdminGuideCreate';
 import styles from './AdminOrderDetailPage.module.scss';
 
 const STATUS_LABEL = {
-  PENDING:        'Pendiente',
-  PENDING_PAYMENT:'Pendiente de pago',
-  PROCESSING:     'En proceso',
-  PAID:           'Pagada',
-  IN_PREPARATION: 'En preparacion',
-  SHIPPED:        'Enviado',
-  DELIVERED:      'Entregado',
-  CANCELLED:      'Cancelado',
+  DRAFT:     'Borrador',
+  PENDING:   'Pendiente',
+  PAID:      'Pagada',
+  SHIPPED:   'Enviado',
+  DELIVERED: 'Entregado',
+  CANCELLED: 'Cancelado',
 };
 
-// H-ADM-002: transiciones permitidas (alineadas con admin_services.py
-// ALLOWED_TRANSITIONS + ADMIN_CANCELABLE_STATUSES de la api).
+// O2C R7 (ADR-026): vocabulario canónico de 6 valores, espejo de
+// admin_services.py ALLOWED_TRANSITIONS + ADMIN_CANCELABLE_STATUSES. Los
+// estados muertos PROCESSING/IN_PREPARATION/REFUNDED salen del contrato.
 const ALLOWED_TRANSITIONS = {
-  PENDING:        ['PROCESSING', 'CANCELLED'],
-  PROCESSING:     ['PAID', 'IN_PREPARATION', 'CANCELLED'],
-  PAID:           ['IN_PREPARATION', 'CANCELLED'],
-  IN_PREPARATION: ['SHIPPED'],
-  SHIPPED:        ['DELIVERED'],
+  PENDING: ['PAID', 'SHIPPED', 'CANCELLED'],
+  PAID:    ['SHIPPED', 'CANCELLED'],
+  SHIPPED: ['DELIVERED'],
 };
 
-const ADMIN_CANCELLABLE = new Set(['PENDING', 'PROCESSING', 'PAID', 'IN_PREPARATION']);
+const ADMIN_CANCELLABLE = new Set(['PENDING', 'PAID']);
 
 function formatCurrency(value) {
   if (value === null || value === undefined || value === '') return '—';
@@ -177,8 +174,9 @@ export default function AdminOrderDetailPage() {
         </section>
       )}
 
-      {/* COV-04a: crear la guía de envío cuando la orden está lista (IN_PREPARATION). */}
-      {order.status === 'IN_PREPARATION' && (
+      {/* COV-04a / O2C R7: crear la guía de envío cuando la orden está pagada
+          (PAID) y aún sin enviar. Antes se gateaba en IN_PREPARATION (muerto). */}
+      {order.status === 'PAID' && (
         <section className={styles.section} aria-label="Guía de envío">
           <AdminGuideCreate orderNumber={order.order_number} />
         </section>

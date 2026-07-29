@@ -32,6 +32,7 @@ jest.mock('@hooks/useMpCardForm', () => ({
 import paymentsReducer from '@redux/slices/paymentsSlice';
 import cardsReducer    from '@redux/slices/cardsSlice';
 import ordersReducer   from '@redux/slices/ordersSlice';
+import { __resetBusCursor } from '@hooks/domain/useBusEvents';
 import PaymentSelectionPage from './PaymentSelectionPage';
 
 const BASE = process.env.API_URL || 'http://localhost:8000';
@@ -309,8 +310,59 @@ describe('PaymentSelectionPage', () => {
     });
     render(wrap(<PaymentSelectionPage />, store));
     expect(screen.getByTestId('non-card-result')).toBeInTheDocument();
-    // Al vencer el intervalo, /status/ devuelve approved → navega a confirmación.
-    await act(async () => { await jest.advanceTimersByTimeAsync(6000); });
+    // T-078: el sondeo dejó de ser el mecanismo y pasó a ser la red de
+    // seguridad — su cadencia es STATUS_POLL_MS (60 s), no los 6 s previos.
+    // Lo que se fija aquí es que la red sigue existiendo: aunque no llegue
+    // ningún evento del bus, al vencer el intervalo /status/ devuelve
+    // approved y navega a confirmación.
+    await act(async () => { await jest.advanceTimersByTimeAsync(60_000); });
+    expect(screen.getByText('Confirmación')).toBeInTheDocument();
+    jest.useRealTimers();
+  });
+
+  it('T-078: un evento pago.estado del bus adelanta la comprobación', async () => {
+    jest.useFakeTimers();
+    __resetBusCursor();
+    server.use(
+      http.get(`${BASE}/api/v2/bus/poll/`, () =>
+        HttpResponse.json({
+          last: 7,
+          notifications: [{
+            id: 7,
+            message: {
+              type: 'pago.estado',
+              payload: { payment_id: 1, sale_order_id: 1, status: 'approved' },
+            },
+          }],
+        }),
+      ),
+      http.get(`${BASE}/api/v2/payments/:id/status/`, () =>
+        HttpResponse.json({ status: 'approved' }),
+      ),
+    );
+    const store = configureStore({
+      reducer: {
+        payments: paymentsReducer,
+        cards:    cardsReducer,
+        auth:     () => ({ user: { email: 'buyer@test.com' } }),
+      },
+      preloadedState: {
+        payments: {
+          isActioning: false, actionError: null, lastAction: 'mp_non_card',
+          lastInitiation: {
+            gateway: 'mercadopago', status: 'pending',
+            external_resource_url: 'https://mp.com/voucher/oxxo/abc',
+            date_of_expiration: '2026-07-07T00:00:00Z',
+          },
+          lastRefund: null, lastCancellation: null,
+        },
+      },
+    });
+    render(wrap(<PaymentSelectionPage />, store));
+    expect(screen.getByTestId('non-card-result')).toBeInTheDocument();
+    // Un ciclo del bus (10 s) basta: el evento dispara comprobarEstado sin
+    // esperar los 60 s de la red de seguridad. Ésta es la ganancia de T-078.
+    await act(async () => { await jest.advanceTimersByTimeAsync(10_000); });
     expect(screen.getByText('Confirmación')).toBeInTheDocument();
     jest.useRealTimers();
   });

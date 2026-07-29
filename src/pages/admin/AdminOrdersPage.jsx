@@ -24,26 +24,25 @@ const CSV_COLUMNS = [
   { key: 'status',       header: 'Estado' },
 ];
 
+// O2C rebanada 6: el filtro ?status= habla el vocabulario canónico (5 estados
+// alcanzables por una orden). Los valores muertos del enum legacy (PROCESSING,
+// IN_PREPARATION, CANCELLED_TIMEOUT, REFUNDED) salieron del contrato — el API
+// los rechaza con 400. CANCELLED colapsa cancelación normal y por timeout.
 const STATUS_FILTERS = [
-  { id: 'all',               label: 'Todos' },
-  { id: 'PENDING',           label: 'Pendiente pago' },
-  { id: 'PROCESSING',        label: 'Procesando' },
-  { id: 'IN_PREPARATION',    label: 'Preparación' },
-  { id: 'SHIPPED',           label: 'En camino' },
-  { id: 'DELIVERED',         label: 'Entregado' },
-  { id: 'CANCELLED',         label: 'Cancelado' },
-  { id: 'CANCELLED_TIMEOUT', label: 'Cancelado (timeout)' },
-  { id: 'REFUNDED',          label: 'Reembolsado' },
+  { id: 'all',       label: 'Todos' },
+  { id: 'PENDING',   label: 'Pendiente pago' },
+  { id: 'PAID',      label: 'Pagado' },
+  { id: 'SHIPPED',   label: 'En camino' },
+  { id: 'DELIVERED', label: 'Entregado' },
+  { id: 'CANCELLED', label: 'Cancelado' },
 ];
 
 const STATUS_TONE = {
-  PENDING:        'muted',
-  PROCESSING:     'coral',
-  IN_PREPARATION: 'coral',
-  SHIPPED:        'coral',
-  DELIVERED:      'lime',
-  CANCELLED:      'vino',
-  REFUNDED:       'bronze',
+  PENDING:   'muted',
+  PAID:      'coral',
+  SHIPPED:   'coral',
+  DELIVERED: 'lime',
+  CANCELLED: 'vino',
 };
 
 export default function AdminOrdersPage() {

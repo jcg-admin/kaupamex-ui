@@ -70,7 +70,7 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
     server.use(
       http.patch(`${BASE}/api/v2/admin/orders/PY-2026-000101/status/`, async ({ request }) => {
         lastPatchBody = await request.json();
-        return HttpResponse.json({ ...ORDER, status: 'PROCESSING' });
+        return HttpResponse.json({ ...ORDER, status: 'PAID' });
       }),
     );
     const user = userEvent.setup();
@@ -78,11 +78,11 @@ describe('AdminOrderDetailPage (UC-ORD-07 detalle + transicion)', () => {
     render(wrap(<AdminOrderDetailPage />));
     await screen.findByRole('heading', { name: /Pedido PY-2026-000101/i });
 
-    await user.selectOptions(screen.getByLabelText(/Nuevo estado/i), 'PROCESSING');
+    await user.selectOptions(screen.getByLabelText(/Nuevo estado/i), 'PAID');
     await user.click(screen.getByRole('button', { name: /Aplicar transicion/i }));
 
     await waitFor(() => {
-      expect(lastPatchBody).toMatchObject({ new_status: 'PROCESSING' });
+      expect(lastPatchBody).toMatchObject({ new_status: 'PAID' });
     });
   });
 
