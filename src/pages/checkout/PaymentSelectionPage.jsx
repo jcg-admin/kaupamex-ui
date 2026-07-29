@@ -40,10 +40,16 @@ import Skeleton           from '@components/common/Skeleton/Skeleton';
 import ProgressBar        from '@components/common/ProgressBar/ProgressBar';
 import { paymentStatusDetail } from '@lib/paymentStatusDetail';
 import apiService from '@services/apiService';
+import { useBusListener } from '@hooks/domain/useBusEvents';
 import styles from './PaymentSelectionPage.module.scss';
 
 // PG-10: cada cuánto se sondea el estado de un pago diferido (OXXO/SPEI).
-const STATUS_POLL_MS = 6000;
+// Red de seguridad, no el mecanismo principal: el bus avisa a los ~10 s
+// (T-078), así que el sondeo pasa de 6 s a 60 s. Se conserva porque el endpoint
+// de estado sigue siendo la verdad — si el evento se pierde, esto lo corrige
+// (H-API-71). Antes era el único sondeo y no tenía tope de intentos: un pago
+// OXXO/SPEI pendiente lo mantenía a 6 s durante horas.
+const STATUS_POLL_MS = 60_000;
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -341,6 +347,24 @@ export default function PaymentSelectionPage() {
   // la confirmación — el comprador no tiene que refrescar la página.
   const nonCardPending = view === 'non-card-result'
     && ['pending', 'in_process'].includes(lastInitiation?.status);
+
+  // Camino rápido: el bus anuncia el cambio de estado y se comprueba en el acto
+  // en vez de esperar al siguiente tick. El evento no decide nada por sí solo —
+  // se consulta el endpoint, que es la verdad (H-API-71).
+  const comprobarEstado = useCallback(async () => {
+    try {
+      const { data } = await apiService.get(`/api/v2/payments/${orderId}/status/`);
+      const st = String(data?.status || '').toLowerCase();
+      if (st === 'approved' || st === 'paid') {
+        navigate(`/order/${orderId}/confirmation`);
+      }
+    } catch {
+      // Un fallo de red no rompe la espera: el sondeo de respaldo sigue vivo.
+    }
+  }, [orderId, navigate]);
+
+  useBusListener('pago.estado', comprobarEstado, { enabled: nonCardPending });
+
   useEffect(() => {
     if (!nonCardPending) return undefined;
     const timer = setInterval(async () => {

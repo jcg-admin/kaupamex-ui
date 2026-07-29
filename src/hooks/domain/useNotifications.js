@@ -6,8 +6,10 @@
  *   useUnreadNotificationsCount — badge de cabecera
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiService from '@services/apiService';
+
+import { useBusListener } from './useBusEvents';
 
 const LIST_URL          = '/api/v2/notifications/';
 const UNREAD_COUNT_URL  = '/api/v2/notifications/unread-count/';
@@ -16,6 +18,23 @@ const PREFERENCES_URL   = '/api/v2/notifications/preferences/';
 export const NOTIFICATIONS_KEY              = ['notifications'];
 export const NOTIFICATIONS_UNREAD_COUNT_KEY = ['notifications', 'unread-count'];
 export const NOTIFICATION_PREFERENCES_KEY   = ['notifications', 'preferences'];
+
+/** Sondeo de respaldo del badge. El camino rápido es el bus (T-078). */
+export const UNREAD_FALLBACK_MS = 300_000;
+
+/**
+ * Invalida el contador cuando el bus anuncia una notificación nueva.
+ *
+ * El evento **no** trae el contador: dispara el refetch del endpoint, que sigue
+ * siendo la fuente de verdad (H-API-71). Montarlo una sola vez, donde vive el
+ * badge.
+ */
+export function useNotificationsBusSync({ enabled = true } = {}) {
+  const queryClient = useQueryClient();
+  return useBusListener('notificacion', () => {
+    queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY });
+  }, { enabled });
+}
 
 /**
  * H-CICLO88-02: la API ahora pagina la bandeja (PageNumberPagination,
@@ -48,8 +67,11 @@ export function useUnreadNotificationsCount({ enabled = true } = {}) {
       return data?.count ?? data?.unread_count ?? 0;
     },
     enabled,
-    // Refresca el badge cada minuto sin requerir interaccion.
-    refetchInterval: 60_000,
+    // Red de seguridad, no el mecanismo principal: el bus avisa a los ~10 s
+    // (T-078), así que el sondeo baja de 60 s a 5 min. Se conserva porque el
+    // endpoint sigue siendo la verdad — si un evento se pierde, esto lo corrige
+    // (H-API-71).
+    refetchInterval: UNREAD_FALLBACK_MS,
   });
 }
 
