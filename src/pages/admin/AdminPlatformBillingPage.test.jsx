@@ -14,6 +14,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '@mocks/server';
+import { formatCurrency } from '@lib/intl';
 
 import AdminPlatformBillingPage from './AdminPlatformBillingPage';
 
@@ -71,7 +72,10 @@ describe('AdminPlatformBillingPage', () => {
     wrap();
     await waitFor(() => expect(screen.getByText('2026-08')).toBeInTheDocument());
     const table = within(screen.getAllByRole('table')[0]);
-    expect(table.getByText('597.00')).toBeInTheDocument();
+    // La celda rinde el monto con `lib/intl` (es-MX + divisa de la fila), o sea
+    // "$597.00" en un solo nodo: un match exacto de '597.00' no existe.
+    expect(table.getByText(formatCurrency('597.00', { currency: 'MXN' })))
+      .toBeInTheDocument();
   });
 
   it('dispara una corrida manual con POST a billing/runs/', async () => {

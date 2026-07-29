@@ -27,6 +27,7 @@ import { DataTable } from '@components/common';
 import { MetaTag, Select, Button } from '@components/common/primitives';
 import Badge from '@components/common/Badge/Badge';
 import Alert from '@components/common/Alert/Alert';
+import { formatCurrency } from '@lib/intl';
 import styles from './AdminPlatformBillingPage.module.scss';
 
 const RUNS_URL = '/api/v2/platform/billing/runs/';
@@ -42,8 +43,11 @@ const INVOICE_STATUS = {
   void:   { label: 'Anulada',       theme: 'secondary' },
 };
 
+// Formato de dinero: primitivo del proyecto (`lib/intl`), no un helper a mano
+// — el canon `ui-documentada-en-implementacion` pide adoptar los existentes.
+// La divisa viaja por fila porque una corrida puede cobrar en más de una.
 const money = (amount, currency) =>
-  amount == null ? '—' : `${amount} ${currency || ''}`.trim();
+  amount == null ? '—' : formatCurrency(amount, currency ? { currency } : {});
 const shortDate = (v) => (v ? new Date(v).toLocaleString('es-MX') : '—');
 
 export default function AdminPlatformBillingPage() {

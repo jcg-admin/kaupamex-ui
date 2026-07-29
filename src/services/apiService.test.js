@@ -208,3 +208,51 @@ describe('apiService resolucion de baseURL (SOL-081, same-origin)', () => {
     expect(calledUrl).toBe('http://localhost:8000/api/v2/admin/logs/');
   });
 });
+
+describe('apiService reintento solo en metodos idempotentes (H-UI-*, doble cargo)', () => {
+  let originalFetch;
+
+  // 503 es reintentable por status, pero el metodo decide si se reintenta.
+  const failing503 = () => jest.fn(async () => ({
+    ok: false, status: 503,
+    headers: { get: () => null },
+    json: async () => ({ codigo_error: 'GATEWAY_NOT_CONFIGURED', detail: 'no cableado' }),
+  }));
+
+  beforeEach(() => {
+    originalFetch = global.fetch;
+    mockInterceptor.intercept.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.clearAllMocks();
+  });
+
+  it('POST con 503 falla al primer intento: no reintenta (evita duplicar el cargo)', async () => {
+    const api = new APIService('http://localhost:8000', { retryDelay: 1 });
+    const fetchMock = failing503();
+    global.fetch = fetchMock;
+
+    await expect(api.post('/api/v2/platform/invoices/42/retry/')).rejects.toBeDefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('PATCH con 503 tampoco reintenta', async () => {
+    const api = new APIService('http://localhost:8000', { retryDelay: 1 });
+    const fetchMock = failing503();
+    global.fetch = fetchMock;
+
+    await expect(api.patch('/api/v2/platform/companies/2/', { name: 'x' })).rejects.toBeDefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET con 503 si reintenta hasta agotar los intentos (idempotente)', async () => {
+    const api = new APIService('http://localhost:8000', { retryDelay: 1, retryAttempts: 3 });
+    const fetchMock = failing503();
+    global.fetch = fetchMock;
+
+    await expect(api.get('/api/v2/platform/billing/runs/')).rejects.toBeDefined();
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+});
