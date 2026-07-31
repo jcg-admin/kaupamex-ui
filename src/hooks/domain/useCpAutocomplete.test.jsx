@@ -5,7 +5,7 @@
  *   - aplica debounce (~300ms) al C.P. antes de consultar,
  *   - exige EXACTAMENTE 5 digitos (query deshabilitada por debajo/encima),
  *   - llama GET /api/v2/geo/postal-codes/<cp>/?country=MX,
- *   - degrada con gracia un 404 (CP_NO_ENCONTRADO): notFound=true, data=null,
+ *   - degrada con gracia un 404 (POSTAL_CODE_NOT_FOUND): notFound=true, data=null,
  *     error=null (nunca bloquea al consumidor),
  *   - expone { loading, error, notFound, data }.
  */
@@ -100,10 +100,10 @@ describe('useCpAutocomplete (T-214)', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('un 404 (CP_NO_ENCONTRADO) degrada a notFound=true sin exponer error', async () => {
+  it('un 404 (POSTAL_CODE_NOT_FOUND) degrada a notFound=true sin exponer error', async () => {
     server.use(
       http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () =>
-        HttpResponse.json({ codigo_error: 'CP_NO_ENCONTRADO', detail: 'No existe' }, { status: 404 }), // canon-idioma: codigo_error real del api (contrato externo)
+        HttpResponse.json({ codigo_error: 'POSTAL_CODE_NOT_FOUND', detail: 'No existe' }, { status: 404 }), // canon-idioma: codigo_error real del api (contrato externo)
       ),
     );
 

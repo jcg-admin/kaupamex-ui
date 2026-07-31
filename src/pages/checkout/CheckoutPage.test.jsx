@@ -312,7 +312,7 @@ describe('CheckoutPage — autocompletado de C.P. (T-214)', () => {
     server.use(
       http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () => {
         handled = true;
-        return HttpResponse.json({ codigo_error: 'CP_NO_ENCONTRADO' }, { status: 404 }); // canon-idioma: codigo_error real del api (contrato externo)
+        return HttpResponse.json({ codigo_error: 'POSTAL_CODE_NOT_FOUND' }, { status: 404 }); // canon-idioma: codigo_error real del api (contrato externo)
       }),
     );
     const user = userEvent.setup();

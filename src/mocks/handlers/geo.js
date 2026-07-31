@@ -13,7 +13,7 @@ export const geoHandlers = [
   http.get(`${BASE}/api/v2/geo/postal-codes/:cp/`, () =>
     HttpResponse.json(
       // canon-idioma: refleja el codigo_error real del api (contrato externo, api@8921e37), no un identifier propio del mock.
-      { codigo_error: 'CP_NO_ENCONTRADO', detail: 'Código postal no encontrado.' },
+      { codigo_error: 'POSTAL_CODE_NOT_FOUND', detail: 'Código postal no encontrado.' },
       { status: 404 },
     ),
   ),

@@ -12,7 +12,7 @@
  *   GET /api/v2/geo/postal-codes/<cp>/?country=MX
  *     -> 200 {postal_code, country, state, municipality, city,
  *             settlements: [{settlement_name, settlement_type}, ...]}
- *     -> 404 {codigo_error: 'CP_NO_ENCONTRADO', detail}
+ *     -> 404 {codigo_error: 'POSTAL_CODE_NOT_FOUND', detail}
  *
  * Retorna `{ loading, error, notFound, data }`:
  *   - `data`     — el body del lookup, o null si no hay match/aun no se
@@ -34,7 +34,7 @@ export const CP_LOOKUP_KEY = ['geo', 'postal-code'];
 const CP_LENGTH    = 5;
 const DEBOUNCE_MS  = 300;
 // canon-idioma: codigo_error real del endpoint GeoPostalCodeView (contrato externo, api@8921e37) — no un identifier propio del UI.
-const CP_NOT_FOUND_CODE = 'CP_NO_ENCONTRADO';
+const CP_NOT_FOUND_CODE = 'POSTAL_CODE_NOT_FOUND';
 
 export function normalizeCp(raw) {
   if (typeof raw !== 'string') return '';
@@ -71,7 +71,7 @@ export function useCpAutocomplete(rawCp = '', options = {}) {
     staleTime: 5 * 60_000, // un C.P. no cambia de colonias durante la sesion
   });
 
-  // Un 404 (CP_NO_ENCONTRADO) es un resultado valido de "sin match" — no un
+  // Un 404 (POSTAL_CODE_NOT_FOUND) es un resultado valido de "sin match" — no un
   // error que deba mostrarse como fallo del formulario (graceful
   // degradation: la captura manual sigue disponible).
   const notFound = query.error?.statusCode === 404
