@@ -39,6 +39,16 @@ const DEFAULT_RETRY_DELAY    = 1_000;
 
 const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 
+// Reintentar automaticamente solo es seguro en metodos idempotentes (RFC 9110
+// 9.2.2). Un POST/PATCH que fallo con 5xx o corte de red pudo haberse aplicado
+// en el servidor antes de perder la respuesta: repetirlo duplica el efecto. En
+// este contrato el caso concreto es el cobro L0
+// (POST /api/v2/platform/invoices/<id>/retry/), donde un reintento ciego es un
+// cargo duplicado — y no existe clave de idempotencia que lo neutralice. El
+// reintento de una mutacion es decision del usuario (boton "Reintentar"), no
+// del transporte.
+const IDEMPOTENT_METHODS = new Set(['GET', 'HEAD', 'OPTIONS', 'PUT', 'DELETE']);
+
 class APIService {
   constructor(baseURL = '', options = {}) {
     this.baseURL       = baseURL || process.env.API_URL || '';
@@ -162,7 +172,7 @@ class APIService {
     } catch (err) {
       clearTimeout(timerId);
       if (err.name === 'AbortError') throw new TimeoutError(timeout);
-      if (attempt < this.retryAttempts) {
+      if (this._canRetry(method, attempt)) {
         await this._delay(this.retryDelay * attempt);
         return this._request(method, path, options, attempt + 1);
       }
@@ -172,7 +182,7 @@ class APIService {
     }
 
     if (!response.ok) {
-      if (RETRYABLE_STATUS.has(response.status) && attempt < this.retryAttempts) {
+      if (RETRYABLE_STATUS.has(response.status) && this._canRetry(method, attempt)) {
         await this._delay(this.retryDelay * attempt);
         return this._request(method, path, options, attempt + 1);
       }
@@ -214,6 +224,11 @@ class APIService {
   }
 
   _delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  // Un reintento requiere presupuesto de intentos Y un metodo idempotente.
+  _canRetry(method, attempt) {
+    return attempt < this.retryAttempts && IDEMPOTENT_METHODS.has(method);
+  }
 
   get(path, options)         { return this._request('GET',    path, options); }
   post(path, body, options)  { return this._request('POST',   path, { ...options, body }); }
