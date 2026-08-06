@@ -60,8 +60,15 @@
 
 import { readFileSync, statSync, existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import { join, extname, relative, resolve } from 'node:path';
-import { argv, exit, stderr, stdout, cwd } from 'node:process';
+import { join, extname, relative, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { argv, exit, stderr, stdout, cwd, chdir } from 'node:process';
+
+// Raíz del repo resuelta desde ESTE archivo. El barrido, la allowlist y los
+// paths del reporte son todos relativos al CWD, así que en vez de volverlos
+// absolutos —lo que rompería el prefijo de la allowlist— se fija el CWD al
+// repo en el modo sin argumentos. Ver H-API-336.
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 let parser;
 try {
@@ -217,6 +224,8 @@ async function collectFiles(args) {
   if (positional.length > 0) {
     return positional.filter((a) => EXTS.has(extname(a)) && existsSync(a));
   }
+  // Modo audit: medir el repo, no el directorio desde el que se invocó.
+  chdir(REPO_ROOT);
   const out = [];
   async function walk(dir) {
     let entries;
@@ -295,8 +304,14 @@ async function main() {
   const files = await collectFiles(cleanArgs);
 
   if (files.length === 0) {
-    stderr.write('check-canon-idioma: 0 archivos para escanear.\n');
-    exit(0);
+    // Con paths concretos: modo pre-commit sin archivos elegibles staged, el
+    // conjunto vacío es legítimo. Sin ellos: el gate no encontró su árbol y
+    // no puede afirmar nada, así que no sale verde.
+    const conPaths = cleanArgs.some((a) => !a.startsWith('--'));
+    stderr.write('check-canon-idioma: 0 archivos para escanear'
+      + (conPaths ? '.\n' : ' — el gate no puede afirmar nada. '
+        + 'Revisa SCAN_ROOTS.\n'));
+    exit(conPaths ? 0 : 2);
   }
 
   let totalViolations = 0;
@@ -334,7 +349,10 @@ async function main() {
   }
 
   if (totalViolations === 0) {
-    stdout.write('check-canon-idioma: OK — sin violaciones.\n');
+    // El denominador va junto al veredicto: un "OK" sin él no distingue un
+    // árbol limpio de un instrumento ciego (H-API-335).
+    stdout.write('check-canon-idioma: OK — sin violaciones '
+      + `(${files.length} archivos medidos).\n`);
     exit(0);
   }
 

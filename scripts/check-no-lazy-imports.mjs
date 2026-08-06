@@ -32,8 +32,15 @@
  */
 import { readFileSync, statSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import { join, extname } from 'node:path';
+import { join, extname, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { argv, exit, stderr, stdout } from 'node:process';
+
+// Raíz del repo resuelta desde ESTE archivo, no desde el CWD. Era relativa:
+// corrido desde cualquier otro directorio, el walk no encontraba nada y el
+// script salía 0 **sin imprimir nada** — un cero que se lee como limpieza.
+// Ver H-API-336.
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 let parser;
 try {
@@ -74,13 +81,20 @@ async function collectFiles(args) {
     }
   }
   for (const root of SCAN_ROOTS) {
-    await walk(root);
+    const abs = join(REPO_ROOT, root);
+    try {
+      statSync(abs);
+    } catch {
+      stdout.write(`check-no-lazy-imports: raíz ausente, se omite: ${root}\n`);
+      continue;
+    }
+    await walk(abs);
   }
   // Top-level config files que pueden tener requires.
   for (const f of SCAN_FILES) {
     try {
-      statSync(f);
-      out.push(f);
+      statSync(join(REPO_ROOT, f));
+      out.push(join(REPO_ROOT, f));
     } catch {
       // missing — skip silently.
     }
@@ -181,7 +195,16 @@ function findViolations(src, filePath) {
 async function main() {
   const args = argv.slice(2).filter((a) => !a.startsWith('--'));
   const files = await collectFiles(args);
-  if (files.length === 0) return 0;
+  if (files.length === 0) {
+    // Con argumentos: modo pre-commit sin archivos elegibles staged — el
+    // conjunto vacío lo fijó el commit, es legítimo.
+    if (args.length > 0) return 0;
+    // Sin argumentos: el gate no encontró su árbol. No puede afirmar nada,
+    // así que no sale verde.
+    stderr.write('check-no-lazy-imports: 0 archivos que medir — el gate no '
+      + 'puede afirmar nada. Revisa SCAN_ROOTS.\n');
+    return 2;
+  }
 
   const findings = [];
   let parseErrors = 0;
@@ -223,6 +246,9 @@ async function main() {
     return 2;
   }
 
+  // El denominador va junto al veredicto: un "OK" sin él no distingue un
+  // árbol limpio de un instrumento ciego (H-API-335).
+  stdout.write(`OK: sin lazy imports (${files.length} archivos medidos).\n`);
   return 0;
 }
 
