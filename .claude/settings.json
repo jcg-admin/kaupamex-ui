@@ -36,5 +36,18 @@
       "Bash(git reset --hard *)",
       "Bash(rm -rf *)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/inject-ui-skill-gate.py"
+          }
+        ]
+      }
+    ]
   }
 }
