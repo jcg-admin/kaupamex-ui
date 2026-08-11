@@ -11,9 +11,10 @@
 // (Playwright storageState no restauraria la sesion). Ver ADR-FE-004 v1.1.0,
 // precision 2.
 //
-// Credenciales: usuario del seed QA (api/scripts/provisioners/mysql/
-// db_qa_setup.sh). Ajustar via E2E_EMAIL / E2E_PASSWORD a un usuario
-// realmente sembrado (los defaults son placeholders).
+// Credenciales: usuario del seed QA, que crea `kaupamex-bin
+// create_seed_users` en api (la base la provisiona db). Ajustar via
+// E2E_EMAIL / E2E_PASSWORD a un usuario realmente sembrado — los defaults
+// son placeholders.
 const { test, expect } = require('@playwright/test');
 
 const EMAIL = process.env.E2E_EMAIL || 'buyer@e-commerce.test';

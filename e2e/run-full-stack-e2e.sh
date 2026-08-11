@@ -10,7 +10,7 @@
 # hace la orquestación. Entorno autoritativo (verde oficial): WSL (L-010).
 #
 # En el CONTENEDOR del agente corre para specs BUYER *localhost-only* (login +
-# navegación + screenshot): MariaDB por socket (start_db.sh + DB_SOCKET, ver
+# navegación + screenshot): PostgreSQL por socket (start_postgres.sh + DB_SOCKET, ver
 # abajo), Node v22 nativo, Chromium en /opt/pw-browsers. Libera :8000/:3001
 # antes de arrancar (free_port, H-UI-LOG-07) y resuelve monorepo O clones
 # separados (H-UI-LOG-05).
@@ -41,8 +41,8 @@
 #   E2E_ADMIN_EMAIL/E2E_ADMIN_PASS    creds admin (specs autenticados)
 #   ADMIN_EMAIL/ADMIN_USERNAME/ADMIN_PASSWORD  seed del admin (is_staff)
 #   PW_BASE_URL      default http://localhost:3001 (perfil dev cross-origin)
-#   DB_SSL_MODE      DISABLED in-container (socket, H-API-LOG-04); vacío en WSL/TCP
-#   DB_SOCKET        /run/mysqld/mysqld.sock in-container; vacío en WSL/TCP
+#   DB_SOCKET        /var/run/postgresql in-container (el DIRECTORIO del
+#                    socket: en libpq el socket es el HOST); vacío en WSL/TCP
 #   E2E_SPEC         spec único a correr (default: todos los *.e2e.js)
 #   E2E_MP_BRIDGE    =1 para specs de egress MP (con HTTPS_PROXY)
 #
@@ -106,14 +106,13 @@ export ADMIN_EMAIL ADMIN_USERNAME ADMIN_PASSWORD
 export E2E_ADMIN_EMAIL="${E2E_ADMIN_EMAIL:-$ADMIN_EMAIL}"
 export E2E_ADMIN_PASS="${E2E_ADMIN_PASS:-$ADMIN_PASSWORD}"
 
-# DB por socket local + TLS apagado para el perfil dev (H-API-LOG-04): el
-# MariaDB local/CI tiene cert self-signed; con la verificación por certifi
-# (default) la conexión rompe con "certificate verify failed". DB_SSL_MODE=
-# DISABLED apaga TLS (paridad con testing.py) y DB_SOCKET usa el socket que
-# start_db.sh levanta. En WSL/CI con TCP+SSL real, exporta DB_SSL_MODE="" y
-# DB_SOCKET="" para conservar el camino TCP+SSL.
-export DB_SSL_MODE="${DB_SSL_MODE:-DISABLED}"
-export DB_SOCKET="${DB_SOCKET:-/run/mysqld/mysqld.sock}"
+# DB por socket local. Motor PostgreSQL desde ADR-028 — en libpq el socket
+# ES el HOST: DB_SOCKET designa el DIRECTORIO del socket (/var/run/postgresql),
+# no el archivo, y el PORT nombra el archivo (.s.PGSQL.5432). Ver H-API-305.
+#
+# DB_SSL_MODE se retiro: era una clave del conector MySQL/MariaDB para apagar
+# TLS contra el cert self-signed de aquel servidor. psycopg no la lee.
+export DB_SOCKET="${DB_SOCKET:-/var/run/postgresql}"
 
 API_LOG=/tmp/e2e-api.log
 UI_LOG=/tmp/e2e-ui.log
@@ -159,20 +158,22 @@ export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR
 ( cd "$UI_DIR" && nvm use >/dev/null 2>&1 || true )
 node -v | grep -q '^v22\.' || { echo "Node != v22 — corre 'nvm use 22'"; exit 1; }
 
-# ─── 1) DB: MariaDB socket + migrate + seed (usuarios + catálogo) ────────────
-log "1/4 db: arrancando MariaDB + migrate + seed"
-bash "$DB_DIR/scripts/start_db.sh"
+# ─── 1) DB: PostgreSQL socket + migrate + seed (usuarios + catálogo) ─────────
+log "1/4 db: arrancando PostgreSQL + migrate + seed"
+bash "$DB_DIR/scripts/start_postgres.sh"
+# kaupamex-bin resuelve el src-layout por si mismo: no hay PYTHONPATH que
+# armar, y `practicayoruba/manage.py` no existe desde el rename a src/.
 ( cd "$API_DIR" && \
-  uv run python practicayoruba/manage.py migrate --settings=config.settings.development && \
-  uv run python practicayoruba/manage.py create_seed_users   --settings=config.settings.development && \
-  uv run python practicayoruba/manage.py create_seed_catalog --settings=config.settings.development )
+  uv run ./kaupamex-bin migrate            --settings=config.settings.development && \
+  uv run ./kaupamex-bin create_seed_users  --settings=config.settings.development && \
+  uv run ./kaupamex-bin create_seed_catalog --settings=config.settings.development )
 
 # ─── 2) API: runserver :8000 (perfil develop) ───────────────────────────────
 log "2/4 api: runserver :8000 (log: $API_LOG)"
 free_port 8000   # evita servir desde un runserver stale (H-UI-LOG-07)
 ( cd "$API_DIR" && \
   DJANGO_SETTINGS_MODULE=config.settings.development \
-  uv run python practicayoruba/manage.py runserver 0.0.0.0:8000 ) >"$API_LOG" 2>&1 &
+  uv run ./kaupamex-bin server 0.0.0.0:8000 ) >"$API_LOG" 2>&1 &
 API_PID=$!
 wait_http "http://localhost:8000/api/schema/" 60
 
