@@ -60,7 +60,7 @@ H-UI-LOG-05.
 **En el contenedor del agente** (MariaDB por socket) exportar además:
 
 ```bash
-export DB_SSL_MODE=DISABLED DB_SOCKET=/run/mysqld/mysqld.sock   # H-API-LOG-04
+export DB_SOCKET=/var/run/postgresql   # el DIRECTORIO del socket (ADR-028)
 ```
 
 En WSL/CI con TCP+SSL real, dejar ambas vacías. El **verde autoritativo se
@@ -81,13 +81,15 @@ specs *localhost-only*.
 ### Pasos manuales (la versión expandida del script)
 
 ```bash
-# [deploy] BD viva + QA sembrada (por socket)
-sudo bash /opt/practicayoruba/db/scripts/start_db.sh
-sudo bash /opt/practicayoruba/api/scripts/provisioners/mysql/db_qa_setup.sh
+# [deploy] BD viva + QA creada (por socket)
+# Motor PostgreSQL desde ADR-028; el provisioning vive en db, no en api
+# (api/scripts/provisioners/mysql/ quedo retirado — H-API-385).
+sudo bash /opt/practicayoruba/db/scripts/start_postgres.sh
+sudo bash /opt/practicayoruba/db/provisioners/postgresql/db_setup.sh --qa
 
 # [develop] api sirviendo endpoints (:8000)
 cd /opt/practicayoruba/api
-uv run python practicayoruba/manage.py runserver 0.0.0.0:8000 &
+uv run ./kaupamex-bin server 0.0.0.0:8000 &
 
 # [develop] ui servida (:3001, dev) — cross-origin contra api
 export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
