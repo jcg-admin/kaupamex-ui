@@ -3,7 +3,7 @@
 # run-full-stack-e2e.sh — runbook de UN comando para el E2E de navegador.
 # =============================================================================
 # Arranca, EN ORDEN, las tres capas reales y corre Playwright:
-#   db (MariaDB socket + migrate + seed) -> api (runserver :8000)
+#   db (PostgreSQL socket + migrate + seed) -> api (runserver :8000)
 #   -> ui (webpack serve :3001) -> playwright (npm run e2e)
 #
 # Playwright NO tiene webServer (ver playwright.config.js); este script

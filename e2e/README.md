@@ -42,7 +42,7 @@ E2E_SPEC=smoke.e2e.js bash e2e/run-full-stack-e2e.sh    # solo un spec
 
 El script aplica el gate **Node 22** (L-012), **libera `:8000`/`:3001`**
 antes de arrancar (evita servir desde un servidor stale — H-UI-LOG-07) y
-arranca MariaDB → `migrate` → `create_seed_users` → `create_seed_catalog`
+arranca PostgreSQL → `migrate` → `create_seed_users` → `create_seed_catalog`
 → `runserver :8000` → `npm run dev :3001` → `npm run e2e`. Resuelve tanto
 el **monorepo** (`$PARENT/{api,db}`) como **clones separados hermanos**
 (`${UI_DIR%-ui}-{api,db}`, p.ej. `/home/user/kaupamex-{api,db,ui}`) —
@@ -57,7 +57,7 @@ H-UI-LOG-05.
 | MP egress (createCardToken) | `E2E_MP_BRIDGE=1` + `HTTPS_PROXY` | usa `e2e/fixtures/mp-bridge.js`; no egress directo in-container |
 | Comunes | `PW_BASE_URL` (default `http://localhost:3001`), `SUPERREPO`/`API_DIR`/`DB_DIR`/`UI_DIR` | `PW_BASE_URL` = perfil dev cross-origin |
 
-**En el contenedor del agente** (MariaDB por socket) exportar además:
+**En el contenedor del agente** (PostgreSQL por socket) exportar además:
 
 ```bash
 export DB_SOCKET=/var/run/postgresql   # el DIRECTORIO del socket (ADR-028)
@@ -84,16 +84,16 @@ specs *localhost-only*.
 # [deploy] BD viva + QA creada (por socket)
 # Motor PostgreSQL desde ADR-028; el provisioning vive en db, no en api
 # (api/scripts/provisioners/mysql/ quedo retirado — H-API-385).
-sudo bash /opt/practicayoruba/db/scripts/start_postgres.sh
-sudo bash /opt/practicayoruba/db/provisioners/postgresql/db_setup.sh --qa
+sudo bash /opt/kaupamex/db/scripts/start_postgres.sh
+sudo bash /opt/kaupamex/db/provisioners/postgresql/db_setup.sh --qa
 
 # [develop] api sirviendo endpoints (:8000)
-cd /opt/practicayoruba/api
+cd /opt/kaupamex/api
 uv run ./kaupamex-bin server 0.0.0.0:8000 &
 
 # [develop] ui servida (:3001, dev) — cross-origin contra api
 export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-cd /opt/practicayoruba/ui && nvm use && npm run dev &
+cd /opt/kaupamex/ui && nvm use && npm run dev &
 
 # [develop] instalar Playwright (una vez) + correr el smoke
 npm install                 # trae @playwright/test del package.json
