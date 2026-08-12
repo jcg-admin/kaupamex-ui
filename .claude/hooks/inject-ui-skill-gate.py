@@ -21,8 +21,35 @@ import sys
 # Rutas cuyo cambio produce una superficie visible → doc de interfaz + E2E.
 SUPERFICIE_VISIBLE = ('src/pages/', 'src/components/', 'src/layouts/')
 
-# Rutas donde se porta desde la referencia (/-progress, ui-core).
+# Rutas donde se porta desde la referencia (/-progress, ui-core). Son tambien
+# donde aterrizaria el refactor de fondo, asi que llevan el aviso de orden de
+# campana (ver ORDEN_CAMPANA abajo).
 PORTE_NATIVO = ('src/components/', 'src/lib/', 'src/hooks/')
+
+# Restriccion de secuencia — directiva del ejecutor 2026-08-12.
+#
+# El hook es STATELESS: no puede distinguir un refactor de fondo de un arreglo
+# puntual mirando la ruta. Por eso el aviso se redacta como PREGUNTA con el
+# criterio al lado, no como afirmacion — un gate que acusa de refactorizar a
+# quien arregla un bug se aprende a ignorar, y entonces no gatea nada.
+#
+# Canon: `docs: source/gestion/pm/siguiente-mejor-decision.rst`, seccion
+# "Orden de campana". Se retira de aqui cuando esa seccion se levante.
+ORDEN_CAMPANA = (
+    'ORDEN DE CAMPANA — el refactor de FONDO de ui espera a server/api/db '
+    '(directiva del ejecutor 2026-08-12). ui consume el contrato que api '
+    'define; refactorizar contra un contrato en movimiento es rehacerlo dos '
+    'veces.\n'
+    '  ¿Este cambio es refactor de fondo (reestructurar componentes, '
+    'adaptacion nativa a gran escala, migrar la capa de servicios)? '
+    'Entonces espera.\n'
+    '  ¿Es un bug funcional, una ruta muerta, un gate roto, documentar lo que '
+    'ya existe, o el barrido de una deriva que se esta haciendo en los otros '
+    'repos en ESTE mismo pase? Entonces adelante — la restriccion no lo '
+    'cubre.\n'
+    '  Canon: docs: pm/siguiente-mejor-decision.rst, seccion "Orden de '
+    'campana".'
+)
 
 
 def main() -> None:
@@ -65,6 +92,11 @@ def main() -> None:
             'Playwright con screenshot curado. No se difiere.'
         )
 
+    # El aviso de orden de campana acompana a las rutas del porte, que son
+    # donde aterrizaria el refactor de fondo. NO se emite solo: si no hay
+    # skill que invocar, tampoco hay decision de refactor que gatear.
+    orden = ORDEN_CAMPANA if norm.startswith(PORTE_NATIVO) else ''
+
     if not skills:
         print('{}')
         return
@@ -75,6 +107,9 @@ def main() -> None:
         '(`npm run check:lazy`), canon `codigo_error` (`npm run check:canon`), '
         'Node v22 antes de `npm ci`/`npm test`.'
     ).format(norm, '\n'.join('- ' + s for s in skills))
+
+    if orden:
+        texto += '\n\n' + orden
 
     print(json.dumps({
         'hookSpecificOutput': {
