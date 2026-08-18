@@ -10,7 +10,9 @@
  *   - Auth por SESION de servidor (ADR-018): la cookie HttpOnly viaja
  *     sola con credentials:'same-origin'. NO hay tokens JWT ni token
  *     CSRF en memoria — la sesion sobrevive a la recarga y la defensa
- *     CSRF es SameSite=Strict + __Host- de la cookie de sesion.
+ *     CSRF es SameSite=Lax + __Host- de la cookie de sesion: Lax no
+ *     viaja en un POST cross-site, y toda mutacion aqui es XHR. NO es
+ *     Strict — ver CR-5 en api/src/config/settings/production.py:18.
  *   - 401 = sesion ausente/expirada -> dispatch 'py:unauthorized'
  *     (UnauthorizedListener cierra el estado y avisa al usuario).
  */
@@ -64,7 +66,7 @@ class APIService {
     // ADR-018 (migracion a sesion): la auth del web es la cookie de sesion
     // HttpOnly, que el navegador manda sola (credentials:'same-origin'). No
     // hay tokens JWT ni token CSRF en memoria: la sesion sobrevive a la
-    // recarga y la defensa CSRF es SameSite=Strict + __Host- de la cookie.
+    // recarga y la defensa CSRF es SameSite=Lax + __Host- de la cookie.
     // DEC-BC-07: X-Cart-Token para sesion anonima de carrito (memory-only,
     // XSS-safe, se pierde al cerrar tab — aceptable para comprador anonimo).
     this._cartToken     = null;
