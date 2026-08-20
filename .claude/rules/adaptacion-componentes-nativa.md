@@ -12,5 +12,5 @@ adaptar, NUNCA dependencia de runtime** (DEC-03). `npm install @progress/...` es
 siempre la respuesta incorrecta. Se lee la fuente y se reimplementa nativo con
 atribución por archivo.
 
-El gate `PreToolUse` (`.claude/hooks/inject-ui-skill-gate.py`) recuerda invocar el
+El gate `PreToolUse` (`.claude/hooks/inject_ui_skill_gate.py`) recuerda invocar el
 skill al editar `src/components/`, `src/lib/` o `src/hooks/`.

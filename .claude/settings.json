@@ -44,7 +44,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/inject-ui-skill-gate.py"
+            "command": "python3 .claude/hooks/inject_ui_skill_gate.py"
           }
         ]
       }
