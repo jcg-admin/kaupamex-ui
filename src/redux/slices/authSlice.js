@@ -5,7 +5,8 @@
  *   - La auth del web es la cookie de sesion HttpOnly. El navegador la
  *     manda sola (credentials:'same-origin'); sobrevive a la recarga.
  *   - NO hay tokens JWT ni token CSRF en memoria. La defensa CSRF es
- *     SameSite=Strict + __Host- de la cookie de sesion.
+ *     SameSite=Lax + __Host- de la cookie de sesion (Lax no viaja en un
+ *     POST cross-site; toda mutacion es XHR). NO es Strict — CR-5.
  *   - Redux state guarda solo info del usuario para UI.
  *   - 401 = sesion ausente/expirada: apiService dispara 'py:unauthorized'
  *     y UnauthorizedListener cierra el estado y avisa al usuario.
@@ -54,7 +55,7 @@ const LOGOUT_ALL_URL = '/api/v2/auth/sessions/';
  * Verifica si el usuario ya tiene sesion activa al cargar la app (ADR-018).
  * Llama a /api/v2/auth/session/: la cookie de sesion HttpOnly viaja sola, asi
  * que restaura la sesion tras recargar sin depender de ningun token en memoria.
- * Es la auth unica del SPA; no hay token CSRF (defensa: SameSite=Strict).
+ * Es la auth unica del SPA; no hay token CSRF (defensa: SameSite=Lax).
  */
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',

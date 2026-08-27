@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gate PreToolUse — recuerda invocar los skills de UI antes de escribir.
 
-Mismo patron que ``api: .claude/hooks/inject-drf-skill-gate.py`` (ver
+Mismo patron que ``api: .claude/hooks/inject_drf_skill_gate.py`` (ver
 ``api: .claude/rules/drf-skill-gate.md``): comportamiento automatico = hook,
 no memoria.
 
