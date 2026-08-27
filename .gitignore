@@ -39,3 +39,9 @@ e2e/artifacts/
 
 # Claude Code agent worktrees (scratch, never committed)
 .claude/worktrees/
+
+# Bytecode de Python — el tooling de .claude/ lo genera al correr.
+# Entró al árbol con el renombre a snake_case (11 archivos) porque no
+# había regla que lo cubriera; los otros cuatro clones sí la tienen.
+__pycache__/
+*.pyc
