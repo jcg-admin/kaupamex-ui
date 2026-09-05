@@ -3,7 +3,7 @@
 Regla completa: `docs/.claude/rules/test-execution-protocol.md`.
 
 > **Corregido 2026-08-07.** Este archivo era una **copia completa obsoleta** (8815 B)
-> que declaraba MariaDB, `/run/mysqld/mysqld.sock`, los schemas `practicayoruba_*` y
+> que declaraba MariaDB, `/run/mysqld/mysqld.sock`, los schemas del motor viejo y
 > **Node v20** — los cuatro superados: el motor es PostgreSQL (ADR-028), las bases son
 > `kaupamex_db`/`kaupamex_qa`, y `.nvmrc` fija **22**. Una sesión de `ui` cargaba el
 > protocolo equivocado como autoritativo. Ver H-DOCS-97.

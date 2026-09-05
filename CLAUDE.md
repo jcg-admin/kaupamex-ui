@@ -1,7 +1,7 @@
 # CLAUDE.md — kaupamex-ui
 
-Submódulo `ui` del monorepo PracticaYoruba (repo GitHub `jcg-admin/kaupamex-ui`).
-Frontend "PracticaYoruba UI": e-commerce de productos Yoruba en React 19 + Webpack 5.
+Submódulo `ui` del multi-repo Kaupamex (repo GitHub `jcg-admin/kaupamex-ui`).
+Frontend del storefront: e-commerce en React 19 + Webpack 5.
 
 ## Gobernanza
 
