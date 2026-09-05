@@ -158,7 +158,7 @@ es buscable, indexable y publicable.
 
 ## Tech-stack — Stack confirmado
 
-Stack del monorepo (parent + 5 submodulos):
+Stack del multi-repo (5 repositorios hermanos):
 
 - **api/**: Django 5.0.1 + DRF 3.14.0, mysqlclient 2.2.1, simplejwt 5.3.1,
   drf-spectacular 0.27.0, pytest + pytest-django + factory-boy, mercadopago SDK.
