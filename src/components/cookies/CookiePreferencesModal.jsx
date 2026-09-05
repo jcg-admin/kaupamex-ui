@@ -1,5 +1,5 @@
 /**
- * CookiePreferencesModal — PracticaYoruba (Capa 2, LFPDPPP)
+ * CookiePreferencesModal — Kaupamex (Capa 2, LFPDPPP)
  *
  * Panel de preferencias granulares por proposito, sobre el Modal nativo de la
  * casa (<dialog>.showModal()). La categoria "necessary" esta bloqueada en ON

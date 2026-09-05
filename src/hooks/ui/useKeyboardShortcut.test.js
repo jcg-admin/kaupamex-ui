@@ -1,5 +1,5 @@
 /**
- * Tests — useKeyboardShortcut (PracticaYoruba UI)
+ * Tests — useKeyboardShortcut (Kaupamex UI)
  * Portado de template-ecommerce-ui.
  */
 import { renderHook, act } from '@testing-library/react';

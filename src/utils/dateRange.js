@@ -1,5 +1,5 @@
 /**
- * dateRange — PracticaYoruba UI
+ * dateRange — Kaupamex UI
  *
  * Conversion entre Date y la cadena `YYYY-MM-DD` que los endpoints admin
  * esperan en sus query params (?from=&to=). Modulo sin dependencias para

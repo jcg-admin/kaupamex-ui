@@ -1,5 +1,5 @@
 /**
- * Tests — useScrollLock (PracticaYoruba UI)
+ * Tests — useScrollLock (Kaupamex UI)
  * Portado de template-ecommerce-ui.
  */
 import { renderHook } from '@testing-library/react';

@@ -19,7 +19,7 @@ import AdminSystemSettingsPage from './AdminSystemSettingsPage';
 // H-CICLO40-08: claves alineadas con SiteSettingsAdminSerializer.
 // contact_email → support_email; support_phone → phone; tax_rate → iva_rate.
 const SETTINGS = {
-  site_name:     'PracticaYoruba',
+  site_name:     'Kaupamex',
   support_email: 'hola@yoruba.mx',
   phone:         '+52 55 0000 0000',
   iva_rate:      16,
@@ -47,7 +47,7 @@ describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
     expect(
       await screen.findByRole('heading', { name: /Configuracion del Sistema/i }),
     ).toBeInTheDocument();
-    expect(await screen.findByDisplayValue('PracticaYoruba')).toBeInTheDocument();
+    expect(await screen.findByDisplayValue('Kaupamex')).toBeInTheDocument();
     expect(screen.getByDisplayValue('hola@yoruba.mx')).toBeInTheDocument();
   });
 
@@ -62,12 +62,12 @@ describe('AdminSystemSettingsPage (UC-ADM-04)', () => {
     );
 
     render(wrap());
-    const input = await screen.findByDisplayValue('PracticaYoruba');
-    fireEvent.change(input, { target: { value: 'PracticaYoruba MX' } });
+    const input = await screen.findByDisplayValue('Kaupamex');
+    fireEvent.change(input, { target: { value: 'Kaupamex MX' } });
     fireEvent.click(screen.getByRole('button', { name: /Guardar cambios/i }));
 
     await waitFor(() => {
-      expect(patchBody).toMatchObject({ site_name: 'PracticaYoruba MX' });
+      expect(patchBody).toMatchObject({ site_name: 'Kaupamex MX' });
     });
   });
 });

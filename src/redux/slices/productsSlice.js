@@ -1,5 +1,5 @@
 /**
- * productsSlice — PracticaYoruba
+ * productsSlice — Kaupamex
  *
  * Mutaciones administrativas sobre el catalogo de productos.
  *

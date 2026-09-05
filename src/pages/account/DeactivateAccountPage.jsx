@@ -1,5 +1,5 @@
 /**
- * DeactivateAccountPage — PracticaYoruba
+ * DeactivateAccountPage — Kaupamex
  * UC-AUTH-16: Dar de Baja la Propia Cuenta.
  *
  * Flujo:

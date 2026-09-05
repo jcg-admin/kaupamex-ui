@@ -1,5 +1,5 @@
 /**
- * NewsletterSubscribePage — PracticaYoruba
+ * NewsletterSubscribePage — Kaupamex
  * UC-NEW-01: suscripcion publica al newsletter (doble optin).
  */
 import { useState } from 'react';

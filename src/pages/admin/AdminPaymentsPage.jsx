@@ -1,5 +1,5 @@
 /**
- * AdminPaymentsPage — PracticaYoruba
+ * AdminPaymentsPage — Kaupamex
  * UC-PAY-11: Reporte/listado de transacciones de pago para el admin
  * con filtros por estado, gateway y rango de fechas + totales del periodo.
  */

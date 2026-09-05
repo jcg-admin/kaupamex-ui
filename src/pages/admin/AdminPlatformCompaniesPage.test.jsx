@@ -18,7 +18,7 @@ import AdminPlatformCompaniesPage from './AdminPlatformCompaniesPage';
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const COMPANIES = [
-  { id: 1, code: 'practicayoruba', name: 'PracticaYoruba', status: 'active', active_modules: ['catalogue', 'pos', 'inventory'], user_count: 12, created_at: '2026-01-10T00:00:00Z' },
+  { id: 1, code: 'kaupamex', name: 'Kaupamex', status: 'active', active_modules: ['catalogue', 'pos', 'inventory'], user_count: 12, created_at: '2026-01-10T00:00:00Z' },
   { id: 2, code: 'tiendamexico', name: 'Tienda México', status: 'trial', active_modules: ['catalogue'], user_count: 2, created_at: '2026-07-01T00:00:00Z' },
   { id: 3, code: 'zapateria-uno', name: 'Zapatería UNO', status: 'suspended', active_modules: ['catalogue', 'pos'], user_count: 5, created_at: '2026-03-22T00:00:00Z' },
 ];
@@ -40,7 +40,7 @@ function wrap(companies = COMPANIES) {
 describe('AdminPlatformCompaniesPage', () => {
   it('lista las empresas con estado y enlaza a Provisionar con ?company', async () => {
     wrap();
-    await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Kaupamex')).toBeInTheDocument());
     // Badge de estado por texto (no solo color) — dentro de la tabla, para no
     // colisionar con las etiquetas del filtro de estado.
     const table = within(screen.getByRole('table'));
@@ -54,9 +54,9 @@ describe('AdminPlatformCompaniesPage', () => {
 
   it('filtra por estado', async () => {
     wrap();
-    await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Kaupamex')).toBeInTheDocument());
     await userEvent.selectOptions(screen.getByLabelText('Estado'), 'suspended');
-    await waitFor(() => expect(screen.queryByText('PracticaYoruba')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByText('Kaupamex')).not.toBeInTheDocument());
     expect(screen.getByText('Zapatería UNO')).toBeInTheDocument();
   });
 
@@ -76,7 +76,7 @@ describe('AdminPlatformCompaniesPage', () => {
       }),
     );
     wrap();
-    await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Kaupamex')).toBeInTheDocument());
     await userEvent.click(screen.getByRole('button', { name: /Nueva empresa/ }));
     await userEvent.type(screen.getByLabelText(/Código/), 'zapateria-dos');
     await userEvent.type(screen.getByLabelText(/Nombre/), 'Zapatería DOS');
@@ -94,7 +94,7 @@ describe('AdminPlatformCompaniesPage', () => {
       }),
     );
     wrap();
-    await waitFor(() => expect(screen.getByText('PracticaYoruba')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Kaupamex')).toBeInTheDocument());
     // La fila activa ofrece "Suspender"; la suspendida ofrece "Reactivar".
     const suspendBtns = screen.getAllByRole('button', { name: 'Suspender' });
     await userEvent.click(suspendBtns[0]);

@@ -1,5 +1,5 @@
 /**
- * DataTable — PracticaYoruba UI
+ * DataTable — Kaupamex UI
  *
  * Tabla reutilizable con ordenamiento, filtro por columna y paginación
  * de cliente. Implementación NATIVA (sin dependencias de licencia).

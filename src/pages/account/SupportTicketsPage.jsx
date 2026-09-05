@@ -1,5 +1,5 @@
 /**
- * SupportTicketsPage — PracticaYoruba
+ * SupportTicketsPage — Kaupamex
  * UC-SUPP-02: Listar tickets de soporte del comprador autenticado.
  */
 import { Link } from 'react-router-dom';

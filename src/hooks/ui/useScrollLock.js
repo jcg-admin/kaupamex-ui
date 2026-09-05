@@ -1,5 +1,5 @@
 /**
- * useScrollLock — PracticaYoruba UI
+ * useScrollLock — Kaupamex UI
  *
  * Bloquea el scroll del body y compensa el ancho de la scrollbar
  * para evitar layout shift al abrir modales/sidebars.

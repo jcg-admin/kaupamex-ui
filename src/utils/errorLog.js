@@ -1,5 +1,5 @@
 /**
- * errorLog — PracticaYoruba
+ * errorLog — Kaupamex
  *
  * Log de errores del cliente (ventana de diagnostico). Mantiene un buffer
  * circular acotado en memoria con los ultimos errores relevantes (API 5xx,

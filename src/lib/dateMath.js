@@ -1,5 +1,5 @@
 /**
- * dateMath.js — utilidades de fecha sin dependencias (PracticaYoruba UI)
+ * dateMath.js — utilidades de fecha sin dependencias (Kaupamex UI)
  *
  * Reimplementación nativa (lectura, no copia) de los patrones de
  * `@progress/kno-date-math` (kno-date-math dist/es): addDays / addMonths

@@ -1,5 +1,5 @@
 /**
- * addressesSlice — PracticaYoruba
+ * addressesSlice — Kaupamex
  * UC-AUTH-07: Libreta de direcciones de envio del comprador.
  *
  * Mutaciones (crear / actualizar / eliminar / set-default) en este slice.

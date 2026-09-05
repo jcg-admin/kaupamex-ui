@@ -1,5 +1,5 @@
 /**
- * queryClient — PracticaYoruba
+ * queryClient — Kaupamex
  * Configuración de React Query para el e-commerce
  */
 

@@ -26,7 +26,7 @@ const wrap = (ui, store) => (
 
 const GET_PAYLOAD = {
   code:                'YORUBA-42',
-  share_link:          'https://practicayoruba.test/r/YORUBA-42',
+  share_link:          'https://kaupamex.test/r/YORUBA-42',
   total_referrals:     5,
   completed_referrals: 3,
   rewards_earned:      150,
@@ -54,7 +54,7 @@ describe('ReferralPage', () => {
     expect(screen.getByTestId('completed-referrals')).toHaveTextContent('3');
     expect(screen.getByTestId('rewards-earned')).toHaveTextContent('150');
     expect(screen.getByLabelText(/Enlace para compartir/i)).toHaveValue(
-      'https://practicayoruba.test/r/YORUBA-42',
+      'https://kaupamex.test/r/YORUBA-42',
     );
   });
 

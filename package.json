@@ -1,7 +1,7 @@
 {
-  "name": "practicayoruba-ui",
+  "name": "kaupamex-ui",
   "version": "1.0.0",
-  "description": "PracticaYoruba — E-commerce de productos Yoruba. Frontend React 19.",
+  "description": "Kaupamex — E-commerce de productos Yoruba. Frontend React 19.",
   "main": "src/index.jsx",
   "sideEffects": [
     "**/*.css",

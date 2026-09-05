@@ -1,5 +1,5 @@
 /**
- * Hooks de UI — PracticaYoruba UI
+ * Hooks de UI — Kaupamex UI
  *
  * Hooks de comportamiento de interfaz (no de dominio): posicionamiento de
  * flotantes, bloqueo de scroll, deteccion de click-outside, atajos de

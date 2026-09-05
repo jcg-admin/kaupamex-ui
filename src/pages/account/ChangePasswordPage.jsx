@@ -1,5 +1,5 @@
 /**
- * ChangePasswordPage — PracticaYoruba
+ * ChangePasswordPage — Kaupamex
  * UC-AUTH-08: Cambiar contrasena del comprador autenticado.
  *
  * Flujo:

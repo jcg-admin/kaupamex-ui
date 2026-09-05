@@ -1,5 +1,5 @@
 /**
- * intl.js — formateo i18n sin dependencias (PracticaYoruba UI)
+ * intl.js — formateo i18n sin dependencias (Kaupamex UI)
  *
  * Reimplementación nativa (lectura, no copia) de los patrones de
  * `@progress/kno-intl`: una superficie data-first y locale-aware de
@@ -11,7 +11,7 @@
  * memoización de los formatters (que son costosos de construir) y manejo
  * null/NaN seguro.
  *
- * La moneda del proyecto es MXN (PracticaYoruba — productos Yoruba en
+ * La moneda del proyecto es MXN (Kaupamex — productos Yoruba en
  * México). El locale por defecto es es-MX.
  *
  * Contrato de robustez:

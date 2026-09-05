@@ -3,7 +3,7 @@
 # tests/test_provisioner_setup.sh
 # Test de regresion estatico del provisioner scripts/install.sh.
 # =============================================================================
-# Verifica que el provisioner de Node.js para PracticaYoruba-ui sigue
+# Verifica que el provisioner de Node.js para Kaupamex-ui sigue
 # integro: root check, idempotencia, NodeSource via apt (NO nvm), loud
 # failure (DEC-DOC-008), header con modelo WSL2.
 #

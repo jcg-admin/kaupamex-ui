@@ -1,5 +1,5 @@
 /**
- * ProductReviewCreatePage — PracticaYoruba
+ * ProductReviewCreatePage — Kaupamex
  * UC-REV-01: el comprador deja una resena del producto comprado.
  * UC-REV-02 cap6: adjunta hasta 3 fotos a la resena.
  *

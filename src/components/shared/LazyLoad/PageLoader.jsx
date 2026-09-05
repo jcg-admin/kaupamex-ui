@@ -1,5 +1,5 @@
 /**
- * PageLoader — PracticaYoruba
+ * PageLoader — Kaupamex
  * Loader fullscreen para Suspense y rutas protegidas en carga.
  *
  * El spinner delega en el primitivo nativo `Loader` (kno-react-indicators,

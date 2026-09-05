@@ -1,5 +1,5 @@
 /**
- * Tests — cookieConsent.js (PracticaYoruba UI)
+ * Tests — cookieConsent.js (Kaupamex UI)
  *
  * Verifican el registro de consentimiento (LFPDPPP): opt-out por defecto
  * (categorias ON), escritura/lectura de la cookie `cookie_consent`, validez

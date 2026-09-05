@@ -1,5 +1,5 @@
 /**
- * ConfirmDialog — PracticaYoruba
+ * ConfirmDialog — Kaupamex
  *
  * Diálogo de confirmación de marca que reemplaza window.confirm en el admin
  * (H-04). Envuelve el Modal (API ui-core) con la anatomía de un diálogo de

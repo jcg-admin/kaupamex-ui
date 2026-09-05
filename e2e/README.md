@@ -1,6 +1,6 @@
 # E2E de navegador (Playwright)
 
-Harness E2E full-stack del producto PracticaYoruba. Decisión de
+Harness E2E full-stack del producto Kaupamex. Decisión de
 herramienta y rationale: **ADR-FE-004** (Playwright). Alcance y reparto:
 iniciativa `implementar-e2e-navegador` en `kaupamex-docs`.
 

@@ -1,5 +1,5 @@
 /**
- * contactSlice — PracticaYoruba
+ * contactSlice — Kaupamex
  *
  *   UC-COM-01 — Enviar formulario de contacto (visitante)
  *   UC-COM-02 — Ver mensajes de contacto (admin) — solo se modela la

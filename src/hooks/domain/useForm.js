@@ -1,5 +1,5 @@
 /**
- * useForm -- PracticaYoruba
+ * useForm -- Kaupamex
  * Manejo de formularios con validacion.
  * Usado en: LoginPage, RegisterPage, CheckoutPage (address step),
  *           ProfilePage.

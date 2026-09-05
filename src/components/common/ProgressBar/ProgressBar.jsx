@@ -5,7 +5,7 @@
 // (animation/orientation/labelPlacement/min/max/reverse) NO se replica: solo lo
 // que la pasarela necesita (barra determinada o indeterminada con etiqueta).
 /**
- * ProgressBar — PracticaYoruba
+ * ProgressBar — Kaupamex
  *
  * @param {number} [value]      — 0-100. Si es undefined o `indeterminate`, la
  *                                barra corre en modo indeterminado (sweep).

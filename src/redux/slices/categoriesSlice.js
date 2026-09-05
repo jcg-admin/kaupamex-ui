@@ -1,5 +1,5 @@
 /**
- * categoriesSlice — PracticaYoruba
+ * categoriesSlice — Kaupamex
  *
  * Mutaciones administrativas sobre el arbol de categorias (UC-CAT-06).
  *

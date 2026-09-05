@@ -1,5 +1,5 @@
 /**
- * CookieConsentBanner — PracticaYoruba (Capa 1, LFPDPPP)
+ * CookieConsentBanner — Kaupamex (Capa 1, LFPDPPP)
  *
  * Aviso de cookies NO modal (no atrapa foco, no bloquea la pagina). Modelo
  * opt-out: las categorias vienen activadas por defecto, pero Rechazar todo se

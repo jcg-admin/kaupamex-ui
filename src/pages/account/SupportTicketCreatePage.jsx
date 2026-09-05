@@ -1,5 +1,5 @@
 /**
- * SupportTicketCreatePage — PracticaYoruba
+ * SupportTicketCreatePage — Kaupamex
  * UC-SUPP-01: Crear ticket de soporte (Comprador)
  */
 import { useEffect, useState } from 'react';

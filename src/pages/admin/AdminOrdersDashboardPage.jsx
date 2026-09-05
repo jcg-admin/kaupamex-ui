@@ -1,5 +1,5 @@
 /**
- * AdminOrdersDashboardPage — PracticaYoruba
+ * AdminOrdersDashboardPage — Kaupamex
  * UC-ORD-10: Dashboard transaccional del administrador.
  *
  * Cuatro bloques en una sola respuesta:

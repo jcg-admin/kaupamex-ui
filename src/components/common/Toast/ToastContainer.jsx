@@ -1,5 +1,5 @@
 /**
- * ToastContainer — PracticaYoruba
+ * ToastContainer — Kaupamex
  * Renderiza las notificaciones toast del store.
  */
 

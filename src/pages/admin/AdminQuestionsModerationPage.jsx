@@ -1,5 +1,5 @@
 /**
- * AdminQuestionsModerationPage — PracticaYoruba
+ * AdminQuestionsModerationPage — Kaupamex
  * UC-QST-04: aprobar / rechazar preguntas pendientes de moderacion.
  */
 import { useState } from 'react';

@@ -1,5 +1,5 @@
 /**
- * Tests — chartTheme (PracticaYoruba UI)
+ * Tests — chartTheme (Kaupamex UI)
  *
  * Verifican que la paleta de gráficos deriva de los tokens de marca
  * Yoruba (`_tokens.scss` → CSS vars `--c-*` / `_variables.scss` `$*`) y

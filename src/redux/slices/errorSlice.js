@@ -1,5 +1,5 @@
 /**
- * Error Slice — PracticaYoruba
+ * Error Slice — Kaupamex
  *
  * Manejo centralizado de errores de la aplicación.
  * Usado por errorHandlingMiddleware para capturar automáticamente

@@ -1,5 +1,5 @@
 /**
- * UnauthorizedListener — PracticaYoruba UI
+ * UnauthorizedListener — Kaupamex UI
  *
  * Escucha el evento global ``py:unauthorized`` que ``apiService``
  * dispara cuando el backend responde 401. Cuando llega:

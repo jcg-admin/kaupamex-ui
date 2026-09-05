@@ -1,5 +1,5 @@
 /**
- * AdminInventoryProductAdjustPage — PracticaYoruba
+ * AdminInventoryProductAdjustPage — Kaupamex
  * UC-INV-04: Ajustar stock manualmente para productos SIN variante.
  *
  * H-CICLO110-03: AdminInventoryPage mostraba "Sin variante" sin enlace

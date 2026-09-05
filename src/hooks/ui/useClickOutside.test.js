@@ -1,5 +1,5 @@
 /**
- * Tests — useClickOutside (PracticaYoruba UI)
+ * Tests — useClickOutside (Kaupamex UI)
  * Portado de template-ecommerce-ui.
  */
 import { renderHook, act } from '@testing-library/react';

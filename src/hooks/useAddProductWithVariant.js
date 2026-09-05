@@ -1,5 +1,5 @@
 /**
- * useAddProductWithVariant — PracticaYoruba
+ * useAddProductWithVariant — Kaupamex
  * UC-CHT-02: Encapsula la validacion y agregado al carrito para productos
  * Yoruba con variantes:
  *

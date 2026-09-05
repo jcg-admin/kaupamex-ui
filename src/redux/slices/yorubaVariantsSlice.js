@@ -1,5 +1,5 @@
 /**
- * yorubaVariantsSlice — PracticaYoruba
+ * yorubaVariantsSlice — Kaupamex
  * Estado de variantes Yoruba (Orisha/saints/configuraciones rituales):
  *
  *   UC-CHT-01 — Ver variantes disponibles del producto (Visitante)

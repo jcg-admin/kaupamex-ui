@@ -1,5 +1,5 @@
 /**
- * ErrorBoundary — PracticaYoruba
+ * ErrorBoundary — Kaupamex
  * Captura errores de renderizado y muestra un fallback amigable.
  */
 

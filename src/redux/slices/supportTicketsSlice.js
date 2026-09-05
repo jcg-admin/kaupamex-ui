@@ -1,5 +1,5 @@
 /**
- * supportTicketsSlice — PracticaYoruba
+ * supportTicketsSlice — Kaupamex
  * Soporte: gestion de tickets del comprador y bandeja admin.
  *
  *   UC-SUPP-01 — Crear ticket

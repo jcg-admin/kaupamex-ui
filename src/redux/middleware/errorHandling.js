@@ -1,5 +1,5 @@
 /**
- * Error Handling Middleware — PracticaYoruba
+ * Error Handling Middleware — Kaupamex
  *
  * Intercepta automáticamente TODAS las acciones rejected del store.
  * Esto significa que cualquier createAsyncThunk que falle (en auth, cart,

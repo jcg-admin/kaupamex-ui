@@ -1,5 +1,5 @@
 /**
- * AdminBannersPage — PracticaYoruba
+ * AdminBannersPage — Kaupamex
  * UC-CFG-06 / G-CFG-01: gestión de banners de portada.
  *
  * Los banners son activos visuales (imagen + orden), así que la lista se

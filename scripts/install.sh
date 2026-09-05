@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# scripts/install.sh — provisioner de Node.js + npm para PracticaYoruba-ui
+# scripts/install.sh — provisioner de Node.js + npm para Kaupamex-ui
 # =============================================================================
 # IDEMPOTENTE: si la version objetivo de Node ya esta instalada, no-op.
 #
@@ -219,7 +219,7 @@ _verify_installation() {
 # =============================================================================
 echo ""
 echo -e "${_CLR_CYAN}===============================================================${_CLR_RESET}"
-echo -e "${_CLR_CYAN}  Node.js provisioner — PracticaYoruba-ui${_CLR_RESET}"
+echo -e "${_CLR_CYAN}  Node.js provisioner — Kaupamex-ui${_CLR_RESET}"
 echo -e "${_CLR_CYAN}===============================================================${_CLR_RESET}"
 echo "  Target major : ${NODE_MAJOR}.x (variable NODE_MAJOR)"
 echo "  Repo source  : NodeSource (deb.nodesource.com)"

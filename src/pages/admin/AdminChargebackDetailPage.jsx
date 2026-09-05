@@ -1,5 +1,5 @@
 /**
- * AdminChargebackDetailPage — PracticaYoruba
+ * AdminChargebackDetailPage — Kaupamex
  * T-17-C: detalle de un contracargo individual.
  */
 import { useParams, Link } from 'react-router-dom';

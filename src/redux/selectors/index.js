@@ -1,5 +1,5 @@
 /**
- * Selectors — PracticaYoruba
+ * Selectors — Kaupamex
  * Selectores memoizados con reselect para evitar re-renders innecesarios
  */
 

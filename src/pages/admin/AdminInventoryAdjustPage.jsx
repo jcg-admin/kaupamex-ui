@@ -1,5 +1,5 @@
 /**
- * AdminInventoryAdjustPage — PracticaYoruba
+ * AdminInventoryAdjustPage — Kaupamex
  * UC-INV-04: Ajustar stock manualmente con motivo obligatorio.
  */
 import { useEffect, useState } from 'react';

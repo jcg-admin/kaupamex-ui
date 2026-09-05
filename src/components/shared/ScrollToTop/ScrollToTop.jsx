@@ -1,5 +1,5 @@
 /**
- * ScrollToTop — PracticaYoruba
+ * ScrollToTop — Kaupamex
  *
  * React Router v6 NO restablece el scroll al cambiar de ruta: al navegar
  * desde una lista scrolleada (catalogo / resultados de busqueda) al detalle

@@ -1,5 +1,5 @@
 /**
- * Icon — PracticaYoruba
+ * Icon — Kaupamex
  *
  * Iconos SVG inline nativos (sin dependencia runtime) que reemplazan los
  * emojis/glifos de texto. Los paths provienen de la referencia Kendo

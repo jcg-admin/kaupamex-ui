@@ -1,5 +1,5 @@
 /**
- * wishlistSlice — PracticaYoruba
+ * wishlistSlice — Kaupamex
  * Gestion de la lista de deseos del comprador (UC-WISH-01..03)
  *
  *   UC-WISH-01 — Agregar producto a la lista de deseos

@@ -1,5 +1,5 @@
 /**
- * Auth Slice — PracticaYoruba
+ * Auth Slice — Kaupamex
  *
  * SEGURIDAD (ADR-018 — migracion a sesion de servidor):
  *   - La auth del web es la cookie de sesion HttpOnly. El navegador la

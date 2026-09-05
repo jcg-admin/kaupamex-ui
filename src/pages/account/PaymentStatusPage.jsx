@@ -1,5 +1,5 @@
 /**
- * PaymentStatusPage — PracticaYoruba
+ * PaymentStatusPage — Kaupamex
  * UC-PAY-05: Ver el estado actual del pago de una orden propia.
  *
  * Lectura: `usePaymentStatus` (React Query). Si el pago esta en estado

@@ -37,13 +37,13 @@ describe('usePublicSettings', () => {
     );
 
     const { result } = renderHook(() =>
-      usePublicSettings({ iva_rate: '0.00', brand: 'PracticaYoruba' }),
+      usePublicSettings({ iva_rate: '0.00', brand: 'Kaupamex' }),
     );
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.settings).toEqual({
-      brand: 'PracticaYoruba',
+      brand: 'Kaupamex',
       iva_rate: '0.16',
       free_shipping_threshold: '999.00',
     });
@@ -57,7 +57,7 @@ describe('usePublicSettings', () => {
       ),
     );
 
-    const fallback = { iva_rate: '0.16', brand: 'PracticaYoruba' };
+    const fallback = { iva_rate: '0.16', brand: 'Kaupamex' };
     const { result } = renderHook(() => usePublicSettings(fallback));
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));

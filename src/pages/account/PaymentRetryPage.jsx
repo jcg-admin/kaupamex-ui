@@ -1,5 +1,5 @@
 /**
- * PaymentRetryPage — PracticaYoruba
+ * PaymentRetryPage — Kaupamex
  * UC-PAY-08: Reintentar el pago de una orden en PENDING.
  *
  * ADR-018 (Checkout API vía Orders, on-site): reintentar NO es un flujo con

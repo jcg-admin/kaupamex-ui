@@ -1,5 +1,5 @@
 /**
- * AdminVariantsPage — PracticaYoruba
+ * AdminVariantsPage — Kaupamex
  * UC-CHT-03: Gestionar variantes de un producto Yoruba (Admin).
  *
  * - Lista las variantes actuales (tipo, opcion, stock, precio, estado).

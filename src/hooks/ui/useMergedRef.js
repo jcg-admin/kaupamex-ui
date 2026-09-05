@@ -1,7 +1,7 @@
 // Portado del prototipo funcional -progress/kno-react-common (codigo propio del ejecutor).
 // Origen: kno-react-common/hooks/useMergedRef.mjs
 /**
- * useMergedRef — PracticaYoruba UI
+ * useMergedRef — Kaupamex UI
  *
  * Combina un ref reenviado (forwardRef) con un ref interno sobre el MISMO nodo.
  * Devuelve `[innerRef, setRef]`: se pasa `setRef` al `ref=` del elemento y el

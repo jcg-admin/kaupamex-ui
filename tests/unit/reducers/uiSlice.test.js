@@ -1,6 +1,6 @@
 /**
  * Tests — uiSlice reducer
- * PracticaYoruba UI
+ * Kaupamex UI
  */
 
 import uiReducer, {

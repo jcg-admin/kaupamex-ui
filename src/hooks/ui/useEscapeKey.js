@@ -1,5 +1,5 @@
 /**
- * useEscapeKey — PracticaYoruba UI
+ * useEscapeKey — Kaupamex UI
  *
  * Llama `handler` cuando el usuario presiona la tecla Escape.
  * Solo activo cuando `enabled=true`.

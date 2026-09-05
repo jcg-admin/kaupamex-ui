@@ -1,5 +1,5 @@
 /**
- * AdminContactMessagesPage — PracticaYoruba
+ * AdminContactMessagesPage — Kaupamex
  * UC-COM-02: bandeja admin de mensajes de contacto recibidos.
  *
  * H-CICLO123-01: la API pagina a 25 mensajes/página (PageNumberPagination).

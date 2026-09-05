@@ -1,5 +1,5 @@
 /**
- * AdminStaticPagesPage — PracticaYoruba
+ * AdminStaticPagesPage — Kaupamex
  * UC-CFG-04: gestión de contenido estático (páginas informativas del
  * storefront: Acerca de, Términos, Privacidad, Devoluciones, FAQ).
  *

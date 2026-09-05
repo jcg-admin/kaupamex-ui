@@ -1,5 +1,5 @@
 /**
- * excelExporter.js — PracticaYoruba UI
+ * excelExporter.js — Kaupamex UI
  *
  * Exportación client-side a Excel SIN dependencias (ni SheetJS ni zip):
  * genera SpreadsheetML 2003 (XML de Excel, extensión .xls) que Excel y

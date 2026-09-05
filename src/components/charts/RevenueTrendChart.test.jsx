@@ -1,5 +1,5 @@
 /**
- * Tests — RevenueTrendChart (PracticaYoruba UI)
+ * Tests — RevenueTrendChart (Kaupamex UI)
  *
  * recharts se mockea: en jsdom no hay layout real (ResponsiveContainer
  * depende de ResizeObserver). Los mocks renderizan marcadores DOM que

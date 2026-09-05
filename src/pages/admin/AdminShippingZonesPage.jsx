@@ -1,5 +1,5 @@
 /**
- * AdminShippingZonesPage — PracticaYoruba
+ * AdminShippingZonesPage — Kaupamex
  * H-12: catálogo de zonas de envío + tiempos de entrega.
  *
  * Lista, crea, edita y desactiva zonas (nombre, prefijo de CP, ventana de

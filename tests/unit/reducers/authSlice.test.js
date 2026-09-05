@@ -19,7 +19,7 @@ const INITIAL_STATE = {
 };
 
 const MOCK_USER = {
-  id: 1, email: 'test@practicayoruba.mx',
+  id: 1, email: 'test@kaupamex.mx',
   first_name: 'Demo', last_name: 'Yoruba',
   is_staff: false, profile_completeness: 60,
   pending_fields: ['avatar', 'addresses'],

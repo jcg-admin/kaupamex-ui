@@ -1,5 +1,5 @@
 /**
- * Mock Registry — PracticaYoruba
+ * Mock Registry — Kaupamex
  *
  * Registro central de todos los mocks por dominio.
  * Cada dominio tiene su loader y su validador de esquema.

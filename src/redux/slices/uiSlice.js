@@ -1,5 +1,5 @@
 /**
- * UI Slice — PracticaYoruba
+ * UI Slice — Kaupamex
  * Estado de la interfaz: sidebar, modals, toasts, darkMode
  */
 

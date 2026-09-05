@@ -1,5 +1,5 @@
 /**
- * AdminOrderDetailPage — PracticaYoruba
+ * AdminOrderDetailPage — Kaupamex
  * UC-ORD-07: Detalle administrativo + transicion de estado.
  * UC-ORD-08: Cancelacion administrativa con motivo obligatorio.
  *

@@ -1,5 +1,5 @@
 /**
- * sanitize.js — política XSS única (PracticaYoruba UI)
+ * sanitize.js — política XSS única (Kaupamex UI)
  *
  * Centraliza el uso de DOMPurify. Antes `DOMPurify.sanitize` estaba
  * disperso en varios call-sites con configuración ad-hoc (o sin config),

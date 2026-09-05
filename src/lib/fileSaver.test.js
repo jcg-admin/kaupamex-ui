@@ -1,5 +1,5 @@
 /**
- * Tests — fileSaver.js (PracticaYoruba UI)
+ * Tests — fileSaver.js (Kaupamex UI)
  *
  * jsdom no implementa URL.createObjectURL/revokeObjectURL ni dispara
  * descargas reales; se mockean. Se asserta el cableado: objectURL creado,

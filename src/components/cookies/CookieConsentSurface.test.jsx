@@ -1,5 +1,5 @@
 /**
- * Tests — CookieConsentSurface (PracticaYoruba UI)
+ * Tests — CookieConsentSurface (Kaupamex UI)
  *
  * El aviso de cookies (LFPDPPP) es del sitio público: se muestra en la tienda
  * pero NO en el backoffice ``/admin/*`` (antes aparecía a la mitad de la vista

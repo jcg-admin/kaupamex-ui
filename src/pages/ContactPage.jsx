@@ -1,5 +1,5 @@
 /**
- * ContactPage — PracticaYoruba
+ * ContactPage — Kaupamex
  * UC-COM-01: formulario publico de contacto.
  *
  * Reusa los primitivos de UI (Field/Button/MetaTag) en vez de markup crudo

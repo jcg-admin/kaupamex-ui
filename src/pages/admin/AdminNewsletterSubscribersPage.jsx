@@ -1,5 +1,5 @@
 /**
- * AdminNewsletterSubscribersPage — PracticaYoruba
+ * AdminNewsletterSubscribersPage — Kaupamex
  * UC-NEW-03: el admin lista y desuscribe manualmente suscriptores.
  */
 import { useState } from 'react';

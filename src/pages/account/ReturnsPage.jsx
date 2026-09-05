@@ -1,5 +1,5 @@
 /**
- * ReturnsPage — PracticaYoruba
+ * ReturnsPage — Kaupamex
  * UC-RET-04: Listar devoluciones del comprador autenticado.
  *
  * Lectura via React Query (`useReturns`). Las mutaciones (UC-RET-01)

@@ -1,5 +1,5 @@
 /**
- * CookieConsentContext — PracticaYoruba
+ * CookieConsentContext — Kaupamex
  * Estado global del consentimiento de cookies (LFPDPPP).
  *
  * Molde: mismo patron provider + hook que ToastContext. Expone el estado y las

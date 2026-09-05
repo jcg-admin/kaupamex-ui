@@ -1,5 +1,5 @@
 /**
- * AdminReturnRefundPanel — PracticaYoruba
+ * AdminReturnRefundPanel — Kaupamex
  * UC-RET-06: Procesar el reembolso de una devolución COMPLETADA.
  * Muestra el resumen del pago original, deja ajustar el monto y dispara
  * la llamada al gateway via processReturnRefund.

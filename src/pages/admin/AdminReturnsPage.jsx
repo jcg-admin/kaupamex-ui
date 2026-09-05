@@ -1,5 +1,5 @@
 /**
- * AdminReturnsPage — PracticaYoruba
+ * AdminReturnsPage — Kaupamex
  * UC-RET-05: Bandeja de devoluciones pendientes (Admin)
  */
 import { useMemo, useState } from 'react';

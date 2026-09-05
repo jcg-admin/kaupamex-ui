@@ -1,5 +1,5 @@
 /**
- * AdminReturnReviewPanel — PracticaYoruba
+ * AdminReturnReviewPanel — Kaupamex
  * UC-RET-02: panel de revisión (aprobar / rechazar / solicitar información)
  * para solicitudes en estado PENDIENTE_REVISION o PENDIENTE_INFORMACION.
  */

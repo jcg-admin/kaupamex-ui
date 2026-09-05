@@ -1,5 +1,5 @@
 /**
- * fileSaver.js — descarga de blobs en el navegador (PracticaYoruba UI)
+ * fileSaver.js — descarga de blobs en el navegador (Kaupamex UI)
  *
  * Reimplementación nativa del patrón de descarga client-side. Adaptado de
  * `@progress/kno-file-saver` (`dist/es/save-as.js`, función `saveAs` →

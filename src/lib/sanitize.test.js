@@ -1,5 +1,5 @@
 /**
- * Tests — sanitize.js (PracticaYoruba UI)
+ * Tests — sanitize.js (Kaupamex UI)
  *
  * Verifican la política XSS central: DOMPurify corre sobre el jsdom de
  * jest. Aseguran que (a) los scripts se eliminan, (b) la allowlist de

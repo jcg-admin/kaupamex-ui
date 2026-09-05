@@ -1,5 +1,5 @@
 /**
- * ProductDiscountCreateForm — PracticaYoruba
+ * ProductDiscountCreateForm — Kaupamex
  * UC-DASH-01: Crear descuento de producto (Admin)
  *
  * Modal con formulario para crear un ProductDiscount sobre un producto

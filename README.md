@@ -1,4 +1,4 @@
-# PracticaYoruba UI
+# Kaupamex UI
 
 Frontend del e-commerce de productos Yoruba. Construido con React 19 + Redux Toolkit + Webpack 5.
 
@@ -111,8 +111,8 @@ PY_CATALOG_SOURCE=real   # llama al backend
 
 ## Relación con el backend
 
-Este proyecto consume la API REST de `PracticaYoruba-api` (Django 5 + DRF).
-Ver la documentación completa de UCs y endpoints en `PracticaYoruba-doc`.
+Este proyecto consume la API REST de `Kaupamex-api` (Django 5 + DRF).
+Ver la documentación completa de UCs y endpoints en `Kaupamex-doc`.
 
 Los tokens JWT los maneja el backend en **httpOnly cookies** — nunca
 se almacenan en Redux ni en localStorage.

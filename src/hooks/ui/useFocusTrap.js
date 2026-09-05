@@ -1,7 +1,7 @@
 // Portado del prototipo funcional -progress/kno-react-common (codigo propio del ejecutor).
 // Origen: kno-react-common/trappedFocus + constants (FOCUSABLE/TABBABLE_ELEMENTS).
 /**
- * useFocusTrap — PracticaYoruba UI
+ * useFocusTrap — Kaupamex UI
  *
  * Atrapa el foco de teclado dentro de `ref` mientras `enabled=true`, para
  * overlays que NO usan el <dialog> nativo (que ya trae focus trap de fabrica).

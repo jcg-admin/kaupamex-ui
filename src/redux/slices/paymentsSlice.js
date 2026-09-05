@@ -1,5 +1,5 @@
 /**
- * paymentsSlice — PracticaYoruba
+ * paymentsSlice — Kaupamex
  *
  * Pagos: thunks para mutaciones del dominio payments.
  *

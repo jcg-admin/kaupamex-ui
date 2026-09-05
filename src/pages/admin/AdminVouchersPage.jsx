@@ -1,5 +1,5 @@
 /**
- * AdminVouchersPage — PracticaYoruba
+ * AdminVouchersPage — Kaupamex
  * UC-PRO-02: Listar / editar vouchers
  * UC-PRO-03: Desactivar voucher
  */

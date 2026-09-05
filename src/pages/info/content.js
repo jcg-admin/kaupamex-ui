@@ -7,7 +7,7 @@ export const INFO_CONTENT = {
     title: 'Términos y condiciones',
     sections: [
       {
-        body: 'Al realizar una compra en practicayoruba.com aceptas los presentes Términos y Condiciones. Léelos detenidamente antes de confirmar tu pedido.',
+        body: 'Al realizar una compra en kaupamex.com aceptas los presentes Términos y Condiciones. Léelos detenidamente antes de confirmar tu pedido.',
       },
       {
         heading: '1. Objeto',
@@ -23,7 +23,7 @@ export const INFO_CONTENT = {
       },
       {
         heading: '4. Cancelaciones',
-        body: 'Puedes cancelar tu pedido dentro de las 24 horas siguientes a su confirmación, siempre que no haya sido enviado. Para cancelar escribe a hola@practicayoruba.com con tu número de orden.',
+        body: 'Puedes cancelar tu pedido dentro de las 24 horas siguientes a su confirmación, siempre que no haya sido enviado. Para cancelar escribe a hola@kaupamex.com con tu número de orden.',
       },
       {
         heading: '5. Limitación de responsabilidad',
@@ -35,7 +35,7 @@ export const INFO_CONTENT = {
       },
       {
         heading: '7. Contacto',
-        body: 'Para cualquier duda sobre estos términos escribe a hola@practicayoruba.com.',
+        body: 'Para cualquier duda sobre estos términos escribe a hola@kaupamex.com.',
       },
     ],
   },
@@ -60,7 +60,7 @@ export const INFO_CONTENT = {
       },
       {
         heading: 'Derechos ARCO',
-        body: 'Tienes derecho a Acceder, Rectificar, Cancelar u Oponerte al tratamiento de tus datos. Envía tu solicitud a privacidad@practicayoruba.com indicando tu nombre, correo registrado y una copia de tu identificación oficial.',
+        body: 'Tienes derecho a Acceder, Rectificar, Cancelar u Oponerte al tratamiento de tus datos. Envía tu solicitud a privacidad@kaupamex.com indicando tu nombre, correo registrado y una copia de tu identificación oficial.',
       },
       {
         heading: 'Cookies',
@@ -99,7 +99,7 @@ export const INFO_CONTENT = {
       },
       {
         heading: 'Artículos dañados',
-        body: 'Si tu pedido llega dañado, fótografía el embalaje y el artículo antes de abrirlo del todo y escríbenos a hola@practicayoruba.com en las siguientes 48 horas.',
+        body: 'Si tu pedido llega dañado, fótografía el embalaje y el artículo antes de abrirlo del todo y escríbenos a hola@kaupamex.com en las siguientes 48 horas.',
       },
     ],
   },
@@ -138,11 +138,11 @@ export const INFO_CONTENT = {
       },
       {
         heading: '¿Envían fuera de México?',
-        body: 'Actualmente realizamos envíos solo dentro de la República Mexicana. Si estás en otro país, escríbenos a hola@practicayoruba.com para explorar opciones.',
+        body: 'Actualmente realizamos envíos solo dentro de la República Mexicana. Si estás en otro país, escríbenos a hola@kaupamex.com para explorar opciones.',
       },
       {
         heading: '¿Puedo pedir un artículo personalizado?',
-        body: 'Sí para algunos artículos (elekes por orícha, soperas con colores específicos). Envínos los detalles a hola@practicayoruba.com y te cotizamos.',
+        body: 'Sí para algunos artículos (elekes por orícha, soperas con colores específicos). Envínos los detalles a hola@kaupamex.com y te cotizamos.',
       },
       {
         heading: '¿Cómo sigo mi pedido?',
@@ -150,7 +150,7 @@ export const INFO_CONTENT = {
       },
       {
         heading: '¿Qué hago si mi paquete llega dañado?',
-        body: 'Fótografía el embalaje y el artículo antes de abrirlo del todo y escríbenos a hola@practicayoruba.com en las 48 horas siguientes. Te gestionamos el reenvío o reembolso.',
+        body: 'Fótografía el embalaje y el artículo antes de abrirlo del todo y escríbenos a hola@kaupamex.com en las 48 horas siguientes. Te gestionamos el reenvío o reembolso.',
       },
       {
         heading: '¿Puedo devolver un eleke o artecho consagrado?',

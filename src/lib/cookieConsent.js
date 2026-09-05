@@ -1,5 +1,5 @@
 /**
- * cookieConsent — PracticaYoruba
+ * cookieConsent — Kaupamex
  * Lectura/escritura del registro de consentimiento de cookies (LFPDPPP).
  *
  * El consentimiento se guarda en una cookie propia `cookie_consent`

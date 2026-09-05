@@ -1,5 +1,5 @@
 /**
- * NotificationsPage — PracticaYoruba
+ * NotificationsPage — Kaupamex
  * UC-NOT-01..05: Bandeja de notificaciones del comprador.
  *
  * Lectura via React Query (`useNotificationsList`). Mutaciones

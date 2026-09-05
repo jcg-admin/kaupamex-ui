@@ -2,7 +2,7 @@
  * Tests HomePage — landing publico.
  *
  * These tests match the actual HomePage component behavior:
- *   - Hero title is "Para los que practican." (not "practica yoruba")
+ *   - Hero title is "Para los que practican." (not "kaupamex")
  *   - CTA links go to /catalog (not /catalog)
  *   - Orisha links go to /catalog?orisha=<slug> (not /catalog?cat=)
  *   - Featured products come from state.catalog.featured (not state.catalog.products)
@@ -80,7 +80,7 @@ function renderHome(featured = []) {
 describe('HomePage — landing anonima', () => {
   it('renderiza el hero con el titulo principal', () => {
     renderHome();
-    // Hero title is "Para los que practican." (not "practica yoruba")
+    // Hero title is "Para los que practican." (not "kaupamex")
     expect(screen.getByRole('heading', { level: 1 }))
       .toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 }).textContent)

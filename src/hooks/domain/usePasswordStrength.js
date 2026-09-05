@@ -1,5 +1,5 @@
 /**
- * usePasswordStrength -- PracticaYoruba
+ * usePasswordStrength -- Kaupamex
  * Evalua la fortaleza de una contrasena en tiempo real.
  * Usado en: RegisterPage, ResetPasswordPage.
  */

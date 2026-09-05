@@ -1,5 +1,5 @@
 /**
- * SessionBootstrap — PracticaYoruba UI
+ * SessionBootstrap — Kaupamex UI
  *
  * Rehidrata la sesión UNA sola vez al arrancar la app, en cualquier ruta
  * (pública o protegida). Antes `checkAuth` solo se despachaba dentro de

@@ -1,5 +1,5 @@
 /**
- * StorefrontLayout — PracticaYoruba
+ * StorefrontLayout — Kaupamex
  * Layout público: Header + contenido + Footer.
  * Usado por: HomePage, CatalogPage, ProductPage, CartPage.
  */

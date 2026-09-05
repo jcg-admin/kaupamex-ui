@@ -1,5 +1,5 @@
 /**
- * returnsSlice — PracticaYoruba
+ * returnsSlice — Kaupamex
  * Devoluciones: gestion del ciclo completo (comprador + admin).
  *
  *   UC-RET-01 — Solicitar devolucion (Comprador)

@@ -1,5 +1,5 @@
 /**
- * VoucherEditForm — PracticaYoruba
+ * VoucherEditForm — Kaupamex
  * UC-PRO-02: Editar voucher existente (Admin)
  *
  * Fields code + voucher_type are read-only when current_uses > 0

@@ -1,5 +1,5 @@
 /**
- * AppRouter — PracticaYoruba
+ * AppRouter — Kaupamex
  * Rutas de la tienda con lazy loading por página
  */
 

@@ -1,5 +1,5 @@
 /**
- * NonCardPaymentForm — PracticaYoruba
+ * NonCardPaymentForm — Kaupamex
  *
  * Formulario para métodos de pago que no requieren datos de tarjeta:
  * OXXO, SPEI, Paycash, Banamex, Santander, BBVA, Cuenta Mercado Pago.

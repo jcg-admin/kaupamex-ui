@@ -1,5 +1,5 @@
 /**
- * VerifyEmailPage — PracticaYoruba
+ * VerifyEmailPage — Kaupamex
  * UC-AUTH-10: Verifica el email del usuario tras registro.
  *
  * El correo enviado contiene un enlace a /auth/verify-email?token=...
@@ -93,7 +93,7 @@ export default function VerifyEmailPage() {
           </p>
           <p className={styles.hint}>
             ¿No lo ves en unos minutos? Revisa tu carpeta de spam o
-            correo no deseado, y agrega noreply@practicayoruba.com a tus
+            correo no deseado, y agrega noreply@kaupamex.com a tus
             contactos para futuros envíos.
           </p>
           <p className={styles.links}>

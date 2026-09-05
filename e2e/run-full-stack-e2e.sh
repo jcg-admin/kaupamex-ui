@@ -94,7 +94,7 @@ export E2E_PASSWORD="$QA_BUYER_PASSWORD"
 # una sola fuente, igual que el buyer arriba. create_seed_users siembra el
 # admin con ADMIN_EMAIL/ADMIN_PASSWORD (username=email); el spec loguea con
 # E2E_ADMIN_EMAIL/E2E_ADMIN_PASS. Antes NO se alineaban: el seed leía
-# ADMIN_EMAIL del .env (admin@practicayoruba.com) mientras el spec caía a su
+# ADMIN_EMAIL del .env (admin@kaupamex.com) mientras el spec caía a su
 # default testadmin@example.com/Admin1234! → "POST /auth/login 401" y evidencia
 # en estado de error (H-UI-LOG-10). Exportamos ADMIN_* (así create_seed_users
 # los toma de os.environ ANTES del fallback a decouple/.env) y derivamos

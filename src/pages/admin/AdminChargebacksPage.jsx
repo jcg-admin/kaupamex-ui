@@ -1,5 +1,5 @@
 /**
- * AdminChargebacksPage — PracticaYoruba
+ * AdminChargebacksPage — Kaupamex
  * T-17-B: lista de contracargos recibidos via webhook de MercadoPago.
  */
 import { useMemo, useState } from 'react';

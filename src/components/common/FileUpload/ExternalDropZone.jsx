@@ -1,5 +1,5 @@
 /**
- * ExternalDropZone — PracticaYoruba UI
+ * ExternalDropZone — Kaupamex UI
  *
  * Portado nativo del patron de kno-react-upload (ExternalDropZone.js).
  * Atribucion: patron portado de @progress/kno-react-upload.

@@ -1,5 +1,5 @@
 /**
- * Redux Logger Middleware -- PracticaYoruba
+ * Redux Logger Middleware -- Kaupamex
  * Solo activo en development.
  */
 

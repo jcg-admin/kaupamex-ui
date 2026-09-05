@@ -1,5 +1,5 @@
 /**
- * reviewsSlice — PracticaYoruba
+ * reviewsSlice — Kaupamex
  *
  *   UC-REV-01 — Dejar resena de producto comprado (comprador)
  *   UC-REV-02 — Ver resenas aprobadas (publico, hook React Query)

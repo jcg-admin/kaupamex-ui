@@ -1,5 +1,5 @@
 /**
- * Redux Store — PracticaYoruba
+ * Redux Store — Kaupamex
  * Estado centralizado del e-commerce
  *
  * Slices:

@@ -1,5 +1,5 @@
 /**
- * SearchBar — PracticaYoruba
+ * SearchBar — Kaupamex
  * Campo de búsqueda UC-CAT-03 / UC-SRCH-01.
  * Mínimo 2 caracteres para ejecutar búsqueda (FR-CAT-03.02).
  */

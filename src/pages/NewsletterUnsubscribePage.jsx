@@ -1,5 +1,5 @@
 /**
- * NewsletterUnsubscribePage — PracticaYoruba
+ * NewsletterUnsubscribePage — Kaupamex
  * UC-NEW-02: desuscripcion publica del newsletter via token firmado.
  */
 import { useState } from 'react';

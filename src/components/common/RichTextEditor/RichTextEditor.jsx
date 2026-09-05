@@ -1,5 +1,5 @@
 /**
- * RichTextEditor — PracticaYoruba UI (adaptación nativa)
+ * RichTextEditor — Kaupamex UI (adaptación nativa)
  *
  * Editor WYSIWYG mínimo para campos de texto enriquecido (p.ej. "Descripción
  * completa" del producto). Adaptado NATIVO tomando como referencia la

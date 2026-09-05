@@ -1,5 +1,5 @@
 /**
- * AdminWishlistMarketingPage — PracticaYoruba
+ * AdminWishlistMarketingPage — Kaupamex
  * UC-WISH-04 (H-08): productos más deseados por los clientes (marketing).
  *
  * Muestra, por producto, cuántas veces está en listas de deseos y cuántos

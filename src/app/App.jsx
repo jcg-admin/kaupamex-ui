@@ -1,5 +1,5 @@
 /**
- * App — PracticaYoruba UI
+ * App — Kaupamex UI
  * Componente raíz. Single Responsibility: renderizar el router con providers.
  */
 
@@ -21,7 +21,7 @@ function LoadingFallback() {
           border: '3px solid #E8E0D5', borderTopColor: '#B8860B',
           animation: 'spin 0.8s linear infinite', margin: '0 auto 16px',
         }} />
-        <p style={{ color: '#9C8A7A', fontSize: 14 }}>Cargando PracticaYoruba...</p>
+        <p style={{ color: '#9C8A7A', fontSize: 14 }}>Cargando Kaupamex...</p>
       </div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>

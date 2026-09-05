@@ -1,5 +1,5 @@
 /**
- * referralSlice — PracticaYoruba
+ * referralSlice — Kaupamex
  * Programa de referidos de la cuenta del comprador.
  *
  * Endpoints (backend api@24245e8):

@@ -11,7 +11,7 @@
 // (onChange recibe `{ value }`, onFilterChange recibe `{ filter: { value } }`).
 // Los consumidores se escriben contra este contrato, no al revés.
 /**
- * ComboBox — PracticaYoruba UI
+ * ComboBox — Kaupamex UI
  *
  * Selector editable con lista desplegable filtrable. A diferencia de
  * Autocomplete (búsqueda de texto libre), el ComboBox está anclado a una

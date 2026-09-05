@@ -1,5 +1,5 @@
 /**
- * PaymentSelectionPage — PracticaYoruba
+ * PaymentSelectionPage — Kaupamex
  *   UC-PAY-01-V2 — MercadoPago Checkout API (CardForm + métodos no-tarjeta)
  *   UC-PAY-13    — Métodos no-tarjeta: OXXO, SPEI, Paycash, cajeros, Cuenta MP
  *

@@ -1,5 +1,5 @@
 /**
- * useKeyboardShortcut — PracticaYoruba UI
+ * useKeyboardShortcut — Kaupamex UI
  *
  * Registra un atajo de teclado y llama `handler` cuando coincide la
  * combinacion (tecla + modificadores ctrl/meta/shift/alt).

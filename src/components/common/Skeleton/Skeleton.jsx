@@ -3,7 +3,7 @@
 // la idea (placeholder con animación "wave"/pulse + variantes text/rect/circle)
 // y se reescribe en un componente CSS-module propio.
 /**
- * Skeleton — PracticaYoruba
+ * Skeleton — Kaupamex
  * Placeholder de carga (shimmer) mientras un contenido se resuelve.
  *
  * @param {'text'|'rect'|'circle'} variant — forma del placeholder (default 'text').

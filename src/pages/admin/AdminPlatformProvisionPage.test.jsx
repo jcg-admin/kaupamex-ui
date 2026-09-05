@@ -20,7 +20,7 @@ import AdminPlatformProvisionPage from './AdminPlatformProvisionPage';
 const BASE = process.env.API_URL || 'http://localhost:8000';
 
 const COMPANIES = [
-  { id: 1, code: 'practicayoruba', name: 'Zapatería UNO', status: 'active', active_modules: ['catalogue'], user_count: 3 },
+  { id: 1, code: 'kaupamex', name: 'Zapatería UNO', status: 'active', active_modules: ['catalogue'], user_count: 3 },
 ];
 const MODULES = [
   { id: 10, code: 'catalogue', name: 'Ecommerce', is_application: true, tier: 'free', category: 'Order Management', version: '1.0', description: '', depends: [], is_active: true },
@@ -29,7 +29,7 @@ const MODULES = [
   { id: 99, code: 'platform', name: 'Plataforma', is_application: false, tier: 'free', category: 'Platform', version: '1.0', description: '', depends: [], is_active: true },
 ];
 const SUBS = [
-  { id: 500, company: 1, company_code: 'practicayoruba', module: 10, module_code: 'catalogue', status: 'active', started_at: null, expires_at: null, billing_cycle: 'monthly', price: null, is_active: true, created_at: null },
+  { id: 500, company: 1, company_code: 'kaupamex', module: 10, module_code: 'catalogue', status: 'active', started_at: null, expires_at: null, billing_cycle: 'monthly', price: null, is_active: true, created_at: null },
 ];
 
 function wrap() {

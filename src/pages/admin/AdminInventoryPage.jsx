@@ -1,5 +1,5 @@
 /**
- * AdminInventoryPage — PracticaYoruba
+ * AdminInventoryPage — Kaupamex
  * UC-INV-01: Ver stock actual de productos
  * H-CICLO104-06: Agregar controles de paginacion. La API de InventoryDashboardView
  * devuelve pagination.{page,total_pages,page_size,total} pero el componente

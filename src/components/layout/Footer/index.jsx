@@ -86,7 +86,7 @@ export default function Footer() {
           <address className={styles.brandMeta}>
             <div>Atención en línea</div>
             <div>Lunes a viernes · 10:00 — 19:00</div>
-            <div>hola@practicayoruba.com</div>
+            <div>hola@kaupamex.com</div>
           </address>
         </div>
 
@@ -111,7 +111,7 @@ export default function Footer() {
 
       <div className={styles.bottom}>
         <div className={styles.bottomInner}>
-          <span>© {new Date().getFullYear()} Práctica Yorùbà · practicayoruba.com</span>
+          <span>© {new Date().getFullYear()} Práctica Yorùbà · kaupamex.com</span>
           <button
             type="button"
             className={styles.cookiePrefs}

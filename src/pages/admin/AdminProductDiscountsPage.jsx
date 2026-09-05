@@ -1,5 +1,5 @@
 /**
- * AdminProductDiscountsPage — PracticaYoruba
+ * AdminProductDiscountsPage — Kaupamex
  * UC-DASH-04: Ver descuentos activos del catalogo
  *
  * Lista todos los ProductDiscount con is_active=True, clasificados por

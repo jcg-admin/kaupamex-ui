@@ -1,5 +1,5 @@
 /**
- * Constantes globales — PracticaYoruba
+ * Constantes globales — Kaupamex
  */
 
 // API endpoints base — resolved from the build-time env var; no hardcoded host

@@ -1,5 +1,5 @@
 /**
- * Admin Slice — PracticaYoruba
+ * Admin Slice — Kaupamex
  * Gestión de usuarios desde el panel admin.
  *
  * Sprint 4:

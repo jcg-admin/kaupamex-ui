@@ -1,7 +1,7 @@
 // Portado del prototipo funcional -progress/kno-react-common (codigo propio del ejecutor).
 // Origen: -progress/kno-react-common/classNames.mjs (util classNames)
 /**
- * cx — PracticaYoruba UI
+ * cx — Kaupamex UI
  *
  * Concatena clases condicionalmente (equivalente nativo a la util classNames de
  * kno-react-common / al paquete `classnames`). Acepta strings, números, arrays

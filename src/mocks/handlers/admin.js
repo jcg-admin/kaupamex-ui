@@ -68,8 +68,8 @@ const mockAuditLog = [
 ];
 
 const mockSettings = {
-  site_name: 'PracticaYoruba',
-  contact_email: 'hola@practicayoruba.com',
+  site_name: 'Kaupamex',
+  contact_email: 'hola@kaupamex.com',
   currency: 'USD',
   tax_rate: '0.00',
   maintenance_mode: false,

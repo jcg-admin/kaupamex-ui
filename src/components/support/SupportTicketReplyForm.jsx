@@ -1,5 +1,5 @@
 /**
- * SupportTicketReplyForm — PracticaYoruba
+ * SupportTicketReplyForm — Kaupamex
  * UC-SUPP-03: Responder al ticket de soporte.
  *
  * - El comprador añade información a su propio ticket.

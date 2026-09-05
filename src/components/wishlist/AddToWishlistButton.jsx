@@ -1,5 +1,5 @@
 /**
- * AddToWishlistButton — PracticaYoruba
+ * AddToWishlistButton — Kaupamex
  * UC-WISH-01: Agregar producto a la lista de deseos.
  *
  * Mostrado en la ficha de producto (ProductPage). Si el usuario no esta

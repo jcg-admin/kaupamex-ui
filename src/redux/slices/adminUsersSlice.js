@@ -1,5 +1,5 @@
 /**
- * adminUsersSlice — PracticaYoruba
+ * adminUsersSlice — Kaupamex
  *
  * Mutaciones admin sobre usuarios. UC-ADM-01.
  *

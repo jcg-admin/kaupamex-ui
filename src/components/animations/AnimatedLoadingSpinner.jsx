@@ -1,5 +1,5 @@
 /**
- * AnimatedLoadingSpinner -- PracticaYoruba
+ * AnimatedLoadingSpinner -- Kaupamex
  * Spinner con animacion para estados de carga inline.
  *
  * Consolidado sobre el primitivo nativo `Loader` (kno-react-indicators,

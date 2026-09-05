@@ -1,6 +1,6 @@
 /**
  * Tests — cartSlice reducer
- * PracticaYoruba UI
+ * Kaupamex UI
  */
 
 import cartReducer, {

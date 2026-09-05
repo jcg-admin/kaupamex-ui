@@ -1,5 +1,5 @@
 /**
- * notificationsSlice — PracticaYoruba
+ * notificationsSlice — Kaupamex
  * Notificaciones del comprador y administrador.
  *
  *   UC-NOT-06 — Gestionar preferencias de notificacion

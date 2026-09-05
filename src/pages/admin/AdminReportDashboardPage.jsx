@@ -1,5 +1,5 @@
 /**
- * AdminReportDashboardPage — PracticaYoruba
+ * AdminReportDashboardPage — Kaupamex
  * UC-REP-03: Dashboard analitico — vista consolidada del negocio.
  *
  * Sin filtros: muestra KPIs del dia, tendencia ultimos 30 dias,

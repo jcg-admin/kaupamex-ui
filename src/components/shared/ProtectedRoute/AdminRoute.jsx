@@ -1,5 +1,5 @@
 /**
- * AdminRoute — PracticaYoruba
+ * AdminRoute — Kaupamex
  * Solo usuarios con is_staff = true. Verifica sesión con /api/v2/auth/me/
  * en el primer montaje para sobrevivir recargas de página.
  */

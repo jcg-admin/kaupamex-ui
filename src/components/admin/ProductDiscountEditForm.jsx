@@ -1,5 +1,5 @@
 /**
- * ProductDiscountEditForm — PracticaYoruba
+ * ProductDiscountEditForm — Kaupamex
  * UC-DASH-02: Editar descuento de producto (Admin)
  *
  * Permite modificar discount_pct, valid_from y valid_until de un

@@ -1,5 +1,5 @@
 /**
- * newsletterSlice — PracticaYoruba
+ * newsletterSlice — Kaupamex
  *
  *   UC-NEW-01 — Suscribirse al newsletter (visitante)
  *   UC-NEW-02 — Desuscribirse (sin auth, via token)

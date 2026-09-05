@@ -1,5 +1,5 @@
 /**
- * GlobalErrorNotifier — PracticaYoruba UI
+ * GlobalErrorNotifier — Kaupamex UI
  *
  * Cierra un hueco: ``errorSlice.globalError`` lo escribia el
  * ``errorHandlingMiddleware`` para errores sin contexto (500, red), pero

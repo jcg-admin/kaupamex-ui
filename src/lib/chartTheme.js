@@ -1,5 +1,5 @@
 /**
- * chartTheme.js — config compartida de recharts (PracticaYoruba UI)
+ * chartTheme.js — config compartida de recharts (Kaupamex UI)
  *
  * Extrae la configuración que estaba inline en RevenueTrendChart.jsx
  * (colores de serie, defaults de ejes, grid, márgenes) a un único lugar

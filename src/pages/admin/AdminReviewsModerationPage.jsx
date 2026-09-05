@@ -1,5 +1,5 @@
 /**
- * AdminReviewsModerationPage — PracticaYoruba
+ * AdminReviewsModerationPage — Kaupamex
  * UC-REV-03: cola admin de resenas en estado PENDING_MODERATION.
  *
  * Cada item se puede aprobar (publica en UC-REV-02) o rechazar con

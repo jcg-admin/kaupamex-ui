@@ -1,5 +1,5 @@
 /**
- * AdminProductForm — PracticaYoruba
+ * AdminProductForm — Kaupamex
  *
  * Formulario compartido entre UC-CAT-09 (Crear) y UC-CAT-10 (Editar)
  * para productos del catalogo Yoruba. Los nombres pueden contener

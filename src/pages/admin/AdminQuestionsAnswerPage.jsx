@@ -1,5 +1,5 @@
 /**
- * AdminQuestionsAnswerPage — PracticaYoruba
+ * AdminQuestionsAnswerPage — Kaupamex
  * UC-QST-03: el admin responde las preguntas aprobadas.
  */
 import { useState } from 'react';

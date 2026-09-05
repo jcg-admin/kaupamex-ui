@@ -1,5 +1,5 @@
 /**
- * AdminInventoryMovementsPage — PracticaYoruba
+ * AdminInventoryMovementsPage — Kaupamex
  * UC-INV-02: Movimientos tipo SALE (decremento por venta).
  * UC-INV-03: Movimientos tipo CANCELLATION (restauración por cancelación).
  * Tambien expone movimientos MANUAL (UC-INV-04) para auditoria completa.

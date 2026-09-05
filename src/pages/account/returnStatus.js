@@ -1,5 +1,5 @@
 /**
- * returnStatus — PracticaYoruba
+ * returnStatus — Kaupamex
  * Etiquetas y clases compartidas para los estados de ReturnRequest.
  */
 

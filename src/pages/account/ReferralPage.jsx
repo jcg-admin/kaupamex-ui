@@ -1,5 +1,5 @@
 /**
- * ReferralPage — PracticaYoruba
+ * ReferralPage — Kaupamex
  * Programa de referidos de la cuenta del comprador.
  *
  * Muestra el codigo de referido + enlace para compartir (copiar al

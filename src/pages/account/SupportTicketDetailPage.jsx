@@ -1,5 +1,5 @@
 /**
- * SupportTicketDetailPage — PracticaYoruba
+ * SupportTicketDetailPage — Kaupamex
  * UC-SUPP-02: Detalle del ticket con historial de conversacion.
  */
 import { useEffect } from 'react';

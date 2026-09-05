@@ -1,5 +1,5 @@
 /**
- * ReturnCreatePage — PracticaYoruba
+ * ReturnCreatePage — Kaupamex
  * UC-RET-01: Solicitar devolucion (Comprador)
  */
 import { useEffect, useState } from 'react';

@@ -1,5 +1,5 @@
 /**
- * Mock Interceptor — PracticaYoruba
+ * Mock Interceptor — Kaupamex
  *
  * Intercepta requests HTTP y retorna datos mock cuando
  * el feature flag correspondiente está en 'mock'.
@@ -135,7 +135,7 @@ class MockInterceptor {
       return this._ok({ user: this._mockUser(1, false, 'testbuyer@example.com') });
     }
     const isAdmin =
-      (body.username === 'admin@practicayoruba.com' || body.username === 'testadmin@example.com') &&
+      (body.username === 'admin@kaupamex.com' || body.username === 'testadmin@example.com') &&
       body.password === 'Admin1234!';
     if (isAdmin) {
       try { window.localStorage.setItem('_mock_auth_type', 'admin'); } catch { /* localStorage no disponible en el entorno de test */ }

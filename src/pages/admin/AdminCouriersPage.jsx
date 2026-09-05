@@ -1,5 +1,5 @@
 /**
- * AdminCouriersPage — PracticaYoruba (UC-LOG-01 soporte)
+ * AdminCouriersPage — Kaupamex (UC-LOG-01 soporte)
  *
  * Gestión del catálogo de paqueterías (couriers) que alimenta el selector de
  * creación de guías. Lista, crea, reactiva y desactiva couriers vía el CRUD

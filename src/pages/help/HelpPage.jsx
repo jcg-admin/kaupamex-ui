@@ -64,7 +64,7 @@ export default function HelpPage() {
                 <Link to="/contact">Formulario de contacto</Link>
               </li>
               <li>
-                <a href="mailto:hola@practicayoruba.com">hola@practicayoruba.com</a>
+                <a href="mailto:hola@kaupamex.com">hola@kaupamex.com</a>
               </li>
               <li>
                 <Link to="/support/tickets/new">Abrir un ticket de soporte</Link>

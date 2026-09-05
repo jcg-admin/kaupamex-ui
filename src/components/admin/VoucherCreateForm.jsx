@@ -1,5 +1,5 @@
 /**
- * VoucherCreateForm — PracticaYoruba
+ * VoucherCreateForm — Kaupamex
  * UC-PRO-01: Crear voucher / cupon (Admin)
  *
  * Modal con formulario para crear un cupon de descuento.

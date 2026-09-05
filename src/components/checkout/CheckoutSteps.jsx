@@ -1,5 +1,5 @@
 /**
- * CheckoutSteps — PracticaYoruba
+ * CheckoutSteps — Kaupamex
  * Tira de progreso del checkout (5 pasos del mockup 1.0.1): Bolsa · Contacto ·
  * Envío · Pago · Revisar.
  *

@@ -1,5 +1,5 @@
 /**
- * ReturnDetailPage — PracticaYoruba
+ * ReturnDetailPage — Kaupamex
  * UC-RET-04: Detalle del estado de la devolucion del comprador.
  *
  * Lectura via React Query (`useReturn`). Las mutaciones permanecen

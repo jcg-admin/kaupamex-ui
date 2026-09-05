@@ -1,5 +1,5 @@
 /**
- * Mock barrel — PracticaYoruba
+ * Mock barrel — Kaupamex
  *
  * Production guard: throws immediately if this barrel is imported
  * in a production build. Webpack's DefinePlugin replaces

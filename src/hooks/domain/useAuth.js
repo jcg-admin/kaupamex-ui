@@ -1,5 +1,5 @@
 /**
- * useAuth — PracticaYoruba
+ * useAuth — Kaupamex
  * Hook de autenticación. Combina Redux auth + acciones.
  */
 

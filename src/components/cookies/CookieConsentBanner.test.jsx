@@ -1,5 +1,5 @@
 /**
- * Tests — CookieConsentBanner (PracticaYoruba UI)
+ * Tests — CookieConsentBanner (Kaupamex UI)
  *
  * Verifican la Capa 1: el banner aparece cuando falta consentimiento, ofrece
  * Aceptar/Rechazar con igual prominencia y enlace al aviso, y que cada accion

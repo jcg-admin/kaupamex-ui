@@ -1,5 +1,5 @@
 /**
- * csvExporter.js — PracticaYoruba UI
+ * csvExporter.js — Kaupamex UI
  *
  * Exportación client-side de arrays a CSV con descarga inmediata.
  * Reimplementación nativa del patrón de @progress/kno-csv (dist/es/csv.js):

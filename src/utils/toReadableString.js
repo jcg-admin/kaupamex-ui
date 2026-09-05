@@ -1,5 +1,5 @@
 /**
- * toReadableString — PracticaYoruba
+ * toReadableString — Kaupamex
  *
  * Coerción DEFENSIVA de un valor arbitrario a un string legible para el
  * usuario. Cierra la regresión donde un `message` que NO es string (p.ej. un

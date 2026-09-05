@@ -4,7 +4,7 @@
 // maquinaria @progress/kno-draggable-common (pointer events + autoscroll), que
 // arrastraria un subsistema entero; para reordenar una lista el DnD nativo basta.
 /**
- * useSortableList — PracticaYoruba UI
+ * useSortableList — Kaupamex UI
  *
  * Reordenamiento de una lista por arrastre (HTML5 DnD) + teclado. Se pasa la
  * longitud y un callback `onReorder(from, to)`; el hook devuelve

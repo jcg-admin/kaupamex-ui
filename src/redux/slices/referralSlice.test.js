@@ -45,7 +45,7 @@ describe('referralSlice — fetchReferral', () => {
       http.get(`${BASE}/api/v2/account/referral/`, () =>
         HttpResponse.json({
           code:                'YORUBA-42',
-          share_link:          'https://practicayoruba.test/r/YORUBA-42',
+          share_link:          'https://kaupamex.test/r/YORUBA-42',
           total_referrals:     5,
           completed_referrals: 3,
           rewards_earned:      150,
@@ -57,7 +57,7 @@ describe('referralSlice — fetchReferral', () => {
     const { referral } = store.getState();
 
     expect(referral.code).toBe('YORUBA-42');
-    expect(referral.shareLink).toBe('https://practicayoruba.test/r/YORUBA-42');
+    expect(referral.shareLink).toBe('https://kaupamex.test/r/YORUBA-42');
     expect(referral.totalReferrals).toBe(5);
     expect(referral.completedReferrals).toBe(3);
     expect(referral.rewardsEarned).toBe(150);

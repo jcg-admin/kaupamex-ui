@@ -1,5 +1,5 @@
 /**
- * Returns mock interceptor — PracticaYoruba (D-007).
+ * Returns mock interceptor — Kaupamex (D-007).
  *
  * Cubre UC-RET-01..06 sobre los endpoints:
  *   /api/v2/return-requests/             (comprador: listar, detalle, crear)

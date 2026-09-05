@@ -1,5 +1,5 @@
 /**
- * FileUpload — PracticaYoruba UI
+ * FileUpload — Kaupamex UI
  *
  * Portado nativo del patron de kno-react-upload (Upload.js).
  * Atribucion: patron portado de @progress/kno-react-upload.

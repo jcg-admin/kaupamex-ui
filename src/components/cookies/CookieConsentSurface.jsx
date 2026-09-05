@@ -1,5 +1,5 @@
 /**
- * CookieConsentSurface — PracticaYoruba
+ * CookieConsentSurface — Kaupamex
  *
  * Monta la UI de consentimiento de cookies (banner no-modal + modal de
  * preferencias) dentro del árbol de rutas, para poder ocultarla en el panel

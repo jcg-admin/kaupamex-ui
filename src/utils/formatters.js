@@ -1,5 +1,5 @@
 /**
- * Formatters — PracticaYoruba
+ * Formatters — Kaupamex
  * Funciones utilitarias de formateo para el e-commerce
  */
 

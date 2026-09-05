@@ -1,5 +1,5 @@
 /**
- * RevenueTrendChart — PracticaYoruba UI
+ * RevenueTrendChart — Kaupamex UI
  *
  * Grafico de linea de la tendencia de ingresos/ordenes del periodo,
  * construido con recharts. Complementa (no reemplaza) la tabla de la

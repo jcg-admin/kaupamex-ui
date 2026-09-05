@@ -1,5 +1,5 @@
 /**
- * VariantSelector — PracticaYoruba
+ * VariantSelector — Kaupamex
  * UC-CHT-01: Selector visual de variantes (Tamano/Presentacion/Material) del
  * producto Yoruba. Muestra nombre, precio y disponibilidad. Marca la variante
  * seleccionada via aria-pressed y deshabilita las que no tienen stock.

@@ -1,5 +1,5 @@
 /**
- * useFloating — PracticaYoruba UI
+ * useFloating — Kaupamex UI
  *
  * Posiciona un elemento flotante (dropdown, popover, tooltip) respecto de
  * un elemento de referencia. Aplica los defaults del proyecto: placement

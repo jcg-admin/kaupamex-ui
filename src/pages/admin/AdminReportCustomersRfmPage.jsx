@@ -1,5 +1,5 @@
 /**
- * AdminReportCustomersRfmPage — PracticaYoruba
+ * AdminReportCustomersRfmPage — Kaupamex
  * UC-REP-04: Reporte de clientes con segmentacion RFM.
  * UC-REP-05: Exportar a CSV/PDF.
  */

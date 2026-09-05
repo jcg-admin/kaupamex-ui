@@ -1,5 +1,5 @@
 /**
- * authCartListener — PracticaYoruba (CR-1/CR-2, ADR-018 hotfix)
+ * authCartListener — Kaupamex (CR-1/CR-2, ADR-018 hotfix)
  *
  * Al iniciar sesion (``loginUser.fulfilled``), fusiona el carrito anonimo
  * (``X-Cart-Token``) en la cuenta y recarga el carrito del usuario. Se hace de

@@ -1,7 +1,7 @@
 // Portado del prototipo funcional -progress/kno-react-common (codigo propio del ejecutor).
 // Origen: kno-react-common/hooks/useDir.mjs
 /**
- * useDir — PracticaYoruba UI
+ * useDir — Kaupamex UI
  *
  * Resuelve la dirección de escritura (`ltr` / `rtl`) de un elemento leyendo su
  * estilo computado. Si `initial` viene dado, no recalcula. Útil para componentes

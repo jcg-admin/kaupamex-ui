@@ -1,5 +1,5 @@
 /**
- * AdminVariantPricePage — PracticaYoruba
+ * AdminVariantPricePage — Kaupamex
  * UC-CHT-04: Configurar precio diferenciado por variante (Admin).
  *
  * El admin asigna un precio especifico a la variante. Valida que sea

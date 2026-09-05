@@ -1,5 +1,5 @@
 /**
- * Tests — useFloating (PracticaYoruba UI)
+ * Tests — useFloating (Kaupamex UI)
  *
  * Adaptado de template-ecommerce-ui. El template usa @floating-ui/react;
  * esta version es nativa (getBoundingClientRect) y expone el mismo

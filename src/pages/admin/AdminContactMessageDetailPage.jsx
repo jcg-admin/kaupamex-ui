@@ -1,5 +1,5 @@
 /**
- * AdminContactMessageDetailPage — PracticaYoruba
+ * AdminContactMessageDetailPage — Kaupamex
  * UC-COM-03: detalle del mensaje + responder al remitente.
  */
 import { useState, useEffect } from 'react';
